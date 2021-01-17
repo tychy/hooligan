@@ -1,0 +1,7 @@
+version: "3"
+services:
+  hooligan:
+    build:.
+    volumes:
+    - ./:/hooligan
+
