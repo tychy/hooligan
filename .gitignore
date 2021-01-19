@@ -1,2 +1,4 @@
+tmp
 *.o
-a.out
+*.out
+*.s
