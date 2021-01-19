@@ -1,0 +1,20 @@
+name: c CI
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+jobs:
+  test:
+    name: test compiler
+    runs-on: ubuntu-latest
+    steps:
+      - name: test main
+        env:
+          CC: cc
+        run: make test
+            
+
