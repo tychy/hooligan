@@ -15,6 +15,7 @@ jobs:
       - name: test main
         env:
           CC: cc
-        run: make test
+        run: |
+          make test
             
 
