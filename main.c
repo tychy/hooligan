@@ -87,7 +87,7 @@ Token *tokenize(char *p)
 
         if (*p == '+' || *p == '-')
         {
-            cur = new_token(TK_OPERATOR, cur, p++); // TODO なぜp++？
+            cur = new_token(TK_OPERATOR, cur, p++);
             continue;
         }
 
