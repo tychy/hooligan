@@ -21,6 +21,8 @@ assert 0 0
 assert 42 42
 assert 22 "5+21-4"
 assert 131 "50+121-40"
+assert 131 "50    +   121-40"
+assert 41 " 12 + 34 - 5 "
 
 rm tmp
 rm tmp.s
