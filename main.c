@@ -103,6 +103,88 @@ Token *tokenize(char *p)
     new_token(TK_EOF, cur, p);
     return head.next;
 }
+typedef enum
+{
+    ND_NUM,
+    ND_ADD,
+    ND_SUB,
+} NodeKind;
+
+typedef struct Node Node;
+
+struct Node
+{
+    NodeKind kind;
+    Node *lhs;
+    Node *rhs;
+    int val;
+};
+
+Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = kind;
+    node->lhs = lhs;
+    node->rhs = rhs;
+    return node;
+}
+
+Node *new_node_num(int val)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_NUM;
+    node->val = val;
+    return node;
+}
+
+Node *expr()
+{
+    Node *node = new_node_num(expect_number());
+    for (;;)
+    {
+        if (consume('+'))
+        {
+            node = new_node(ND_ADD, node, new_node_num(expect_number()));
+        }
+        else if (consume('-'))
+        {
+            node = new_node(ND_SUB, node, new_node_num(expect_number()));
+        }
+        else
+        {
+            return node;
+        }
+    }
+}
+
+void gen(Node *node)
+{
+    //lhs-> kind ==ND_NUM
+    //rhs-> kind ==ND_NUM
+    if (node->kind == ND_NUM)
+    {
+        printf("  push %d\n", node->val);
+        return;
+    }
+    else if (node->kind == ND_ADD)
+    {
+        gen(node->lhs);
+        gen(node->rhs);
+        printf("  pop rdi\n");
+        printf("  pop rax\n");
+        printf("  add rax, rdi\n");
+        printf("  push rax\n");
+    }
+    else
+    {
+        gen(node->lhs);
+        gen(node->rhs);
+        printf("  pop rdi\n");
+        printf("  pop rax\n");
+        printf("  sub rax, rdi\n");
+        printf("  push rax\n");
+    }
+}
 
 int main(int argc, char **argv)
 {
@@ -117,19 +199,9 @@ int main(int argc, char **argv)
     printf(".intel_syntax noprefix\n");
     printf(".globl main\n");
     printf("main:\n");
-    printf("  mov rax, %d\n", expect_number());
-
-    while (!at_eof())
-    {
-        if (consume('+'))
-        {
-            printf("  add rax, %d\n", expect_number());
-            continue;
-        }
-
-        expect('-');
-        printf("  sub rax, %d\n", expect_number());
-    }
+    Node *node = expr();
+    gen(node);
+    printf("  pop rax\n");
     printf("  ret\n");
     return 0;
 }
