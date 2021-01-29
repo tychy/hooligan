@@ -212,7 +212,7 @@ void gen(Node *node)
     case ND_MUL:
         printf("  pop rdi\n");
         printf("  pop rax\n");
-        printf("  mul rdi\n");
+        printf("  imul rax, rdi\n");
         printf("  push rax\n");
         break;
     case ND_DIV:
