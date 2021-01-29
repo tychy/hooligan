@@ -23,6 +23,12 @@ assert 22 "5+21-4"
 assert 131 "50+121-40"
 assert 131 "50    +   121-40"
 assert 41 " 12 + 34 - 5 "
+assert 10 "2 * 5"
+assert 42 "7 * 2 * 3"
+assert 13 "1 + 3 * 4"
+assert 6 "5 - 2 * 3 + 7"
+assert 37 "4 * 5 * 2 + 6 * 7 - 5 * 9"
+assert 5 "5*1*1*1*1*1*1*1*1*1"
 
 rm tmp
 rm tmp.s
