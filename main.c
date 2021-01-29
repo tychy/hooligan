@@ -85,7 +85,7 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (*p == '+' || *p == '-' || *p == '*' || *p == '/')
+        if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')')
         {
             cur = new_token(TK_OPERATOR, cur, p++);
             continue;
@@ -122,6 +122,8 @@ struct Node
     int val;
 };
 
+Node *expr();
+
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
     Node *node = calloc(1, sizeof(Node));
@@ -144,18 +146,32 @@ Node *num()
     return new_node_num(expect_number());
 }
 
+Node *primary()
+{
+    if (consume('('))
+    {
+        Node *node = expr();
+        expect(')');
+        return node;
+    }
+    else
+    {
+        return num();
+    }
+}
+
 Node *mul()
 {
-    Node *node = num();
+    Node *node = primary();
     for (;;)
     {
         if (consume('*'))
         {
-            node = new_node(ND_MUL, node, num());
+            node = new_node(ND_MUL, node, primary());
         }
         else if (consume('/'))
         {
-            node = new_node(ND_DIV, node, num());
+            node = new_node(ND_DIV, node, primary());
         }
         else
         {
