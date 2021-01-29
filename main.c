@@ -85,7 +85,7 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (*p == '+' || *p == '-')
+        if (*p == '+' || *p == '-' || *p == '*')
         {
             cur = new_token(TK_OPERATOR, cur, p++);
             continue;
@@ -108,6 +108,7 @@ typedef enum
     ND_NUM,
     ND_ADD,
     ND_SUB,
+    ND_MUL,
 } NodeKind;
 
 typedef struct Node Node;
@@ -159,29 +160,33 @@ Node *expr()
 
 void gen(Node *node)
 {
-    //lhs-> kind ==ND_NUM
-    //rhs-> kind ==ND_NUM
     if (node->kind == ND_NUM)
     {
         printf("  push %d\n", node->val);
         return;
     }
-    else if (node->kind == ND_ADD)
+
+    gen(node->lhs);
+    gen(node->rhs);
+
+    switch (node->kind)
     {
-        gen(node->lhs);
-        gen(node->rhs);
+    case ND_ADD:
         printf("  pop rdi\n");
         printf("  pop rax\n");
         printf("  add rax, rdi\n");
         printf("  push rax\n");
-    }
-    else
-    {
-        gen(node->lhs);
-        gen(node->rhs);
+        break;
+    case ND_SUB:
         printf("  pop rdi\n");
         printf("  pop rax\n");
         printf("  sub rax, rdi\n");
+        printf("  push rax\n");
+        break;
+    case ND_MUL:
+        printf("  pop rdi\n");
+        printf("  pop rax\n");
+        printf("  mul rax, rdi\n");
         printf("  push rax\n");
     }
 }
