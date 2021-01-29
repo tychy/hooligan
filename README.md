@@ -4,4 +4,5 @@
 
 https://www.sigbus.info/compilerbook
 
-# 
+## テストコマンド
+`docker-compose run hooligan make test`
