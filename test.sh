@@ -32,6 +32,10 @@ assert 5 "5*1*1*1*1*1*1*1*1*1"
 assert 2 "8 / 4"
 assert 5 "60 / 11"
 assert 6 "18 / 6 + 1 * 3"
+assert 47 "5+6*7"
+assert 15 "5*(9-6)"
+assert 4 "(3+5)/2"
+assert 32 "( 4 * 9) - (6 * 5) / 7"
 
 rm tmp
 rm tmp.s
