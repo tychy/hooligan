@@ -138,18 +138,23 @@ Node *new_node_num(int val)
     return node;
 }
 
+Node *num()
+{
+    return new_node_num(expect_number());
+}
+
 Node *expr()
 {
-    Node *node = new_node_num(expect_number());
+    Node *node = num();
     for (;;)
     {
         if (consume('+'))
         {
-            node = new_node(ND_ADD, node, new_node_num(expect_number()));
+            node = new_node(ND_ADD, node, num());
         }
         else if (consume('-'))
         {
-            node = new_node(ND_SUB, node, new_node_num(expect_number()));
+            node = new_node(ND_SUB, node, num());
         }
         else
         {
