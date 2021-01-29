@@ -85,7 +85,7 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (*p == '+' || *p == '-' || *p == '*')
+        if (*p == '+' || *p == '-' || *p == '*' || *p == '/')
         {
             cur = new_token(TK_OPERATOR, cur, p++);
             continue;
@@ -109,6 +109,7 @@ typedef enum
     ND_ADD,
     ND_SUB,
     ND_MUL,
+    ND_DIV
 } NodeKind;
 
 typedef struct Node Node;
@@ -151,6 +152,10 @@ Node *mul()
         if (consume('*'))
         {
             node = new_node(ND_MUL, node, num());
+        }
+        else if (consume('/'))
+        {
+            node = new_node(ND_DIV, node, num());
         }
         else
         {
@@ -209,6 +214,14 @@ void gen(Node *node)
         printf("  pop rax\n");
         printf("  mul rdi\n");
         printf("  push rax\n");
+        break;
+    case ND_DIV:
+        printf("  pop rdi\n");
+        printf("  pop rax\n");
+        printf("  cqo\n");
+        printf("  idiv rdi\n");
+        printf("  push rax\n");
+        break;
     }
 }
 
