@@ -143,18 +143,34 @@ Node *num()
     return new_node_num(expect_number());
 }
 
-Node *expr()
+Node *mul()
 {
     Node *node = num();
     for (;;)
     {
+        if (consume('*'))
+        {
+            node = new_node(ND_MUL, node, num());
+        }
+        else
+        {
+            return node;
+        }
+    }
+}
+
+Node *expr()
+{
+    Node *node = mul();
+    for (;;)
+    {
         if (consume('+'))
         {
-            node = new_node(ND_ADD, node, num());
+            node = new_node(ND_ADD, node, mul());
         }
         else if (consume('-'))
         {
-            node = new_node(ND_SUB, node, num());
+            node = new_node(ND_SUB, node, mul());
         }
         else
         {
