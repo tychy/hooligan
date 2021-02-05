@@ -53,6 +53,7 @@ struct Node
     Node *lhs;
     Node *rhs;
     int val;
+    int length;
 };
 
 Node *expr();
