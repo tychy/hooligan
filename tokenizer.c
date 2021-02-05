@@ -11,7 +11,7 @@ char *token_list[6] = {
     ")",
 };
 
-char *token_list_count = sizeof(token_list) / sizeof(token_list[0]);
+int token_list_count = sizeof(token_list) / sizeof(token_list[0]);
 
 void error(char *fmt, ...)
 {
@@ -65,7 +65,7 @@ bool istoken(char *p)
     for (int i = 0; i < token_list_count; i++)
     {
         char *str = token_list[i];
-        if (strncmp(p, str, strlen(str)))
+        if (strncmp(p, str, strlen(str)) == 0)
         {
             return true;
         }
@@ -87,9 +87,17 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')')
+        if (istoken(p))
         {
-            cur = new_token(TK_OPERATOR, cur, p++);
+            for (int i = 0; i < token_list_count; i++)
+            {
+                char *str = token_list[i];
+                if (strncmp(p, str, strlen(str)) == 0)
+                {
+                    cur = new_token(TK_OPERATOR, cur, str);
+                    p += strlen(str);
+                }
+            }
             continue;
         }
 
