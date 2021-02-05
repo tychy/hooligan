@@ -1,5 +1,18 @@
 #include "hooligan.h"
 
+// note: 文字数の多いものを先に登録する
+// note: 要素数を更新する
+char *token_list[6] = {
+    "+",
+    "-",
+    "*",
+    "/",
+    "(",
+    ")",
+};
+
+char *token_list_count = sizeof(token_list) / sizeof(token_list[0]);
+
 void error(char *fmt, ...)
 {
     va_list ap;
