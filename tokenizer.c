@@ -60,6 +60,19 @@ Token *new_token(TokenKind kind, Token *cur, char *str)
     return tok;
 }
 
+bool istoken(char *p)
+{
+    for (int i = 0; i < token_list_count; i++)
+    {
+        char *str = token_list[i];
+        if (strncmp(p, str, strlen(str)))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 Token *tokenize(char *p)
 {
     Token head;
