@@ -29,8 +29,8 @@ struct Token
 };
 
 void error(char *fmt, ...);
-bool consume(char op);
-void expect(char op);
+bool consume(char *op);
+void expect(char *op);
 int expect_number();
 
 Token *tokenize();

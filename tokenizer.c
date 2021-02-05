@@ -24,17 +24,17 @@ void error(char *fmt, ...)
     exit(1);
 }
 
-bool consume(char op)
+bool consume(char *op)
 {
-    if (token->kind != TK_OPERATOR || token->string[0] != op)
+    if (token->kind != TK_OPERATOR || strcmp(token->string, op))
         return false;
     token = token->next;
     return true;
 }
 
-void expect(char op)
+void expect(char *op)
 {
-    if (token->kind != TK_OPERATOR || token->string[0] != op)
+    if (token->kind != TK_OPERATOR || strcmp(token->string, op))
         error("'%c'ではありません", op);
     token = token->next;
 }

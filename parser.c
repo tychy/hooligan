@@ -1,6 +1,5 @@
 #include "hooligan.h"
 
-
 Node *expr();
 
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
@@ -27,10 +26,10 @@ Node *num()
 
 Node *primary()
 {
-    if (consume('('))
+    if (consume("("))
     {
         Node *node = expr();
-        expect(')');
+        expect(")");
         return node;
     }
     else
@@ -41,11 +40,11 @@ Node *primary()
 
 Node *unary()
 {
-    if (consume('+'))
+    if (consume("+"))
     {
         return primary();
     }
-    else if (consume('-'))
+    else if (consume("-"))
     {
         return new_node(ND_SUB, new_node_num(0), primary());
     }
@@ -57,11 +56,11 @@ Node *mul()
     Node *node = unary();
     for (;;)
     {
-        if (consume('*'))
+        if (consume("*"))
         {
             node = new_node(ND_MUL, node, unary());
         }
-        else if (consume('/'))
+        else if (consume("/"))
         {
             node = new_node(ND_DIV, node, unary());
         }
@@ -72,16 +71,17 @@ Node *mul()
     }
 }
 
+
 Node *expr()
 {
     Node *node = mul();
     for (;;)
     {
-        if (consume('+'))
+        if (consume("+"))
         {
             node = new_node(ND_ADD, node, mul());
         }
-        else if (consume('-'))
+        else if (consume("-"))
         {
             node = new_node(ND_SUB, node, mul());
         }
