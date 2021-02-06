@@ -46,6 +46,8 @@ assert 0 "1==2"
 assert 1 "4*6 == 3*8"
 assert 1 "500 * 100 == 250 * 200"
 assert 7 "(1 == 1) + 6"
+assert 1 "0!=1"
+assert 0 "5!=2+3"
 rm tmp
 rm tmp.s
 
