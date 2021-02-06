@@ -71,9 +71,9 @@ Node *mul()
     }
 }
 
-
-Node *expr()
+Node *equality()
 {
+
     Node *node = mul();
     for (;;)
     {
@@ -85,6 +85,27 @@ Node *expr()
         {
             node = new_node(ND_SUB, node, mul());
         }
+        else
+        {
+            return node;
+        }
+    }
+}
+
+Node *expr()
+{
+    Node *node = equality();
+    for (;;)
+    {
+
+        if (consume("=="))
+        {
+            node = new_node(ND_EQUAL, node, equality());
+        }
+        // else if (consume("-"))
+        // {
+        //     node = new_node(ND_SUB, node, equality());
+        // }
         else
         {
             return node;
@@ -130,5 +151,12 @@ void gen(Node *node)
         printf("  idiv rdi\n");
         printf("  push rax\n");
         break;
+    case ND_EQUAL:
+        printf("  pop rdi\n");
+        printf("  pop rax\n");
+        printf("  cmp rax, rdi\n");
+        printf("  sete al\n");
+        printf("  movzb rax, al\n");
+        printf("  push rax\n");
     }
 }

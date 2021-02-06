@@ -42,7 +42,8 @@ typedef enum
     ND_ADD,
     ND_SUB,
     ND_MUL,
-    ND_DIV
+    ND_DIV,
+    ND_EQUAL
 } NodeKind;
 
 typedef struct Node Node;
