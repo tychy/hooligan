@@ -1,7 +1,5 @@
 #include "hooligan.h"
 
-Node *expr();
-
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
     Node *node = calloc(1, sizeof(Node));
