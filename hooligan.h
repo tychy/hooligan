@@ -43,7 +43,8 @@ typedef enum
     ND_SUB,
     ND_MUL,
     ND_DIV,
-    ND_EQUAL
+    ND_EQUAL,
+    ND_NEQUAL
 } NodeKind;
 
 typedef struct Node Node;

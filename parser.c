@@ -102,10 +102,10 @@ Node *expr()
         {
             node = new_node(ND_EQUAL, node, equality());
         }
-        // else if (consume("-"))
-        // {
-        //     node = new_node(ND_SUB, node, equality());
-        // }
+        else if (consume("!="))
+        {
+            node = new_node(ND_NEQUAL, node, equality());
+        }
         else
         {
             return node;
@@ -158,5 +158,14 @@ void gen(Node *node)
         printf("  sete al\n");
         printf("  movzb rax, al\n");
         printf("  push rax\n");
+        break;
+    case ND_NEQUAL:
+        printf("  pop rdi\n");
+        printf("  pop rax\n");
+        printf("  cmp rax, rdi\n");
+        printf("  setne al\n");
+        printf("  movzb rax, al\n");
+        printf("  push rax\n");
+        break;
     }
 }
