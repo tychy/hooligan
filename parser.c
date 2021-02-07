@@ -69,9 +69,8 @@ Node *mul()
     }
 }
 
-Node *equality()
+Node *add()
 {
-
     Node *node = mul();
     for (;;)
     {
@@ -90,23 +89,28 @@ Node *equality()
     }
 }
 
-Node *expr()
+Node *equality()
 {
-    Node *node = equality();
+    Node *node = add();
     for (;;)
     {
 
         if (consume("=="))
         {
-            node = new_node(ND_EQUAL, node, equality());
+            node = new_node(ND_EQUAL, node, add());
         }
         else if (consume("!="))
         {
-            node = new_node(ND_NEQUAL, node, equality());
+            node = new_node(ND_NEQUAL, node, add());
         }
         else
         {
             return node;
         }
     }
+}
+
+Node *expr()
+{
+    return equality();
 }
