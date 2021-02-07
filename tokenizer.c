@@ -2,7 +2,7 @@
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
-char *token_list[8] = {
+char *operator_list[8] = {
     "==",
     "!=",
     "+",
@@ -13,7 +13,7 @@ char *token_list[8] = {
     ")",
 };
 
-int token_list_count = sizeof(token_list) / sizeof(token_list[0]);
+int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
 
 void error(char *fmt, ...)
 {
@@ -62,11 +62,11 @@ Token *new_token(TokenKind kind, Token *cur, char *str)
     return tok;
 }
 
-bool istoken(char *p)
+bool isoperator(char *p)
 {
-    for (int i = 0; i < token_list_count; i++)
+    for (int i = 0; i < operator_list_count; i++)
     {
-        char *str = token_list[i];
+        char *str = operator_list[i];
         if (strncmp(p, str, strlen(str)) == 0)
         {
             return true;
@@ -89,15 +89,15 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (istoken(p))
+        if (isoperator(p))
         {
-            for (int i = 0; i < token_list_count; i++)
+            for (int i = 0; i < operator_list_count; i++)
             {
-                char *str = token_list[i];
-                if (strncmp(p, str, strlen(str)) == 0)
+                char *op = operator_list[i];
+                if (strncmp(p, op, strlen(op)) == 0)
                 {
-                    cur = new_token(TK_OPERATOR, cur, str);
-                    p += strlen(str);
+                    cur = new_token(TK_OPERATOR, cur, op);
+                    p += strlen(op);
                 }
             }
             continue;
