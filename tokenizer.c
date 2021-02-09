@@ -1,5 +1,20 @@
 #include "hooligan.h"
 
+// note: 文字数の多いものを先に登録する
+// note: 要素数を更新する
+char *operator_list[8] = {
+    "==",
+    "!=",
+    "+",
+    "-",
+    "*",
+    "/",
+    "(",
+    ")",
+};
+
+int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
+
 void error(char *fmt, ...)
 {
     va_list ap;
@@ -9,17 +24,17 @@ void error(char *fmt, ...)
     exit(1);
 }
 
-bool consume(char op)
+bool consume(char *op)
 {
-    if (token->kind != TK_OPERATOR || token->string[0] != op)
+    if (token->kind != TK_OPERATOR || strcmp(token->string, op))
         return false;
     token = token->next;
     return true;
 }
 
-void expect(char op)
+void expect(char *op)
 {
-    if (token->kind != TK_OPERATOR || token->string[0] != op)
+    if (token->kind != TK_OPERATOR || strcmp(token->string, op))
         error("'%c'ではありません", op);
     token = token->next;
 }
@@ -47,6 +62,19 @@ Token *new_token(TokenKind kind, Token *cur, char *str)
     return tok;
 }
 
+bool isoperator(char *p)
+{
+    for (int i = 0; i < operator_list_count; i++)
+    {
+        char *str = operator_list[i];
+        if (strncmp(p, str, strlen(str)) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 Token *tokenize(char *p)
 {
     Token head;
@@ -61,9 +89,17 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')')
+        if (isoperator(p))
         {
-            cur = new_token(TK_OPERATOR, cur, p++);
+            for (int i = 0; i < operator_list_count; i++)
+            {
+                char *op = operator_list[i];
+                if (strncmp(p, op, strlen(op)) == 0)
+                {
+                    cur = new_token(TK_OPERATOR, cur, op);
+                    p += strlen(op);
+                }
+            }
             continue;
         }
 

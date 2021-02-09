@@ -29,8 +29,8 @@ struct Token
 };
 
 void error(char *fmt, ...);
-bool consume(char op);
-void expect(char op);
+bool consume(char *op);
+void expect(char *op);
 int expect_number();
 
 Token *tokenize();
@@ -42,7 +42,9 @@ typedef enum
     ND_ADD,
     ND_SUB,
     ND_MUL,
-    ND_DIV
+    ND_DIV,
+    ND_EQUAL,
+    ND_NEQUAL
 } NodeKind;
 
 typedef struct Node Node;
@@ -53,6 +55,7 @@ struct Node
     Node *lhs;
     Node *rhs;
     int val;
+    int length;
 };
 
 Node *expr();

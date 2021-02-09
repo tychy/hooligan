@@ -1,8 +1,5 @@
 #include "hooligan.h"
 
-
-Node *expr();
-
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
     Node *node = calloc(1, sizeof(Node));
@@ -27,10 +24,10 @@ Node *num()
 
 Node *primary()
 {
-    if (consume('('))
+    if (consume("("))
     {
         Node *node = expr();
-        expect(')');
+        expect(")");
         return node;
     }
     else
@@ -41,11 +38,11 @@ Node *primary()
 
 Node *unary()
 {
-    if (consume('+'))
+    if (consume("+"))
     {
         return primary();
     }
-    else if (consume('-'))
+    else if (consume("-"))
     {
         return new_node(ND_SUB, new_node_num(0), primary());
     }
@@ -57,11 +54,11 @@ Node *mul()
     Node *node = unary();
     for (;;)
     {
-        if (consume('*'))
+        if (consume("*"))
         {
             node = new_node(ND_MUL, node, unary());
         }
-        else if (consume('/'))
+        else if (consume("/"))
         {
             node = new_node(ND_DIV, node, unary());
         }
@@ -72,16 +69,16 @@ Node *mul()
     }
 }
 
-Node *expr()
+Node *add()
 {
     Node *node = mul();
     for (;;)
     {
-        if (consume('+'))
+        if (consume("+"))
         {
             node = new_node(ND_ADD, node, mul());
         }
-        else if (consume('-'))
+        else if (consume("-"))
         {
             node = new_node(ND_SUB, node, mul());
         }
@@ -92,43 +89,28 @@ Node *expr()
     }
 }
 
-void gen(Node *node)
+Node *equality()
 {
-    if (node->kind == ND_NUM)
+    Node *node = add();
+    for (;;)
     {
-        printf("  push %d\n", node->val);
-        return;
-    }
 
-    gen(node->lhs);
-    gen(node->rhs);
-
-    switch (node->kind)
-    {
-    case ND_ADD:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  add rax, rdi\n");
-        printf("  push rax\n");
-        break;
-    case ND_SUB:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  sub rax, rdi\n");
-        printf("  push rax\n");
-        break;
-    case ND_MUL:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  imul rax, rdi\n");
-        printf("  push rax\n");
-        break;
-    case ND_DIV:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  cqo\n");
-        printf("  idiv rdi\n");
-        printf("  push rax\n");
-        break;
+        if (consume("=="))
+        {
+            node = new_node(ND_EQUAL, node, add());
+        }
+        else if (consume("!="))
+        {
+            node = new_node(ND_NEQUAL, node, add());
+        }
+        else
+        {
+            return node;
+        }
     }
+}
+
+Node *expr()
+{
+    return equality();
 }
