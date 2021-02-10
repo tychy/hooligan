@@ -52,6 +52,14 @@ assert 1 "5>=2+3"
 assert 0 "5>2+3"
 assert 1 "5<=2+3"
 assert 0 "5<2+3"
+assert 1 "2>1"
+assert 0 "2<1"
+assert 1 "2>=1"
+assert 0 "2<=1"
+assert 1 "(4 > 1) >= (1 < 0)"
+assert 1 "(4 > 1) > (1 < 0)"
+assert 0 "(4 > 1) <= (1 < 0)"
+assert 0 "(4 > 1) < (1 < 0)"
 
 rm tmp
 rm tmp.s
