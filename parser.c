@@ -22,6 +22,7 @@ Node *new_node_var(int offset)
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_LVAR;
     node->offset = offset;
+    return node;
 }
 
 Node *num()
@@ -162,6 +163,7 @@ Node *assign()
     {
         node = new_node(ND_ASSIGN, node, assign());
     }
+
     return node;
 }
 

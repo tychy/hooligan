@@ -44,6 +44,7 @@ void at_eol(char *op)
         error("'%c'ではありません", op[0]);
     }
     token = token->next;
+    return;
 }
 
 void expect(char *op)
@@ -71,6 +72,7 @@ int expect_var()
         error("変数ではありません");
     }
     int offset = 8 * (1 + *token->string - 'a');
+    token = token->next;
     return offset;
 }
 

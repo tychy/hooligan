@@ -5,7 +5,7 @@ void genl(Node *node)
     {
         error("変数ではありません");
     }
-    printf("  pop rax\n");
+    printf("  mov rax, rbp\n");
     printf("  sub rax, %d\n", node->offset);
     printf("  push rax\n");
     return;
