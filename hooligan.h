@@ -13,6 +13,8 @@ typedef enum
 {
     TK_OPERATOR,
     TK_NUMBER,
+    TK_IDENT,
+    TK_EOL,
     TK_EOF,
 } TokenKind;
 
@@ -25,14 +27,16 @@ struct Token
     TokenKind kind;
     Token *next;
     int value;
+    int length;
     char *string;
 };
 
 void error(char *fmt, ...);
 bool consume(char *op);
+void at_eol(char *op);
 void expect(char *op);
 int expect_number();
-
+int expect_var();
 Token *tokenize();
 
 // Parser
@@ -49,6 +53,8 @@ typedef enum
     ND_LEQ,
     ND_GTH,
     ND_LTH,
+    ND_LVAR,
+    ND_ASSIGN,
 } NodeKind;
 
 typedef struct Node Node;
@@ -59,10 +65,11 @@ struct Node
     Node *lhs;
     Node *rhs;
     int val;
-    int length;
+    int offset;
 };
 
 Node *expr();
+Node *stmt();
 void gen(Node *node);
 
 #endif

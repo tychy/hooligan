@@ -2,7 +2,7 @@
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
-char *operator_list[12] = {
+char *operator_list[13] = {
     "==",
     "!=",
     ">=",
@@ -15,6 +15,7 @@ char *operator_list[12] = {
     "/",
     "(",
     ")",
+    "=",
 };
 
 int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
@@ -36,10 +37,22 @@ bool consume(char *op)
     return true;
 }
 
+void at_eol(char *op)
+{
+    if (token->kind != TK_EOL || token->string[0] != op[0])
+    {
+        error("'%c'ではありません", op[0]);
+    }
+    token = token->next;
+    return;
+}
+
 void expect(char *op)
 {
-    if (token->kind != TK_OPERATOR || strcmp(token->string, op))
-        error("'%c'ではありません", op);
+    if (token->kind != TK_OPERATOR || token->string[0] != op[0])
+    {
+        error("'%c'ではありません", op[0]);
+    }
     token = token->next;
 }
 
@@ -50,6 +63,17 @@ int expect_number()
     int value = token->value;
     token = token->next;
     return value;
+}
+
+int expect_var()
+{
+    if (token->kind != TK_IDENT)
+    {
+        error("変数ではありません");
+    }
+    int offset = 8 * (1 + *token->string - 'a');
+    token = token->next;
+    return offset;
 }
 
 bool at_eof()
@@ -64,6 +88,24 @@ Token *new_token(TokenKind kind, Token *cur, char *str)
     tok->string = str;
     cur->next = tok;
     return tok;
+}
+
+bool iseol(char p)
+{
+    if (p == ';')
+    {
+        return true;
+    }
+    return false;
+}
+
+bool isident(char p)
+{
+    if (p >= 'a' && p <= 'z')
+    {
+        return true;
+    }
+    return false;
 }
 
 bool isoperator(char *p)
@@ -92,11 +134,24 @@ Token *tokenize(char *p)
             p++;
             continue;
         }
+        if (iseol(*p))
+        {
+            cur = new_token(TK_EOL, cur, p);
+            p++;
+            continue;
+        }
+        if (isident(*p))
+        {
+            cur = new_token(TK_IDENT, cur, p);
+            p++;
+            continue;
+        }
 
         if (isoperator(p))
         {
             for (int i = 0; i < operator_list_count; i++)
             {
+
                 char *op = operator_list[i];
                 if (strncmp(p, op, strlen(op)) == 0)
                 {
