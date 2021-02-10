@@ -37,9 +37,9 @@ bool consume(char *op)
     return true;
 }
 
-void expect(char *op)
+void expect(char op)
 {
-    if (token->kind != TK_OPERATOR || strcmp(token->string, op))
+    if (token->kind != TK_OPERATOR || token->string[0] != op)
         error("'%c'ではありません", op);
     token = token->next;
 }

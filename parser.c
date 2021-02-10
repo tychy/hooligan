@@ -39,7 +39,7 @@ Node *primary()
     if (consume("("))
     {
         Node *node = expr();
-        expect(")");
+        expect(')');
         return node;
     }
     else if (token->kind == TK_IDENT)
@@ -173,6 +173,6 @@ Node *expr()
 Node *stmt()
 {
     Node *node = expr();
-    expect(";");
+    expect(';');
     return node;
 }

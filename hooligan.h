@@ -33,7 +33,7 @@ struct Token
 
 void error(char *fmt, ...);
 bool consume(char *op);
-void expect(char *op);
+void expect(char op);
 int expect_number();
 int expect_var();
 Token *tokenize();
