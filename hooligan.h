@@ -18,7 +18,7 @@ typedef enum
 
 typedef struct Token Token;
 
-Token *token;
+extern Token *token;
 
 struct Token
 {
@@ -44,7 +44,11 @@ typedef enum
     ND_MUL,
     ND_DIV,
     ND_EQUAL,
-    ND_NEQUAL
+    ND_NEQUAL,
+    ND_GEQ,
+    ND_LEQ,
+    ND_GTH,
+    ND_LTH,
 } NodeKind;
 
 typedef struct Node Node;

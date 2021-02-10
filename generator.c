@@ -54,5 +54,37 @@ void gen(Node *node)
         printf("  movzb rax, al\n");
         printf("  push rax\n");
         break;
+    case ND_GEQ:
+        printf("  pop rdi\n");
+        printf("  pop rax\n");
+        printf("  cmp rax, rdi\n");
+        printf("  setge al\n");
+        printf("  movzb rax, al\n");
+        printf("  push rax\n");
+        break;
+    case ND_LEQ:
+        printf("  pop rdi\n");
+        printf("  pop rax\n");
+        printf("  cmp rax, rdi\n");
+        printf("  setle al\n");
+        printf("  movzb rax, al\n");
+        printf("  push rax\n");
+        break;
+    case ND_GTH:
+        printf("  pop rdi\n");
+        printf("  pop rax\n");
+        printf("  cmp rax, rdi\n");
+        printf("  setg al\n");
+        printf("  movzb rax, al\n");
+        printf("  push rax\n");
+        break;
+    case ND_LTH:
+        printf("  pop rdi\n");
+        printf("  pop rax\n");
+        printf("  cmp rax, rdi\n");
+        printf("  setl al\n");
+        printf("  movzb rax, al\n");
+        printf("  push rax\n");
+        break;
     }
 }
