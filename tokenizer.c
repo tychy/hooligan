@@ -66,6 +66,15 @@ Token *new_token(TokenKind kind, Token *cur, char *str)
     return tok;
 }
 
+bool isident(char p)
+{
+    if (p >= 'a' && p <= 'z')
+    {
+        return true;
+    }
+    return false;
+}
+
 bool isoperator(char *p)
 {
     for (int i = 0; i < operator_list_count; i++)
@@ -90,6 +99,12 @@ Token *tokenize(char *p)
         if (isspace(*p))
         {
             p++;
+            continue;
+        }
+
+        if (isident(*p))
+        {
+            cur = new_token(TK_IDENT, cur, p);
             continue;
         }
 
