@@ -2,7 +2,7 @@
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
-char *operator_list[12] = {
+char *operator_list[13] = {
     "==",
     "!=",
     ">=",
@@ -15,6 +15,7 @@ char *operator_list[12] = {
     "/",
     "(",
     ")",
+    "=",
 };
 
 int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
@@ -52,6 +53,16 @@ int expect_number()
     return value;
 }
 
+int expect_var()
+{
+    if (token->kind != TK_IDENT)
+    {
+        error("変数ではありません");
+    }
+    int offset = 8 * (1 + *token->string - 'a');
+    return offset;
+}
+
 bool at_eof()
 {
     return token->kind == TK_EOF;
@@ -64,6 +75,15 @@ Token *new_token(TokenKind kind, Token *cur, char *str)
     tok->string = str;
     cur->next = tok;
     return tok;
+}
+
+bool iseol(char p)
+{
+    if (p == ';')
+    {
+        return true;
+    }
+    return false;
 }
 
 bool isident(char p)
@@ -101,7 +121,6 @@ Token *tokenize(char *p)
             p++;
             continue;
         }
-
         if (isident(*p))
         {
             cur = new_token(TK_IDENT, cur, p);
@@ -112,6 +131,7 @@ Token *tokenize(char *p)
         {
             for (int i = 0; i < operator_list_count; i++)
             {
+
                 char *op = operator_list[i];
                 if (strncmp(p, op, strlen(op)) == 0)
                 {

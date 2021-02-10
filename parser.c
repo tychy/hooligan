@@ -17,9 +17,21 @@ Node *new_node_num(int val)
     return node;
 }
 
+Node *new_node_var(int offset)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_LVAR;
+    node->offset = offset;
+}
+
 Node *num()
 {
     return new_node_num(expect_number());
+}
+
+Node *ident()
+{
+    return new_node_var(expect_var());
 }
 
 Node *primary()
@@ -29,6 +41,10 @@ Node *primary()
         Node *node = expr();
         expect(")");
         return node;
+    }
+    else if (token->kind == TK_IDENT)
+    {
+        return ident();
     }
     else
     {
@@ -139,7 +155,24 @@ Node *equality()
     }
 }
 
+Node *assign()
+{
+    Node *node = equality();
+    if (consume("="))
+    {
+        node = new_node(ND_ASSIGN, node, assign());
+    }
+    return node;
+}
+
 Node *expr()
 {
-    return equality();
+    return assign();
+}
+
+Node *stmt()
+{
+    Node *node = expr();
+    expect(";");
+    return node;
 }
