@@ -1,5 +1,6 @@
 #include "hooligan.h"
 
+Token *token;
 
 int main(int argc, char **argv)
 {

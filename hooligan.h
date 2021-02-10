@@ -18,7 +18,7 @@ typedef enum
 
 typedef struct Token Token;
 
-Token *token;
+extern Token *token;
 
 struct Token
 {
