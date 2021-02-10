@@ -89,19 +89,48 @@ Node *add()
     }
 }
 
-Node *equality()
+Node *relational()
 {
     Node *node = add();
     for (;;)
     {
 
+        if (consume(">="))
+        {
+            node = new_node(ND_GEQ, node, add());
+        }
+        else if (consume("<="))
+        {
+            node = new_node(ND_LEQ, node, add());
+        }
+        else if (consume(">"))
+        {
+            node = new_node(ND_GTH, node, add());
+        }
+        else if (consume("<"))
+        {
+            node = new_node(ND_LTH, node, add());
+        }
+        else
+        {
+            return node;
+        }
+    }
+}
+
+Node *equality()
+{
+    Node *node = relational();
+    for (;;)
+    {
+
         if (consume("=="))
         {
-            node = new_node(ND_EQUAL, node, add());
+            node = new_node(ND_EQUAL, node, relational());
         }
         else if (consume("!="))
         {
-            node = new_node(ND_NEQUAL, node, add());
+            node = new_node(ND_NEQUAL, node, relational());
         }
         else
         {
