@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     printf(".intel_syntax noprefix\n");
     printf(".globl main\n");
     printf("main:\n");
-    Node *node = expr();
+    Node *node = stmt();
     gen(node);
     printf("  pop rax\n");
     printf("  ret\n");
