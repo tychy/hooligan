@@ -14,7 +14,6 @@ typedef enum
     TK_OPERATOR,
     TK_NUMBER,
     TK_IDENT,
-    TK_EOL,
     TK_EOF,
 } TokenKind;
 
@@ -33,7 +32,6 @@ struct Token
 
 void error(char *fmt, ...);
 bool consume(char *op);
-void at_eol(char *op);
 void expect(char *op);
 int expect_number();
 int expect_var();

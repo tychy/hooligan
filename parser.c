@@ -175,6 +175,6 @@ Node *expr()
 Node *stmt()
 {
     Node *node = expr();
-    at_eol(";");
+    expect(";");
     return node;
 }

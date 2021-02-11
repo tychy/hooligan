@@ -2,7 +2,7 @@
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
-char *operator_list[13] = {
+char *operator_list[14] = {
     "==",
     "!=",
     ">=",
@@ -16,6 +16,7 @@ char *operator_list[13] = {
     "(",
     ")",
     "=",
+    ";",
 };
 
 int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
@@ -35,16 +36,6 @@ bool consume(char *op)
         return false;
     token = token->next;
     return true;
-}
-
-void at_eol(char *op)
-{
-    if (token->kind != TK_EOL || token->string[0] != op[0])
-    {
-        error("'%c'ではありません", op[0]);
-    }
-    token = token->next;
-    return;
 }
 
 void expect(char *op)
@@ -90,15 +81,6 @@ Token *new_token(TokenKind kind, Token *cur, char *str)
     return tok;
 }
 
-bool iseol(char p)
-{
-    if (p == ';')
-    {
-        return true;
-    }
-    return false;
-}
-
 bool isident(char p)
 {
     if (p >= 'a' && p <= 'z')
@@ -131,12 +113,6 @@ Token *tokenize(char *p)
     {
         if (isspace(*p))
         {
-            p++;
-            continue;
-        }
-        if (iseol(*p))
-        {
-            cur = new_token(TK_EOL, cur, p);
             p++;
             continue;
         }
