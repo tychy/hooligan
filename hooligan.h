@@ -74,4 +74,19 @@ Node *stmt();
 void program();
 void gen(Node *node);
 
+typedef struct LVar LVar;
+
+struct LVar
+{
+    char *name;
+    int length;
+    int offset;
+    LVar *next;
+};
+
+
+extern LVar *locals;
+
+LVar *find_lvar(Token *tok);
+
 #endif

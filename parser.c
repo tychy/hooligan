@@ -1,5 +1,20 @@
 #include "hooligan.h"
 
+LVar *locals = NULL;
+
+LVar *find_lvar(Token *tok)
+{
+    LVar *l = locals;
+    for (LVar *local = locals; local; local = local->next)
+    {
+        if(local->length == tok->length && memcmp(local->name, tok->string, local->length))
+        {
+            return local;
+        }
+    }
+    return NULL;
+}
+
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
     Node *node = calloc(1, sizeof(Node));
