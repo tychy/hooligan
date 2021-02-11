@@ -73,7 +73,6 @@ int expect_var()
         LVar *new_lvar = calloc(1, sizeof(LVar));
         new_lvar->length = token->length;
         new_lvar->name = token->string;
-        int offset;
         if (locals)
         {
             offset = locals->offset + 8;
@@ -85,7 +84,6 @@ int expect_var()
         new_lvar->offset = offset;
         new_lvar->next = locals;
         locals = new_lvar;
-        offset = new_lvar->offset;
     }
     token = token->next;
     return offset;
