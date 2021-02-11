@@ -7,7 +7,7 @@ LVar *find_lvar(Token *tok)
     LVar *l = locals;
     for (LVar *local = locals; local; local = local->next)
     {
-        if(local->length == tok->length && memcmp(local->name, tok->string, local->length))
+        if (local->length == tok->length && memcmp(local->name, tok->string, local->length) == 0)
         {
             return local;
         }
