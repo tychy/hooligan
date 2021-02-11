@@ -1,15 +1,14 @@
 #include "hooligan.h"
 
-LVar *locals = NULL;
+LVar *locals;
 
 LVar *find_lvar(Token *tok)
 {
-    LVar *l = locals;
-    for (LVar *local = locals; local; local = local->next)
+    for (LVar *lvar = locals; lvar; lvar = lvar->next)
     {
-        if (local->length == tok->length && memcmp(local->name, tok->string, local->length) == 0)
+        if (lvar->length == tok->length && memcmp(lvar->name, tok->string, lvar->length) == 0)
         {
-            return local;
+            return lvar;
         }
     }
     return NULL;
