@@ -61,6 +61,8 @@ assert 0 "(4 > 1) < (1 < 0);"
 assert 0 "a = 0;"
 assert 3 "a = 3;"
 assert 3 "a = b = 3;"
+assert 5 "1+2;2+3;"
+assert 6 "1;1;1;1;1;1;1;1;1;3+3;"
 
 rm tmp
 rm tmp.s
