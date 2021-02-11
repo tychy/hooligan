@@ -65,6 +65,8 @@ assert 5 "1+2;2+3;"
 assert 6 "1;1;1;1;1;1;1;1;1;3+3;"
 assert 2 "a=2;a;"
 assert 5 "b=2;c=3;b+c;"
+assert 5 "foo=2;bar=3;foo+bar;"
+assert 27 "foo=2;bar=3;hogefuga=9;hogefuga*bar;"
 
 rm tmp
 rm tmp.s
