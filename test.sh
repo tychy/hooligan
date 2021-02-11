@@ -63,6 +63,8 @@ assert 3 "a = 3;"
 assert 3 "a = b = 3;"
 assert 5 "1+2;2+3;"
 assert 6 "1;1;1;1;1;1;1;1;1;3+3;"
+assert 2 "a=2;a;"
+assert 5 "b=2;c=3;b+c;"
 
 rm tmp
 rm tmp.s
