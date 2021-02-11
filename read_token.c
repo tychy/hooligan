@@ -67,3 +67,8 @@ int expect_var()
     token = token->next;
     return offset;
 }
+
+bool at_eof()
+{
+    return token->kind == TK_EOF;
+}

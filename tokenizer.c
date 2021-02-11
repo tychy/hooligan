@@ -21,11 +21,6 @@ char *operator_list[14] = {
 
 int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
 
-bool at_eof()
-{
-    return token->kind == TK_EOF;
-}
-
 Token *new_token(TokenKind kind, Token *cur, char *str)
 {
     Token *tok = calloc(1, sizeof(Token));
