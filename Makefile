@@ -1,5 +1,5 @@
 CFLAGS=-std=c11 -static
-SOURCE=main.c tokenizer.c parser.c generator.c
+SOURCE=main.c tokenizer.c parser.c generator.c read_token.c local_variable.c
 
 main: $(SOURCE)
 	cc $(CFLAGS) -o exe.out $(SOURCE)
