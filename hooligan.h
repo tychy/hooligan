@@ -33,6 +33,7 @@ struct Token
 void error(char *fmt, ...);
 bool consume(char *op);
 void expect(char *op);
+bool at_eof();
 int expect_number();
 int expect_var();
 Token *tokenize();
@@ -57,6 +58,8 @@ typedef enum
 
 typedef struct Node Node;
 
+extern Node *nodes[100];
+
 struct Node
 {
     NodeKind kind;
@@ -68,6 +71,7 @@ struct Node
 
 Node *expr();
 Node *stmt();
+void program();
 void gen(Node *node);
 
 #endif

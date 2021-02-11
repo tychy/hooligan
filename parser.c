@@ -178,3 +178,15 @@ Node *stmt()
     expect(";");
     return node;
 }
+
+void program()
+{
+    int i = 0;
+    while (!at_eof())
+    {
+        Node *node = stmt();
+        nodes[i] = node;
+        i++;
+    }
+    nodes[i + 1] = NULL;
+}

@@ -2,6 +2,8 @@
 
 Token *token;
 
+Node *nodes[100];
+
 int main(int argc, char **argv)
 {
     if (argc != 2)
@@ -16,9 +18,14 @@ int main(int argc, char **argv)
     printf(".globl main\n");
     printf("main:\n");
     printf("  mov rbp, rsp\n");
-    Node *node = stmt();
-    gen(node);
-    printf("  pop rax\n");
+    program();
+    int i = 0;
+    while (nodes[i] != NULL)
+    {
+        gen(nodes[i]);
+        i++;
+        printf("  pop rax\n");
+    }
     printf("  ret\n");
     return 0;
 }
