@@ -62,7 +62,29 @@ int expect_var()
     {
         error("変数ではありません");
     }
-    int offset = 8 * (1 + *token->string - 'a');
+    int offset;
+    LVar *lvar = find_lvar(token);
+    if (lvar)
+    {
+        offset = lvar->offset;
+    }
+    else
+    {
+        LVar *new_lvar = calloc(1, sizeof(LVar));
+        new_lvar->length = token->length;
+        new_lvar->name = token->string;
+        if (locals)
+        {
+            offset = locals->offset + 8;
+        }
+        else
+        {
+            offset = 8;
+        }
+        new_lvar->offset = offset;
+        new_lvar->next = locals;
+        locals = new_lvar;
+    }
     token = token->next;
     return offset;
 }
@@ -116,10 +138,18 @@ Token *tokenize(char *p)
             p++;
             continue;
         }
+
         if (isident(*p))
         {
-            cur = new_token(TK_IDENT, cur, p);
-            p++;
+            int i = 0;
+            char *p_top = p;
+            while (isident(*p))
+            {
+                i++;
+                p++;
+            }
+            cur = new_token(TK_IDENT, cur, p_top);
+            cur->length = i;
             continue;
         }
 
