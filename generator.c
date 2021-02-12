@@ -47,9 +47,9 @@ void gen(Node *node)
             printf("  je .Lelse%d\n", label);
             gen(node->rhs->lhs);
             printf("  jmp .Lend%d\n", label);
-            printf(".Lelse%d\n", label);
+            printf(".Lelse%d:\n", label);
             gen(node->rhs->rhs);
-            printf(".Lend%d\n", label);
+            printf(".Lend%d:\n", label);
             label++;
             return;
         }
@@ -60,7 +60,7 @@ void gen(Node *node)
             printf("  je .Lend%d\n", label);
             gen(node->rhs);
             printf("  jmp .Lend%d\n", label);
-            printf(".Lend%d\n", label);
+            printf(".Lend%d:\n", label);
             label++;
             return;
         }
