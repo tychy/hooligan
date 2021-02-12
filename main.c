@@ -2,6 +2,7 @@
 
 Token *token;
 
+int label = 0;
 Node *nodes[100];
 
 int main(int argc, char **argv)

@@ -178,12 +178,29 @@ Node *stmt()
     if (consume_return())
     {
         node = new_node(ND_RETURN, expr(), NULL);
+        expect(";");
+    }
+    else if (consume_if())
+    {
+        expect("(");
+        Node *condition = expr();
+        expect(")");
+        Node *iftrue = stmt();
+        if (consume_else())
+        {
+            node = new_node(ND_ELSE, iftrue, stmt());
+            node = new_node(ND_IF, condition, node);
+        }
+        else
+        {
+            node = new_node(ND_IF, condition, iftrue);
+        }
     }
     else
     {
         node = expr();
+        expect(";");
     }
-    expect(";");
     return node;
 }
 

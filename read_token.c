@@ -27,6 +27,26 @@ bool consume_return()
     return true;
 }
 
+bool consume_if()
+{
+    if (token->kind != TK_IF)
+    {
+        return false;
+    }
+    token = token->next;
+    return true;
+}
+
+bool consume_else()
+{
+    if (token->kind != TK_ELSE)
+    {
+        return false;
+    }
+    token = token->next;
+    return true;
+}
+
 void expect(char *op)
 {
     if (token->kind != TK_OPERATOR || token->string[0] != op[0])
