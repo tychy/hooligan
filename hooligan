@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if [ $# -eq 0 ]; then
+    echo "引数なしでは実行できません"
+    exit 1
+fi
+
+if [ $1 = "test" ]; then
+    docker-compose run hooligan make test
+else
+    echo "存在しないサブコマンドです"
+    exit 1
+fi
