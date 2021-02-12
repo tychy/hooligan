@@ -14,6 +14,7 @@ typedef enum
     TK_OPERATOR,
     TK_NUMBER,
     TK_IDENT,
+    TK_RETURN,
     TK_EOF,
 } TokenKind;
 
@@ -30,8 +31,11 @@ struct Token
     char *string;
 };
 
+bool isident(char p);
+
 void error(char *fmt, ...);
 bool consume(char *op);
+bool consume_return();
 void expect(char *op);
 bool at_eof();
 int expect_number();
@@ -54,6 +58,7 @@ typedef enum
     ND_LTH,
     ND_LVAR,
     ND_ASSIGN,
+    ND_RETURN,
 } NodeKind;
 
 typedef struct Node Node;
@@ -83,7 +88,6 @@ struct LVar
     int offset;
     LVar *next;
 };
-
 
 extern LVar *locals;
 

@@ -17,6 +17,16 @@ bool consume(char *op)
     return true;
 }
 
+bool consume_return()
+{
+    if (token->kind != TK_RETURN)
+    {
+        return false;
+    }
+    token = token->next;
+    return true;
+}
+
 void expect(char *op)
 {
     if (token->kind != TK_OPERATOR || token->string[0] != op[0])
