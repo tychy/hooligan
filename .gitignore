@@ -2,3 +2,4 @@ tmp
 *.o
 *.out
 *.s
+.envrc
