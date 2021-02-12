@@ -4,7 +4,20 @@
 
 https://www.sigbus.info/compilerbook
 
+## 前提
+
+プロジェクトルートで以下のコマンドを走らせる
+
+`export PATH=bin:$PATH`
+
+もしくは.envrcに以下のコマンドを記述
+
+`PATH_add bin`
 ## テストコマンド
+`hcc test`
+
+もしくは
+
 `docker-compose run hooligan make test`
 
 ## 参考リンク
