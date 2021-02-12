@@ -71,6 +71,10 @@ assert 1 "return 1;"
 assert 2 "return 2; return 3; return 4;"
 assert 5 "returnx = 15; a = 5; a;"
 assert 90 "a = 10; b = 20; return (a+b)*3;"
+assert 2 "if(1)2;"
+assert 3 "if(0)2; else 3;"
+assert 2 "a=3;if(a==3)2; else 3;"
+
 rm tmp
 rm tmp.s
 

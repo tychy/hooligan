@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern int label;
 // Tokenizer
 typedef enum
 {
@@ -38,6 +39,8 @@ bool isident(char p);
 void error(char *fmt, ...);
 bool consume(char *op);
 bool consume_return();
+bool consume_if();
+bool consume_else();
 void expect(char *op);
 bool at_eof();
 int expect_number();
@@ -61,6 +64,8 @@ typedef enum
     ND_LVAR,
     ND_ASSIGN,
     ND_RETURN,
+    ND_IF,
+    ND_ELSE,
 } NodeKind;
 
 typedef struct Node Node;

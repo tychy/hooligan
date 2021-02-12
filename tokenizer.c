@@ -30,6 +30,24 @@ Token *new_token(TokenKind kind, Token *cur, char *str)
     return tok;
 }
 
+bool isif(char *p)
+{
+    if (strncmp(p, "if", 2) == 0 && !isident(*(p + 2)))
+    {
+        return true;
+    }
+    return false;
+}
+
+bool iselse(char *p)
+{
+    if (strncmp(p, "else", 4) == 0 && !isident(*(p + 4)))
+    {
+        return true;
+    }
+    return false;
+}
+
 bool isreturn(char *p)
 {
     if (strncmp(p, "return", 6) == 0 && !isident(*(p + 6)))
@@ -80,6 +98,22 @@ Token *tokenize(char *p)
             cur = new_token(TK_RETURN, cur, p);
             cur->length = 6;
             p += 6;
+            continue;
+        }
+
+        if (isif(p))
+        {
+            cur = new_token(TK_IF, cur, p);
+            cur->length = 2;
+            p += 2;
+            continue;
+        }
+
+        if (iselse(p))
+        {
+            cur = new_token(TK_ELSE, cur, p);
+            cur->length = 4;
+            p += 4;
             continue;
         }
 
