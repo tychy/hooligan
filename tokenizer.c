@@ -30,6 +30,15 @@ Token *new_token(TokenKind kind, Token *cur, char *str)
     return tok;
 }
 
+bool isreturn(char *p)
+{
+    if (strncmp(p, "return", 6) == 0 && !isident(*(p + 6)))
+    {
+        return true;
+    }
+    return false;
+}
+
 bool isident(char p)
 {
     if (p >= 'a' && p <= 'z')
@@ -63,6 +72,14 @@ Token *tokenize(char *p)
         if (isspace(*p))
         {
             p++;
+            continue;
+        }
+
+        if (isreturn(p))
+        {
+            cur = new_token(TK_RETURN, cur, p);
+            cur->length = 6;
+            p += 6;
             continue;
         }
 

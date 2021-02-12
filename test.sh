@@ -67,7 +67,10 @@ assert 2 "a=2;a;"
 assert 5 "b=2;c=3;b+c;"
 assert 5 "foo=2;bar=3;foo+bar;"
 assert 27 "foo=2;bar=3;hogefuga=9;hogefuga*bar;"
-
+assert 1 "return 1;"
+assert 2 "return 2; return 3; return 4;"
+assert 5 "returnx = 15; a = 5; a;"
+assert 90 "a = 10; b = 20; return (a+b)*3;"
 rm tmp
 rm tmp.s
 
