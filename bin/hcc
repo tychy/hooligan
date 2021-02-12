@@ -9,6 +9,8 @@ fi
 
 if [ $1 = "test" ]; then
     docker-compose run hooligan make test
+elif [ $1 = "src" ]; then
+    docker-compose run hooligan bash -c "make && ./exe.out \"$2\""
 else
     echo "存在しないサブコマンドです"
     exit 1
