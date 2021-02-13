@@ -196,6 +196,20 @@ Node *stmt()
             node = new_node(ND_IF, condition, iftrue);
         }
     }
+    else if(consume_for()){
+        expect("(");
+        Node *initial = expr();
+        expect(";");
+        Node *condition = expr();
+        expect(";");
+        Node *end = expr();
+        expect(";");
+        expect(")");
+        Node *body = stmt();
+        Node *node1 = new_node(ND_FORINIT, initial, condition);
+        Node *node2 = new_node(ND_FORBODY, body, end);
+        node = new_node(ND_FOR, node1, node2);
+    }
     else
     {
         node = expr();

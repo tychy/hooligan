@@ -42,6 +42,7 @@ bool consume(char *op);
 bool consume_return();
 bool consume_if();
 bool consume_else();
+bool consume_for();
 void expect(char *op);
 bool at_eof();
 int expect_number();
@@ -67,6 +68,9 @@ typedef enum
     ND_RETURN,
     ND_IF,
     ND_ELSE,
+    ND_FORINIT,
+    ND_FORBODY,
+    ND_FOR,
 } NodeKind;
 
 typedef struct Node Node;
