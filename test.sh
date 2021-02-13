@@ -75,6 +75,9 @@ assert 2 "if(1)2;"
 assert 3 "if(0)2; else 3;"
 assert 2 "a=3;if(a==3)2; else 3;"
 assert 12 "a=2; for(i=0; i<10; i=i+1;) a=a+1; return a;"
+assert 20 "for(counter=0;counter<100;counter=counter+1;) if(counter*counter==400) return counter; return 1;"
+assert 1 "for(d=0;d<100;d=d+1;) if(d*d==401) return d; return 1;"
+assert 100 "a=0;for(i=0;i<10;i=i+1;) for(j=0;j<10;j=j+1;) a = a+1; return a;"
 
 rm tmp
 rm tmp.s

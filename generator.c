@@ -1,4 +1,40 @@
 #include "hooligan.h"
+void gen_for_init(Node *node, int lab)
+{
+    if (node->kind != ND_FORINIT)
+    {
+        error("for文として不適切です");
+    }
+    gen(node->lhs);
+    printf(".Lforstart%d:\n", lab);
+    gen(node->rhs);
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lforend%d\n", lab);
+}
+
+void gen_for_body(Node *node, int lab)
+{
+    if (node->kind != ND_FORBODY)
+    {
+        error("for文として不適切です");
+    }
+    gen(node->lhs);
+    gen(node->rhs);
+    printf("  jmp .Lforstart%d\n", lab);
+}
+
+void gen_for(Node *node, int lab)
+{
+    if (node->kind != ND_FOR)
+    {
+        error("for文ではありません");
+    }
+    gen_for_init(node->lhs, lab);
+    gen_for_body(node->rhs, lab);
+    printf(".Lforend%d:\n", lab);
+}
+
 void genl(Node *node)
 {
     if (node->kind != ND_LVAR)
@@ -66,23 +102,8 @@ void gen(Node *node)
         }
         return;
     case ND_FOR:
-        gen(node->lhs);
-        gen(node->rhs);
-        printf(".Lforend%d:\n", label);
         label++;
-        return;
-    case ND_FORINIT:
-        gen(node->lhs);
-        printf(".Lforstart%d:\n", label);
-        gen(node->rhs);
-        printf("  pop rax\n");
-        printf("  cmp rax, 0\n");
-        printf("  je .Lforend%d\n", label);
-        return;
-    case ND_FORBODY:
-        gen(node->lhs);
-        gen(node->rhs);
-        printf("  jmp .Lforstart%d\n", label);
+        gen_for(node, label);
         return;
     }
 
