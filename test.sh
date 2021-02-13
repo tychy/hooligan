@@ -74,6 +74,7 @@ assert 90 "a = 10; b = 20; return (a+b)*3;"
 assert 2 "if(1)2;"
 assert 3 "if(0)2; else 3;"
 assert 2 "a=3;if(a==3)2; else 3;"
+assert 12 "a=2; for(i=0; i<10; i=i+1;) a=a+1; return a;"
 
 rm tmp
 rm tmp.s

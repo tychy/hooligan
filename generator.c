@@ -64,6 +64,26 @@ void gen(Node *node)
             label++;
             return;
         }
+        return;
+    case ND_FOR:
+        gen(node->lhs);
+        gen(node->rhs);
+        printf(".Lforend%d:\n", label);
+        label++;
+        return;
+    case ND_FORINIT:
+        gen(node->lhs);
+        printf(".Lforstart%d:\n", label);
+        gen(node->rhs);
+        printf("  pop rax\n");
+        printf("  cmp rax, 0\n");
+        printf("  je .Lforend%d\n", label);
+        return;
+    case ND_FORBODY:
+        gen(node->lhs);
+        gen(node->rhs);
+        printf("  jmp .Lforstart%d\n", label);
+        return;
     }
 
     gen(node->lhs);
