@@ -196,6 +196,54 @@ Node *stmt()
             node = new_node(ND_IF, condition, iftrue);
         }
     }
+    else if (consume_for())
+    {
+        Node *initial;
+        Node *condition;
+        Node *end;
+        expect("(");
+        if (consume(";"))
+        {
+            initial = NULL;
+        }
+        else
+        {
+            initial = expr();
+            expect(";");
+        }
+        
+        if (consume(";"))
+        {
+            condition = NULL;
+        }
+        else
+        {
+            condition = expr();
+            expect(";");
+        }
+
+        // expect("(");
+        // Node *initial = consume(";") ? NULL : expr();
+        // expect(";");
+        // Node *condition = consume(";") ? NULL : expr();
+        // expect(";");
+        // // Node *end = consume(";") ? NULL : expr();
+        // // expect(")");
+        // Node *end;
+        if (consume(")"))
+        {
+            end = NULL;
+        }
+        else
+        {
+            end = expr();
+            expect(")");
+        }
+        Node *body = stmt();
+        Node *former = new_node(ND_FORINIT, initial, condition);
+        Node *latter = new_node(ND_FORBODY, body, end);
+        node = new_node(ND_FOR, former, latter);
+    }
     else
     {
         node = expr();

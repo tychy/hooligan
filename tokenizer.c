@@ -30,6 +30,14 @@ Token *new_token(TokenKind kind, Token *cur, char *str)
     return tok;
 }
 
+bool isfor(char *p)
+{
+    if (strncmp(p, "for", 3) == 0 && !isident(*(p + 3)))
+    {
+        return true;
+    }
+    return false;
+}
 bool isif(char *p)
 {
     if (strncmp(p, "if", 2) == 0 && !isident(*(p + 2)))
@@ -114,6 +122,14 @@ Token *tokenize(char *p)
             cur = new_token(TK_ELSE, cur, p);
             cur->length = 4;
             p += 4;
+            continue;
+        }
+
+        if (isfor(p))
+        {
+            cur = new_token(TK_FOR, cur, p);
+            cur->length = 3;
+            p += 3;
             continue;
         }
 

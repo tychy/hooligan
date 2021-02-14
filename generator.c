@@ -1,4 +1,93 @@
 #include "hooligan.h"
+void gen_for_init(Node *node, int lab)
+{
+    if (node->kind != ND_FORINIT)
+    {
+        error("for文として不適切です");
+    }
+    if (node->lhs != NULL)
+    {
+        gen(node->lhs);
+    }
+    printf(".Lforstart%d:\n", lab);
+    if (node->rhs != NULL)
+    {
+        gen(node->rhs);
+    }
+    else
+    {
+        // 無条件でtrueとなるように
+        printf("  push 1\n");
+    }
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lforend%d\n", lab);
+}
+
+void gen_for_body(Node *node, int lab)
+{
+    if (node->kind != ND_FORBODY)
+    {
+        error("for文として不適切です");
+    }
+    gen(node->lhs);
+    if (node->rhs != NULL)
+    {
+        gen(node->rhs);
+    }
+    printf("  jmp .Lforstart%d\n", lab);
+}
+
+void gen_for(Node *node, int lab)
+{
+    if (node->kind != ND_FOR)
+    {
+        error("for文ではありません");
+    }
+    gen_for_init(node->lhs, lab);
+    gen_for_body(node->rhs, lab);
+    printf(".Lforend%d:\n", lab);
+}
+
+void gen_else(Node *node, int lab)
+{
+    if (node->kind != ND_ELSE)
+    {
+        error("else文ではありません");
+    }
+    gen(node->lhs);
+    printf("  jmp .Lend%d\n", lab);
+    printf(".Lelse%d:\n", lab);
+    gen(node->rhs);
+    printf(".Lend%d:\n", lab);
+}
+
+void gen_if(Node *node, int lab)
+{
+    if (node->kind != ND_IF)
+    {
+        error("if文ではありません");
+    }
+    gen(node->lhs);
+    if (node->rhs->kind == ND_ELSE)
+    {
+        printf("  pop rax\n");
+        printf("  cmp rax, 0\n");
+        printf("  je .Lelse%d\n", lab);
+        gen_else(node->rhs, lab);
+    }
+    else
+    {
+        printf("  pop rax\n");
+        printf("  cmp rax, 0\n");
+        printf("  je .Lend%d\n", lab);
+        gen(node->rhs);
+        printf("  jmp .Lend%d\n", lab);
+        printf(".Lend%d:\n", lab);
+        return;
+    }
+}
+
 void genl(Node *node)
 {
     if (node->kind != ND_LVAR)
@@ -10,6 +99,7 @@ void genl(Node *node)
     printf("  push rax\n");
     return;
 }
+
 void gen(Node *node)
 {
     switch (node->kind)
@@ -39,31 +129,13 @@ void gen(Node *node)
         printf("  ret\n");
         return;
     case ND_IF:
-        gen(node->lhs);
-        if (node->rhs->kind == ND_ELSE)
-        {
-            printf("  pop rax\n");
-            printf("  cmp rax, 0\n");
-            printf("  je .Lelse%d\n", label);
-            gen(node->rhs->lhs);
-            printf("  jmp .Lend%d\n", label);
-            printf(".Lelse%d:\n", label);
-            gen(node->rhs->rhs);
-            printf(".Lend%d:\n", label);
-            label++;
-            return;
-        }
-        else
-        {
-            printf("  pop rax\n");
-            printf("  cmp rax, 0\n");
-            printf("  je .Lend%d\n", label);
-            gen(node->rhs);
-            printf("  jmp .Lend%d\n", label);
-            printf(".Lend%d:\n", label);
-            label++;
-            return;
-        }
+        label++;
+        gen_if(node, label);
+        return;
+    case ND_FOR:
+        label++;
+        gen_for(node, label);
+        return;
     }
 
     gen(node->lhs);
