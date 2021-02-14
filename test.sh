@@ -82,6 +82,8 @@ assert 3 "a=1; if(a==0)if(a!=0)return 0; else return 4; else return 3;"
 assert 10 "for(i=0;i<10;) i=i+1;i;"
 assert 10 "i=0;for(;i<10;) i=i+1;i;"
 assert 10 "i=0;for(;;) if(i==10)return i;else i=i+1;i;"
+assert 1 "{1;}"
+assert 10 "i=0;{i=i+2;i=i*5;}"
 
 rm tmp
 rm tmp.s
