@@ -71,6 +71,7 @@ typedef enum
     ND_FORINIT,
     ND_FORBODY,
     ND_FOR,
+    ND_BLOCK,
 } NodeKind;
 
 typedef struct Node Node;
