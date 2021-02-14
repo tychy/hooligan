@@ -49,6 +49,22 @@ void gen_for(Node *node, int lab)
     printf(".Lforend%d:\n", lab);
 }
 
+void gen_while(Node *node, int lab)
+{
+    if (node->kind != ND_WHILE)
+    {
+        error("while文ではありません");
+    }
+    printf(".Lwhilestart%d:\n", lab);
+    gen(node->lhs);
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lwhileend%d\n", lab);
+    gen(node->rhs);
+    printf("  jmp .Lwhilestart%d\n", lab);
+    printf(".Lwhileend%d:\n", lab);
+}
+
 void gen_else(Node *node, int lab)
 {
     if (node->kind != ND_ELSE)
@@ -135,6 +151,10 @@ void gen(Node *node)
     case ND_FOR:
         label++;
         gen_for(node, label);
+        return;
+    case ND_WHILE:
+        label++;
+        gen_while(node, label);
         return;
     }
 
