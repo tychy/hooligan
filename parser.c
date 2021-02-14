@@ -205,9 +205,9 @@ Node *stmt()
         Node *end = expr();
         expect(")");
         Node *body = stmt();
-        Node *node1 = new_node(ND_FORINIT, initial, condition);
-        Node *node2 = new_node(ND_FORBODY, body, end);
-        node = new_node(ND_FOR, node1, node2);
+        Node *former = new_node(ND_FORINIT, initial, condition);
+        Node *latter = new_node(ND_FORBODY, body, end);
+        node = new_node(ND_FOR, former, latter);
     }
     else
     {
