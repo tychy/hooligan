@@ -203,7 +203,6 @@ Node *stmt()
         Node *condition = expr();
         expect(";");
         Node *end = expr();
-        expect(";");
         expect(")");
         Node *body = stmt();
         Node *node1 = new_node(ND_FORINIT, initial, condition);
