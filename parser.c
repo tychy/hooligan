@@ -211,7 +211,7 @@ Node *stmt()
             initial = expr();
             expect(";");
         }
-        
+
         if (consume(";"))
         {
             condition = NULL;
@@ -243,6 +243,18 @@ Node *stmt()
         Node *former = new_node(ND_FORINIT, initial, condition);
         Node *latter = new_node(ND_FORBODY, body, end);
         node = new_node(ND_FOR, former, latter);
+    }
+    else if (consume("{"))
+    {
+        Node *cur = new_node(ND_BLOCK, NULL, NULL);
+        node = cur;
+        while (!consume("}"))
+        {
+            cur->lhs = stmt();
+            cur->rhs = new_node(ND_BLOCK, NULL, NULL);
+            cur = cur->rhs;
+        }
+        return node;
     }
     else
     {
