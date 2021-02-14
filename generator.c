@@ -5,9 +5,20 @@ void gen_for_init(Node *node, int lab)
     {
         error("for文として不適切です");
     }
-    gen(node->lhs);
+    if (node->lhs != NULL)
+    {
+        gen(node->lhs);
+    }
     printf(".Lforstart%d:\n", lab);
-    gen(node->rhs);
+    if (node->rhs != NULL)
+    {
+        gen(node->rhs);
+    }
+    else
+    {
+        // 無条件でtrueとなるように
+        printf("  push 1\n");
+    }
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
     printf("  je .Lforend%d\n", lab);
@@ -20,7 +31,10 @@ void gen_for_body(Node *node, int lab)
         error("for文として不適切です");
     }
     gen(node->lhs);
-    gen(node->rhs);
+    if (node->rhs != NULL)
+    {
+        gen(node->rhs);
+    }
     printf("  jmp .Lforstart%d\n", lab);
 }
 
