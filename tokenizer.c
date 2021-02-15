@@ -40,6 +40,16 @@ bool isfor(char *p)
     }
     return false;
 }
+
+bool iswhile(char *p)
+{
+    if (strncmp(p, "while", 5) == 0 && !isident(*(p + 5)))
+    {
+        return true;
+    }
+    return false;
+}
+
 bool isif(char *p)
 {
     if (strncmp(p, "if", 2) == 0 && !isident(*(p + 2)))
@@ -132,6 +142,14 @@ Token *tokenize(char *p)
             cur = new_token(TK_FOR, cur, p);
             cur->length = 3;
             p += 3;
+            continue;
+        }
+
+        if (iswhile(p))
+        {
+            cur = new_token(TK_WHILE, cur, p);
+            cur->length = 5;
+            p += 5;
             continue;
         }
 
