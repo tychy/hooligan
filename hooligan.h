@@ -19,6 +19,7 @@ typedef enum
     TK_IF,
     TK_ELSE,
     TK_FOR,
+    TK_WHILE,
     TK_EOF,
 } TokenKind;
 
@@ -43,6 +44,7 @@ bool consume_return();
 bool consume_if();
 bool consume_else();
 bool consume_for();
+bool consume_while();
 void expect(char *op);
 bool at_eof();
 int expect_number();
@@ -71,6 +73,7 @@ typedef enum
     ND_FORINIT,
     ND_FORBODY,
     ND_FOR,
+    ND_WHILE,
 } NodeKind;
 
 typedef struct Node Node;
