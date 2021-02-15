@@ -137,15 +137,13 @@ void gen(Node *node)
         gen_for(node, label);
         return;
     case ND_BLOCK:
-        if (node->lhs != NULL)
-        {
-            gen(node->lhs);
-            if (node->rhs->lhs != NULL)
-            {
-                printf("  pop rax\n");
-                gen(node->rhs);
-            }
-        }
+        if (node->lhs == NULL)
+            return;
+        gen(node->lhs);
+        if (node->rhs->lhs == NULL)
+            return;
+        printf("  pop rax\n");
+        gen(node->rhs);
         return;
     }
 
