@@ -57,6 +57,16 @@ bool consume_for()
     return true;
 }
 
+bool consume_while()
+{
+    if (token->kind != TK_WHILE)
+    {
+        return false;
+    }
+    token = token->next;
+    return true;
+}
+
 void expect(char *op)
 {
     if (token->kind != TK_OPERATOR || token->string[0] != op[0])

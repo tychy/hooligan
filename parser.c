@@ -256,6 +256,13 @@ Node *stmt()
         }
         return node;
     }
+    else if (consume_while())
+    {
+        expect("(");
+        Node *condition = expr();
+        expect(")");
+        node = new_node(ND_WHILE, condition, stmt());
+    }
     else
     {
         node = expr();
