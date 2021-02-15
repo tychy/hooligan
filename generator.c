@@ -152,6 +152,15 @@ void gen(Node *node)
         label++;
         gen_for(node, label);
         return;
+    case ND_BLOCK:
+        if (node->lhs == NULL)
+            return;
+        gen(node->lhs);
+        if (node->rhs->lhs == NULL)
+            return;
+        printf("  pop rax\n");
+        gen(node->rhs);
+        return;
     case ND_WHILE:
         label++;
         gen_while(node, label);

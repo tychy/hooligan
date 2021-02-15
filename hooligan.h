@@ -73,6 +73,7 @@ typedef enum
     ND_FORINIT,
     ND_FORBODY,
     ND_FOR,
+    ND_BLOCK,
     ND_WHILE,
 } NodeKind;
 
