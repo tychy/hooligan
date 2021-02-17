@@ -165,6 +165,10 @@ void gen(Node *node)
         label++;
         gen_while(node, label);
         return;
+    case ND_FUNC:
+        printf("  call %.*s\n", node->length, node->name);
+        printf("  push rax\n");
+        return;
     }
 
     gen(node->lhs);
