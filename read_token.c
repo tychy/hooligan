@@ -85,37 +85,15 @@ int expect_number()
     return value;
 }
 
-int expect_var()
+Token *consume_ident()
 {
     if (token->kind != TK_IDENT)
     {
         error("変数ではありません");
     }
-    int offset;
-    LVar *lvar = find_lvar(token);
-    if (lvar)
-    {
-        offset = lvar->offset;
-    }
-    else
-    {
-        LVar *new_lvar = calloc(1, sizeof(LVar));
-        new_lvar->length = token->length;
-        new_lvar->name = token->string;
-        if (locals)
-        {
-            offset = locals->offset + 8;
-        }
-        else
-        {
-            offset = 8;
-        }
-        new_lvar->offset = offset;
-        new_lvar->next = locals;
-        locals = new_lvar;
-    }
+    Token *tok = token;
     token = token->next;
-    return offset;
+    return tok;
 }
 
 bool at_eof()
