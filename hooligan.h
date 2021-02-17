@@ -48,7 +48,7 @@ bool consume_while();
 void expect(char *op);
 bool at_eof();
 int expect_number();
-int expect_var();
+Token *consume_ident();
 Token *tokenize();
 
 // Parser
@@ -75,6 +75,7 @@ typedef enum
     ND_FOR,
     ND_BLOCK,
     ND_WHILE,
+    ND_FUNC,
 } NodeKind;
 
 typedef struct Node Node;
@@ -88,6 +89,8 @@ struct Node
     Node *rhs;
     int val;
     int offset;
+    char *name;
+    int length;
 };
 
 Node *expr();
