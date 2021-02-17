@@ -25,6 +25,15 @@ Node *new_node_var(int offset)
     return node;
 }
 
+Node *new_node_func(char *name, int length)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_FUNC;
+    node->name = name;
+    node->length = length;
+    return node;
+}
+
 Node *num()
 {
     return new_node_num(expect_number());
@@ -32,7 +41,39 @@ Node *num()
 
 Node *ident()
 {
-    return new_node_var(expect_var());
+    Token *tok = consume_ident();
+    if (consume("("))
+    {
+        expect(")");
+        return new_node_func(tok->string, tok->length);
+    }
+    else
+    {
+        int offset;
+        LVar *lvar = find_lvar(tok);
+        if (lvar)
+        {
+            offset = lvar->offset;
+        }
+        else
+        {
+            LVar *new_lvar = calloc(1, sizeof(LVar));
+            new_lvar->length = tok->length;
+            new_lvar->name = tok->string;
+            if (locals)
+            {
+                offset = locals->offset + 8;
+            }
+            else
+            {
+                offset = 8;
+            }
+            new_lvar->offset = offset;
+            new_lvar->next = locals;
+            locals = new_lvar;
+        }
+        return new_node_var(offset);
+    }
 }
 
 Node *primary()
