@@ -2,8 +2,8 @@
 
 int foo() { return 10; }
 
-int hello_world()
+int helloworld()
 {
-    printf("Hello World!");
+    printf("Hello World!\n");
     return 1;
 }
