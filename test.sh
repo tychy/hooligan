@@ -5,7 +5,7 @@ assert() {
   input="$2"
 
   ./exe.out "$input" > tmp.s
-  cc -o tmp tmp.s
+  cc -o tmp tmp.s foo.c
   ./tmp
   actual="$?"
 
@@ -86,7 +86,8 @@ assert 10 "i=0;while(i<10) i = i+1;i;"
 assert 5 "i=0;while(i<10) if(i==5) return i;else i = i+1;i;"
 assert 10 "i=0;while(i<10) while(i<10)i=i+1;i;"
 assert 1 "{1;}"
-assert 10 "i=0;{i=i+2;i=i*5;}"
+assert 12 "i=0;{i=i+2;i=i*6;}"
+assert 1 "helloworld();"
 assert 10 "foo();"
 rm tmp
 rm tmp.s
