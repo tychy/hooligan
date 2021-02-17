@@ -167,6 +167,7 @@ void gen(Node *node)
         return;
     case ND_FUNC:
         printf("  call %.*s\n", node->length, node->name);
+        printf("  push eax\n");
         return;
     }
 
