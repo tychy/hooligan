@@ -1,6 +1,6 @@
 CFLAGS=-std=c11 -static
-SOURCE=main.c tokenizer.c parser.c generator.c read_token.c local_variable.c
-
+SOURCE=$(wildcard *.c)
+OBJS=$(SRCS:.c=.o)
 main: $(SOURCE)
 	cc $(CFLAGS) -o exe.out $(SOURCE)
 test: main exe.out
