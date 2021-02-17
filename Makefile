@@ -1,8 +1,11 @@
 CFLAGS=-std=c11 -static
 SOURCE=$(wildcard *.c)
-OBJS=$(SRCS:.c=.o)
-main: $(SOURCE)
-	cc $(CFLAGS) -o exe.out $(SOURCE)
+OBJS=$(SOURCE:.c=.o)
+main: $(OBJS)
+	cc $(CFLAGS) -o exe.out $(OBJS)
+
+$(OBJS): hooligan.h
+
 test: main exe.out
 	./test.sh
 clean:
