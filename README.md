@@ -36,3 +36,7 @@ https://www.sigbus.info/compilerbook
 [さくっとアセンブリ入門 hello,world編](https://rabbitfoot141.hatenablog.com/entry/2016/05/01/124410)
 
 [System V ABI](https://software.intel.com/sites/default/files/article/402129/mpx-linux64-abi.pdf)
+
+## 関数呼び出しABI
+
+If the class is INTEGER or POINTER, the next available register of the sequence %rdi, %rsi, %rdx, %rcx, %r8 and %r9 is used.
