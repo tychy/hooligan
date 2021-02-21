@@ -2,7 +2,7 @@
 
 int foo() { return 10; }
 
-int helloworld()
+int hello_world()
 {
     printf("Hello World!\n");
     return 1;
@@ -11,4 +11,9 @@ int helloworld()
 int two(int x)
 {
     return 2 * x;
+}
+
+int BIG(int x)
+{
+    return x + 10;
 }

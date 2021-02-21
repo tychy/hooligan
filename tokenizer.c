@@ -79,7 +79,7 @@ bool isreturn(char *p)
 
 bool isident(char p)
 {
-    if (p >= 'a' && p <= 'z')
+    if ((p >= 'a' && p <= 'z') || (p >= 'A' && p <= 'Z') || p == '_')
     {
         return true;
     }

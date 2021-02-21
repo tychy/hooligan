@@ -87,11 +87,12 @@ assert 5 "i=0;while(i<10) if(i==5) return i;else i = i+1;i;"
 assert 10 "i=0;while(i<10) while(i<10)i=i+1;i;"
 assert 1 "{1;}"
 assert 12 "i=0;{i=i+2;i=i*6;}"
-assert 1 "helloworld();"
+assert 1 "hello_world();"
 assert 10 "foo();"
 assert 6 "two(3);"
 assert 48 "two(24);"
 assert 148 "two(5 * 20 - 2 * (6+7));"
+assert 43 "BIG(33);"
 
 rm tmp
 rm tmp.s
