@@ -45,8 +45,6 @@ Node *ident()
     Token *tok = consume_ident();
     if (consume("("))
     {
-        // expect(")");
-        // return new_node_func(tok->string, tok->length);
         if (consume(")"))
         {
             return new_node_func(tok->string, tok->length, NULL);
