@@ -31,7 +31,7 @@ Node *new_node_func(char *name, int length, Node *arg)
     node->kind = ND_FUNC;
     node->name = name;
     node->length = length;
-    node->arg = arg;
+    node->lhs = new_node(ND_ARG, arg, NULL);
     return node;
 }
 

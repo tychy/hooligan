@@ -166,9 +166,9 @@ void gen(Node *node)
         gen_while(node, label);
         return;
     case ND_FUNC:
-        if (node->arg != NULL)
+        if (node->lhs->lhs != NULL)
         {
-            gen(node->arg);
+            gen(node->lhs->lhs);
             printf("  pop rdi\n");
         }
         printf("  call %.*s\n", node->length, node->name);

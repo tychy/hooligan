@@ -76,6 +76,7 @@ typedef enum
     ND_BLOCK,
     ND_WHILE,
     ND_FUNC,
+    ND_ARG
 } NodeKind;
 
 typedef struct Node Node;
@@ -91,7 +92,6 @@ struct Node
     int offset;
     char *name;
     int length;
-    Node *arg;
 };
 
 Node *expr();
