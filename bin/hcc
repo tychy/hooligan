@@ -2,7 +2,6 @@
 
 # set -euo pipefail
 
-
 if [ $# -eq 0 ]; then
     echo "引数なしでは実行できません"
     exit 1
@@ -19,13 +18,19 @@ elif [ $1 = "exec" ]; then
     docker-compose run hooligan ./bin/hcc execdr "$2"
 elif [ $1 = "execdr" ]; then
     make
-    ./exe.out "$2" > tmp.s
+    ./exe.out "$2" >tmp.s
     cat ./tmp.s
     cc -o tmp tmp.s foo.c
     ./tmp
     echo "結果: $?"
     rm tmp.s
     rm tmp
+elif [ $1 = "asm" ]; then
+    docker-compose run hooligan ./bin/hcc asmdr "$2"
+elif [ $1 = "asmdr" ]; then
+    cc -c $2 -o a.o
+    objdump -d -M Intel a.o
+    rm a.o
 else
     echo "存在しないサブコマンドです"
     exit 1
