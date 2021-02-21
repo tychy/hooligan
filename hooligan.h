@@ -91,6 +91,7 @@ struct Node
     int offset;
     char *name;
     int length;
+    Node *arg;
 };
 
 Node *expr();

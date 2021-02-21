@@ -166,6 +166,11 @@ void gen(Node *node)
         gen_while(node, label);
         return;
     case ND_FUNC:
+        if (node->arg != NULL)
+        {
+            gen(node->arg);
+            printf("  pop rdi\n");
+        }
         printf("  call %.*s\n", node->length, node->name);
         printf("  push rax\n");
         return;

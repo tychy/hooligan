@@ -89,6 +89,10 @@ assert 1 "{1;}"
 assert 12 "i=0;{i=i+2;i=i*6;}"
 assert 1 "helloworld();"
 assert 10 "foo();"
+assert 6 "two(3);"
+assert 48 "two(24);"
+assert 148 "two(5 * 20 - 2 * (6+7));"
+
 rm tmp
 rm tmp.s
 

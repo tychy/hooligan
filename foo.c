@@ -7,3 +7,8 @@ int helloworld()
     printf("Hello World!\n");
     return 1;
 }
+
+int two(int x)
+{
+    return 2 * x;
+}

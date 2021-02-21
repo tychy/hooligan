@@ -25,12 +25,13 @@ Node *new_node_var(int offset)
     return node;
 }
 
-Node *new_node_func(char *name, int length)
+Node *new_node_func(char *name, int length, Node *arg)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_FUNC;
     node->name = name;
     node->length = length;
+    node->arg = arg;
     return node;
 }
 
@@ -44,8 +45,18 @@ Node *ident()
     Token *tok = consume_ident();
     if (consume("("))
     {
-        expect(")");
-        return new_node_func(tok->string, tok->length);
+        // expect(")");
+        // return new_node_func(tok->string, tok->length);
+        if (consume(")"))
+        {
+            return new_node_func(tok->string, tok->length, NULL);
+        }
+        else
+        {
+            Node *arg = expr();
+            expect(")");
+            return new_node_func(tok->string, tok->length, arg);
+        }
     }
     else
     {
