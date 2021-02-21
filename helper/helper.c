@@ -32,3 +32,8 @@ int add_qua(int x, int y, int z, int a)
 {
     return x + y + z + a;
 }
+
+int add_pen(int x, int y, int z, int a, int b)
+{
+    return x + y + z + a + b;
+}

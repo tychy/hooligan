@@ -96,6 +96,7 @@ assert 43 "BIG(33);"
 assert 25 "add(12,13);"
 assert 68 "add_tri(4, 50, 14);"
 assert 10 "add_qua(1,3,2,4);"
+assert 17 "add_pen(-100,200,57,-117,-23);"
 
 rm tmp
 rm tmp.s
