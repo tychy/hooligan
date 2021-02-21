@@ -57,16 +57,6 @@ Node *ident()
             count++;
         }
         return node;
-        // if (consume(")"))
-        // {
-        //     return new_node_func(tok->string, tok->length, NULL);
-        // }
-        // else
-        // {
-        //     Node *arg = expr();
-        //     expect(")");
-        //     return new_node_func(tok->string, tok->length, arg);
-        // }
     }
     else
     {
