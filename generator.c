@@ -124,6 +124,9 @@ void gen_function(Node *node)
         case 1:
             printf("  pop rdi\n");
             break;
+        case 2:
+            printf("  pop rsi\n");
+            break;
         default:
             error("引数の数が多すぎます");
             break;

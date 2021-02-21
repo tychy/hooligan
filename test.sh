@@ -93,6 +93,7 @@ assert 6 "two(3);"
 assert 48 "two(24);"
 assert 148 "two(5 * 20 - 2 * (6+7));"
 assert 43 "BIG(33);"
+aseert 25 "add(12,13);"
 
 rm tmp
 rm tmp.s
