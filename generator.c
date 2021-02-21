@@ -111,6 +111,7 @@ void gen_function(Node *node)
         error("関数ではありません");
     }
     Node *arg = node->rhs;
+    Node *first_arg = NULL;
     int count = 1;
     while (arg != NULL)
     {
@@ -118,12 +119,17 @@ void gen_function(Node *node)
         {
             error("引数ではありません");
         }
+        // 第一引数のレジスタRDIは計算で使われるため最後にpopしなければならない
+        if (count == 1)
+        {
+            first_arg = arg;
+            arg = arg->rhs;
+            count++;
+            continue;
+        }
         gen(arg->lhs);
         switch (count)
         {
-        case 1:
-            printf("  pop rdi\n");
-            break;
         case 2:
             printf("  pop rsi\n");
             break;
@@ -139,6 +145,11 @@ void gen_function(Node *node)
         }
         arg = arg->rhs;
         count++;
+    }
+    if (first_arg != NULL)
+    {
+        gen(first_arg->lhs);
+        printf("  pop rdi\n");
     }
     printf("  call %.*s\n", node->length, node->name);
     printf("  push rax\n");
