@@ -5,7 +5,7 @@ assert() {
   input="$2"
 
   ./bin/exe.out "$input" > tmp.s
-  cc -o tmp tmp.s foo.c
+  cc -o tmp tmp.s helper/helper.c
   ./tmp
   actual="$?"
 

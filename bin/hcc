@@ -20,7 +20,7 @@ elif [ $1 = "execdr" ]; then
     make
     ./bin/exe.out "$2" >tmp.s
     cat ./tmp.s
-    cc -o tmp tmp.s foo.c
+    cc -o tmp tmp.s helper/helper.c
     ./tmp
     echo "結果: $?"
     rm tmp.s
