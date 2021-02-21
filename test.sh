@@ -95,6 +95,7 @@ assert 148 "two(5 * 20 - 2 * (6+7));"
 assert 43 "BIG(33);"
 assert 25 "add(12,13);"
 assert 68 "add_tri(4, 50, 14);"
+assert 10 "add_qua(1,3,2,4);"
 
 rm tmp
 rm tmp.s
