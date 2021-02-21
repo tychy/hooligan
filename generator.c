@@ -104,6 +104,37 @@ void gen_if(Node *node, int lab)
     }
 }
 
+void gen_function(Node *node)
+{
+    if (node->kind != ND_FUNC)
+    {
+        error("関数ではありません");
+    }
+    Node *arg = node->rhs;
+    int count = 1;
+    while (arg != NULL)
+    {
+        if (arg->kind != ND_ARG)
+        {
+            error("引数ではありません");
+        }
+        gen(arg->lhs);
+        switch (count)
+        {
+        case 1:
+            printf("  pop rdi\n");
+            break;
+        default:
+            error("引数の数が多すぎます");
+            break;
+        }
+        arg = arg->rhs;
+        count++;
+    }
+    printf("  call %.*s\n", node->length, node->name);
+    printf("  push rax\n");
+}
+
 void genl(Node *node)
 {
     if (node->kind != ND_LVAR)
@@ -166,13 +197,7 @@ void gen(Node *node)
         gen_while(node, label);
         return;
     case ND_FUNC:
-        if (node->lhs->lhs != NULL)
-        {
-            gen(node->lhs->lhs);
-            printf("  pop rdi\n");
-        }
-        printf("  call %.*s\n", node->length, node->name);
-        printf("  push rax\n");
+        gen_function(node);
         return;
     }
 
