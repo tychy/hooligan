@@ -37,3 +37,8 @@ int add_pen(int x, int y, int z, int a, int b)
 {
     return x + y + z + a + b;
 }
+
+int add_hex(int x, int y, int z, int a, int b, int c)
+{
+    return x + y + z + a + b + c;
+}
