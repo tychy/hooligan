@@ -44,8 +44,19 @@ Node *ident()
     Token *tok = consume_ident();
     if (consume("("))
     {
-        expect(")");
-        return new_node_func(tok->string, tok->length);
+        Node *node = new_node_func(tok->string, tok->length);
+        Node *arg_top = node;
+        int count = 0;
+        while (!consume(")"))
+        {
+            if (count > 0)
+                expect(",");
+            Node *arg = new_node(ND_ARG, expr(), NULL);
+            arg_top->rhs = arg;
+            arg_top = arg;
+            count++;
+        }
+        return node;
     }
     else
     {
@@ -263,14 +274,6 @@ Node *stmt()
             expect(";");
         }
 
-        // expect("(");
-        // Node *initial = consume(";") ? NULL : expr();
-        // expect(";");
-        // Node *condition = consume(";") ? NULL : expr();
-        // expect(";");
-        // // Node *end = consume(";") ? NULL : expr();
-        // // expect(")");
-        // Node *end;
         if (consume(")"))
         {
             end = NULL;

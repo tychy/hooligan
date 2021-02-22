@@ -76,6 +76,7 @@ typedef enum
     ND_BLOCK,
     ND_WHILE,
     ND_FUNC,
+    ND_ARG
 } NodeKind;
 
 typedef struct Node Node;

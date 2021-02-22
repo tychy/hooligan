@@ -2,7 +2,7 @@
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
-char *operator_list[16] = {
+char *operator_list[17] = {
     "==",
     "!=",
     ">=",
@@ -19,6 +19,7 @@ char *operator_list[16] = {
     ";",
     "{",
     "}",
+    ",",
 };
 
 int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
@@ -79,7 +80,7 @@ bool isreturn(char *p)
 
 bool isident(char p)
 {
-    if (p >= 'a' && p <= 'z')
+    if ((p >= 'a' && p <= 'z') || (p >= 'A' && p <= 'Z') || p == '_')
     {
         return true;
     }

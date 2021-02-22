@@ -4,8 +4,8 @@ assert() {
   expected="$1"
   input="$2"
 
-  ./exe.out "$input" > tmp.s
-  cc -o tmp tmp.s foo.c
+  ./bin/exe.out "$input" > tmp.s
+  cc -o tmp tmp.s helper/helper.c
   ./tmp
   actual="$?"
 
@@ -87,8 +87,18 @@ assert 5 "i=0;while(i<10) if(i==5) return i;else i = i+1;i;"
 assert 10 "i=0;while(i<10) while(i<10)i=i+1;i;"
 assert 1 "{1;}"
 assert 12 "i=0;{i=i+2;i=i*6;}"
-assert 1 "helloworld();"
+assert 1 "hello_world();"
 assert 10 "foo();"
+assert 6 "two(3);"
+assert 48 "two(24);"
+assert 148 "two(5 * 20 - 2 * (6+7));"
+assert 43 "BIG(33);"
+assert 25 "add(12,13);"
+assert 68 "add_tri(4, 50, 14);"
+assert 10 "add_qua(1,3,2,4);"
+assert 17 "add_pen(-100,200,57,-117,-23);"
+assert 23 "add_hex(23,19,-9,-15,5,0);"
+
 rm tmp
 rm tmp.s
 
