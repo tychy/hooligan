@@ -185,11 +185,37 @@ void gen_function_def(Node *node)
     printf("  mov rbp, rsp\n");
     printf("  sub rsp, 208\n");
 
-    if (node->lhs != NULL)
+    int count = 1;
+    Node *arg = node->lhs;
+    while (arg != NULL)
     {
-        genl(node->lhs);
+        genl(arg);
         printf("  pop rax\n");
-        printf("  mov [rax], rdi\n");
+        switch (count)
+        {
+        case 1:
+            printf("  mov [rax], rdi\n");
+            break;
+        case 2:
+            printf("  mov [rax], rsi\n");
+            break;
+        case 3:
+            printf("  mov [rax], rdx\n");
+            break;
+        case 4:
+            printf("  mov [rax], rcx\n");
+            break;
+        case 5:
+            printf("  mov [rax], r8\n");
+            break;
+        case 6:
+            printf("  mov [rax], r9\n");
+            break;
+        default:
+            error("引数の数が多すぎます");
+        }
+        count++;
+        arg = arg->lhs;
     }
 
     gen(node->rhs);
