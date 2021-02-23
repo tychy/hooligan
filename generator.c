@@ -185,6 +185,7 @@ void gen_function_def(Node *node)
     printf("  mov rbp, rsp\n");
     printf("  sub rsp, 208\n");
 
+    // 第1〜6引数をローカル変数の領域に書き出す
     int count = 1;
     Node *arg = node->lhs;
     while (arg != NULL)
