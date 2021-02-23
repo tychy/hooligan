@@ -161,6 +161,28 @@ void gen_function(Node *node)
     printf("  push rax\n");
 }
 
+void gen_function_def(Node *node)
+{
+    if (node->kind != ND_FUNCDEF)
+    {
+        error("関数定義ではありません");
+    }
+    printf("  %.*s:\n", node->length, node->name);
+    // プロローグ
+    printf("  push rbp\n");
+    printf("  mov rbp, rsp\n");
+    printf("  sub rsp, 208\n");
+
+    gen(node->rhs);
+    printf("  pop rax\n");
+
+    // エピローグ
+    // ここに書くと多分returnなしで戻り値を指定できるようになってしまう、どうすべきか
+    printf("  mov rsp, rbp\n");
+    printf("  pop rbp\n");
+    printf("  ret\n");
+}
+
 void genl(Node *node)
 {
     if (node->kind != ND_LVAR)
@@ -224,6 +246,9 @@ void gen(Node *node)
         return;
     case ND_FUNC:
         gen_function(node);
+        return;
+    case ND_FUNCDEF:
+        gen_function_def(node);
         return;
     }
 
