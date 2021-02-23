@@ -322,7 +322,35 @@ Node *func()
     node->name = tok->string;
     node->length = tok->length;
     expect("(");
-    expect(")");
+    Node *arg_top = node;
+    int arg_count = 0;
+    while (!consume(")"))
+    {
+        arg_count++;
+        if (arg_count > 6)
+            error("引数の数が多すぎます");
+        if (arg_count != 1)
+            expect(",");
+        Token *argTok = consume_ident();
+        LVar *new_lvar = calloc(1, sizeof(LVar));
+        new_lvar->length = argTok->length;
+        new_lvar->name = argTok->string;
+        int offset;
+        if (locals)
+        {
+            offset = locals->offset + 8;
+        }
+        else
+        {
+            offset = 8;
+        }
+        new_lvar->offset = offset;
+        new_lvar->next = locals;
+        locals = new_lvar;
+        Node *arg = new_node_var(offset);
+        arg_top->lhs = arg;
+        arg_top = arg;
+    }
     node->rhs = stmt();
     return node;
 }
@@ -335,6 +363,7 @@ void program()
         Node *node = func();
         nodes[i] = node;
         i++;
+        locals = NULL;
     }
     nodes[i + 1] = NULL;
 }
