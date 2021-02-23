@@ -315,7 +315,7 @@ Node *stmt()
     return node;
 }
 
-void func()
+Node *func()
 {
     Node *node = new_node(ND_FUNCDEF, NULL, NULL);
     Token *tok = consume_ident();
@@ -332,7 +332,7 @@ void program()
     int i = 0;
     while (!at_eof())
     {
-        Node *node = stmt();
+        Node *node = func();
         nodes[i] = node;
         i++;
     }
