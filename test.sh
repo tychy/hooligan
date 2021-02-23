@@ -99,6 +99,11 @@ assert 10 "main(){ add_qua(1,3,2,4); } add_qua(a,b,c,d) a+b+c+d;"
 assert 17 "main(){ add_pen(-100,200,57,-117,-23); }add_pen(i,j,k,l,m) i+j+k+l+m;"
 assert 23 "main(){ add_hex(23,19,-9,-15,5,0); } add_hex(one,two,three,four,five,six) one+two+three+four+five+six;"
 assert 30 "main(){ hoge(); } hoge(){ return 30; }"
+assert 1 "main(){ fibo(1); }fibo(index) {if(index==0)return 0; if(index==1)return 1; return fibo(index-1)+fibo(index-2);}"
+assert 5 "main(){ fibo(5); }fibo(index) {if(index==0)return 0; if(index==1)return 1; return fibo(index-1)+fibo(index-2);}"
+assert 21 "main(){ fibo(8); }fibo(index) {if(index==0)return 0; if(index==1)return 1; return fibo(index-1)+fibo(index-2);}"
+assert 55 "main(){ fibo(10); }fibo(index) {if(index==0)return 0; if(index==1)return 1; return fibo(index-1)+fibo(index-2);}"
+
 rm tmp
 rm tmp.s
 
