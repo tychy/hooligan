@@ -314,8 +314,8 @@ Node *func()
             error("引数の数が多すぎます");
         if (arg_count != 1)
             expect(",");
-        Token *argTok = consume_ident();
-        int offset = def_lvar(argTok);
+        Token *arg_token = consume_ident();
+        int offset = def_lvar(arg_token);
         Node *arg = new_node_var(offset);
         arg_top->lhs = arg;
         arg_top = arg;
