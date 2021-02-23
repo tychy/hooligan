@@ -113,5 +113,6 @@ struct LVar
 extern LVar *locals;
 
 LVar *find_lvar(Token *tok);
+int def_lvar(Token *tok);
 
 #endif

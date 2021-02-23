@@ -63,26 +63,9 @@ Node *ident()
         int offset;
         LVar *lvar = find_lvar(tok);
         if (lvar)
-        {
             offset = lvar->offset;
-        }
         else
-        {
-            LVar *new_lvar = calloc(1, sizeof(LVar));
-            new_lvar->length = tok->length;
-            new_lvar->name = tok->string;
-            if (locals)
-            {
-                offset = locals->offset + 8;
-            }
-            else
-            {
-                offset = 8;
-            }
-            new_lvar->offset = offset;
-            new_lvar->next = locals;
-            locals = new_lvar;
-        }
+            offset = def_lvar(tok);
         return new_node_var(offset);
     }
 }
@@ -332,21 +315,7 @@ Node *func()
         if (arg_count != 1)
             expect(",");
         Token *argTok = consume_ident();
-        LVar *new_lvar = calloc(1, sizeof(LVar));
-        new_lvar->length = argTok->length;
-        new_lvar->name = argTok->string;
-        int offset;
-        if (locals)
-        {
-            offset = locals->offset + 8;
-        }
-        else
-        {
-            offset = 8;
-        }
-        new_lvar->offset = offset;
-        new_lvar->next = locals;
-        locals = new_lvar;
+        int offset = def_lvar(argTok);
         Node *arg = new_node_var(offset);
         arg_top->lhs = arg;
         arg_top = arg;
