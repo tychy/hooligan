@@ -161,6 +161,18 @@ void gen_function(Node *node)
     printf("  push rax\n");
 }
 
+void genl(Node *node)
+{
+    if (node->kind != ND_LVAR)
+    {
+        error("変数ではありません");
+    }
+    printf("  mov rax, rbp\n");
+    printf("  sub rax, %d\n", node->offset);
+    printf("  push rax\n");
+    return;
+}
+
 void gen_function_def(Node *node)
 {
     if (node->kind != ND_FUNCDEF)
@@ -173,6 +185,13 @@ void gen_function_def(Node *node)
     printf("  mov rbp, rsp\n");
     printf("  sub rsp, 208\n");
 
+    if (node->lhs != NULL)
+    {
+        genl(node->lhs);
+        printf("  pop rax\n");
+        printf("  mov [rax], rdi\n");
+    }
+
     gen(node->rhs);
     printf("  pop rax\n");
 
@@ -181,18 +200,6 @@ void gen_function_def(Node *node)
     printf("  mov rsp, rbp\n");
     printf("  pop rbp\n");
     printf("  ret\n");
-}
-
-void genl(Node *node)
-{
-    if (node->kind != ND_LVAR)
-    {
-        error("変数ではありません");
-    }
-    printf("  mov rax, rbp\n");
-    printf("  sub rax, %d\n", node->offset);
-    printf("  push rax\n");
-    return;
 }
 
 void gen(Node *node)
