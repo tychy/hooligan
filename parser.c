@@ -319,6 +319,8 @@ void func()
 {
     Node *node = new_node(ND_FUNCDEF, NULL, NULL);
     Token *tok = consume_ident();
+    node->name = tok->string;
+    node->length = tok->length;
     expect("(");
     expect(")");
     node->rhs = stmt();
