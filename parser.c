@@ -63,26 +63,9 @@ Node *ident()
         int offset;
         LVar *lvar = find_lvar(tok);
         if (lvar)
-        {
             offset = lvar->offset;
-        }
         else
-        {
-            LVar *new_lvar = calloc(1, sizeof(LVar));
-            new_lvar->length = tok->length;
-            new_lvar->name = tok->string;
-            if (locals)
-            {
-                offset = locals->offset + 8;
-            }
-            else
-            {
-                offset = 8;
-            }
-            new_lvar->offset = offset;
-            new_lvar->next = locals;
-            locals = new_lvar;
-        }
+            offset = def_lvar(tok);
         return new_node_var(offset);
     }
 }
@@ -227,7 +210,19 @@ Node *expr()
 Node *stmt()
 {
     Node *node;
-    if (consume_return())
+    if (consume("{"))
+    {
+        Node *cur = new_node(ND_BLOCK, NULL, NULL);
+        node = cur;
+        while (!consume("}"))
+        {
+            cur->lhs = stmt();
+            cur->rhs = new_node(ND_BLOCK, NULL, NULL);
+            cur = cur->rhs;
+        }
+        return node;
+    }
+    else if (consume_return())
     {
         node = new_node(ND_RETURN, expr(), NULL);
         expect(";");
@@ -288,18 +283,6 @@ Node *stmt()
         Node *latter = new_node(ND_FORBODY, body, end);
         node = new_node(ND_FOR, former, latter);
     }
-    else if (consume("{"))
-    {
-        Node *cur = new_node(ND_BLOCK, NULL, NULL);
-        node = cur;
-        while (!consume("}"))
-        {
-            cur->lhs = stmt();
-            cur->rhs = new_node(ND_BLOCK, NULL, NULL);
-            cur = cur->rhs;
-        }
-        return node;
-    }
     else if (consume_while())
     {
         expect("(");
@@ -315,14 +298,41 @@ Node *stmt()
     return node;
 }
 
+Node *func()
+{
+    Node *node = new_node(ND_FUNCDEF, NULL, NULL);
+    Token *tok = consume_ident();
+    node->name = tok->string;
+    node->length = tok->length;
+    expect("(");
+    Node *arg_top = node;
+    int arg_count = 0;
+    while (!consume(")"))
+    {
+        arg_count++;
+        if (arg_count > 6)
+            error("引数の数が多すぎます");
+        if (arg_count != 1)
+            expect(",");
+        Token *arg_token = consume_ident();
+        int offset = def_lvar(arg_token);
+        Node *arg = new_node_var(offset);
+        arg_top->lhs = arg;
+        arg_top = arg;
+    }
+    node->rhs = stmt();
+    return node;
+}
+
 void program()
 {
     int i = 0;
     while (!at_eof())
     {
-        Node *node = stmt();
+        Node *node = func();
         nodes[i] = node;
         i++;
+        locals = NULL;
     }
     nodes[i + 1] = NULL;
 }

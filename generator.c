@@ -173,6 +173,62 @@ void genl(Node *node)
     return;
 }
 
+void gen_function_def(Node *node)
+{
+    if (node->kind != ND_FUNCDEF)
+    {
+        error("関数定義ではありません");
+    }
+    printf("%.*s:\n", node->length, node->name);
+    // プロローグ
+    printf("  push rbp\n");
+    printf("  mov rbp, rsp\n");
+    printf("  sub rsp, 208\n");
+
+    // 第1〜6引数をローカル変数の領域に書き出す
+    int count = 1;
+    Node *arg = node->lhs;
+    while (arg != NULL)
+    {
+        genl(arg);
+        printf("  pop rax\n");
+        switch (count)
+        {
+        case 1:
+            printf("  mov [rax], rdi\n");
+            break;
+        case 2:
+            printf("  mov [rax], rsi\n");
+            break;
+        case 3:
+            printf("  mov [rax], rdx\n");
+            break;
+        case 4:
+            printf("  mov [rax], rcx\n");
+            break;
+        case 5:
+            printf("  mov [rax], r8\n");
+            break;
+        case 6:
+            printf("  mov [rax], r9\n");
+            break;
+        default:
+            error("引数の数が多すぎます");
+        }
+        count++;
+        arg = arg->lhs;
+    }
+
+    gen(node->rhs);
+    printf("  pop rax\n");
+
+    // エピローグ
+    // ここに書くと多分returnなしで戻り値を指定できるようになってしまう、どうすべきか
+    printf("  mov rsp, rbp\n");
+    printf("  pop rbp\n");
+    printf("  ret\n");
+}
+
 void gen(Node *node)
 {
     switch (node->kind)
@@ -224,6 +280,9 @@ void gen(Node *node)
         return;
     case ND_FUNC:
         gen_function(node);
+        return;
+    case ND_FUNCDEF:
+        gen_function_def(node);
         return;
     }
 
