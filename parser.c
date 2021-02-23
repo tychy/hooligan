@@ -315,6 +315,16 @@ Node *stmt()
     return node;
 }
 
+void func()
+{
+    Node *node = new_node(ND_FUNCDEF, NULL, NULL);
+    Token *tok = consume_ident();
+    expect("(");
+    expect(")");
+    node->rhs = stmt();
+    return node;
+}
+
 void program()
 {
     int i = 0;
