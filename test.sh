@@ -109,8 +109,6 @@ assert 21 "int main(){ fibo(8); }
           int fibo(int index) {if(index==0)return 0; if(index==1)return 1; return fibo(index-1)+fibo(index-2);}"
 assert 55 "int main(){ fibo(10); }
           int fibo(int index) {if(index==0)return 0; if(index==1)return 1; return fibo(index-1)+fibo(index-2);}"
-#assert 11 "int main(){a=11;return &a;}"
-#assert 12 "int main(){a=12;return *8;}"
 assert 12 "int main(){int a;int b;a=12;b=&a;return *b;}"
 assert 15 "int main(){int a; int b; int c;a=12;b=15;c= &a - 8;return *c;}"
 rm tmp
