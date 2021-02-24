@@ -42,6 +42,13 @@ Node *num()
 Node *ident()
 {
     Token *tok = consume_ident();
+    if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
+    {
+
+        tok = consume_ident();
+        int offset = def_lvar(tok);
+        return new_node_var(offset);
+    }
     if (consume("("))
     {
         Node *node = new_node_func(tok->string, tok->length);
@@ -65,7 +72,7 @@ Node *ident()
         if (lvar)
             offset = lvar->offset;
         else
-            offset = def_lvar(tok);
+            error("変数が定義されていません");
         return new_node_var(offset);
     }
 }
@@ -312,6 +319,11 @@ Node *func()
 {
     Node *node = new_node(ND_FUNCDEF, NULL, NULL);
     Token *tok = consume_ident();
+
+    if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
+        tok = consume_ident();
+    else
+        error("関数の宣言に型がありません");
     node->name = tok->string;
     node->length = tok->length;
     expect("(");
@@ -325,6 +337,12 @@ Node *func()
         if (arg_count != 1)
             expect(",");
         Token *arg_token = consume_ident();
+
+        if (arg_token->length == 3 && strncmp(arg_token->string, "int", 3) == 0)
+            arg_token = consume_ident();
+        else
+            error("引数に型がありません");
+
         int offset = def_lvar(arg_token);
         Node *arg = new_node_var(offset);
         arg_top->lhs = arg;
