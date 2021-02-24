@@ -2,7 +2,7 @@
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
-char *operator_list[17] = {
+char *operator_list[18] = {
     "==",
     "!=",
     ">=",
@@ -20,6 +20,7 @@ char *operator_list[17] = {
     "{",
     "}",
     ",",
+    "&",
 };
 
 int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);

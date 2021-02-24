@@ -103,7 +103,10 @@ assert 1 "main(){ fibo(1); }fibo(index) {if(index==0)return 0; if(index==1)retur
 assert 5 "main(){ fibo(5); }fibo(index) {if(index==0)return 0; if(index==1)return 1; return fibo(index-1)+fibo(index-2);}"
 assert 21 "main(){ fibo(8); }fibo(index) {if(index==0)return 0; if(index==1)return 1; return fibo(index-1)+fibo(index-2);}"
 assert 55 "main(){ fibo(10); }fibo(index) {if(index==0)return 0; if(index==1)return 1; return fibo(index-1)+fibo(index-2);}"
-
+#assert 11 "main(){a=11;return &a;}"
+#assert 12 "main(){a=12;return *8;}"
+assert 12 "main(){a=12;b=&a;return *b;}"
+assert 15 "main(){a=12;b=15;c= &a - 8;return *c;}"
 rm tmp
 rm tmp.s
 

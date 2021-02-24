@@ -284,6 +284,15 @@ void gen(Node *node)
     case ND_FUNCDEF:
         gen_function_def(node);
         return;
+    case ND_ADDR:
+        genl(node->lhs);
+        return;
+    case ND_DEREF:
+        gen(node->lhs);
+        printf("  pop rax\n");
+        printf("  mov rax, [rax]\n");
+        printf("  push rax\n");
+        return;
     }
 
     gen(node->lhs);
