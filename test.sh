@@ -4,7 +4,7 @@ assert() {
   expected="$1"
   input="$2"
 
-  ./bin/exe.out "$input" > tmp.s
+  ./bin/exe.out "$input" >tmp.s
   cc -o tmp tmp.s helper/helper.c
   ./tmp
   actual="$?"
@@ -110,10 +110,13 @@ assert 21 "int main(){ fibo(8); }
 assert 55 "int main(){ fibo(10); }
           int fibo(int index) {if(index==0)return 0; if(index==1)return 1; return fibo(index-1)+fibo(index-2);}"
 assert 12 "int main(){int a;int b;a=12;b=&a;return *b;}"
-assert 15 "int main(){int a; int b; int c;a=12;b=15;c= &a - 8;return *c;}"
+assert 15 "int main(){int a; int b; int c;a=12;b=15;c= &a + 1;return *c;}"
 assert 20 "int main(){int **a;int *b;int c; c  = 20; b = &c; a = &b;return **a;}"
 assert 25 "int main(){int x; int *y; x = 25; *y = x; return *y;}"
 assert 77 "int main(){int x; int *y; y = &x; *y = 77; return x;}"
+assert 40 "int main(){int a; int b; int c; int d; int *p; a = 400; b = 15; c = 20; d =5; p = &a; return (*(p+1)+*(p+2)+*(p+3));}"
+assert 10 "int main(){int p; int q; int *r;p = 10; q = 20; r = &q; return *(r - 1);}"
+assert 100 "int main(){int p; int q;p = 100; q = 20; return *(&q - 1);}"
 rm tmp
 rm tmp.s
 

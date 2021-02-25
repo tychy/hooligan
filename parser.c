@@ -47,7 +47,16 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     }
     else if (lhs != NULL && rhs == NULL)
     {
-        node->ty = lhs->ty;
+        if (kind == ND_DEREF)
+            node->ty = lhs->ty->ptr_to;
+        else if (kind == ND_ADDR)
+        {
+            ty->ptr_to = lhs->ty;
+            ty->ty = PTR;
+            node->ty = ty;
+        }
+        else
+            node->ty = lhs->ty;
     }
     else if (lhs == NULL && rhs != NULL)
     {
