@@ -163,6 +163,19 @@ void gen_function(Node *node)
 
 void genl(Node *node)
 {
+    if (node->kind == ND_DEREF)
+    {
+        //x= 10
+        //y = &x (x->offset = 16
+        //Node(ND_DEREF, NODE(), NULL)
+        gen(node->lhs);
+        //gen(*y) -> genl(*y)->gen(y) = {genl(y); pop rax mov }
+        //->genl(y) (return y->offset
+        //pop rax (rax = y-offset)
+        //mov rax. [rax] (rax = y = x->offset)
+        //push rax
+        return;
+    }
     if (node->kind != ND_LVAR)
     {
         error("変数ではありません");
