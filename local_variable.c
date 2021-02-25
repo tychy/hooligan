@@ -14,12 +14,13 @@ LVar *find_lvar(Token *tok)
     return NULL;
 }
 
-int def_lvar(Token *tok)
+int def_lvar(Token *tok, Type *ty)
 {
     int offset;
     LVar *new_lvar = calloc(1, sizeof(LVar));
     new_lvar->length = tok->length;
     new_lvar->name = tok->string;
+    new_lvar->ty = ty;
     if (locals)
     {
         offset = locals->offset + 8;

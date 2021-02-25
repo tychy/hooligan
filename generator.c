@@ -163,6 +163,11 @@ void gen_function(Node *node)
 
 void genl(Node *node)
 {
+    if (node->kind == ND_DEREF)
+    {
+        gen(node->lhs);
+        return;
+    }
     if (node->kind != ND_LVAR)
     {
         error("変数ではありません");

@@ -102,6 +102,17 @@ Node *stmt();
 void program();
 void gen(Node *node);
 
+typedef struct Type Type;
+struct Type
+{
+    enum
+    {
+        INT,
+        PTR
+    } ty;
+    Type *ptr_to;
+};
+
 typedef struct LVar LVar;
 
 struct LVar
@@ -109,12 +120,13 @@ struct LVar
     char *name;
     int length;
     int offset;
+    Type *ty;
     LVar *next;
 };
 
 extern LVar *locals;
 
 LVar *find_lvar(Token *tok);
-int def_lvar(Token *tok);
+int def_lvar(Token *tok, Type *ty);
 
 #endif

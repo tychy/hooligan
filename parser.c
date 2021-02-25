@@ -44,9 +44,18 @@ Node *ident()
     Token *tok = consume_ident();
     if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
     {
-
+        Type *ty = calloc(1, sizeof(Type));
+        ty->ty = INT;
+        //int * *x;
+        while (consume("*"))
+        {
+            Type *prev = ty;
+            ty = calloc(1, sizeof(Type));
+            ty->ty = PTR;
+            ty->ptr_to = prev;
+        }
         tok = consume_ident();
-        int offset = def_lvar(tok);
+        int offset = def_lvar(tok, ty);
         return new_node_var(offset);
     }
     if (consume("("))
@@ -342,8 +351,7 @@ Node *func()
             arg_token = consume_ident();
         else
             error("引数に型がありません");
-
-        int offset = def_lvar(arg_token);
+        int offset = def_lvar(arg_token, NULL);
         Node *arg = new_node_var(offset);
         arg_top->lhs = arg;
         arg_top = arg;
