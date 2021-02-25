@@ -6,6 +6,66 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     node->kind = kind;
     node->lhs = lhs;
     node->rhs = rhs;
+    switch (node->kind)
+    {
+    case ND_RETURN:
+    case ND_IF:
+    case ND_ELSE:
+    case ND_FORINIT:
+    case ND_FORBODY:
+    case ND_FOR:
+    case ND_BLOCK:
+    case ND_WHILE:
+    case ND_FUNC:
+    case ND_ARG:
+    case ND_FUNCDEF:
+        return node;
+    }
+    Type *ty = calloc(1, sizeof(Type));
+    if (lhs != NULL && rhs != NULL)
+    {
+        if (lhs->ty->ty == PTR && rhs->ty->ty == PTR)
+        {
+            if (kind != ND_ASSIGN)
+                error("式にはintが必要です");
+            // 右でも左でも一緒
+            node->ty = lhs->ty;
+        }
+        else if (lhs->ty->ty == INT && rhs->ty->ty == PTR)
+        {
+            node->ty = rhs->ty;
+        }
+        else if (lhs->ty->ty == PTR && rhs->ty->ty == INT)
+        {
+            node->ty = lhs->ty;
+        }
+        else if (lhs->ty->ty == INT && rhs->ty->ty == INT)
+        {
+            // 右でも左でも一緒
+            node->ty = lhs->ty;
+        }
+    }
+    else if (lhs != NULL && rhs == NULL)
+    {
+        if (kind == ND_DEREF)
+            node->ty = lhs->ty->ptr_to;
+        else if (kind == ND_ADDR)
+        {
+            ty->ptr_to = lhs->ty;
+            ty->ty = PTR;
+            node->ty = ty;
+        }
+        else
+            node->ty = lhs->ty;
+    }
+    else if (lhs == NULL && rhs != NULL)
+    {
+        node->ty = rhs->ty;
+    }
+    else
+    {
+        node->ty = NULL;
+    }
     return node;
 }
 
@@ -14,14 +74,18 @@ Node *new_node_num(int val)
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_NUM;
     node->val = val;
+    Type *ty = calloc(1, sizeof(Type));
+    ty->ty = INT;
+    node->ty = ty;
     return node;
 }
 
-Node *new_node_var(int offset)
+Node *new_node_var(int offset, Type *ty)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_LVAR;
     node->offset = offset;
+    node->ty = ty;
     return node;
 }
 
@@ -31,6 +95,9 @@ Node *new_node_func(char *name, int length)
     node->kind = ND_FUNC;
     node->name = name;
     node->length = length;
+    Type *ty = calloc(1, sizeof(Type));
+    ty->ty = INT;
+    node->ty = ty;
     return node;
 }
 
@@ -56,7 +123,7 @@ Node *ident()
         }
         tok = consume_ident();
         int offset = def_lvar(tok, ty);
-        return new_node_var(offset);
+        return new_node_var(offset, ty);
     }
     if (consume("("))
     {
@@ -82,7 +149,7 @@ Node *ident()
             offset = lvar->offset;
         else
             error("変数が定義されていません");
-        return new_node_var(offset);
+        return new_node_var(offset, lvar->ty);
     }
 }
 
@@ -351,8 +418,10 @@ Node *func()
             arg_token = consume_ident();
         else
             error("引数に型がありません");
-        int offset = def_lvar(arg_token, NULL);
-        Node *arg = new_node_var(offset);
+        Type *ty = calloc(1, sizeof(Type));
+        ty->ty = INT;
+        int offset = def_lvar(arg_token, ty);
+        Node *arg = new_node_var(offset, ty);
         arg_top->lhs = arg;
         arg_top = arg;
     }

@@ -298,6 +298,56 @@ void gen(Node *node)
         printf("  mov rax, [rax]\n");
         printf("  push rax\n");
         return;
+    case ND_ADD:
+    case ND_SUB:
+        gen(node->lhs);
+        gen(node->rhs);
+        if (node->ty->ty == INT)
+        {
+            printf("  pop rdi\n");
+            printf("  pop rax\n");
+            if (node->kind == ND_ADD)
+                printf("  add rax, rdi\n");
+            else
+                printf("  sub rax, rdi\n");
+        }
+        else
+        {
+            printf("  pop rdi\n");
+            printf("  pop rax\n");
+            int size;
+            if (node->ty->ptr_to->ty == INT)
+            {
+                size = 8;
+            }
+            else if (node->ty->ptr_to->ty == PTR)
+            {
+                size = 8;
+            }
+            else
+            {
+                error("未実装です");
+            }
+
+            if (node->lhs->ty->ty == INT)
+            {
+                printf("  imul rax, %d\n", size);
+            }
+            else if (node->rhs->ty->ty == INT)
+            {
+                printf("  imul rdi, %d\n", size);
+            }
+            else
+            {
+                error("式にはintが必要です");
+            }
+            if (node->kind == ND_ADD)
+                printf("  sub rax, rdi\n");
+            else
+                printf("  add rax, rdi\n");
+        }
+        printf("  push rax\n");
+        return;
     }
 
     gen(node->lhs);
@@ -305,18 +355,6 @@ void gen(Node *node)
 
     switch (node->kind)
     {
-    case ND_ADD:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  add rax, rdi\n");
-        printf("  push rax\n");
-        break;
-    case ND_SUB:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  sub rax, rdi\n");
-        printf("  push rax\n");
-        break;
     case ND_MUL:
         printf("  pop rdi\n");
         printf("  pop rax\n");

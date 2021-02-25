@@ -18,6 +18,7 @@ int def_lvar(Token *tok, Type *ty)
 {
     int offset;
     LVar *new_lvar = calloc(1, sizeof(LVar));
+
     new_lvar->length = tok->length;
     new_lvar->name = tok->string;
     new_lvar->ty = ty;

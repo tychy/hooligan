@@ -82,6 +82,17 @@ typedef enum
     ND_DEREF,
 } NodeKind;
 
+typedef struct Type Type;
+struct Type
+{
+    enum
+    {
+        INT,
+        PTR
+    } ty;
+    Type *ptr_to;
+};
+
 typedef struct Node Node;
 
 extern Node *nodes[100];
@@ -95,23 +106,13 @@ struct Node
     int offset;
     char *name;
     int length;
+    Type *ty;
 };
 
 Node *expr();
 Node *stmt();
 void program();
 void gen(Node *node);
-
-typedef struct Type Type;
-struct Type
-{
-    enum
-    {
-        INT,
-        PTR
-    } ty;
-    Type *ptr_to;
-};
 
 typedef struct LVar LVar;
 
