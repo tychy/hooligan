@@ -70,8 +70,6 @@ typedef enum
     ND_RETURN,
     ND_IF,
     ND_ELSE,
-    ND_FORINIT,
-    ND_FORBODY,
     ND_FOR,
     ND_BLOCK,
     ND_WHILE,

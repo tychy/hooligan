@@ -13,8 +13,6 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     case ND_RETURN:
     case ND_IF:
     case ND_ELSE:
-    case ND_FORINIT:
-    case ND_FORBODY:
     case ND_FOR:
     case ND_BLOCK:
     case ND_WHILE:
