@@ -6,6 +6,8 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     node->kind = kind;
     node->lhs = lhs;
     node->rhs = rhs;
+
+    // TODO ここのチェックはしなくていいようにリファクタしていく
     switch (node->kind)
     {
     case ND_RETURN:
