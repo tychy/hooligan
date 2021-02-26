@@ -340,17 +340,17 @@ Node *stmt()
     }
     else if (consume_for())
     {
-        Node *initial;
+        Node *init;
         Node *condition;
-        Node *end;
+        Node *on_end;
         expect("(");
         if (consume(";"))
         {
-            initial = NULL;
+            init = NULL;
         }
         else
         {
-            initial = expr();
+            init = expr();
             expect(";");
         }
 
@@ -366,17 +366,20 @@ Node *stmt()
 
         if (consume(")"))
         {
-            end = NULL;
+            on_end = NULL;
         }
         else
         {
-            end = expr();
+            on_end = expr();
             expect(")");
         }
         Node *body = stmt();
-        Node *former = new_node(ND_FORINIT, initial, condition);
-        Node *latter = new_node(ND_FORBODY, body, end);
-        node = new_node(ND_FOR, former, latter);
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_FOR;
+        node->init = init;
+        node->condition = condition;
+        node->on_end = on_end;
+        node->body = body;
     }
     else if (consume_while())
     {
