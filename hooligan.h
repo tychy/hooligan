@@ -107,6 +107,12 @@ struct Node
     char *name;
     int length;
     Type *ty;
+
+    // for(init; condition; on_end) body;
+    Node *init;
+    Node *condition;
+    Node *on_end;
+    Node *body;
 };
 
 Node *expr();
