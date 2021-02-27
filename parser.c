@@ -14,7 +14,6 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     case ND_IF:
     case ND_ELSE:
     case ND_BLOCK:
-    case ND_WHILE:
     case ND_FUNC:
     case ND_ARG:
     case ND_FUNCDEF:
