@@ -383,7 +383,11 @@ Node *stmt()
         expect("(");
         Node *condition = expr();
         expect(")");
-        node = new_node(ND_WHILE, condition, stmt());
+        Node *body = stmt();
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_WHILE;
+        node->condition = condition;
+        node->body = body;
     }
     else
     {
