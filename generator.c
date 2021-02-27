@@ -1,51 +1,27 @@
 #include "hooligan.h"
-void gen_for_init(Node *node, int lab)
-{
-    if (node->kind != ND_FORINIT)
-    {
-        error("for文として不適切です");
-    }
-    if (node->lhs != NULL)
-    {
-        gen(node->lhs);
-    }
-    printf(".Lforstart%d:\n", lab);
-    if (node->rhs != NULL)
-    {
-        gen(node->rhs);
-    }
-    else
-    {
-        // 無条件でtrueとなるように
-        printf("  push 1\n");
-    }
-    printf("  pop rax\n");
-    printf("  cmp rax, 0\n");
-    printf("  je .Lforend%d\n", lab);
-}
-
-void gen_for_body(Node *node, int lab)
-{
-    if (node->kind != ND_FORBODY)
-    {
-        error("for文として不適切です");
-    }
-    gen(node->lhs);
-    if (node->rhs != NULL)
-    {
-        gen(node->rhs);
-    }
-    printf("  jmp .Lforstart%d\n", lab);
-}
 
 void gen_for(Node *node, int lab)
 {
     if (node->kind != ND_FOR)
-    {
         error("for文ではありません");
-    }
-    gen_for_init(node->lhs, lab);
-    gen_for_body(node->rhs, lab);
+
+    if (node->init != NULL)
+        gen(node->init);
+    printf(".Lforstart%d:\n", lab);
+
+    if (node->condition != NULL)
+        gen(node->condition);
+    else
+        printf("  push 1\n"); // 無条件でtrueとなるように
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lforend%d\n", lab);
+
+    gen(node->body);
+    
+    if (node->on_end != NULL)
+        gen(node->on_end);
+    printf("  jmp .Lforstart%d\n", lab);
     printf(".Lforend%d:\n", lab);
 }
 
