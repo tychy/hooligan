@@ -11,8 +11,6 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     switch (node->kind)
     {
     case ND_RETURN:
-    case ND_IF:
-    case ND_ELSE:
     case ND_BLOCK:
     case ND_WHILE:
     case ND_FUNC:
