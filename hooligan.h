@@ -111,6 +111,9 @@ struct Node
     Node *condition;
     Node *on_end;
     Node *body;
+
+    // if(condition) body else on_else
+    Node *on_else;
 };
 
 Node *expr();
