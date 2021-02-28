@@ -7,13 +7,6 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     node->lhs = lhs;
     node->rhs = rhs;
 
-    // TODO ここのチェックはしなくていいようにリファクタしていく
-    switch (node->kind)
-    {
-    case ND_RETURN:
-    case ND_BLOCK:
-        return node;
-    }
     Type *ty = calloc(1, sizeof(Type));
     if (lhs != NULL && rhs != NULL)
     {
