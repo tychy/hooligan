@@ -393,7 +393,8 @@ Node *stmt()
 
 Node *func()
 {
-    Node *node = new_node(ND_FUNCDEF, NULL, NULL);
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_FUNCDEF;
     Token *tok = consume_ident();
 
     if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
