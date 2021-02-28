@@ -22,13 +22,18 @@ int def_lvar(Token *tok, Type *ty)
     new_lvar->length = tok->length;
     new_lvar->name = tok->string;
     new_lvar->ty = ty;
+    int var_size = 8;
+    if (ty->ty == ARRAY)
+    {
+        var_size = 8 * ty->array_size;
+    }
     if (locals)
     {
-        offset = locals->offset + 8;
+        offset = locals->offset + var_size;
     }
     else
     {
-        offset = 8;
+        offset = var_size;
     }
     new_lvar->offset = offset;
     new_lvar->next = locals;
