@@ -39,6 +39,7 @@ elif [ $1 = "testv2dr" ]; then
         content=$(cat $fn)
         ./bin/exe.out "$content" >tmp.s
         cc -o tmp tmp.s helper/helper.c
+        echo $fn
         ./tmp
         if [ $? = 0 ]; then
             echo "Test passed"
