@@ -6,63 +6,46 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     node->kind = kind;
     node->lhs = lhs;
     node->rhs = rhs;
-
-    // TODO ここのチェックはしなくていいようにリファクタしていく
-    switch (node->kind)
+    if (lhs->ty->ty == PTR && rhs->ty->ty == PTR)
     {
-    case ND_RETURN:
-    case ND_BLOCK:
-    case ND_FUNC:
-    case ND_ARG:
-    case ND_FUNCDEF:
-        return node;
+        if (kind != ND_ASSIGN)
+            error("式にはintが必要です");
+        // TODO 代入式の両辺の型が等しいかチェックする
+        // -Wincompatible-pointer-typesというオプションらしい
+        node->ty = lhs->ty;
     }
-    Type *ty = calloc(1, sizeof(Type));
-    if (lhs != NULL && rhs != NULL)
-    {
-        if (lhs->ty->ty == PTR && rhs->ty->ty == PTR)
-        {
-            if (kind != ND_ASSIGN)
-                error("式にはintが必要です");
-            // 右でも左でも一緒
-            node->ty = lhs->ty;
-        }
-        else if (lhs->ty->ty == INT && rhs->ty->ty == PTR)
-        {
-            node->ty = rhs->ty;
-        }
-        else if (lhs->ty->ty == PTR && rhs->ty->ty == INT)
-        {
-            node->ty = lhs->ty;
-        }
-        else if (lhs->ty->ty == INT && rhs->ty->ty == INT)
-        {
-            // 右でも左でも一緒
-            node->ty = lhs->ty;
-        }
-    }
-    else if (lhs != NULL && rhs == NULL)
-    {
-        if (kind == ND_DEREF)
-            node->ty = lhs->ty->ptr_to;
-        else if (kind == ND_ADDR)
-        {
-            ty->ptr_to = lhs->ty;
-            ty->ty = PTR;
-            node->ty = ty;
-        }
-        else
-            node->ty = lhs->ty;
-    }
-    else if (lhs == NULL && rhs != NULL)
+    else if (lhs->ty->ty == INT && rhs->ty->ty == PTR)
     {
         node->ty = rhs->ty;
     }
-    else
+    else if (lhs->ty->ty == PTR && rhs->ty->ty == INT)
     {
-        node->ty = NULL;
+        node->ty = lhs->ty;
+    }
+    else if (lhs->ty->ty == INT && rhs->ty->ty == INT)
+    {
+        // 右でも左でも一緒
+        node->ty = lhs->ty;
     }
     return node;
+}
+
+Node *new_node_single(NodeKind kind, Node *lhs)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = kind;
+    node->lhs = lhs;
+    Type *ty = calloc(1, sizeof(Node));
+    if (kind == ND_DEREF)
+        node->ty = lhs->ty->ptr_to;
+    else if (kind == ND_ADDR)
+    {
+        ty->ptr_to = lhs->ty;
+        ty->ty = PTR;
+        node->ty = ty;
+    }
+    else
+        node->ty = lhs->ty;
 }
 
 Node *new_node_num(int val)
@@ -130,7 +113,7 @@ Node *ident()
         {
             if (count > 0)
                 expect(",");
-            Node *arg = new_node(ND_ARG, expr(), NULL);
+            Node *arg = new_node_single(ND_ARG, expr());
             arg_top->rhs = arg;
             arg_top = arg;
             count++;
@@ -179,13 +162,12 @@ Node *unary()
     }
     else if (consume("&"))
     {
-        return new_node(ND_ADDR, unary(), NULL);
+        return new_node_single(ND_ADDR, unary());
     }
-
     else if (consume("*"))
     {
 
-        return new_node(ND_DEREF, unary(), NULL);
+        return new_node_single(ND_DEREF, unary());
     }
     return primary();
 }
@@ -301,19 +283,21 @@ Node *stmt()
     Node *node;
     if (consume("{"))
     {
-        Node *cur = new_node(ND_BLOCK, NULL, NULL);
+        Node *cur = calloc(1, sizeof(Node));
+        cur->kind = ND_BLOCK;
         node = cur;
         while (!consume("}"))
         {
             cur->lhs = stmt();
-            cur->rhs = new_node(ND_BLOCK, NULL, NULL);
+            cur->rhs = calloc(1, sizeof(Node));
+            cur->kind = ND_BLOCK;
             cur = cur->rhs;
         }
         return node;
     }
     else if (consume_return())
     {
-        node = new_node(ND_RETURN, expr(), NULL);
+        node = new_node_single(ND_RETURN, expr());
         expect(";");
     }
     else if (consume_if())
@@ -393,7 +377,8 @@ Node *stmt()
 
 Node *func()
 {
-    Node *node = new_node(ND_FUNCDEF, NULL, NULL);
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_FUNCDEF;
     Token *tok = consume_ident();
 
     if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
