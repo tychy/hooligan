@@ -42,7 +42,7 @@ int calc_bytes(Type *ty)
     switch (ty->ty)
     {
     case INT:
-        return 8;
+        return 8; // TODO(yokotsuka): ここを4に変更するのが目標
     case PTR:
         return 8;
     case ARRAY:
