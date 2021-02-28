@@ -187,13 +187,12 @@ Node *unary()
     }
     else if (consume("&"))
     {
-        return new_node(ND_ADDR, unary(), NULL);
+        return new_node_single(ND_ADDR, unary());
     }
-
     else if (consume("*"))
     {
 
-        return new_node(ND_DEREF, unary(), NULL);
+        return new_node_single(ND_DEREF, unary());
     }
     return primary();
 }
