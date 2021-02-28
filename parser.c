@@ -12,9 +12,6 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     {
     case ND_RETURN:
     case ND_BLOCK:
-    case ND_FUNC:
-    case ND_ARG:
-    case ND_FUNCDEF:
         return node;
     }
     Type *ty = calloc(1, sizeof(Type));
