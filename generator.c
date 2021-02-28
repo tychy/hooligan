@@ -156,23 +156,24 @@ void gen_function_def(Node *node)
         printf("  pop rax\n");
         switch (count)
         {
+            // TODO 関数の引数はintのみという前提に基づいている
         case 1:
-            printf("  mov [rax], rdi\n");
+            printf("  mov [rax], edi\n");
             break;
         case 2:
-            printf("  mov [rax], rsi\n");
+            printf("  mov [rax], esi\n");
             break;
         case 3:
-            printf("  mov [rax], rdx\n");
+            printf("  mov [rax], edx\n");
             break;
         case 4:
-            printf("  mov [rax], rcx\n");
+            printf("  mov [rax], ecx\n");
             break;
         case 5:
-            printf("  mov [rax], r8\n");
+            printf("  mov [rax], r8d\n");
             break;
         case 6:
-            printf("  mov [rax], r9\n");
+            printf("  mov [rax], r9d\n");
             break;
         default:
             error("引数の数が多すぎます");
@@ -201,7 +202,10 @@ void gen(Node *node)
     case ND_LVAR:
         genl(node);
         printf("  pop rax\n");
-        printf("  mov rax, [rax]\n");
+        if (node->ty->ty == INT)
+            printf("  mov eax, [rax]\n");
+        else
+            printf("  mov rax, [rax]\n");
         printf("  push rax\n");
         return;
     case ND_ASSIGN:
@@ -209,7 +213,10 @@ void gen(Node *node)
         gen(node->rhs);
         printf("  pop rdi\n");
         printf("  pop rax\n");
-        printf("  mov [rax], rdi\n");
+        if (node->ty->ty == INT)
+            printf("  mov [rax], edi\n");
+        else
+            printf("  mov [rax], rdi\n");
         printf("  push rdi\n");
         return;
     case ND_RETURN:
@@ -252,7 +259,10 @@ void gen(Node *node)
     case ND_DEREF:
         gen(node->lhs);
         printf("  pop rax\n");
-        printf("  mov rax, [rax]\n");
+        if (node->ty->ty == INT)
+            printf("  mov eax, [rax]\n");
+        else
+            printf("  mov rax, [rax]\n");
         printf("  push rax\n");
         return;
     case ND_ADD:
@@ -272,20 +282,7 @@ void gen(Node *node)
         {
             printf("  pop rdi\n");
             printf("  pop rax\n");
-            int size;
-            if (node->ty->ptr_to->ty == INT)
-            {
-                size = 8;
-            }
-            else if (node->ty->ptr_to->ty == PTR)
-            {
-                size = 8;
-            }
-            else
-            {
-                error("未実装です");
-            }
-
+            int size = calc_bytes(node->ty->ptr_to);
             if (node->lhs->ty->ty == INT)
             {
                 printf("  imul rax, %d\n", size);
@@ -298,6 +295,7 @@ void gen(Node *node)
             {
                 error("式にはintが必要です");
             }
+
             if (node->kind == ND_ADD)
                 printf("  sub rax, rdi\n");
             else
