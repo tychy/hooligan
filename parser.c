@@ -92,7 +92,6 @@ Node *ident()
     {
         Type *ty = calloc(1, sizeof(Type));
         ty->ty = INT;
-        //int * *x;
         while (consume("*"))
         {
             Type *prev = ty;
@@ -101,8 +100,23 @@ Node *ident()
             ty->ptr_to = prev;
         }
         tok = consume_ident();
-        int offset = def_lvar(tok, ty);
-        return new_node_var(offset, ty);
+        if (consume("["))
+        {
+            int array_size = expect_number();
+
+            Type *prev = ty;
+            ty = calloc(1, sizeof(Type));
+            ty->ty = ARRAY;
+            ty->array_size = array_size;
+            expect("]");
+            int offset = def_lvar(tok, ty);
+            return new_node_var(offset, ty);
+        }
+        else
+        {
+            int offset = def_lvar(tok, ty);
+            return new_node_var(offset, ty);
+        }
     }
     if (consume("("))
     {
