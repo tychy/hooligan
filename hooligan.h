@@ -69,7 +69,6 @@ typedef enum
     ND_ASSIGN,
     ND_RETURN,
     ND_IF,
-    ND_ELSE,
     ND_FOR,
     ND_BLOCK,
     ND_WHILE,
