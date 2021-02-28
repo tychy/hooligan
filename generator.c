@@ -32,11 +32,11 @@ void gen_while(Node *node, int lab)
         error("while文ではありません");
     }
     printf(".Lwhilestart%d:\n", lab);
-    gen(node->lhs);
+    gen(node->condition);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
     printf("  je .Lwhileend%d\n", lab);
-    gen(node->rhs);
+    gen(node->body);
     printf("  jmp .Lwhilestart%d\n", lab);
     printf(".Lwhileend%d:\n", lab);
 }
