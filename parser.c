@@ -55,6 +55,24 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     return node;
 }
 
+Node *new_node_single(NodeKind kind, Node *lhs)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = kind;
+    node->lhs = lhs;
+    Type *ty = calloc(1, sizeof(Node));
+    if (kind == ND_DEREF)
+        node->ty = lhs->ty->ptr_to;
+    else if (kind == ND_ADDR)
+    {
+        ty->ptr_to = lhs->ty;
+        ty->ty = PTR;
+        node->ty = ty;
+    }
+    else
+        node->ty = lhs->ty;
+}
+
 Node *new_node_num(int val)
 {
     Node *node = calloc(1, sizeof(Node));
