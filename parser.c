@@ -107,6 +107,7 @@ Node *ident()
             Type *prev = ty;
             ty = calloc(1, sizeof(Type));
             ty->ty = ARRAY;
+            ty->ptr_to = prev;
             ty->array_size = array_size;
             expect("]");
             int offset = def_lvar(tok, ty);
