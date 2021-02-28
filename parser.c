@@ -138,7 +138,7 @@ Node *ident()
         {
             if (count > 0)
                 expect(",");
-            Node *arg = new_node(ND_ARG, expr(), NULL);
+            Node *arg = new_node_single(ND_ARG, expr());
             arg_top->rhs = arg;
             arg_top = arg;
             count++;
