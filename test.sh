@@ -112,7 +112,7 @@ assert 55 "int main(){ fibo(10); }
 assert 12 "int main(){int a;int* b;a=12;b=&a;return *b;}"
 assert 15 "int main(){int a; int b; int* c;a=12;b=15;c= &a + 1;return *c;}"
 assert 20 "int main(){int **a;int *b;int c; c  = 20; b = &c; a = &b;return **a;}"
-assert 25 "int main(){int x; int *y; x = 25; *y = x; return *y;}" # このテストが通らない
+# assert 25 "int main(){int x; int *y; x = 25; *y = x; return *y;}" 初期化前のポインタに書き込んでいる。このテストが不正では？
 assert 77 "int main(){int x; int *y; y = &x; *y = 77; return x;}"
 assert 40 "int main(){int a; int b; int c; int d; int *p; a = 400; b = 15; c = 20; d =5; p = &a; return (*(p+1)+*(p+2)+*(p+3));}"
 assert 10 "int main(){int p; int q; int *r;p = 10; q = 20; r = &q; return *(r - 1);}"
