@@ -20,6 +20,7 @@ typedef enum
     TK_ELSE,
     TK_FOR,
     TK_WHILE,
+    TK_SIZEOF,
     TK_EOF,
 } TokenKind;
 
@@ -45,6 +46,7 @@ bool consume_if();
 bool consume_else();
 bool consume_for();
 bool consume_while();
+bool consume_sizeof();
 void expect(char *op);
 bool at_eof();
 int expect_number();

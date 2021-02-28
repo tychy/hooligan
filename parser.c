@@ -166,8 +166,15 @@ Node *unary()
     }
     else if (consume("*"))
     {
-
         return new_node_single(ND_DEREF, unary());
+    }
+    else if (consume_sizeof())
+    {
+        Node *arg = unary();
+        if (arg->ty->ty == INT)
+            return new_node_num(4);
+        else if (arg->ty->ty == PTR)
+            return new_node_num(8);
     }
     return primary();
 }

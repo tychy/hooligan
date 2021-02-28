@@ -79,6 +79,12 @@ bool isreturn(char *p)
     return false;
 }
 
+bool issizeof(char *p){
+    if(strncmp(p, "sizeof", 6)==0&& !isident(*(p+6)))
+        return true;
+    return false;
+}
+
 bool isident(char p)
 {
     if ((p >= 'a' && p <= 'z') || (p >= 'A' && p <= 'Z') || p == '_')
@@ -152,6 +158,13 @@ Token *tokenize(char *p)
             cur = new_token(TK_WHILE, cur, p);
             cur->length = 5;
             p += 5;
+            continue;
+        }
+
+        if(issizeof(p)){
+            cur = new_token(TK_SIZEOF, cur, p);
+            cur->length = 6;
+            p += 6;
             continue;
         }
 
