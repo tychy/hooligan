@@ -10,7 +10,8 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     {
         if (kind != ND_ASSIGN)
             error("式にはintが必要です");
-        // 右でも左でも一緒
+        // TODO 代入式の両辺の型が等しいかチェックする
+        // -Wincompatible-pointer-typesというオプションらしい
         node->ty = lhs->ty;
     }
     else if (lhs->ty->ty == INT && rhs->ty->ty == PTR)
