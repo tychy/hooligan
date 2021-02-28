@@ -69,7 +69,6 @@ typedef enum
     ND_ASSIGN,
     ND_RETURN,
     ND_IF,
-    ND_ELSE,
     ND_FOR,
     ND_BLOCK,
     ND_WHILE,
@@ -111,6 +110,9 @@ struct Node
     Node *condition;
     Node *on_end;
     Node *body;
+
+    // if(condition) body else on_else
+    Node *on_else;
 };
 
 Node *expr();

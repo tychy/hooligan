@@ -11,8 +11,6 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     switch (node->kind)
     {
     case ND_RETURN:
-    case ND_IF:
-    case ND_ELSE:
     case ND_BLOCK:
     case ND_FUNC:
     case ND_ARG:
@@ -324,15 +322,12 @@ Node *stmt()
         Node *condition = expr();
         expect(")");
         Node *iftrue = stmt();
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_IF;
+        node->condition = condition;
+        node->body = iftrue;
         if (consume_else())
-        {
-            node = new_node(ND_ELSE, iftrue, stmt());
-            node = new_node(ND_IF, condition, node);
-        }
-        else
-        {
-            node = new_node(ND_IF, condition, iftrue);
-        }
+            node->on_else = stmt();
     }
     else if (consume_for())
     {

@@ -18,7 +18,7 @@ void gen_for(Node *node, int lab)
     printf("  je .Lforend%d\n", lab);
 
     gen(node->body);
-    
+
     if (node->on_end != NULL)
         gen(node->on_end);
     printf("  jmp .Lforstart%d\n", lab);
@@ -28,9 +28,7 @@ void gen_for(Node *node, int lab)
 void gen_while(Node *node, int lab)
 {
     if (node->kind != ND_WHILE)
-    {
         error("while文ではありません");
-    }
     printf(".Lwhilestart%d:\n", lab);
     gen(node->condition);
     printf("  pop rax\n");
@@ -41,43 +39,26 @@ void gen_while(Node *node, int lab)
     printf(".Lwhileend%d:\n", lab);
 }
 
-void gen_else(Node *node, int lab)
-{
-    if (node->kind != ND_ELSE)
-    {
-        error("else文ではありません");
-    }
-    gen(node->lhs);
-    printf("  jmp .Lend%d\n", lab);
-    printf(".Lelse%d:\n", lab);
-    gen(node->rhs);
-    printf(".Lend%d:\n", lab);
-}
-
 void gen_if(Node *node, int lab)
 {
     if (node->kind != ND_IF)
-    {
         error("if文ではありません");
-    }
-    gen(node->lhs);
-    if (node->rhs->kind == ND_ELSE)
-    {
-        printf("  pop rax\n");
-        printf("  cmp rax, 0\n");
+    bool else_exist = node->on_else;
+    gen(node->condition);
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    if (else_exist)
         printf("  je .Lelse%d\n", lab);
-        gen_else(node->rhs, lab);
-    }
     else
-    {
-        printf("  pop rax\n");
-        printf("  cmp rax, 0\n");
         printf("  je .Lend%d\n", lab);
-        gen(node->rhs);
+    gen(node->body);
+    if (else_exist)
+    {
         printf("  jmp .Lend%d\n", lab);
-        printf(".Lend%d:\n", lab);
-        return;
+        printf(".Lelse%d:\n", lab);
+        gen(node->on_else);
     }
+    printf(".Lend%d:\n", lab);
 }
 
 void gen_function(Node *node)
