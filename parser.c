@@ -321,7 +321,7 @@ Node *stmt()
     }
     else if (consume_return())
     {
-        node = new_node(ND_RETURN, expr(), NULL);
+        node = new_node_single(ND_RETURN, expr());
         expect(";");
     }
     else if (consume_if())
