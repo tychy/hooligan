@@ -31,6 +31,22 @@ elif [ $1 = "asmdr" ]; then
     cc -c $2 -o a.o
     objdump -d -M Intel a.o
     rm a.o
+elif [ $1 = "testv2" ]; then
+    docker-compose run hooligan ./bin/hcc testv2dr
+elif [ $1 = "testv2dr" ]; then
+    make
+    for fn in test/*; do
+        content=$(cat $fn)
+        ./bin/exe.out "$content" >tmp.s
+        cc -o tmp tmp.s helper/helper.c
+        ./tmp
+        if [ $? = 0 ]; then
+            echo "Test passed"
+        else
+            echo "Test failed"
+        fi
+    done
+    rm tmp.s tmp
 else
     echo "存在しないサブコマンドです"
     exit 1
