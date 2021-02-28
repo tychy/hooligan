@@ -19,5 +19,4 @@ jobs:
           CC: cc
         run: |
           make test
-            
-
+          ./bin/hcc testv2dr
