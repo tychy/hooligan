@@ -190,6 +190,8 @@ Node *unary()
             return new_node_num(4);
         else if (arg->ty->ty == PTR)
             return new_node_num(8);
+        else if (arg->ty->ty == ARRAY)
+            return new_node_num(calc_bytes(arg->ty->ptr_to) * arg->ty->array_size);
     }
     return primary();
 }
