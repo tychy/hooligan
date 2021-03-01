@@ -22,11 +22,7 @@ int def_lvar(Token *tok, Type *ty)
     new_lvar->length = tok->length;
     new_lvar->name = tok->string;
     new_lvar->ty = ty;
-    int var_size = 8;
-    if (ty->ty == ARRAY)
-    {
-        var_size = 8 * ty->array_size;
-    }
+    int var_size = calc_bytes(ty);
     if (locals)
     {
         offset = locals->offset + var_size;
@@ -39,4 +35,17 @@ int def_lvar(Token *tok, Type *ty)
     new_lvar->next = locals;
     locals = new_lvar;
     return offset;
+}
+
+int calc_bytes(Type *ty)
+{
+    switch (ty->ty)
+    {
+    case INT:
+        return 4;
+    case PTR:
+        return 8;
+    case ARRAY:
+        return calc_bytes(ty->ptr_to) * ty->array_size;
+    }
 }
