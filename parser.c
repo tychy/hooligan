@@ -453,6 +453,10 @@ Node *func()
         arg_top = arg;
     }
     node->rhs = stmt();
+    if (locals)
+        node->args_region_size = locals->offset;
+    else
+        node->args_region_size = 0;
     return node;
 }
 

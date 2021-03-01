@@ -145,7 +145,7 @@ void gen_function_def(Node *node)
     // プロローグ
     printf("  push rbp\n");
     printf("  mov rbp, rsp\n");
-    printf("  sub rsp, 208\n");
+    printf("  sub rsp, %d\n", node->args_region_size);
 
     // 第1〜6引数をローカル変数の領域に書き出す
     int count = 1;
@@ -244,7 +244,6 @@ void gen(Node *node)
         gen(node->lhs);
         if (node->rhs->lhs == NULL)
             return;
-        printf("  pop rax\n");
         gen(node->rhs);
         return;
     case ND_WHILE:

@@ -117,6 +117,9 @@ struct Node
 
     // if(condition) body else on_else
     Node *on_else;
+
+    // for function
+    int args_region_size;
 };
 
 Node *expr();
