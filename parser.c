@@ -37,7 +37,13 @@ Node *new_node_single(NodeKind kind, Node *lhs)
     node->lhs = lhs;
     Type *ty = calloc(1, sizeof(Node));
     if (kind == ND_DEREF)
+    {
+        if (lhs->ty->ty == INT)
+        {
+            error("pointer型である必要があります");
+        }
         node->ty = lhs->ty->ptr_to;
+    }
     else if (kind == ND_ADDR)
     {
         ty->ptr_to = lhs->ty;
@@ -143,25 +149,37 @@ Node *ident()
             offset = lvar->offset;
         else
             error("変数が定義されていません");
+
         return new_node_var(offset, lvar->ty);
     }
 }
 
 Node *primary()
 {
+    Node *node;
     if (consume("("))
     {
-        Node *node = expr();
+        node = expr();
         expect(")");
-        return node;
     }
     else if (token->kind == TK_IDENT)
     {
-        return ident();
+        node = ident();
     }
     else
     {
-        return num();
+        node = num();
+    }
+    if (consume("["))
+    {
+        Node *index = primary();
+        expect("]");
+        Node *mid = new_node(ND_ADD, node, index);
+        return new_node_single(ND_DEREF, mid);
+    }
+    else
+    {
+        return node;
     }
 }
 
