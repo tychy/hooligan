@@ -286,7 +286,15 @@ void gen(Node *node)
         {
             printf("  pop rdi\n");
             printf("  pop rax\n");
-            int size = calc_bytes(node->ty->ptr_to);
+            int size;
+            if (node->ty->ty == ARRAY)
+            {
+                size = 8;
+            }
+            else
+            {
+                size = calc_bytes(node->ty->ptr_to);
+            }
             if (node->lhs->ty->ty == INT)
             {
                 printf("  imul rax, %d\n", size);

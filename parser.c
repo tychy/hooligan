@@ -6,7 +6,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     node->kind = kind;
     node->lhs = lhs;
     node->rhs = rhs;
-    if (lhs->ty->ty == PTR && rhs->ty->ty == PTR)
+    if ((lhs->ty->ty == PTR || lhs->ty->ty == ARRAY) && (rhs->ty->ty == PTR || rhs->ty->ty == ARRAY))
     {
         if (kind != ND_ASSIGN)
             error("式にはintが必要です");
@@ -14,11 +14,11 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
         // -Wincompatible-pointer-typesというオプションらしい
         node->ty = lhs->ty;
     }
-    else if (lhs->ty->ty == INT && rhs->ty->ty == PTR)
+    else if (lhs->ty->ty == INT && (rhs->ty->ty == PTR || rhs->ty->ty == ARRAY))
     {
         node->ty = rhs->ty;
     }
-    else if (lhs->ty->ty == PTR && rhs->ty->ty == INT)
+    else if ((lhs->ty->ty == PTR || lhs->ty->ty == ARRAY) && rhs->ty->ty == INT)
     {
         node->ty = lhs->ty;
     }
