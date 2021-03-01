@@ -417,19 +417,12 @@ Node *stmt()
     return node;
 }
 
-Node *func()
+Node *func(Token *ident)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_FUNCDEF;
-    Token *tok = consume_ident();
-
-    if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
-        tok = consume_ident();
-    else
-        error("関数の宣言に型がありません");
-    node->name = tok->string;
-    node->length = tok->length;
-    expect("(");
+    node->name = ident->string;
+    node->length = ident->length;
     Node *arg_top = node;
     int arg_count = 0;
     while (!consume(")"))
@@ -459,13 +452,28 @@ Node *func()
         node->args_region_size = 0;
     return node;
 }
+Node *def()
+{
+    Token *tok = consume_ident();
+    // TODO(yokotsuka): int型以外も受け入れられるようにする
+    if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
+        tok = consume_ident();
+    else
+        error("定義式に型がありません");
+    Node *node;
+    if (consume("("))
+        node = func(tok);
+    else
+        error("グローバル変数をここに実装します");
+    return node;
+}
 
 void program()
 {
     int i = 0;
     while (!at_eof())
     {
-        Node *node = func();
+        Node *node = def();
         nodes[i] = node;
         i++;
         locals = NULL;
