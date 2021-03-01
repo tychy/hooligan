@@ -120,9 +120,19 @@ void gen_function(Node *node)
 
 void gen_global_var(Node *node)
 {
-    if (node->kind != ND_GVARDEF)
+    if (node->kind != ND_GVAR)
     {
         error("グローバル変数ではありません");
+    }
+    // TODO(yokotsuka): 現状グローバル変数はint型のみのため分岐しない
+    printf("  mov eax, dword ptr %.*s[rip]\n", node->length, node->name);
+}
+
+void gen_global_var_def(Node *node)
+{
+    if (node->kind != ND_GVARDEF)
+    {
+        error("グローバル変数定義ではありません");
     }
     printf("%.*s:\n", node->length, node->name);
     printf("  .zero  4\n");
@@ -135,13 +145,19 @@ void genl(Node *node)
         gen(node->lhs);
         return;
     }
-    if (node->kind != ND_LVAR)
+    if (node->kind == ND_LVAR)
     {
-        error("変数ではありません");
+        printf("  mov rax, rbp\n");
+        printf("  sub rax, %d\n", node->offset);
+        printf("  push rax\n");
     }
-    printf("  mov rax, rbp\n");
-    printf("  sub rax, %d\n", node->offset);
-    printf("  push rax\n");
+    else if (node->kind == ND_GVAR)
+    {
+        printf("  mov rax, offset flat:%.*s\n", node->length, node->name);
+        printf("  push rax\n");
+    }
+    else
+        error("変数ではありません");
     return;
 }
 
@@ -266,8 +282,11 @@ void gen(Node *node)
     case ND_FUNCDEF:
         gen_function_def(node);
         return;
-    case ND_GVARDEF:
+    case ND_GVAR:
         gen_global_var(node);
+        return;
+    case ND_GVARDEF:
+        gen_global_var_def(node);
         return;
     case ND_ADDR:
         genl(node->lhs);
