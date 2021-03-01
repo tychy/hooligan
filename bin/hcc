@@ -43,12 +43,12 @@ elif [ $1 = "testv2dr" ]; then
         content=$(cat $fn)
         ./bin/exe.out "$content" >tmp.s
         cc -o tmp tmp.s helper/helper.c
-        echo $fn
+        printf $fn
         ./tmp
         if [ $? = 0 ]; then
-            echo "Test passed"
+            printf "...passed\n"
         else
-            echo "Test failed"
+            printf "...failed\n"
         fi
     done
     rm tmp.s tmp
