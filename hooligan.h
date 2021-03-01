@@ -79,6 +79,7 @@ typedef enum
     ND_FUNCDEF,
     ND_ADDR,
     ND_DEREF,
+    ND_GVARDEF,
 } NodeKind;
 
 typedef struct Type Type;

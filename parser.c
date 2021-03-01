@@ -452,6 +452,20 @@ Node *func(Token *ident)
         node->args_region_size = 0;
     return node;
 }
+
+Node *glob_var(Token *ident)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_GVARDEF;
+    node->name = ident->string;
+    node->length = ident->length;
+    Type *ty = calloc(1, sizeof(Type));
+    ty->ty = INT;
+    node->ty = ty;
+    expect(";");
+    return node;
+}
+
 Node *def()
 {
     Token *tok = consume_ident();
@@ -464,7 +478,7 @@ Node *def()
     if (consume("("))
         node = func(tok);
     else
-        error("グローバル変数をここに実装します");
+        node = glob_var(tok);
     return node;
 }
 

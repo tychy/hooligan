@@ -118,6 +118,16 @@ void gen_function(Node *node)
     printf("  push rax\n");
 }
 
+void gen_global_var(Node *node)
+{
+    if (node->kind != ND_GVARDEF)
+    {
+        error("グローバル変数ではありません");
+    }
+    printf("%.*s:\n", node->length, node->name);
+    printf("  .zero  4\n");
+}
+
 void genl(Node *node)
 {
     if (node->kind == ND_DEREF)
@@ -255,6 +265,9 @@ void gen(Node *node)
         return;
     case ND_FUNCDEF:
         gen_function_def(node);
+        return;
+    case ND_GVARDEF:
+        gen_global_var(node);
         return;
     case ND_ADDR:
         genl(node->lhs);
