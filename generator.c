@@ -201,6 +201,10 @@ void gen(Node *node)
         return;
     case ND_LVAR:
         genl(node);
+        if (node->ty->ty == ARRAY)
+        {
+            return;
+        }
         printf("  pop rax\n");
         if (node->ty->ty == INT)
             printf("  mov eax, [rax]\n");
@@ -297,9 +301,9 @@ void gen(Node *node)
             }
 
             if (node->kind == ND_ADD)
-                printf("  sub rax, rdi\n");
-            else
                 printf("  add rax, rdi\n");
+            else
+                printf("  sub rax, rdi\n");
         }
         printf("  push rax\n");
         return;

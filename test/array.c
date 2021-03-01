@@ -1,7 +1,12 @@
 int main()
 {
-    int a[3];
-    int b;
-    int c[2];
+    int a[4];
+    *a = 4;
+    *(a + 1) = 2;
+    if (*a != 4)
+    {
+        return 1;
+    }
+
     return 0;
 }
