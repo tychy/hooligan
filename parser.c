@@ -143,6 +143,14 @@ Node *ident()
             offset = lvar->offset;
         else
             error("変数が定義されていません");
+
+        if (consume("["))
+        {
+            int subset = expect_number();
+            expect("]");
+            Node *node = new_node(ND_ADD, new_node_var(offset, lvar->ty), new_node_num(subset));
+            return new_node_single(ND_DEREF, node);
+        }
         return new_node_var(offset, lvar->ty);
     }
 }
