@@ -23,6 +23,7 @@ int def_lvar(Token *tok, Type *ty)
     new_lvar->name = tok->string;
     new_lvar->ty = ty;
     int var_size = calc_bytes(ty);
+
     if (locals)
     {
         offset = locals->offset + var_size;
@@ -31,6 +32,7 @@ int def_lvar(Token *tok, Type *ty)
     {
         offset = var_size;
     }
+
     new_lvar->offset = offset;
     new_lvar->next = locals;
     locals = new_lvar;

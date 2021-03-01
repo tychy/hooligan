@@ -201,6 +201,10 @@ void gen(Node *node)
         return;
     case ND_LVAR:
         genl(node);
+        if (node->ty->ty == ARRAY)
+        {
+            return;
+        }
         printf("  pop rax\n");
         if (node->ty->ty == INT)
             printf("  mov eax, [rax]\n");
@@ -282,7 +286,15 @@ void gen(Node *node)
         {
             printf("  pop rdi\n");
             printf("  pop rax\n");
-            int size = calc_bytes(node->ty->ptr_to);
+            int size;
+            if (node->ty->ty == ARRAY)
+            {
+                size = 8;
+            }
+            else
+            {
+                size = calc_bytes(node->ty->ptr_to);
+            }
             if (node->lhs->ty->ty == INT)
             {
                 printf("  imul rax, %d\n", size);
@@ -297,9 +309,9 @@ void gen(Node *node)
             }
 
             if (node->kind == ND_ADD)
-                printf("  sub rax, rdi\n");
-            else
                 printf("  add rax, rdi\n");
+            else
+                printf("  sub rax, rdi\n");
         }
         printf("  push rax\n");
         return;
