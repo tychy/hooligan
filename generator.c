@@ -118,16 +118,6 @@ void gen_function(Node *node)
     printf("  push rax\n");
 }
 
-void gen_global_var(Node *node)
-{
-    if (node->kind != ND_GVAR)
-    {
-        error("グローバル変数ではありません");
-    }
-    // TODO(yokotsuka): 現状グローバル変数はint型のみのため分岐しない
-    printf("  mov eax, dword ptr %.*s[rip]\n", node->length, node->name);
-}
-
 void gen_global_var_def(Node *node)
 {
     if (node->kind != ND_GVARDEF)
@@ -138,14 +128,14 @@ void gen_global_var_def(Node *node)
     printf("  .zero  4\n");
 }
 
-void genl(Node *node)
+void gen_var(Node *node)
 {
     if (node->kind == ND_DEREF)
     {
         gen(node->lhs);
         return;
     }
-    if (node->kind == ND_LVAR)
+    else if (node->kind == ND_LVAR)
     {
         printf("  mov rax, rbp\n");
         printf("  sub rax, %d\n", node->offset);
@@ -153,8 +143,7 @@ void genl(Node *node)
     }
     else if (node->kind == ND_GVAR)
     {
-        printf("  mov rax, offset flat:%.*s\n", node->length, node->name);
-        printf("  push rax\n");
+        printf("  push offset %.*s\n", node->length, node->name);
     }
     else
         error("変数ではありません");
@@ -178,7 +167,7 @@ void gen_function_def(Node *node)
     Node *arg = node->lhs;
     while (arg != NULL)
     {
-        genl(arg);
+        gen_var(arg);
         printf("  pop rax\n");
         switch (count)
         {
@@ -226,7 +215,7 @@ void gen(Node *node)
         printf("  push %d\n", node->val);
         return;
     case ND_LVAR:
-        genl(node);
+        gen_var(node);
         if (node->ty->ty == ARRAY)
         {
             return;
@@ -239,7 +228,7 @@ void gen(Node *node)
         printf("  push rax\n");
         return;
     case ND_ASSIGN:
-        genl(node->lhs);
+        gen_var(node->lhs);
         gen(node->rhs);
         printf("  pop rdi\n");
         printf("  pop rax\n");
@@ -283,13 +272,18 @@ void gen(Node *node)
         gen_function_def(node);
         return;
     case ND_GVAR:
-        gen_global_var(node);
+        gen_var(node);
+        if (node->ty->ty == INT)
+            printf("  mov eax, [rax]\n");
+        else
+            printf("  mov rax, [rax]\n");
+        printf("  push rax\n");
         return;
     case ND_GVARDEF:
         gen_global_var_def(node);
         return;
     case ND_ADDR:
-        genl(node->lhs);
+        gen_var(node->lhs);
         return;
     case ND_DEREF:
         gen(node->lhs);
