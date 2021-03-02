@@ -118,20 +118,35 @@ void gen_function(Node *node)
     printf("  push rax\n");
 }
 
-void genl(Node *node)
+void gen_global_var_def(Node *node)
+{
+    if (node->kind != ND_GVARDEF)
+    {
+        error("グローバル変数定義ではありません");
+    }
+    printf("%.*s:\n", node->length, node->name);
+    printf("  .zero  4\n");
+}
+
+void gen_var(Node *node)
 {
     if (node->kind == ND_DEREF)
     {
         gen(node->lhs);
         return;
     }
-    if (node->kind != ND_LVAR)
+    else if (node->kind == ND_LVAR)
     {
-        error("変数ではありません");
+        printf("  mov rax, rbp\n");
+        printf("  sub rax, %d\n", node->offset);
+        printf("  push rax\n");
     }
-    printf("  mov rax, rbp\n");
-    printf("  sub rax, %d\n", node->offset);
-    printf("  push rax\n");
+    else if (node->kind == ND_GVAR)
+    {
+        printf("  push offset %.*s\n", node->length, node->name);
+    }
+    else
+        error("変数ではありません");
     return;
 }
 
@@ -152,7 +167,7 @@ void gen_function_def(Node *node)
     Node *arg = node->lhs;
     while (arg != NULL)
     {
-        genl(arg);
+        gen_var(arg);
         printf("  pop rax\n");
         switch (count)
         {
@@ -200,7 +215,7 @@ void gen(Node *node)
         printf("  push %d\n", node->val);
         return;
     case ND_LVAR:
-        genl(node);
+        gen_var(node);
         if (node->ty->ty == ARRAY)
         {
             return;
@@ -213,7 +228,7 @@ void gen(Node *node)
         printf("  push rax\n");
         return;
     case ND_ASSIGN:
-        genl(node->lhs);
+        gen_var(node->lhs);
         gen(node->rhs);
         printf("  pop rdi\n");
         printf("  pop rax\n");
@@ -256,8 +271,19 @@ void gen(Node *node)
     case ND_FUNCDEF:
         gen_function_def(node);
         return;
+    case ND_GVAR:
+        gen_var(node);
+        if (node->ty->ty == INT)
+            printf("  mov eax, [rax]\n");
+        else
+            printf("  mov rax, [rax]\n");
+        printf("  push rax\n");
+        return;
+    case ND_GVARDEF:
+        gen_global_var_def(node);
+        return;
     case ND_ADDR:
-        genl(node->lhs);
+        gen_var(node->lhs);
         return;
     case ND_DEREF:
         gen(node->lhs);

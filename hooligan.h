@@ -79,6 +79,8 @@ typedef enum
     ND_FUNCDEF,
     ND_ADDR,
     ND_DEREF,
+    ND_GVARDEF,
+    ND_GVAR,
 } NodeKind;
 
 typedef struct Type Type;
@@ -143,5 +145,17 @@ extern LVar *locals;
 LVar *find_lvar(Token *tok);
 int def_lvar(Token *tok, Type *ty);
 int calc_bytes(Type *ty);
+
+typedef struct GVar GVar;
+struct GVar
+{
+    char *name;
+    int length;
+    Type *ty;
+    GVar *next;
+};
+
+extern GVar *globals;
+GVar *find_gvar(Token *tok);
 
 #endif

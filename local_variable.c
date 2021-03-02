@@ -14,6 +14,19 @@ LVar *find_lvar(Token *tok)
     return NULL;
 }
 
+GVar *globals;
+GVar *find_gvar(Token *tok)
+{
+    for (GVar *gvar = globals; gvar; gvar = gvar->next)
+    {
+        if (gvar->length == tok->length && memcmp(gvar->name, tok->string, gvar->length) == 0)
+        {
+            return gvar;
+        }
+    }
+    return NULL;
+}
+
 int def_lvar(Token *tok, Type *ty)
 {
     int offset;

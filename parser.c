@@ -74,6 +74,15 @@ Node *new_node_var(int offset, Type *ty)
     return node;
 }
 
+Node *new_node_glob_var(Token *tok, Type *ty)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_GVAR;
+    node->name = tok->string;
+    node->length = tok->length;
+    node->ty = ty;
+}
+
 Node *new_node_func(char *name, int length)
 {
     Node *node = calloc(1, sizeof(Node));
@@ -148,7 +157,13 @@ Node *ident()
         if (lvar)
             offset = lvar->offset;
         else
-            error("変数が定義されていません");
+        {
+            GVar *gvar = find_gvar(tok);
+            if (gvar)
+                return new_node_glob_var(tok, gvar->ty);
+            else
+                error("変数が定義されていません");
+        }
 
         return new_node_var(offset, lvar->ty);
     }
@@ -417,19 +432,12 @@ Node *stmt()
     return node;
 }
 
-Node *func()
+Node *func(Token *ident, Type *ty)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_FUNCDEF;
-    Token *tok = consume_ident();
-
-    if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
-        tok = consume_ident();
-    else
-        error("関数の宣言に型がありません");
-    node->name = tok->string;
-    node->length = tok->length;
-    expect("(");
+    node->name = ident->string;
+    node->length = ident->length;
     Node *arg_top = node;
     int arg_count = 0;
     while (!consume(")"))
@@ -445,8 +453,6 @@ Node *func()
             arg_token = consume_ident();
         else
             error("引数に型がありません");
-        Type *ty = calloc(1, sizeof(Type));
-        ty->ty = INT;
         int offset = def_lvar(arg_token, ty);
         Node *arg = new_node_var(offset, ty);
         arg_top->lhs = arg;
@@ -460,12 +466,48 @@ Node *func()
     return node;
 }
 
+Node *glob_var(Token *ident, Type *ty)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_GVARDEF;
+    node->name = ident->string;
+    node->length = ident->length;
+    node->ty = ty;
+    expect(";");
+    GVar *new_gvar = calloc(1, sizeof(GVar));
+    new_gvar->name = ident->string;
+    new_gvar->length = ident->length;
+    new_gvar->ty = ty;
+    new_gvar->next = globals;
+    globals = new_gvar;
+    return node;
+}
+
+Node *def()
+{
+    Token *tok = consume_ident();
+    // TODO(yokotsuka): int型以外も受け入れられるようにする
+    if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
+        tok = consume_ident();
+    else
+        error("定義式に型がありません");
+    Node *node;
+    Type *ty = calloc(1, sizeof(Type));
+    ty->ty = INT;
+    if (consume("("))
+        node = func(tok, ty);
+    else
+        node = glob_var(tok, ty);
+
+    return node;
+}
+
 void program()
 {
     int i = 0;
     while (!at_eof())
     {
-        Node *node = func();
+        Node *node = def();
         nodes[i] = node;
         i++;
         locals = NULL;
