@@ -101,9 +101,22 @@ Node *num()
 Node *ident()
 {
     Token *tok = consume_ident();
-    if (istype(tok, INT))
+    if (istype(tok, INT) || istype(tok, CHAR))
     {
-        Type *ty = new_type_int();
+        Type *ty;
+
+        if (istype(tok, INT))
+        {
+            ty = new_type_int();
+        }
+        else if (istype(tok, CHAR))
+        {
+            ty = new_type_char();
+        }
+        else
+        {
+            error("定義されていない型です");
+        }
         while (consume("*"))
         {
             ty = new_type_ptr(ty);
