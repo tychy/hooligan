@@ -1,44 +1,33 @@
-int s;
 int main()
 {
     char x[3];
     char y;
     char z;
+    char w;
     int a;
-    int b;
-
-    y = 5;
-    z = -2;
     x[0] = -1;
-    x[1] = 2;
-    a = 11;
-    b = 2;
-    s = -3;
+    y = 1;
+    z = 127;
     if (x[0] != -1)
     {
         return 1;
     }
-    if (y != 5)
+    a = z + 1;
+    if (z + 1 != 128)
     {
         return 1;
     }
 
-    if (a + y != 16)
+    if (1 + z != 128)
     {
         return 1;
     }
-
-    if (z + b != 0)
+    if (a != 128)
     {
         return 1;
     }
-
-    if (z - b != -4)
-    {
-        return 1;
-    }
-
-    if (s - x[0] != -2)
+    w = z + y;
+    if (w != -128)
     {
         return 1;
     }
