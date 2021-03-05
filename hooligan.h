@@ -83,16 +83,19 @@ typedef enum
     ND_GVARDEF,
 } NodeKind;
 
+typedef enum
+{
+    INT,
+    PTR,
+    ARRAY,
+    CHAR,
+
+} TypeKind;
+
 typedef struct Type Type;
 struct Type
 {
-    enum
-    {
-        INT,
-        PTR,
-        ARRAY,
-        CHAR,
-    } ty;
+    TypeKind ty;
     Type *ptr_to;
     size_t array_size;
 };
