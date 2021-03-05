@@ -2,8 +2,12 @@
 
 Type *new_type_int()
 {
-    Type *ty = calloc(1, sizeof(Type));
-    ty->ty = INT;
+    static Type *ty;
+    if (!ty)
+    {
+        ty = calloc(1, sizeof(Type));
+        ty->ty = INT;
+    }
     return ty;
 }
 
