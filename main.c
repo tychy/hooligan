@@ -3,7 +3,8 @@
 Token *token;
 
 int label = 0;
-Node *nodes[100];
+Node *nodes[200];
+Node *funcs[100];
 
 int main(int argc, char **argv)
 {
@@ -19,21 +20,23 @@ int main(int argc, char **argv)
     printf(".bss\n");
     program();
     int i = 0;
-    bool flag = true;
+    int func_count = 0;
     while (nodes[i] != NULL)
     {
-        if (flag && nodes[i]->kind != ND_GVARDEF)
+        if (nodes[i]->kind == ND_FUNCDEF)
         {
-            printf(".text\n");
-            flag = false;
-        }
-        else if (!flag && nodes[i]->kind == ND_FUNCDEF)
-        {
-
-            printf(".text\n");
+            funcs[func_count] = nodes[i];
+            func_count++;
+            i++;
+            continue;
         }
         gen(nodes[i]);
         i++;
+    }
+    printf(".text\n");
+    for (int j = 0; j < func_count; j++)
+    {
+        gen(funcs[j]);
     }
     return 0;
 }

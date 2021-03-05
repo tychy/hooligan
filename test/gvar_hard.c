@@ -1,10 +1,10 @@
 int gvar;
-int a;
 int foo(int index)
 {
     gvar = index;
     return index;
 }
+int a;
 int main()
 {
     int b = 7;

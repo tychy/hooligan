@@ -97,7 +97,7 @@ struct Type
 
 typedef struct Node Node;
 
-extern Node *nodes[100];
+extern Node *nodes[200];
 
 struct Node
 {
