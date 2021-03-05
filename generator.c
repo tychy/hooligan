@@ -318,9 +318,9 @@ void gen(Node *node)
             printf("  pop rdi\n");
             printf("  pop rax\n");
             if (node->kind == ND_ADD)
-                printf("  add rax, rdi\n");
+                printf("  add eax, edi\n");
             else
-                printf("  sub rax, rdi\n");
+                printf("  sub eax, edi\n");
         }
         else
         {
