@@ -6,7 +6,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     node->kind = kind;
     node->lhs = lhs;
     node->rhs = rhs;
-    if ((lhs->ty->ty == PTR || lhs->ty->ty == ARRAY) && (rhs->ty->ty == PTR || rhs->ty->ty == ARRAY))
+    if (is_ptr_or_array(lhs->ty) && is_ptr_or_array(rhs->ty))
     {
         if (kind != ND_ASSIGN)
             error("式にはintが必要です");
@@ -14,15 +14,15 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
         // -Wincompatible-pointer-typesというオプションらしい
         node->ty = lhs->ty;
     }
-    else if (lhs->ty->ty == INT && (rhs->ty->ty == PTR || rhs->ty->ty == ARRAY))
+    else if (is_int(lhs->ty) && is_ptr_or_array(rhs->ty))
     {
         node->ty = rhs->ty;
     }
-    else if ((lhs->ty->ty == PTR || lhs->ty->ty == ARRAY) && rhs->ty->ty == INT)
+    else if (is_ptr_or_array(lhs->ty) && is_int(rhs->ty))
     {
         node->ty = lhs->ty;
     }
-    else if (lhs->ty->ty == INT && rhs->ty->ty == INT)
+    else if (is_int(lhs->ty) && is_int(rhs->ty))
     {
         // 右でも左でも一緒
         node->ty = lhs->ty;
@@ -59,9 +59,7 @@ Node *new_node_num(int val)
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_NUM;
     node->val = val;
-    Type *ty = calloc(1, sizeof(Type));
-    ty->ty = INT;
-    node->ty = ty;
+    node->ty = new_type_int();
     return node;
 }
 
@@ -91,9 +89,7 @@ Node *new_node_func(char *name, int length)
     node->kind = ND_FUNC;
     node->name = name;
     node->length = length;
-    Type *ty = calloc(1, sizeof(Type));
-    ty->ty = INT;
-    node->ty = ty;
+    node->ty = new_type_int();
     return node;
 }
 
@@ -107,25 +103,16 @@ Node *ident()
     Token *tok = consume_ident();
     if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
     {
-        Type *ty = calloc(1, sizeof(Type));
-        ty->ty = INT;
+        Type *ty = new_type_int();
         while (consume("*"))
         {
-            Type *prev = ty;
-            ty = calloc(1, sizeof(Type));
-            ty->ty = PTR;
-            ty->ptr_to = prev;
+            ty = new_type_ptr(ty);
         }
         tok = consume_ident();
         if (consume("["))
         {
-            int array_size = expect_number();
-
-            Type *prev = ty;
-            ty = calloc(1, sizeof(Type));
-            ty->ty = ARRAY;
-            ty->ptr_to = prev;
-            ty->array_size = array_size;
+            int size = expect_number();
+            ty = new_type_array(ty, size);
             expect("]");
             int offset = def_var(tok, ty, true);
             return new_node_var(offset, ty);
@@ -494,17 +481,13 @@ Node *glob_var(Token *ident, Type *ty)
 Node *def()
 {
     Token *tok = consume_ident();
-    Type *ty = calloc(1, sizeof(Type));
-    ty->ty = INT;
+    Type *ty = new_type_int();
 
     if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
     {
         while (consume("*"))
         {
-            Type *prev = ty;
-            ty = calloc(1, sizeof(Type));
-            ty->ty = PTR;
-            ty->ptr_to = prev;
+            ty = new_type_ptr(ty);
         }
 
         tok = consume_ident();
@@ -523,12 +506,8 @@ Node *def()
 
         if (consume("["))
         {
-            int array_size = expect_number();
-            Type *prev = ty;
-            ty = calloc(1, sizeof(Type));
-            ty->ty = ARRAY;
-            ty->ptr_to = prev;
-            ty->array_size = array_size;
+            int size = expect_number();
+            ty = new_type_array(ty, size);
             expect("]");
         }
         node = glob_var(tok, ty);
