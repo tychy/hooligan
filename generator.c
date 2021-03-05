@@ -85,7 +85,7 @@ void gen_function(Node *node)
     }
     Node *arg = node->rhs;
     Node *first_arg = NULL;
-    int count = 1;
+    int count = 0;
     while (arg != NULL)
     {
         if (arg->kind != ND_ARG)
@@ -93,7 +93,7 @@ void gen_function(Node *node)
             error("引数ではありません");
         }
         // 第一引数のレジスタRDIは計算で使われるため最後にpopしなければならない
-        if (count == 1)
+        if (count == 0)
         {
             first_arg = arg;
             arg = arg->rhs;
@@ -101,34 +101,25 @@ void gen_function(Node *node)
             continue;
         }
         gen(arg->lhs);
-        switch (count)
+
+        if (count < 6)
         {
-        case 2:
-            printf("  pop rsi\n");
-            break;
-        case 3:
-            printf("  pop rdx\n");
-            break;
-        case 4:
-            printf("  pop rcx\n");
-            break;
-        case 5:
-            printf("  pop r8\n");
-            break;
-        case 6:
-            printf("  pop r9\n");
-            break;
-        default:
-            error("引数の数が多すぎます");
-            break;
+            printf("  pop  %s\n", reg64[count]);
         }
+        else
+        {
+
+            error("引数の数が多すぎます");
+        }
+        count++;
+
         arg = arg->rhs;
         count++;
     }
     if (first_arg != NULL)
     {
         gen(first_arg->lhs);
-        printf("  pop rdi\n");
+        printf("  pop %s\n", reg64[0]);
     }
     printf("  call %.*s\n", node->length, node->name);
     printf("  push rax\n");
