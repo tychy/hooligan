@@ -131,8 +131,6 @@ struct Node
     int args_region_size;
 };
 
-Node *expr();
-Node *stmt();
 void program();
 void gen(Node *node);
 

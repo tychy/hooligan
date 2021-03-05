@@ -2,7 +2,7 @@
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
-char *operator_list[20] = {
+static char *operator_list[20] = {
     "==",
     "!=",
     ">=",
@@ -25,9 +25,9 @@ char *operator_list[20] = {
     "]",
 };
 
-int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
+static int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
 
-Token *new_token(TokenKind kind, Token *cur, char *str)
+static Token *new_token(TokenKind kind, Token *cur, char *str)
 {
     Token *tok = calloc(1, sizeof(Token));
     tok->kind = kind;
@@ -36,7 +36,7 @@ Token *new_token(TokenKind kind, Token *cur, char *str)
     return tok;
 }
 
-bool isfor(char *p)
+static bool isfor(char *p)
 {
     if (strncmp(p, "for", 3) == 0 && !isident(*(p + 3)))
     {
@@ -45,7 +45,7 @@ bool isfor(char *p)
     return false;
 }
 
-bool iswhile(char *p)
+static bool iswhile(char *p)
 {
     if (strncmp(p, "while", 5) == 0 && !isident(*(p + 5)))
     {
@@ -54,7 +54,7 @@ bool iswhile(char *p)
     return false;
 }
 
-bool isif(char *p)
+static bool isif(char *p)
 {
     if (strncmp(p, "if", 2) == 0 && !isident(*(p + 2)))
     {
@@ -63,7 +63,7 @@ bool isif(char *p)
     return false;
 }
 
-bool iselse(char *p)
+static bool iselse(char *p)
 {
     if (strncmp(p, "else", 4) == 0 && !isident(*(p + 4)))
     {
@@ -72,7 +72,7 @@ bool iselse(char *p)
     return false;
 }
 
-bool isreturn(char *p)
+static bool isreturn(char *p)
 {
     if (strncmp(p, "return", 6) == 0 && !isident(*(p + 6)))
     {
@@ -81,7 +81,7 @@ bool isreturn(char *p)
     return false;
 }
 
-bool issizeof(char *p){
+static bool issizeof(char *p){
     if(strncmp(p, "sizeof", 6)==0&& !isident(*(p+6)))
         return true;
     return false;
@@ -96,7 +96,7 @@ bool isident(char p)
     return false;
 }
 
-bool isoperator(char *p)
+static bool isoperator(char *p)
 {
     for (int i = 0; i < operator_list_count; i++)
     {
