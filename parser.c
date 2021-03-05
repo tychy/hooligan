@@ -486,14 +486,26 @@ Node *glob_var(Token *ident, Type *ty)
 Node *def()
 {
     Token *tok = consume_ident();
-    // TODO(yokotsuka): int型以外も受け入れられるようにする
-    if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
-        tok = consume_ident();
-    else
-        error("定義式に型がありません");
-    Node *node;
     Type *ty = calloc(1, sizeof(Type));
     ty->ty = INT;
+
+    if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
+    {
+        while (consume("*"))
+        {
+            Type *prev = ty;
+            ty = calloc(1, sizeof(Type));
+            ty->ty = PTR;
+            ty->ptr_to = prev;
+        }
+
+        tok = consume_ident();
+    }
+    else
+    {
+        error("定義式に型がありません");
+    }
+    Node *node;
     if (consume("("))
         node = func(tok, ty);
     else
