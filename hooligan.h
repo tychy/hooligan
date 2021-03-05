@@ -49,6 +49,7 @@ bool consume_while();
 bool consume_sizeof();
 void expect(char *op);
 bool at_eof();
+bool istype(Token *tok, char *ref, int reflen);
 int expect_number();
 Token *consume_ident();
 Token *tokenize();
@@ -89,7 +90,8 @@ struct Type
     {
         INT,
         PTR,
-        ARRAY
+        ARRAY,
+        CHAR,
     } ty;
     Type *ptr_to;
     size_t array_size;
