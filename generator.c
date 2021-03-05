@@ -16,7 +16,7 @@ static char *reg64[6] = {
     "r9",
 };
 
-void gen_for(Node *node, int lab)
+static void gen_for(Node *node, int lab)
 {
     if (node->kind != ND_FOR)
         error("for文ではありません");
@@ -41,7 +41,7 @@ void gen_for(Node *node, int lab)
     printf(".Lforend%d:\n", lab);
 }
 
-void gen_while(Node *node, int lab)
+static void gen_while(Node *node, int lab)
 {
     if (node->kind != ND_WHILE)
         error("while文ではありません");
@@ -55,7 +55,7 @@ void gen_while(Node *node, int lab)
     printf(".Lwhileend%d:\n", lab);
 }
 
-void gen_if(Node *node, int lab)
+static void gen_if(Node *node, int lab)
 {
     if (node->kind != ND_IF)
         error("if文ではありません");
@@ -77,7 +77,7 @@ void gen_if(Node *node, int lab)
     printf(".Lend%d:\n", lab);
 }
 
-void gen_function(Node *node)
+static void gen_function(Node *node)
 {
     if (node->kind != ND_FUNC)
     {
@@ -124,7 +124,7 @@ void gen_function(Node *node)
     printf("  push rax\n");
 }
 
-void gen_global_var_def(Node *node)
+static void gen_global_var_def(Node *node)
 {
     if (node->kind != ND_GVARDEF)
     {
@@ -134,7 +134,7 @@ void gen_global_var_def(Node *node)
     printf("  .zero  %d\n", calc_bytes(node->ty));
 }
 
-void gen_var(Node *node)
+static void gen_var(Node *node)
 {
     if (node->kind == ND_DEREF)
     {
@@ -158,7 +158,7 @@ void gen_var(Node *node)
     return;
 }
 
-void gen_function_def(Node *node)
+static void gen_function_def(Node *node)
 {
     if (node->kind != ND_FUNCDEF)
     {
