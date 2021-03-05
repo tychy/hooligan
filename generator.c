@@ -353,8 +353,8 @@ void gen(Node *node)
     case ND_DIV:
         printf("  pop rdi\n");
         printf("  pop rax\n");
-        printf("  cqo\n");
-        printf("  idiv rdi\n");
+        printf("  cdq\n");
+        printf("  idiv edi\n");
         printf("  push rax\n");
         break;
     case ND_EQUAL:
