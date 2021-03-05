@@ -437,16 +437,12 @@ Node *func(Token *ident, Type *ty)
         if (arg_count != 1)
             expect(",");
         Token *arg_token = consume_ident();
-        Type *arg_ty = calloc(1, sizeof(Type));
-        arg_ty->ty = INT;
+        Type *arg_ty = new_type_int();
         if (arg_token->length == 3 && strncmp(arg_token->string, "int", 3) == 0)
         {
             while (consume("*"))
             {
-                Type *prev = arg_ty;
-                arg_ty = calloc(1, sizeof(Type));
-                arg_ty->ty = PTR;
-                arg_ty->ptr_to = prev;
+                arg_ty = new_type_ptr(arg_ty);
             }
 
             arg_token = consume_ident();
