@@ -28,7 +28,7 @@ elif [ $1 = "execdr" ]; then
 elif [ $1 = "asm" ]; then
     docker-compose run hooligan ./bin/hcc asmdr "$2"
 elif [ $1 = "asmdr" ]; then
-    echo "$2" > tmp.c
+    echo "$2" >tmp.c
     cc -static -c tmp.c -o a.o
     objdump -d -M Intel a.o
     rm a.o tmp.c
@@ -36,13 +36,13 @@ elif [ $1 = "testold" ]; then
     docker-compose run hooligan make test
 elif [ $1 = "testv2dr" ]; then
     make
+    result=0
     for fn in test/*; do
         content=$(cat $fn)
         ./bin/exe.out "$content" >tmp.s
         cc -static -o tmp tmp.s helper/helper.c
         printf $fn
         ./tmp
-        result=0
         if [ $? = 0 ]; then
             printf "...passed\n"
         else
