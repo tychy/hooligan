@@ -1,4 +1,20 @@
 #include "hooligan.h"
+static char *reg32[6] = {
+    "edi",
+    "esi",
+    "edx",
+    "ecx",
+    "r8d",
+    "r9d",
+};
+static char *reg64[6] = {
+    "rdi",
+    "rsi",
+    "rdx",
+    "rcx",
+    "r8",
+    "r9",
+};
 
 void gen_for(Node *node, int lab)
 {
@@ -69,7 +85,7 @@ void gen_function(Node *node)
     }
     Node *arg = node->rhs;
     Node *first_arg = NULL;
-    int count = 1;
+    int count = 0;
     while (arg != NULL)
     {
         if (arg->kind != ND_ARG)
@@ -77,7 +93,7 @@ void gen_function(Node *node)
             error("引数ではありません");
         }
         // 第一引数のレジスタRDIは計算で使われるため最後にpopしなければならない
-        if (count == 1)
+        if (count == 0)
         {
             first_arg = arg;
             arg = arg->rhs;
@@ -85,34 +101,24 @@ void gen_function(Node *node)
             continue;
         }
         gen(arg->lhs);
-        switch (count)
+
+        if (count < 6)
         {
-        case 2:
-            printf("  pop rsi\n");
-            break;
-        case 3:
-            printf("  pop rdx\n");
-            break;
-        case 4:
-            printf("  pop rcx\n");
-            break;
-        case 5:
-            printf("  pop r8\n");
-            break;
-        case 6:
-            printf("  pop r9\n");
-            break;
-        default:
-            error("引数の数が多すぎます");
-            break;
+            printf("  pop  %s\n", reg64[count]);
         }
+        else
+        {
+
+            error("引数の数が多すぎます");
+        }
+
         arg = arg->rhs;
         count++;
     }
     if (first_arg != NULL)
     {
         gen(first_arg->lhs);
-        printf("  pop rdi\n");
+        printf("  pop %s\n", reg64[0]);
     }
     printf("  call %.*s\n", node->length, node->name);
     printf("  push rax\n");
@@ -167,34 +173,25 @@ void gen_function_def(Node *node)
     printf("  sub rsp, %d\n", node->args_region_size);
 
     // 第1〜6引数をローカル変数の領域に書き出す
-    int count = 1;
+    int count = 0;
     Node *arg = node->lhs;
     while (arg != NULL)
     {
         gen_var(arg);
         printf("  pop rax\n");
-        switch (count)
+        if (count < 6)
         {
-            // TODO 関数の引数はintのみという前提に基づいている
-        case 1:
-            printf("  mov [rax], edi\n");
-            break;
-        case 2:
-            printf("  mov [rax], esi\n");
-            break;
-        case 3:
-            printf("  mov [rax], edx\n");
-            break;
-        case 4:
-            printf("  mov [rax], ecx\n");
-            break;
-        case 5:
-            printf("  mov [rax], r8d\n");
-            break;
-        case 6:
-            printf("  mov [rax], r9d\n");
-            break;
-        default:
+            char *reg;
+            if (arg->ty->ty == INT)
+                reg = reg32[count];
+            else
+                reg = reg64[count];
+
+            printf("  mov [rax], %s\n", reg);
+        }
+        else
+        {
+
             error("引数の数が多すぎます");
         }
         count++;

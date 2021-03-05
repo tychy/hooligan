@@ -437,13 +437,20 @@ Node *func(Token *ident, Type *ty)
         if (arg_count != 1)
             expect(",");
         Token *arg_token = consume_ident();
-
+        Type *arg_ty = new_type_int();
         if (arg_token->length == 3 && strncmp(arg_token->string, "int", 3) == 0)
+        {
+            while (consume("*"))
+            {
+                arg_ty = new_type_ptr(arg_ty);
+            }
+
             arg_token = consume_ident();
+        }
         else
             error("引数に型がありません");
-        int offset = def_var(arg_token, ty, true);
-        Node *arg = new_node_var(offset, ty);
+        int offset = def_var(arg_token, arg_ty, true);
+        Node *arg = new_node_var(offset, arg_ty);
         arg_top->lhs = arg;
         arg_top = arg;
     }
