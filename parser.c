@@ -25,7 +25,15 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     else if (is_int_or_char(lhs->ty) && is_int_or_char(rhs->ty))
     {
         // 右でも左でも一緒
-        node->ty = lhs->ty;
+        if (is_char(lhs->ty) && is_int(rhs->ty))
+        {
+            node->rhs->ty->ty = CHAR;
+            node->ty = lhs->ty;
+        }
+        else
+        {
+            node->ty = lhs->ty;
+        }
     }
     return node;
 }
