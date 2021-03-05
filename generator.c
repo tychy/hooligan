@@ -143,7 +143,9 @@ void gen_var(Node *node)
     }
     else if (node->kind == ND_GVAR)
     {
-        printf("  push offset %.*s\n", node->length, node->name);
+        printf("  lea rax, %.*s\n", node->length, node->name);
+        printf("  push rax\n");
+        //printf("  push offset %.*s\n", node->length, node->name);
     }
     else
         error("変数ではありません");
@@ -276,6 +278,8 @@ void gen(Node *node)
         return;
     case ND_GVAR:
         gen_var(node);
+
+        printf("  pop rax\n");
         if (node->ty->ty == INT)
             printf("  mov eax, [rax]\n");
         else
