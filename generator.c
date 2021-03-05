@@ -143,7 +143,9 @@ void gen_var(Node *node)
     }
     else if (node->kind == ND_GVAR)
     {
-        printf("  push offset %.*s\n", node->length, node->name);
+        printf("  lea rax, %.*s\n", node->length, node->name);
+        printf("  push rax\n");
+        //printf("  push offset %.*s\n", node->length, node->name);
     }
     else
         error("変数ではありません");
@@ -156,6 +158,8 @@ void gen_function_def(Node *node)
     {
         error("関数定義ではありません");
     }
+
+    printf(".globl %.*s\n", node->length, node->name);
     printf("%.*s:\n", node->length, node->name);
     // プロローグ
     printf("  push rbp\n");
@@ -269,10 +273,13 @@ void gen(Node *node)
         gen_function(node);
         return;
     case ND_FUNCDEF:
+
         gen_function_def(node);
         return;
     case ND_GVAR:
         gen_var(node);
+
+        printf("  pop rax\n");
         if (node->ty->ty == INT)
             printf("  mov eax, [rax]\n");
         else
