@@ -11,11 +11,7 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     node->rhs = rhs;
     if (!is_int_or_char(lhs->ty) && !is_int_or_char(rhs->ty))
     {
-        if (kind != ND_ASSIGN)
-            error("式にはintが必要です");
-        // TODO 代入式の両辺の型が等しいかチェックする
-        // -Wincompatible-pointer-typesというオプションらしい
-        node->ty = lhs->ty;
+        error("式にはintが必要です");
     }
     else if (is_int_or_char(lhs->ty) && !is_int_or_char(rhs->ty))
     {
@@ -27,11 +23,7 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     }
     else if (is_int_or_char(lhs->ty) && is_int_or_char(rhs->ty))
     {
-
-        if (kind == ND_ASSIGN)
-            node->ty = lhs->ty;
-        else
-            node->ty = new_type_int();
+        node->ty = new_type_int();
     }
     return node;
 }
@@ -58,6 +50,15 @@ static Node *new_node_single(NodeKind kind, Node *lhs)
     }
     else
         node->ty = lhs->ty;
+}
+
+static Node *new_node_assign(Node *lhs, Node *rhs)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_ASSIGN;
+    node->lhs = lhs;
+    node->rhs = rhs;
+    node->ty = lhs->ty;
 }
 
 static Node *new_node_num(int val)
@@ -327,7 +328,7 @@ static Node *assign()
     Node *node = equality();
     if (consume("="))
     {
-        node = new_node(ND_ASSIGN, node, assign());
+        node = new_node_assign(node, assign());
     }
 
     return node;
