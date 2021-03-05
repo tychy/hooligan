@@ -28,3 +28,13 @@ Type *new_type_array(Type *ptr_to, size_t size)
 
     return ty;
 }
+
+bool is_ptr_or_array(Type *ty)
+{
+    return ty->ty == PTR || ty->ty == ARRAY;
+}
+
+bool is_int(Type *ty)
+{
+    return ty->ty == INT;
+}
