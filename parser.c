@@ -109,13 +109,8 @@ Node *ident()
         tok = consume_ident();
         if (consume("["))
         {
-            int array_size = expect_number();
-
-            Type *prev = ty;
-            ty = calloc(1, sizeof(Type));
-            ty->ty = ARRAY;
-            ty->ptr_to = prev;
-            ty->array_size = array_size;
+            int size = expect_number();
+            ty = new_type_array(ty, size);
             expect("]");
             int offset = def_lvar(tok, ty);
             return new_node_var(offset, ty);
@@ -503,12 +498,8 @@ Node *def()
 
         if (consume("["))
         {
-            int array_size = expect_number();
-            Type *prev = ty;
-            ty = calloc(1, sizeof(Type));
-            ty->ty = ARRAY;
-            ty->ptr_to = prev;
-            ty->array_size = array_size;
+            int size = expect_number();
+            ty = new_type_array(ty, size);
             expect("]");
         }
         node = glob_var(tok, ty);
