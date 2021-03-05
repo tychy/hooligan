@@ -24,36 +24,6 @@ typedef enum
     TK_EOF,
 } TokenKind;
 
-typedef struct Token Token;
-
-extern Token *token;
-
-struct Token
-{
-    TokenKind kind;
-    Token *next;
-    int value;
-    int length;
-    char *string;
-};
-
-bool isident(char p);
-
-void error(char *fmt, ...);
-bool consume(char *op);
-bool consume_return();
-bool consume_if();
-bool consume_else();
-bool consume_for();
-bool consume_while();
-bool consume_sizeof();
-void expect(char *op);
-bool at_eof();
-int expect_number();
-Token *consume_ident();
-Token *tokenize();
-
-// Parser
 typedef enum
 {
     ND_NUM,
@@ -82,15 +52,50 @@ typedef enum
     ND_GVARDEF,
 } NodeKind;
 
+typedef enum
+{
+    INT,
+    CHAR,
+    PTR,
+    ARRAY,
+
+} TypeKind;
+
+typedef struct Token Token;
+
+extern Token *token;
+
+struct Token
+{
+    TokenKind kind;
+    Token *next;
+    int value;
+    int length;
+    char *string;
+};
+
+bool isident(char p);
+
+void error(char *fmt, ...);
+bool consume(char *op);
+bool consume_return();
+bool consume_if();
+bool consume_else();
+bool consume_for();
+bool consume_while();
+bool consume_sizeof();
+void expect(char *op);
+bool at_eof();
+bool istype(Token *tok, TypeKind ty);
+int expect_number();
+Token *consume_ident();
+Token *tokenize();
+
+// Parser
 typedef struct Type Type;
 struct Type
 {
-    enum
-    {
-        INT,
-        PTR,
-        ARRAY
-    } ty;
+    TypeKind ty;
     Type *ptr_to;
     size_t array_size;
 };
@@ -149,8 +154,10 @@ int calc_bytes(Type *ty);
 
 // type.c
 Type *new_type_int();
+Type *new_type_char();
 Type *new_type_ptr(Type *ptr_to);
 Type *new_type_array(Type *ptr_to, size_t size);
-bool is_ptr_or_array(Type *ty);
 bool is_int(Type *ty);
+bool is_char(Type *ty);
+bool is_int_or_char(Type *ty);
 #endif

@@ -9,7 +9,7 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     node->kind = kind;
     node->lhs = lhs;
     node->rhs = rhs;
-    if (is_ptr_or_array(lhs->ty) && is_ptr_or_array(rhs->ty))
+    if (!is_int_or_char(lhs->ty) && !is_int_or_char(rhs->ty))
     {
         if (kind != ND_ASSIGN)
             error("式にはintが必要です");
@@ -17,18 +17,21 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
         // -Wincompatible-pointer-typesというオプションらしい
         node->ty = lhs->ty;
     }
-    else if (is_int(lhs->ty) && is_ptr_or_array(rhs->ty))
+    else if (is_int_or_char(lhs->ty) && !is_int_or_char(rhs->ty))
     {
         node->ty = rhs->ty;
     }
-    else if (is_ptr_or_array(lhs->ty) && is_int(rhs->ty))
+    else if (!is_int_or_char(lhs->ty) && is_int_or_char(rhs->ty))
     {
         node->ty = lhs->ty;
     }
-    else if (is_int(lhs->ty) && is_int(rhs->ty))
+    else if (is_int_or_char(lhs->ty) && is_int_or_char(rhs->ty))
     {
-        // 右でも左でも一緒
-        node->ty = lhs->ty;
+
+        if (kind == ND_ASSIGN)
+            node->ty = lhs->ty;
+        else
+            node->ty = new_type_int();
     }
     return node;
 }
@@ -41,7 +44,7 @@ static Node *new_node_single(NodeKind kind, Node *lhs)
     Type *ty = calloc(1, sizeof(Node));
     if (kind == ND_DEREF)
     {
-        if (lhs->ty->ty == INT)
+        if (is_int_or_char(lhs->ty))
         {
             error("pointer型である必要があります");
         }
@@ -104,9 +107,22 @@ static Node *num()
 static Node *ident()
 {
     Token *tok = consume_ident();
-    if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
+    if (istype(tok, INT) || istype(tok, CHAR))
     {
-        Type *ty = new_type_int();
+        Type *ty;
+
+        if (istype(tok, INT))
+        {
+            ty = new_type_int();
+        }
+        else if (istype(tok, CHAR))
+        {
+            ty = new_type_char();
+        }
+        else
+        {
+            error("定義されていない型です");
+        }
         while (consume("*"))
         {
             ty = new_type_ptr(ty);
@@ -211,12 +227,7 @@ static Node *unary()
     else if (consume_sizeof())
     {
         Node *arg = unary();
-        if (arg->ty->ty == INT)
-            return new_node_num(4);
-        else if (arg->ty->ty == PTR)
-            return new_node_num(8);
-        else if (arg->ty->ty == ARRAY)
-            return new_node_num(calc_bytes(arg->ty->ptr_to) * arg->ty->array_size);
+        return new_node_num(calc_bytes(arg->ty));
     }
     return primary();
 }
@@ -441,7 +452,7 @@ static Node *func(Token *ident, Type *ty)
             expect(",");
         Token *arg_token = consume_ident();
         Type *arg_ty = new_type_int();
-        if (arg_token->length == 3 && strncmp(arg_token->string, "int", 3) == 0)
+        if (istype(arg_token, INT))
         {
             while (consume("*"))
             {
@@ -482,7 +493,7 @@ static Node *def()
     Token *tok = consume_ident();
     Type *ty = new_type_int();
 
-    if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
+    if (istype(tok, INT))
     {
         while (consume("*"))
         {

@@ -108,3 +108,15 @@ bool at_eof()
 {
     return token->kind == TK_EOF;
 }
+
+static char *types[2] = {
+    "int",
+    "char",
+};
+
+bool istype(Token *tok, TypeKind ty)
+{
+    char *ref = types[ty];
+    int reflen = strlen(ref);
+    return tok->length == reflen && strncmp(tok->string, ref, reflen) == 0;
+}

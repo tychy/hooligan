@@ -28,6 +28,10 @@ int main()
     {
         return 1;
     }
-
+    a[0] = -3;
+    if (a[0] != -3)
+    {
+        return 1;
+    }
     return 0;
 }

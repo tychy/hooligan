@@ -182,7 +182,7 @@ static void gen_function_def(Node *node)
         if (count < 6)
         {
             char *reg;
-            if (arg->ty->ty == INT)
+            if (is_int_or_char(arg->ty))
                 reg = reg32[count];
             else
                 reg = reg64[count];
@@ -222,8 +222,12 @@ void gen(Node *node)
             return;
         }
         printf("  pop rax\n");
-        if (node->ty->ty == INT)
+        if (is_int(node->ty))
             printf("  mov eax, [rax]\n");
+        else if (is_char(node->ty))
+        {
+            printf("  movsx eax, BYTE PTR [rax]\n");
+        }
         else
             printf("  mov rax, [rax]\n");
         printf("  push rax\n");
@@ -233,8 +237,12 @@ void gen(Node *node)
         gen(node->rhs);
         printf("  pop rdi\n");
         printf("  pop rax\n");
-        if (node->ty->ty == INT)
+        if (is_int(node->ty))
             printf("  mov [rax], edi\n");
+        else if (is_char(node->ty))
+        {
+            printf("  mov [rax], dil\n");
+        }
         else
             printf("  mov [rax], rdi\n");
         printf("  push rdi\n");
@@ -281,8 +289,12 @@ void gen(Node *node)
     case ND_DEREF:
         gen(node->lhs);
         printf("  pop rax\n");
-        if (node->ty->ty == INT)
+        if (is_int(node->ty))
             printf("  mov eax, [rax]\n");
+        else if (is_char(node->ty))
+        {
+            printf("  movsx eax, BYTE PTR [rax]\n");
+        }
         else
             printf("  mov rax, [rax]\n");
         printf("  push rax\n");
@@ -291,25 +303,25 @@ void gen(Node *node)
     case ND_SUB:
         gen(node->lhs);
         gen(node->rhs);
-        if (node->ty->ty == INT)
+        if (is_int_or_char(node->ty))
         {
             printf("  pop rdi\n");
             printf("  pop rax\n");
             if (node->kind == ND_ADD)
-                printf("  add rax, rdi\n");
+                printf("  add eax, edi\n");
             else
-                printf("  sub rax, rdi\n");
+                printf("  sub eax, edi\n");
         }
         else
         {
             printf("  pop rdi\n");
             printf("  pop rax\n");
             int size = calc_bytes(node->ty->ptr_to);
-            if (node->lhs->ty->ty == INT)
+            if (is_int_or_char(node->lhs->ty))
             {
                 printf("  imul rax, %d\n", size);
             }
-            else if (node->rhs->ty->ty == INT)
+            else if (is_int_or_char(node->rhs->ty))
             {
                 printf("  imul rdi, %d\n", size);
             }
@@ -341,8 +353,8 @@ void gen(Node *node)
     case ND_DIV:
         printf("  pop rdi\n");
         printf("  pop rax\n");
-        printf("  cqo\n");
-        printf("  idiv rdi\n");
+        printf("  cdq\n");
+        printf("  idiv edi\n");
         printf("  push rax\n");
         break;
     case ND_EQUAL:

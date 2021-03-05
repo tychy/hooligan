@@ -88,5 +88,7 @@ int calc_bytes(Type *ty)
         return 8;
     case ARRAY:
         return calc_bytes(ty->ptr_to) * ty->array_size;
+    case CHAR:
+        return 1;
     }
 }
