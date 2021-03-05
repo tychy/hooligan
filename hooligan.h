@@ -161,4 +161,5 @@ Type *new_type_array(Type *ptr_to, size_t size);
 bool is_int(Type *ty);
 bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
+Type *determine_expr_type(Type *lhs, Type *rhs);
 #endif

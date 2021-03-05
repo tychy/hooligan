@@ -9,22 +9,9 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     node->kind = kind;
     node->lhs = lhs;
     node->rhs = rhs;
-    if (!is_int_or_char(lhs->ty) && !is_int_or_char(rhs->ty))
-    {
+    node->ty = determine_expr_type(lhs->ty, rhs->ty);
+    if (!node->ty)
         error("式にはintが必要です");
-    }
-    else if (is_int_or_char(lhs->ty) && !is_int_or_char(rhs->ty))
-    {
-        node->ty = rhs->ty;
-    }
-    else if (!is_int_or_char(lhs->ty) && is_int_or_char(rhs->ty))
-    {
-        node->ty = lhs->ty;
-    }
-    else if (is_int_or_char(lhs->ty) && is_int_or_char(rhs->ty))
-    {
-        node->ty = new_type_int();
-    }
     return node;
 }
 
