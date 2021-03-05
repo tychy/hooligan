@@ -213,7 +213,17 @@ void gen(Node *node)
     switch (node->kind)
     {
     case ND_NUM:
-        printf("  push %d\n", node->val);
+        if (is_int(node->ty))
+        {
+            printf("  push %d\n", node->val);
+        }
+        else
+        {
+
+            printf("  push %d\n", node->val);
+            //printf("  mov al, %d\n", node->val);
+            //printf("  push rax\n");
+        }
         return;
     case ND_VAR:
         gen_var(node);
@@ -222,8 +232,12 @@ void gen(Node *node)
             return;
         }
         printf("  pop rax\n");
-        if (is_int_or_char(node->ty))
+        if (is_int(node->ty))
             printf("  mov eax, [rax]\n");
+        else if (is_char(node->ty))
+        {
+            printf("  movsx eax, BYTE PTR [rax]\n");
+        }
         else
             printf("  mov rax, [rax]\n");
         printf("  push rax\n");
@@ -233,8 +247,12 @@ void gen(Node *node)
         gen(node->rhs);
         printf("  pop rdi\n");
         printf("  pop rax\n");
-        if (is_int_or_char(node->ty))
+        if (is_int(node->ty))
             printf("  mov [rax], edi\n");
+        else if (is_char(node->ty))
+        {
+            printf("  mov [rax], dil\n");
+        }
         else
             printf("  mov [rax], rdi\n");
         printf("  push rdi\n");
@@ -281,8 +299,12 @@ void gen(Node *node)
     case ND_DEREF:
         gen(node->lhs);
         printf("  pop rax\n");
-        if (is_int_or_char(node->ty))
+        if (is_int(node->ty))
             printf("  mov eax, [rax]\n");
+        else if (is_char(node->ty))
+        {
+            printf("  movsx eax, BYTE PTR [rax]\n");
+        }
         else
             printf("  mov rax, [rax]\n");
         printf("  push rax\n");
