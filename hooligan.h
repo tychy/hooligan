@@ -144,7 +144,7 @@ extern Var *locals;
 extern Var *globals;
 
 Var *find_var(Token *tok, bool is_local);
-int def_lvar(Token *tok, Type *ty);
+int def_var(Token *tok, Type *ty, bool is_local);
 int calc_bytes(Type *ty);
 
 #endif

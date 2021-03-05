@@ -34,7 +34,7 @@ Var *find_var(Token *tok, bool is_local)
         return find_gvar(tok);
 }
 
-int def_lvar(Token *tok, Type *ty)
+static int def_lvar(Token *tok, Type *ty)
 {
     int offset;
     Var *new_lvar = calloc(1, sizeof(Var));
@@ -57,6 +57,25 @@ int def_lvar(Token *tok, Type *ty)
     new_lvar->next = locals;
     locals = new_lvar;
     return offset;
+}
+
+static int def_gvar(Token *tok, Type *ty)
+{
+    Var *new_gvar = calloc(1, sizeof(Var));
+    new_gvar->name = tok->string;
+    new_gvar->length = tok->length;
+    new_gvar->ty = ty;
+    new_gvar->next = globals;
+    globals = new_gvar;
+    return 0;
+}
+
+int def_var(Token *tok, Type *ty, bool is_local)
+{
+    if (is_local)
+        return def_lvar(tok, ty);
+    else
+        return def_gvar(tok, ty);
 }
 
 int calc_bytes(Type *ty)

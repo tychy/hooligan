@@ -125,12 +125,12 @@ Node *ident()
             ty->ptr_to = prev;
             ty->array_size = array_size;
             expect("]");
-            int offset = def_lvar(tok, ty);
+            int offset = def_var(tok, ty, true);
             return new_node_var(offset, ty);
         }
         else
         {
-            int offset = def_lvar(tok, ty);
+            int offset = def_var(tok, ty, true);
             return new_node_var(offset, ty);
         }
     }
@@ -453,7 +453,7 @@ Node *func(Token *ident, Type *ty)
             arg_token = consume_ident();
         else
             error("引数に型がありません");
-        int offset = def_lvar(arg_token, ty);
+        int offset = def_var(arg_token, ty, true);
         Node *arg = new_node_var(offset, ty);
         arg_top->lhs = arg;
         arg_top = arg;
@@ -474,12 +474,7 @@ Node *glob_var(Token *ident, Type *ty)
     node->length = ident->length;
     node->ty = ty;
     expect(";");
-    Var *new_gvar = calloc(1, sizeof(Var));
-    new_gvar->name = ident->string;
-    new_gvar->length = ident->length;
-    new_gvar->ty = ty;
-    new_gvar->next = globals;
-    globals = new_gvar;
+    def_var(ident, ty, false);
     return node;
 }
 
