@@ -143,8 +143,7 @@ struct Var
 extern Var *locals;
 extern Var *globals;
 
-Var *find_lvar(Token *tok);
-Var *find_gvar(Token *tok);
+Var *find_var(Token *tok, bool is_local);
 int def_lvar(Token *tok, Type *ty);
 int calc_bytes(Type *ty);
 

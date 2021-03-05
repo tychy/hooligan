@@ -153,12 +153,12 @@ Node *ident()
     else
     {
         int offset;
-        Var *lvar = find_lvar(tok);
+        Var *lvar = find_var(tok, true);
         if (lvar)
             offset = lvar->offset;
         else
         {
-            Var *gvar = find_gvar(tok);
+            Var *gvar = find_var(tok, false);
             if (gvar)
                 return new_node_glob_var(tok, gvar->ty);
             else
