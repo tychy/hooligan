@@ -23,7 +23,7 @@ int main()
         return 1;
     if (fibo(6) != 8)
         return 1;
-    if (fibo(7) != 13)
+    if (fibo(7) != 14)
         return 1;
     if (fibo(8) != 21)
         return 1;
