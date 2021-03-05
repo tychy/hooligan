@@ -24,37 +24,6 @@ typedef enum
     TK_EOF,
 } TokenKind;
 
-typedef struct Token Token;
-
-extern Token *token;
-
-struct Token
-{
-    TokenKind kind;
-    Token *next;
-    int value;
-    int length;
-    char *string;
-};
-
-bool isident(char p);
-
-void error(char *fmt, ...);
-bool consume(char *op);
-bool consume_return();
-bool consume_if();
-bool consume_else();
-bool consume_for();
-bool consume_while();
-bool consume_sizeof();
-void expect(char *op);
-bool at_eof();
-bool istype(Token *tok, char *ref, int reflen);
-int expect_number();
-Token *consume_ident();
-Token *tokenize();
-
-// Parser
 typedef enum
 {
     ND_NUM,
@@ -86,12 +55,43 @@ typedef enum
 typedef enum
 {
     INT,
+    CHAR,
     PTR,
     ARRAY,
-    CHAR,
 
 } TypeKind;
 
+typedef struct Token Token;
+
+extern Token *token;
+
+struct Token
+{
+    TokenKind kind;
+    Token *next;
+    int value;
+    int length;
+    char *string;
+};
+
+bool isident(char p);
+
+void error(char *fmt, ...);
+bool consume(char *op);
+bool consume_return();
+bool consume_if();
+bool consume_else();
+bool consume_for();
+bool consume_while();
+bool consume_sizeof();
+void expect(char *op);
+bool at_eof();
+bool istype(Token *tok, TypeKind ty);
+int expect_number();
+Token *consume_ident();
+Token *tokenize();
+
+// Parser
 typedef struct Type Type;
 struct Type
 {

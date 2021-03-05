@@ -101,7 +101,7 @@ Node *num()
 Node *ident()
 {
     Token *tok = consume_ident();
-    if (istype(tok, "int", 3))
+    if (istype(tok, INT))
     {
         Type *ty = new_type_int();
         while (consume("*"))
@@ -438,7 +438,7 @@ Node *func(Token *ident, Type *ty)
             expect(",");
         Token *arg_token = consume_ident();
         Type *arg_ty = new_type_int();
-        if (istype(arg_token, "int", 3))
+        if (istype(arg_token, INT))
         {
             while (consume("*"))
             {
@@ -479,7 +479,7 @@ Node *def()
     Token *tok = consume_ident();
     Type *ty = new_type_int();
 
-    if (istype(tok, "int", 3))
+    if (istype(tok, INT))
     {
         while (consume("*"))
         {

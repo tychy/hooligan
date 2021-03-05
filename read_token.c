@@ -114,7 +114,9 @@ static char *types[2] = {
     "char",
 };
 
-bool istype(Token *tok, char *ref, int reflen)
+bool istype(Token *tok, TypeKind ty)
 {
+    char *ref = types[ty];
+    int reflen = strlen(ref);
     return tok->length == reflen && strncmp(tok->string, ref, reflen) == 0;
 }
