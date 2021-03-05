@@ -507,9 +507,24 @@ Node *def()
     }
     Node *node;
     if (consume("("))
+    {
         node = func(tok, ty);
+    }
     else
+    {
+
+        if (consume("["))
+        {
+            int array_size = expect_number();
+            Type *prev = ty;
+            ty = calloc(1, sizeof(Type));
+            ty->ty = ARRAY;
+            ty->ptr_to = prev;
+            ty->array_size = array_size;
+            expect("]");
+        }
         node = glob_var(tok, ty);
+    }
 
     return node;
 }
