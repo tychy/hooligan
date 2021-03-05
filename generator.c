@@ -111,7 +111,6 @@ void gen_function(Node *node)
 
             error("引数の数が多すぎます");
         }
-        count++;
 
         arg = arg->rhs;
         count++;
