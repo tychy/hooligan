@@ -156,6 +156,7 @@ int calc_bytes(Type *ty);
 
 // type.c
 Type *new_type_int();
+Type *new_type_char();
 Type *new_type_ptr(Type *ptr_to);
 Type *new_type_array(Type *ptr_to, size_t size);
 bool is_ptr_or_array(Type *ty);

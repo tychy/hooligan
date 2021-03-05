@@ -11,6 +11,17 @@ Type *new_type_int()
     return ty;
 }
 
+Type *new_type_char()
+{
+    static Type *ty;
+    if (!ty)
+    {
+        ty = calloc(1, sizeof(Type));
+        ty->ty = CHAR;
+    }
+    return ty;
+}
+
 Type *new_type_ptr(Type *ptr_to)
 {
     Type *ty = calloc(1, sizeof(Type));
