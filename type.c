@@ -44,3 +44,14 @@ bool is_int(Type *ty)
 {
     return ty->ty == INT;
 }
+
+bool is_char(Type *ty)
+{
+    return ty->ty == CHAR;
+}
+
+bool is_int_or_char(Type *ty)
+{
+
+    return is_int(ty) || is_char(ty);
+}

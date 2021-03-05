@@ -182,7 +182,7 @@ void gen_function_def(Node *node)
         if (count < 6)
         {
             char *reg;
-            if (arg->ty->ty == INT)
+            if (is_int_or_char(arg->ty))
                 reg = reg32[count];
             else
                 reg = reg64[count];
@@ -222,7 +222,7 @@ void gen(Node *node)
             return;
         }
         printf("  pop rax\n");
-        if (node->ty->ty == INT)
+        if (is_int_or_char(node->ty))
             printf("  mov eax, [rax]\n");
         else
             printf("  mov rax, [rax]\n");
@@ -233,7 +233,7 @@ void gen(Node *node)
         gen(node->rhs);
         printf("  pop rdi\n");
         printf("  pop rax\n");
-        if (node->ty->ty == INT)
+        if (is_int_or_char(node->ty))
             printf("  mov [rax], edi\n");
         else
             printf("  mov [rax], rdi\n");
@@ -281,7 +281,7 @@ void gen(Node *node)
     case ND_DEREF:
         gen(node->lhs);
         printf("  pop rax\n");
-        if (node->ty->ty == INT)
+        if (is_int_or_char(node->ty))
             printf("  mov eax, [rax]\n");
         else
             printf("  mov rax, [rax]\n");
@@ -291,7 +291,7 @@ void gen(Node *node)
     case ND_SUB:
         gen(node->lhs);
         gen(node->rhs);
-        if (node->ty->ty == INT)
+        if (is_int_or_char(node->ty))
         {
             printf("  pop rdi\n");
             printf("  pop rax\n");
@@ -305,11 +305,11 @@ void gen(Node *node)
             printf("  pop rdi\n");
             printf("  pop rax\n");
             int size = calc_bytes(node->ty->ptr_to);
-            if (node->lhs->ty->ty == INT)
+            if (is_int_or_char(node->lhs->ty))
             {
                 printf("  imul rax, %d\n", size);
             }
-            else if (node->rhs->ty->ty == INT)
+            else if (is_int_or_char(node->rhs->ty))
             {
                 printf("  imul rdi, %d\n", size);
             }

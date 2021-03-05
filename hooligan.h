@@ -160,4 +160,6 @@ Type *new_type_char();
 Type *new_type_ptr(Type *ptr_to);
 Type *new_type_array(Type *ptr_to, size_t size);
 bool is_int(Type *ty);
+bool is_char(Type *ty);
+bool is_int_or_char(Type *ty);
 #endif

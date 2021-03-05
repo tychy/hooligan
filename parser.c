@@ -6,7 +6,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     node->kind = kind;
     node->lhs = lhs;
     node->rhs = rhs;
-    if (!is_int(lhs->ty) && !is_int(rhs->ty))
+    if (!is_int_or_char(lhs->ty) && !is_int_or_char(rhs->ty))
     {
         if (kind != ND_ASSIGN)
             error("式にはintが必要です");
@@ -14,15 +14,15 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
         // -Wincompatible-pointer-typesというオプションらしい
         node->ty = lhs->ty;
     }
-    else if (is_int(lhs->ty) && !is_int(rhs->ty))
+    else if (is_int_or_char(lhs->ty) && !is_int_or_char(rhs->ty))
     {
         node->ty = rhs->ty;
     }
-    else if (!is_int(lhs->ty) && is_int(rhs->ty))
+    else if (!is_int_or_char(lhs->ty) && is_int_or_char(rhs->ty))
     {
         node->ty = lhs->ty;
     }
-    else if (is_int(lhs->ty) && is_int(rhs->ty))
+    else if (is_int_or_char(lhs->ty) && is_int_or_char(rhs->ty))
     {
         // 右でも左でも一緒
         node->ty = lhs->ty;
@@ -38,7 +38,7 @@ Node *new_node_single(NodeKind kind, Node *lhs)
     Type *ty = calloc(1, sizeof(Node));
     if (kind == ND_DEREF)
     {
-        if (lhs->ty->ty == INT)
+        if (is_int_or_char(lhs->ty))
         {
             error("pointer型である必要があります");
         }
