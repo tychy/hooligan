@@ -125,7 +125,7 @@ void gen_global_var_def(Node *node)
         error("グローバル変数定義ではありません");
     }
     printf("%.*s:\n", node->length, node->name);
-    printf("  .zero  4\n");
+    printf("  .zero  %d\n", calc_bytes(node->ty));
 }
 
 void gen_var(Node *node)
