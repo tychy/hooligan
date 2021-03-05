@@ -67,7 +67,7 @@ typedef enum
     ND_LEQ,
     ND_GTH,
     ND_LTH,
-    ND_LVAR,
+    ND_VAR,
     ND_ASSIGN,
     ND_RETURN,
     ND_IF,
@@ -80,7 +80,6 @@ typedef enum
     ND_ADDR,
     ND_DEREF,
     ND_GVARDEF,
-    ND_GVAR,
 } NodeKind;
 
 typedef struct Type Type;
@@ -110,6 +109,9 @@ struct Node
     char *name;
     int length;
     Type *ty;
+
+    // for variable
+    bool is_local;
 
     // for(init; condition; on_end) body;
     Node *init;

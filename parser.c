@@ -68,19 +68,21 @@ Node *new_node_num(int val)
 Node *new_node_var(int offset, Type *ty)
 {
     Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_LVAR;
+    node->kind = ND_VAR;
     node->offset = offset;
     node->ty = ty;
+    node->is_local = true;
     return node;
 }
 
 Node *new_node_glob_var(Token *tok, Type *ty)
 {
     Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_GVAR;
+    node->kind = ND_VAR;
     node->name = tok->string;
     node->length = tok->length;
     node->ty = ty;
+    node->is_local = false;
 }
 
 Node *new_node_func(char *name, int length)
