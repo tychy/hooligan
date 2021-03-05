@@ -16,7 +16,6 @@ int main(int argc, char **argv)
     token = tokenize(argv[1]);
 
     printf(".intel_syntax noprefix\n");
-    printf(".globl main\n");
     printf(".bss\n");
     program();
     int i = 0;
@@ -27,6 +26,11 @@ int main(int argc, char **argv)
         {
             printf(".text\n");
             flag = false;
+        }
+        else if (!flag && nodes[i]->kind == ND_FUNCDEF)
+        {
+
+            printf(".text\n");
         }
         gen(nodes[i]);
         i++;
