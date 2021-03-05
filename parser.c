@@ -33,7 +33,7 @@ static Node *new_node_single(NodeKind kind, Node *lhs)
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
     node->lhs = lhs;
-    Type *ty = calloc(1, sizeof(Node));
+    Type *ty = calloc(1, sizeof(Type));
     if (kind == ND_DEREF)
     {
         if (is_int_or_char(lhs->ty))
