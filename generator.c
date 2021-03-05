@@ -135,20 +135,20 @@ void gen_var(Node *node)
         gen(node->lhs);
         return;
     }
-    else if (node->kind == ND_LVAR)
+    if (node->kind != ND_VAR)
+        error("変数ではありません");
+
+    if (node->is_local)
     {
         printf("  mov rax, rbp\n");
         printf("  sub rax, %d\n", node->offset);
         printf("  push rax\n");
     }
-    else if (node->kind == ND_GVAR)
+    else
     {
         printf("  lea rax, %.*s\n", node->length, node->name);
         printf("  push rax\n");
-        //printf("  push offset %.*s\n", node->length, node->name);
     }
-    else
-        error("変数ではありません");
     return;
 }
 
@@ -218,8 +218,7 @@ void gen(Node *node)
     case ND_NUM:
         printf("  push %d\n", node->val);
         return;
-    case ND_LVAR:
-    case ND_GVAR:
+    case ND_VAR:
         gen_var(node);
         if (node->ty->ty == ARRAY)
         {
@@ -232,7 +231,6 @@ void gen(Node *node)
             printf("  mov rax, [rax]\n");
         printf("  push rax\n");
         return;
-
     case ND_ASSIGN:
         gen_var(node->lhs);
         gen(node->rhs);
@@ -275,7 +273,6 @@ void gen(Node *node)
         gen_function(node);
         return;
     case ND_FUNCDEF:
-
         gen_function_def(node);
         return;
     case ND_GVARDEF:

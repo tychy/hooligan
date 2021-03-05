@@ -67,7 +67,7 @@ typedef enum
     ND_LEQ,
     ND_GTH,
     ND_LTH,
-    ND_LVAR,
+    ND_VAR,
     ND_ASSIGN,
     ND_RETURN,
     ND_IF,
@@ -80,7 +80,6 @@ typedef enum
     ND_ADDR,
     ND_DEREF,
     ND_GVARDEF,
-    ND_GVAR,
 } NodeKind;
 
 typedef struct Type Type;
@@ -111,6 +110,9 @@ struct Node
     int length;
     Type *ty;
 
+    // for variable
+    bool is_local;
+
     // for(init; condition; on_end) body;
     Node *init;
     Node *condition;
@@ -129,35 +131,23 @@ Node *stmt();
 void program();
 void gen(Node *node);
 
-typedef struct LVar LVar;
-
-struct LVar
+typedef struct Var Var;
+struct Var
 {
     char *name;
     int length;
     int offset;
     Type *ty;
-    LVar *next;
+    Var *next;
+    bool is_local;
 };
 
-extern LVar *locals;
+extern Var *locals;
+extern Var *globals;
 
-LVar *find_lvar(Token *tok);
-int def_lvar(Token *tok, Type *ty);
+Var *find_var(Token *tok, bool is_local);
+int def_var(Token *tok, Type *ty, bool is_local);
 int calc_bytes(Type *ty);
-
-typedef struct GVar GVar;
-struct GVar
-{
-    char *name;
-    int length;
-    Type *ty;
-    GVar *next;
-};
-
-extern GVar *globals;
-GVar *find_gvar(Token *tok);
-
 
 // type.c
 Type *new_type_int();
@@ -165,5 +155,4 @@ Type *new_type_ptr(Type *ptr_to);
 Type *new_type_array(Type *ptr_to, size_t size);
 bool is_ptr_or_array(Type *ty);
 bool is_int(Type *ty);
-
 #endif
