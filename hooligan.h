@@ -158,4 +158,9 @@ struct GVar
 extern GVar *globals;
 GVar *find_gvar(Token *tok);
 
+
+// type.c
+Type *new_type_int();
+Type *new_type_ptr(Type *ptr_to);
+Type *new_type_array(Type *ptr_to);
 #endif

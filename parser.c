@@ -59,9 +59,7 @@ Node *new_node_num(int val)
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_NUM;
     node->val = val;
-    Type *ty = calloc(1, sizeof(Type));
-    ty->ty = INT;
-    node->ty = ty;
+    node->ty = new_type_int();
     return node;
 }
 
@@ -89,9 +87,7 @@ Node *new_node_func(char *name, int length)
     node->kind = ND_FUNC;
     node->name = name;
     node->length = length;
-    Type *ty = calloc(1, sizeof(Type));
-    ty->ty = INT;
-    node->ty = ty;
+    node->ty = new_type_int();
     return node;
 }
 
@@ -105,8 +101,7 @@ Node *ident()
     Token *tok = consume_ident();
     if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
     {
-        Type *ty = calloc(1, sizeof(Type));
-        ty->ty = INT;
+        Type *ty = new_type_int();
         while (consume("*"))
         {
             Type *prev = ty;
@@ -486,8 +481,7 @@ Node *glob_var(Token *ident, Type *ty)
 Node *def()
 {
     Token *tok = consume_ident();
-    Type *ty = calloc(1, sizeof(Type));
-    ty->ty = INT;
+    Type *ty = new_type_int();
 
     if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
     {
