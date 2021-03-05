@@ -28,9 +28,10 @@ elif [ $1 = "execdr" ]; then
 elif [ $1 = "asm" ]; then
     docker-compose run hooligan ./bin/hcc asmdr "$2"
 elif [ $1 = "asmdr" ]; then
-    cc -static -c $2 -o a.o
+    echo "$2" > tmp.c
+    cc -static -c tmp.c -o a.o
     objdump -d -M Intel a.o
-    rm a.o
+    rm a.o tmp.c
 elif [ $1 = "testold" ]; then
     docker-compose run hooligan make test
 elif [ $1 = "testv2dr" ]; then
