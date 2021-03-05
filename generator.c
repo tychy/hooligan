@@ -1,4 +1,20 @@
 #include "hooligan.h"
+static char *reg32[6] = {
+    "edi",
+    "esi",
+    "edx",
+    "ecx",
+    "r8d",
+    "r9d",
+};
+static char *reg64[6] = {
+    "rdi",
+    "rsi",
+    "rdx",
+    "rcx",
+    "r8",
+    "r9",
+};
 
 void gen_for(Node *node, int lab)
 {
@@ -167,34 +183,25 @@ void gen_function_def(Node *node)
     printf("  sub rsp, %d\n", node->args_region_size);
 
     // 第1〜6引数をローカル変数の領域に書き出す
-    int count = 1;
+    int count = 0;
     Node *arg = node->lhs;
     while (arg != NULL)
     {
         gen_var(arg);
         printf("  pop rax\n");
-        switch (count)
+        if (count < 6)
         {
-            // TODO 関数の引数はintのみという前提に基づいている
-        case 1:
-            printf("  mov [rax], edi\n");
-            break;
-        case 2:
-            printf("  mov [rax], esi\n");
-            break;
-        case 3:
-            printf("  mov [rax], edx\n");
-            break;
-        case 4:
-            printf("  mov [rax], ecx\n");
-            break;
-        case 5:
-            printf("  mov [rax], r8d\n");
-            break;
-        case 6:
-            printf("  mov [rax], r9d\n");
-            break;
-        default:
+            char *reg;
+            if (arg->ty->ty == INT)
+                reg = reg32[count];
+            else
+                reg = reg64[count];
+
+            printf("  mov [rax], %s\n", reg);
+        }
+        else
+        {
+
             error("引数の数が多すぎます");
         }
         count++;
