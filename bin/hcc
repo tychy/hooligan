@@ -41,13 +41,16 @@ elif [ $1 = "testv2dr" ]; then
         cc -static -o tmp tmp.s helper/helper.c
         printf $fn
         ./tmp
+        result=0
         if [ $? = 0 ]; then
             printf "...passed\n"
         else
             printf "...failed\n"
+            result=1
         fi
     done
     rm tmp.s tmp
+    exit $result
 else
     echo "存在しないサブコマンドです"
     exit 1
