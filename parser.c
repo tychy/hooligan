@@ -68,19 +68,21 @@ Node *new_node_num(int val)
 Node *new_node_var(int offset, Type *ty)
 {
     Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_LVAR;
+    node->kind = ND_VAR;
     node->offset = offset;
     node->ty = ty;
+    node->is_local = true;
     return node;
 }
 
 Node *new_node_glob_var(Token *tok, Type *ty)
 {
     Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_GVAR;
+    node->kind = ND_VAR;
     node->name = tok->string;
     node->length = tok->length;
     node->ty = ty;
+    node->is_local = false;
 }
 
 Node *new_node_func(char *name, int length)
@@ -125,12 +127,12 @@ Node *ident()
             ty->ptr_to = prev;
             ty->array_size = array_size;
             expect("]");
-            int offset = def_lvar(tok, ty);
+            int offset = def_var(tok, ty, true);
             return new_node_var(offset, ty);
         }
         else
         {
-            int offset = def_lvar(tok, ty);
+            int offset = def_var(tok, ty, true);
             return new_node_var(offset, ty);
         }
     }
@@ -153,12 +155,12 @@ Node *ident()
     else
     {
         int offset;
-        LVar *lvar = find_lvar(tok);
+        Var *lvar = find_var(tok, true);
         if (lvar)
             offset = lvar->offset;
         else
         {
-            GVar *gvar = find_gvar(tok);
+            Var *gvar = find_var(tok, false);
             if (gvar)
                 return new_node_glob_var(tok, gvar->ty);
             else
@@ -453,7 +455,7 @@ Node *func(Token *ident, Type *ty)
             arg_token = consume_ident();
         else
             error("引数に型がありません");
-        int offset = def_lvar(arg_token, ty);
+        int offset = def_var(arg_token, ty, true);
         Node *arg = new_node_var(offset, ty);
         arg_top->lhs = arg;
         arg_top = arg;
@@ -474,12 +476,7 @@ Node *glob_var(Token *ident, Type *ty)
     node->length = ident->length;
     node->ty = ty;
     expect(";");
-    GVar *new_gvar = calloc(1, sizeof(GVar));
-    new_gvar->name = ident->string;
-    new_gvar->length = ident->length;
-    new_gvar->ty = ty;
-    new_gvar->next = globals;
-    globals = new_gvar;
+    def_var(ident, ty, false);
     return node;
 }
 

@@ -1,10 +1,9 @@
 #include "hooligan.h"
 
-LVar *locals;
-
-LVar *find_lvar(Token *tok)
+Var *locals;
+static Var *find_lvar(Token *tok)
 {
-    for (LVar *lvar = locals; lvar; lvar = lvar->next)
+    for (Var *lvar = locals; lvar; lvar = lvar->next)
     {
         if (lvar->length == tok->length && memcmp(lvar->name, tok->string, lvar->length) == 0)
         {
@@ -14,10 +13,10 @@ LVar *find_lvar(Token *tok)
     return NULL;
 }
 
-GVar *globals;
-GVar *find_gvar(Token *tok)
+Var *globals;
+static Var *find_gvar(Token *tok)
 {
-    for (GVar *gvar = globals; gvar; gvar = gvar->next)
+    for (Var *gvar = globals; gvar; gvar = gvar->next)
     {
         if (gvar->length == tok->length && memcmp(gvar->name, tok->string, gvar->length) == 0)
         {
@@ -27,10 +26,18 @@ GVar *find_gvar(Token *tok)
     return NULL;
 }
 
-int def_lvar(Token *tok, Type *ty)
+Var *find_var(Token *tok, bool is_local)
+{
+    if (is_local)
+        return find_lvar(tok);
+    else
+        return find_gvar(tok);
+}
+
+static int def_lvar(Token *tok, Type *ty)
 {
     int offset;
-    LVar *new_lvar = calloc(1, sizeof(LVar));
+    Var *new_lvar = calloc(1, sizeof(Var));
 
     new_lvar->length = tok->length;
     new_lvar->name = tok->string;
@@ -50,6 +57,25 @@ int def_lvar(Token *tok, Type *ty)
     new_lvar->next = locals;
     locals = new_lvar;
     return offset;
+}
+
+static int def_gvar(Token *tok, Type *ty)
+{
+    Var *new_gvar = calloc(1, sizeof(Var));
+    new_gvar->name = tok->string;
+    new_gvar->length = tok->length;
+    new_gvar->ty = ty;
+    new_gvar->next = globals;
+    globals = new_gvar;
+    return 0;
+}
+
+int def_var(Token *tok, Type *ty, bool is_local)
+{
+    if (is_local)
+        return def_lvar(tok, ty);
+    else
+        return def_gvar(tok, ty);
 }
 
 int calc_bytes(Type *ty)
