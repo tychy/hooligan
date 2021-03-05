@@ -104,10 +104,7 @@ Node *ident()
         Type *ty = new_type_int();
         while (consume("*"))
         {
-            Type *prev = ty;
-            ty = calloc(1, sizeof(Type));
-            ty->ty = PTR;
-            ty->ptr_to = prev;
+            ty = new_type_ptr(ty);
         }
         tok = consume_ident();
         if (consume("["))
@@ -487,10 +484,7 @@ Node *def()
     {
         while (consume("*"))
         {
-            Type *prev = ty;
-            ty = calloc(1, sizeof(Type));
-            ty->ty = PTR;
-            ty->ptr_to = prev;
+            ty = new_type_ptr(ty);
         }
 
         tok = consume_ident();
