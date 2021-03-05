@@ -129,33 +129,23 @@ Node *stmt();
 void program();
 void gen(Node *node);
 
-typedef struct LVar LVar;
-
-struct LVar
+typedef struct Var Var;
+struct Var
 {
     char *name;
     int length;
     int offset;
     Type *ty;
-    LVar *next;
+    Var *next;
+    bool is_local;
 };
 
-extern LVar *locals;
+extern Var *locals;
+extern Var *globals;
 
-LVar *find_lvar(Token *tok);
+Var *find_lvar(Token *tok);
+Var *find_gvar(Token *tok);
 int def_lvar(Token *tok, Type *ty);
 int calc_bytes(Type *ty);
-
-typedef struct GVar GVar;
-struct GVar
-{
-    char *name;
-    int length;
-    Type *ty;
-    GVar *next;
-};
-
-extern GVar *globals;
-GVar *find_gvar(Token *tok);
 
 #endif

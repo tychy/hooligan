@@ -153,12 +153,12 @@ Node *ident()
     else
     {
         int offset;
-        LVar *lvar = find_lvar(tok);
+        Var *lvar = find_lvar(tok);
         if (lvar)
             offset = lvar->offset;
         else
         {
-            GVar *gvar = find_gvar(tok);
+            Var *gvar = find_gvar(tok);
             if (gvar)
                 return new_node_glob_var(tok, gvar->ty);
             else
@@ -474,7 +474,7 @@ Node *glob_var(Token *ident, Type *ty)
     node->length = ident->length;
     node->ty = ty;
     expect(";");
-    GVar *new_gvar = calloc(1, sizeof(GVar));
+    Var *new_gvar = calloc(1, sizeof(Var));
     new_gvar->name = ident->string;
     new_gvar->length = ident->length;
     new_gvar->ty = ty;
