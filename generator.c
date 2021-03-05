@@ -213,17 +213,7 @@ void gen(Node *node)
     switch (node->kind)
     {
     case ND_NUM:
-        if (is_int(node->ty))
-        {
-            printf("  push %d\n", node->val);
-        }
-        else
-        {
-
-            printf("  push %d\n", node->val);
-            //printf("  mov al, %d\n", node->val);
-            //printf("  push rax\n");
-        }
+        printf("  push %d\n", node->val);
         return;
     case ND_VAR:
         gen_var(node);
