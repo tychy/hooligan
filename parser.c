@@ -1,6 +1,9 @@
 #include "hooligan.h"
 
-Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
+static Node *expr();
+static Node *stmt();
+
+static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
@@ -30,7 +33,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     return node;
 }
 
-Node *new_node_single(NodeKind kind, Node *lhs)
+static Node *new_node_single(NodeKind kind, Node *lhs)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
@@ -54,7 +57,7 @@ Node *new_node_single(NodeKind kind, Node *lhs)
         node->ty = lhs->ty;
 }
 
-Node *new_node_num(int val)
+static Node *new_node_num(int val)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_NUM;
@@ -63,7 +66,7 @@ Node *new_node_num(int val)
     return node;
 }
 
-Node *new_node_var(int offset, Type *ty)
+static Node *new_node_var(int offset, Type *ty)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
@@ -73,7 +76,7 @@ Node *new_node_var(int offset, Type *ty)
     return node;
 }
 
-Node *new_node_glob_var(Token *tok, Type *ty)
+static Node *new_node_glob_var(Token *tok, Type *ty)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
@@ -83,7 +86,7 @@ Node *new_node_glob_var(Token *tok, Type *ty)
     node->is_local = false;
 }
 
-Node *new_node_func(char *name, int length)
+static Node *new_node_func(char *name, int length)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_FUNC;
@@ -93,12 +96,12 @@ Node *new_node_func(char *name, int length)
     return node;
 }
 
-Node *num()
+static Node *num()
 {
     return new_node_num(expect_number());
 }
 
-Node *ident()
+static Node *ident()
 {
     Token *tok = consume_ident();
     if (tok->length == 3 && strncmp(tok->string, "int", 3) == 0)
@@ -158,7 +161,7 @@ Node *ident()
     }
 }
 
-Node *primary()
+static Node *primary()
 {
     Node *node;
     if (consume("("))
@@ -187,7 +190,7 @@ Node *primary()
     }
 }
 
-Node *unary()
+static Node *unary()
 {
     if (consume("+"))
     {
@@ -218,7 +221,7 @@ Node *unary()
     return primary();
 }
 
-Node *mul()
+static Node *mul()
 {
     Node *node = unary();
     for (;;)
@@ -238,7 +241,7 @@ Node *mul()
     }
 }
 
-Node *add()
+static Node *add()
 {
     Node *node = mul();
     for (;;)
@@ -258,7 +261,7 @@ Node *add()
     }
 }
 
-Node *relational()
+static Node *relational()
 {
     Node *node = add();
     for (;;)
@@ -287,7 +290,7 @@ Node *relational()
     }
 }
 
-Node *equality()
+static Node *equality()
 {
     Node *node = relational();
     for (;;)
@@ -308,7 +311,7 @@ Node *equality()
     }
 }
 
-Node *assign()
+static Node *assign()
 {
     Node *node = equality();
     if (consume("="))
@@ -319,12 +322,12 @@ Node *assign()
     return node;
 }
 
-Node *expr()
+static Node *expr()
 {
     return assign();
 }
 
-Node *stmt()
+static Node *stmt()
 {
     Node *node;
     if (consume("{"))
@@ -421,7 +424,7 @@ Node *stmt()
     return node;
 }
 
-Node *func(Token *ident, Type *ty)
+static Node *func(Token *ident, Type *ty)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_FUNCDEF;
@@ -455,7 +458,7 @@ Node *func(Token *ident, Type *ty)
     return node;
 }
 
-Node *glob_var(Token *ident, Type *ty)
+static Node *glob_var(Token *ident, Type *ty)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_GVARDEF;
@@ -467,7 +470,7 @@ Node *glob_var(Token *ident, Type *ty)
     return node;
 }
 
-Node *def()
+static Node *def()
 {
     Token *tok = consume_ident();
     Type *ty = new_type_int();
