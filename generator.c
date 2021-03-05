@@ -125,7 +125,7 @@ void gen_global_var_def(Node *node)
         error("グローバル変数定義ではありません");
     }
     printf("%.*s:\n", node->length, node->name);
-    printf("  .zero  4\n");
+    printf("  .zero  %d\n", calc_bytes(node->ty));
 }
 
 void gen_var(Node *node)
@@ -219,6 +219,7 @@ void gen(Node *node)
         printf("  push %d\n", node->val);
         return;
     case ND_LVAR:
+    case ND_GVAR:
         gen_var(node);
         if (node->ty->ty == ARRAY)
         {
@@ -231,6 +232,7 @@ void gen(Node *node)
             printf("  mov rax, [rax]\n");
         printf("  push rax\n");
         return;
+
     case ND_ASSIGN:
         gen_var(node->lhs);
         gen(node->rhs);
@@ -275,16 +277,6 @@ void gen(Node *node)
     case ND_FUNCDEF:
 
         gen_function_def(node);
-        return;
-    case ND_GVAR:
-        gen_var(node);
-
-        printf("  pop rax\n");
-        if (node->ty->ty == INT)
-            printf("  mov eax, [rax]\n");
-        else
-            printf("  mov rax, [rax]\n");
-        printf("  push rax\n");
         return;
     case ND_GVARDEF:
         gen_global_var_def(node);
