@@ -12,30 +12,9 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     node->kind = kind;
     node->lhs = lhs;
     node->rhs = rhs;
-    if (not(is_int_or_char(lhs->ty)) && not(is_int_or_char(rhs->ty)))
-    {
-        if (kind != ND_ASSIGN)
-            error("式にはintが必要です");
-        // TODO 代入式の両辺の型が等しいかチェックする
-        // -Wincompatible-pointer-typesというオプションらしい
-        node->ty = lhs->ty;
-    }
-    else if (is_int_or_char(lhs->ty) && not(is_int_or_char(rhs->ty)))
-    {
-        node->ty = rhs->ty;
-    }
-    else if (not(is_int_or_char(lhs->ty)) && is_int_or_char(rhs->ty))
-    {
-        node->ty = lhs->ty;
-    }
-    else if (is_int_or_char(lhs->ty) && is_int_or_char(rhs->ty))
-    {
-
-        if (kind == ND_ASSIGN)
-            node->ty = lhs->ty;
-        else
-            node->ty = new_type_int();
-    }
+    node->ty = determine_expr_type(lhs->ty, rhs->ty);
+    if (!node->ty)
+        error("式にはintが必要です");
     return node;
 }
 
@@ -44,23 +23,26 @@ static Node *new_node_single(NodeKind kind, Node *lhs)
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
     node->lhs = lhs;
-    Type *ty = calloc(1, sizeof(Node));
     if (kind == ND_DEREF)
     {
         if (is_int_or_char(lhs->ty))
-        {
             error("pointer型である必要があります");
-        }
         node->ty = lhs->ty->ptr_to;
     }
     else if (kind == ND_ADDR)
-    {
-        ty->ptr_to = lhs->ty;
-        ty->ty = PTR;
-        node->ty = ty;
-    }
+        node->ty = new_type_ptr(node->lhs->ty);
     else
         node->ty = lhs->ty;
+    return node;
+}
+
+static Node *new_node_assign(Node *lhs, Node *rhs)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_ASSIGN;
+    node->lhs = lhs;
+    node->rhs = rhs;
+    node->ty = lhs->ty;
 }
 
 static Node *new_node_num(int val)
@@ -330,7 +312,7 @@ static Node *assign()
     Node *node = equality();
     if (consume("="))
     {
-        node = new_node(ND_ASSIGN, node, assign());
+        node = new_node_assign(node, assign());
     }
 
     return node;
