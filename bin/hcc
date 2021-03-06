@@ -38,7 +38,7 @@ elif [ $1 = "testv2dr" ]; then
     make
     result=0
     for fn in test/*; do
-        ./bin/exe.out file $fn >tmp.s
+        ./bin/exe.out $fn >tmp.s
         cc -static -o tmp tmp.s helper/helper.c
         printf $fn
         ./tmp

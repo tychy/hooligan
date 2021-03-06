@@ -1,14 +1,14 @@
 #!/bin/bash
 
 assert() {
-  i=`basename $1`
+  i=$(basename $1)
   qfile=testold/question/$i
   afile=testold/answer/$i
   expected="$(cat $afile)"
 
-  ./bin/exe.out file $qfile >tmp.s
-  cc -o tmp tmp.s helper/helper.c
-  printf $fn
+  ./bin/exe.out $qfile >tmp.s
+  cc -o tmp tmp.s helper/helper.c # シンプルなテストなのでstaticをつけなくてもよい
+  printf $qfile
   ./tmp
   actual="$?"
   if [ "$actual" = "$expected" ]; then

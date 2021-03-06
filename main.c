@@ -35,13 +35,9 @@ char *read_file(char *path)
 
 int main(int argc, char **argv)
 {
-    if (argc == 3)
+    if (argc == 2)
     {
-        token = tokenize(read_file(argv[2]));
-    }
-    else if (argc == 2)
-    {
-        token = tokenize(argv[1]);
+        token = tokenize(read_file(argv[1]));
     }
     else
     {
