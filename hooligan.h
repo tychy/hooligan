@@ -130,15 +130,16 @@ struct Var
     bool is_local;
 };
 
-// Declareation of global variables
+// Declaration of global variables
 extern int label;
 extern Token *token;
 extern Node *nodes[200];
 extern Var *locals;
 extern Var *globals;
 
-// functions
-void error(char *fmt, ...);
+// Declaration of functions
+// read_token.c
+void error(char *fmt, ...); // これutilのほうがいい
 bool consume(char *op);
 bool consume_return();
 bool consume_if();
@@ -148,15 +149,20 @@ bool consume_while();
 bool consume_sizeof();
 void expect(char *op);
 bool at_eof();
-bool istype(Token *tok, TypeKind ty);
+bool istype(Token *tok, TypeKind ty); // consume_typeとかにできるかも？
+
+// parser.c
 int expect_number();
 Token *consume_ident();
 Token *tokenize();
+void program();
+void gen(Node *node);
+
+// variable.c
 Var *find_var(Token *tok, bool is_local);
 int def_var(Token *tok, Type *ty, bool is_local);
 int calc_bytes(Type *ty);
-void program();
-void gen(Node *node);
+
 // type.c
 Type *new_type_int();
 Type *new_type_char();
@@ -166,4 +172,5 @@ bool is_int(Type *ty);
 bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
+
 #endif
