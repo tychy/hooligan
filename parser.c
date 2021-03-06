@@ -205,7 +205,7 @@ static Node *unary()
     {
         return new_node_single(ND_DEREF, unary());
     }
-    else if (consume_reserved_word(TK_SIZEOF))
+    else if (consume_rw(TK_SIZEOF))
     {
         Node *arg = unary();
         return new_node_num(calc_bytes(arg->ty));
@@ -336,12 +336,12 @@ static Node *stmt()
         }
         return node;
     }
-    else if (consume_reserved_word(TK_RETURN))
+    else if (consume_rw(TK_RETURN))
     {
         node = new_node_single(ND_RETURN, expr());
         expect(";");
     }
-    else if (consume_reserved_word(TK_IF))
+    else if (consume_rw(TK_IF))
     {
         expect("(");
         Node *condition = expr();
@@ -351,10 +351,10 @@ static Node *stmt()
         node->kind = ND_IF;
         node->condition = condition;
         node->body = iftrue;
-        if (consume_reserved_word(TK_ELSE))
+        if (consume_rw(TK_ELSE))
             node->on_else = stmt();
     }
-    else if (consume_reserved_word(TK_FOR))
+    else if (consume_rw(TK_FOR))
     {
         Node *init;
         Node *condition;
@@ -397,7 +397,7 @@ static Node *stmt()
         node->on_end = on_end;
         node->body = body;
     }
-    else if (consume_reserved_word(TK_WHILE))
+    else if (consume_rw(TK_WHILE))
     {
         expect("(");
         Node *condition = expr();

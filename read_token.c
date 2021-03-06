@@ -17,7 +17,7 @@ bool consume(char *op)
     return true;
 }
 
-bool consume_reserved_word(TokenKind tk)
+bool consume_rw(TokenKind tk)
 {
     if (token->kind != tk)
         return false;
