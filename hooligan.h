@@ -147,7 +147,6 @@ void gen(Node *node);
 // variable.c
 Var *find_var(Token *tok, bool is_local);
 int def_var(Token *tok, Type *ty, bool is_local);
-int calc_bytes(Type *ty);
 
 // type.c
 Type *new_type_int();
@@ -157,6 +156,7 @@ Type *new_type_array(Type *ptr_to, size_t size);
 bool is_int(Type *ty);
 bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
+int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
 
 #endif
