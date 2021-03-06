@@ -13,7 +13,16 @@
 bool not(bool flag);
 
 extern int label;
-// Tokenizer
+// enum
+typedef enum
+{
+    RW_RETURN,
+    RW_IF,
+    RW_ELSE,
+    RW_FOR,
+    RW_WHILE,
+    RW_SIZEOF,
+} ReservedWord;
 typedef enum
 {
     TK_OPERATOR,
