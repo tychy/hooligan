@@ -12,7 +12,6 @@
 //utils
 bool not(bool flag);
 
-extern int label;
 // enum
 typedef enum
 {
@@ -76,7 +75,6 @@ typedef enum
 
 typedef struct Token Token;
 
-extern Token *token;
 
 struct Token
 {
@@ -115,7 +113,6 @@ struct Type
 
 typedef struct Node Node;
 
-extern Node *nodes[200];
 
 struct Node
 {
@@ -158,6 +155,10 @@ struct Var
     bool is_local;
 };
 
+// Declareation of global variables
+extern int label;
+extern Token *token;
+extern Node *nodes[200];
 extern Var *locals;
 extern Var *globals;
 
