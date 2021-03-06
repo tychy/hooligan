@@ -78,17 +78,4 @@ int def_var(Token *tok, Type *ty, bool is_local)
         return def_gvar(tok, ty);
 }
 
-int calc_bytes(Type *ty)
-{
-    switch (ty->ty)
-    {
-    case INT:
-        return 4;
-    case PTR:
-        return 8;
-    case ARRAY:
-        return calc_bytes(ty->ptr_to) * ty->array_size;
-    case CHAR:
-        return 1;
-    }
-}
+

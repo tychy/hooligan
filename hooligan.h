@@ -12,19 +12,19 @@
 //utils
 bool not(bool flag);
 
-extern int label;
-// Tokenizer
+// NOTE: 予約語を先頭に持ってくる
 typedef enum
 {
-    TK_OPERATOR,
-    TK_NUMBER,
-    TK_IDENT,
     TK_RETURN,
     TK_IF,
     TK_ELSE,
     TK_FOR,
     TK_WHILE,
     TK_SIZEOF,
+    // add reserved word above
+    TK_OPERATOR,
+    TK_NUMBER,
+    TK_IDENT,
     TK_EOF,
 } TokenKind;
 
@@ -65,9 +65,11 @@ typedef enum
 
 } TypeKind;
 
+// type definition
 typedef struct Token Token;
-
-extern Token *token;
+typedef struct Type Type;
+typedef struct Node Node;
+typedef struct Var Var;
 
 struct Token
 {
@@ -77,37 +79,12 @@ struct Token
     int length;
     char *string;
 };
-
-bool isident(char p);
-
-void error(char *fmt, ...);
-bool consume(char *op);
-bool consume_return();
-bool consume_if();
-bool consume_else();
-bool consume_for();
-bool consume_while();
-bool consume_sizeof();
-void expect(char *op);
-bool at_eof();
-bool istype(Token *tok, TypeKind ty);
-int expect_number();
-Token *consume_ident();
-Token *tokenize();
-
-// Parser
-typedef struct Type Type;
 struct Type
 {
     TypeKind ty;
     Type *ptr_to;
     size_t array_size;
 };
-
-typedef struct Node Node;
-
-extern Node *nodes[200];
-
 struct Node
 {
     NodeKind kind;
@@ -134,11 +111,6 @@ struct Node
     // for function
     int args_region_size;
 };
-
-void program();
-void gen(Node *node);
-
-typedef struct Var Var;
 struct Var
 {
     char *name;
@@ -149,12 +121,32 @@ struct Var
     bool is_local;
 };
 
+// Declaration of global variables
+extern int label;
+extern Token *token;
+extern Node *nodes[200];
 extern Var *locals;
 extern Var *globals;
 
+// Declaration of functions
+// read_token.c
+void error(char *fmt, ...); // これutilのほうがいい
+bool consume(char *op);
+bool consume_rw(TokenKind tk);
+void expect(char *op);
+bool at_eof();
+bool istype(Token *tok, TypeKind ty); // consume_typeとかにできるかも？
+
+// parser.c
+int expect_number();
+Token *consume_ident();
+Token *tokenize();
+void program();
+void gen(Node *node);
+
+// variable.c
 Var *find_var(Token *tok, bool is_local);
 int def_var(Token *tok, Type *ty, bool is_local);
-int calc_bytes(Type *ty);
 
 // type.c
 Type *new_type_int();
@@ -164,5 +156,7 @@ Type *new_type_array(Type *ptr_to, size_t size);
 bool is_int(Type *ty);
 bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
+int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
+
 #endif

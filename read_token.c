@@ -17,59 +17,9 @@ bool consume(char *op)
     return true;
 }
 
-bool consume_return()
+bool consume_rw(TokenKind tk)
 {
-    if (token->kind != TK_RETURN)
-    {
-        return false;
-    }
-    token = token->next;
-    return true;
-}
-
-bool consume_if()
-{
-    if (token->kind != TK_IF)
-    {
-        return false;
-    }
-    token = token->next;
-    return true;
-}
-
-bool consume_else()
-{
-    if (token->kind != TK_ELSE)
-    {
-        return false;
-    }
-    token = token->next;
-    return true;
-}
-
-bool consume_for()
-{
-    if (token->kind != TK_FOR)
-    {
-        return false;
-    }
-    token = token->next;
-    return true;
-}
-
-bool consume_while()
-{
-    if (token->kind != TK_WHILE)
-    {
-        return false;
-    }
-    token = token->next;
-    return true;
-}
-
-bool consume_sizeof()
-{
-    if (token->kind != TK_SIZEOF)
+    if (token->kind != tk)
         return false;
     token = token->next;
     return true;

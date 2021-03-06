@@ -56,6 +56,21 @@ bool is_int_or_char(Type *ty)
     return is_int(ty) || is_char(ty);
 }
 
+int calc_bytes(Type *ty)
+{
+    switch (ty->ty)
+    {
+    case INT:
+        return 4;
+    case PTR:
+        return 8;
+    case ARRAY:
+        return calc_bytes(ty->ptr_to) * ty->array_size;
+    case CHAR:
+        return 1;
+    }
+}
+
 Type *determine_expr_type(Type *lhs, Type *rhs)
 {
     if (not(is_int_or_char(lhs)) && not(is_int_or_char(rhs)))
