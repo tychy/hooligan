@@ -54,9 +54,9 @@ static bool isident(char p)
     return false;
 }
 
-static bool isreservedword(char *p, ReservedWord rw)
+static bool isreservedword(char *p, TokenKind kind)
 {
-    char *word = reserved_word_list[rw];
+    char *word = reserved_word_list[kind];
     int len = strlen(word);
     if (strncmp(p, word, len) == 0 && not(isident(*(p + len))))
         return true;
@@ -90,7 +90,7 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (isreservedword(p, RW_RETURN))
+        if (isreservedword(p, TK_RETURN))
         {
             cur = new_token(TK_RETURN, cur, p);
             cur->length = 6;
@@ -98,7 +98,7 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (isreservedword(p, RW_IF))
+        if (isreservedword(p, TK_IF))
         {
             cur = new_token(TK_IF, cur, p);
             cur->length = 2;
@@ -106,7 +106,7 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (isreservedword(p, RW_ELSE))
+        if (isreservedword(p, TK_ELSE))
         {
             cur = new_token(TK_ELSE, cur, p);
             cur->length = 4;
@@ -114,7 +114,7 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (isreservedword(p, RW_FOR))
+        if (isreservedword(p, TK_FOR))
         {
             cur = new_token(TK_FOR, cur, p);
             cur->length = 3;
@@ -122,7 +122,7 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (isreservedword(p, RW_WHILE))
+        if (isreservedword(p, TK_WHILE))
         {
             cur = new_token(TK_WHILE, cur, p);
             cur->length = 5;
@@ -130,7 +130,7 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (isreservedword(p, RW_SIZEOF))
+        if (isreservedword(p, TK_SIZEOF))
         {
             cur = new_token(TK_SIZEOF, cur, p);
             cur->length = 6;

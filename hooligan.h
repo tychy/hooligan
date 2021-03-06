@@ -12,27 +12,19 @@
 //utils
 bool not(bool flag);
 
-// enum
+// NOTE: 予約語を先頭に持ってくる
 typedef enum
 {
-    RW_RETURN,
-    RW_IF,
-    RW_ELSE,
-    RW_FOR,
-    RW_WHILE,
-    RW_SIZEOF,
-} ReservedWord;
-typedef enum
-{
-    TK_OPERATOR,
-    TK_NUMBER,
-    TK_IDENT,
     TK_RETURN,
     TK_IF,
     TK_ELSE,
     TK_FOR,
     TK_WHILE,
     TK_SIZEOF,
+    // add reserved word above
+    TK_OPERATOR,
+    TK_NUMBER,
+    TK_IDENT,
     TK_EOF,
 } TokenKind;
 
@@ -78,7 +70,6 @@ typedef struct Token Token;
 typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
-
 
 struct Token
 {
