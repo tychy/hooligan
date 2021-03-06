@@ -73,7 +73,11 @@ typedef enum
 
 } TypeKind;
 
+// type definition
 typedef struct Token Token;
+typedef struct Type Type;
+typedef struct Node Node;
+typedef struct Var Var;
 
 
 struct Token
@@ -102,8 +106,6 @@ int expect_number();
 Token *consume_ident();
 Token *tokenize();
 
-// Parser
-typedef struct Type Type;
 struct Type
 {
     TypeKind ty;
@@ -111,7 +113,6 @@ struct Type
     size_t array_size;
 };
 
-typedef struct Node Node;
 
 
 struct Node
@@ -144,7 +145,6 @@ struct Node
 void program();
 void gen(Node *node);
 
-typedef struct Var Var;
 struct Var
 {
     char *name;
