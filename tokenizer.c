@@ -81,8 +81,9 @@ static bool isreturn(char *p)
     return false;
 }
 
-static bool issizeof(char *p){
-    if(strncmp(p, "sizeof", 6)==0&& !isident(*(p+6)))
+static bool issizeof(char *p)
+{
+    if (strncmp(p, "sizeof", 6) == 0 && !isident(*(p + 6)))
         return true;
     return false;
 }
@@ -120,6 +121,24 @@ Token *tokenize(char *p)
         if (isspace(*p))
         {
             p++;
+            continue;
+        }
+
+        if (strncmp(p, "//", 2) == 0)
+        {
+            p += 2;
+            while (*p != '\n')
+                p++;
+            continue;
+        }
+
+        // ブロックコメントをスキップ
+        if (strncmp(p, "/*", 2) == 0)
+        {
+            char *q = strstr(p + 2, "*/");
+            if (!q)
+                error("コメントが閉じられていません");
+            p = q + 2;
             continue;
         }
 
@@ -163,7 +182,8 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if(issizeof(p)){
+        if (issizeof(p))
+        {
             cur = new_token(TK_SIZEOF, cur, p);
             cur->length = 6;
             p += 6;
