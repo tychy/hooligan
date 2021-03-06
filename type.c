@@ -55,3 +55,15 @@ bool is_int_or_char(Type *ty)
 
     return is_int(ty) || is_char(ty);
 }
+
+Type *determine_expr_type(Type *lhs, Type *rhs)
+{
+    if (!is_int_or_char(lhs) && !is_int_or_char(rhs))
+        return NULL;
+    else if (is_int_or_char(lhs) && !is_int_or_char(rhs))
+        return rhs;
+    else if (!is_int_or_char(lhs) && is_int_or_char(rhs))
+        return lhs;
+    else if (is_int_or_char(lhs) && is_int_or_char(rhs))
+        return new_type_int();
+}
