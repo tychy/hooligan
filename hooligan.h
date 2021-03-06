@@ -88,33 +88,12 @@ struct Token
     int length;
     char *string;
 };
-
-bool isident(char p);
-
-void error(char *fmt, ...);
-bool consume(char *op);
-bool consume_return();
-bool consume_if();
-bool consume_else();
-bool consume_for();
-bool consume_while();
-bool consume_sizeof();
-void expect(char *op);
-bool at_eof();
-bool istype(Token *tok, TypeKind ty);
-int expect_number();
-Token *consume_ident();
-Token *tokenize();
-
 struct Type
 {
     TypeKind ty;
     Type *ptr_to;
     size_t array_size;
 };
-
-
-
 struct Node
 {
     NodeKind kind;
@@ -141,10 +120,6 @@ struct Node
     // for function
     int args_region_size;
 };
-
-void program();
-void gen(Node *node);
-
 struct Var
 {
     char *name;
@@ -154,6 +129,31 @@ struct Var
     Var *next;
     bool is_local;
 };
+
+bool isident(char p);
+
+void error(char *fmt, ...);
+bool consume(char *op);
+bool consume_return();
+bool consume_if();
+bool consume_else();
+bool consume_for();
+bool consume_while();
+bool consume_sizeof();
+void expect(char *op);
+bool at_eof();
+bool istype(Token *tok, TypeKind ty);
+int expect_number();
+Token *consume_ident();
+Token *tokenize();
+
+
+
+
+
+void program();
+void gen(Node *node);
+
 
 // Declareation of global variables
 extern int label;
