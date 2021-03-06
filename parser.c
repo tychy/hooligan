@@ -2,14 +2,17 @@
 
 static Node *expr();
 static Node *stmt();
-
+static bool not(bool flag)
+{
+    return !flag;
+}
 static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
     node->lhs = lhs;
     node->rhs = rhs;
-    if (!is_int_or_char(lhs->ty) && !is_int_or_char(rhs->ty))
+    if (not(is_int_or_char(lhs->ty)) && not(is_int_or_char(rhs->ty)))
     {
         if (kind != ND_ASSIGN)
             error("式にはintが必要です");
@@ -17,11 +20,11 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
         // -Wincompatible-pointer-typesというオプションらしい
         node->ty = lhs->ty;
     }
-    else if (is_int_or_char(lhs->ty) && !is_int_or_char(rhs->ty))
+    else if (is_int_or_char(lhs->ty) && not(is_int_or_char(rhs->ty)))
     {
         node->ty = rhs->ty;
     }
-    else if (!is_int_or_char(lhs->ty) && is_int_or_char(rhs->ty))
+    else if (not(is_int_or_char(lhs->ty)) && is_int_or_char(rhs->ty))
     {
         node->ty = lhs->ty;
     }
