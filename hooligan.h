@@ -9,6 +9,9 @@
 #include <string.h>
 #include <errno.h>
 
+//utils
+bool not(bool flag);
+
 extern int label;
 // Tokenizer
 typedef enum
