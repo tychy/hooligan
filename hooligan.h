@@ -132,12 +132,7 @@ extern Var *globals;
 // read_token.c
 void error(char *fmt, ...); // これutilのほうがいい
 bool consume(char *op);
-bool consume_return();
-bool consume_if();
-bool consume_else();
-bool consume_for();
-bool consume_while();
-bool consume_sizeof();
+bool consume_reserved_word(TokenKind tk);
 void expect(char *op);
 bool at_eof();
 bool istype(Token *tok, TypeKind ty); // consume_typeとかにできるかも？
