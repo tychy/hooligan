@@ -81,15 +81,6 @@ static TokenKind find_reserved_word(char *p)
     return -1; // Not Found
 }
 
-bool isident(char p)
-{
-    if ((p >= 'a' && p <= 'z') || (p >= 'A' && p <= 'Z') || p == '_')
-    {
-        return true;
-    }
-    return false;
-}
-
 static bool isoperator(char *p)
 {
     for (int i = 0; i < operator_list_count; i++)
