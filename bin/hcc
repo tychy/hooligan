@@ -81,6 +81,8 @@ elif [ $1 = "testv2dr" ]; then
     done
     rm tmp.s tmp
     exit $result
+elif [ $1 = "testall" ]; then
+    docker-compose run hooligan bash -c "./bin/hcc testv2dr && ./bin/hcc testolddr"
 else
     echo "存在しないサブコマンドです"
     exit 1
