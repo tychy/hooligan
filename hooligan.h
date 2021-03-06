@@ -138,7 +138,6 @@ extern Var *locals;
 extern Var *globals;
 
 // functions
-bool isident(char p);
 void error(char *fmt, ...);
 bool consume(char *op);
 bool consume_return();

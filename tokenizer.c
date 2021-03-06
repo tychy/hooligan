@@ -36,6 +36,15 @@ static Token *new_token(TokenKind kind, Token *cur, char *str)
     return tok;
 }
 
+static bool isident(char p)
+{
+    if ((p >= 'a' && p <= 'z') || (p >= 'A' && p <= 'Z') || p == '_')
+    {
+        return true;
+    }
+    return false;
+}
+
 static bool isfor(char *p)
 {
     if (strncmp(p, "for", 3) == 0 && !isident(*(p + 3)))
@@ -87,14 +96,6 @@ static bool issizeof(char *p){
     return false;
 }
 
-bool isident(char p)
-{
-    if ((p >= 'a' && p <= 'z') || (p >= 'A' && p <= 'Z') || p == '_')
-    {
-        return true;
-    }
-    return false;
-}
 
 static bool isoperator(char *p)
 {
