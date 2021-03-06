@@ -36,6 +36,8 @@ static char *reserved_word_list[6] = {
     "sizeof",
 };
 
+static int reserved_word_list_count = sizeof(reserved_word_list) / sizeof(reserved_word_list[0]);
+
 static Token *new_token(TokenKind kind, Token *cur, char *str)
 {
     Token *tok = calloc(1, sizeof(Token));
@@ -90,53 +92,21 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (isreservedword(p, TK_RETURN))
+        bool is_reserved_word = false;
+        for (int i = 0; i < reserved_word_list_count; i++)
         {
-            cur = new_token(TK_RETURN, cur, p);
-            cur->length = 6;
-            p += 6;
-            continue;
+            if (isreservedword(p, i))
+            {
+                cur = new_token(i, cur, p);
+                int len = strlen(reserved_word_list[i]);
+                cur->length = len;
+                p += len;
+                is_reserved_word = true;
+                break;
+            }
         }
-
-        if (isreservedword(p, TK_IF))
-        {
-            cur = new_token(TK_IF, cur, p);
-            cur->length = 2;
-            p += 2;
+        if (is_reserved_word)
             continue;
-        }
-
-        if (isreservedword(p, TK_ELSE))
-        {
-            cur = new_token(TK_ELSE, cur, p);
-            cur->length = 4;
-            p += 4;
-            continue;
-        }
-
-        if (isreservedword(p, TK_FOR))
-        {
-            cur = new_token(TK_FOR, cur, p);
-            cur->length = 3;
-            p += 3;
-            continue;
-        }
-
-        if (isreservedword(p, TK_WHILE))
-        {
-            cur = new_token(TK_WHILE, cur, p);
-            cur->length = 5;
-            p += 5;
-            continue;
-        }
-
-        if (isreservedword(p, TK_SIZEOF))
-        {
-            cur = new_token(TK_SIZEOF, cur, p);
-            cur->length = 6;
-            p += 6;
-            continue;
-        }
 
         if (isident(*p))
         {
