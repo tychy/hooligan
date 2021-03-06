@@ -33,7 +33,8 @@ int main()
         //comment
 
         /* comment */
-        return 1;
+        // return hogehoge /*
+        return 1; // comment
     }
     g[0] = 1;
     //comment
