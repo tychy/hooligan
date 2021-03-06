@@ -130,8 +130,15 @@ struct Var
     bool is_local;
 };
 
-bool isident(char p);
+// Declareation of global variables
+extern int label;
+extern Token *token;
+extern Node *nodes[200];
+extern Var *locals;
+extern Var *globals;
 
+// functions
+bool isident(char p);
 void error(char *fmt, ...);
 bool consume(char *op);
 bool consume_return();
@@ -146,26 +153,11 @@ bool istype(Token *tok, TypeKind ty);
 int expect_number();
 Token *consume_ident();
 Token *tokenize();
-
-
-
-
-
-void program();
-void gen(Node *node);
-
-
-// Declareation of global variables
-extern int label;
-extern Token *token;
-extern Node *nodes[200];
-extern Var *locals;
-extern Var *globals;
-
 Var *find_var(Token *tok, bool is_local);
 int def_var(Token *tok, Type *ty, bool is_local);
 int calc_bytes(Type *ty);
-
+void program();
+void gen(Node *node);
 // type.c
 Type *new_type_int();
 Type *new_type_char();
