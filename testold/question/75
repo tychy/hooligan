@@ -1,0 +1,1 @@
+int main(){ two(5 * 20 - 2 * (6+7)); }int two(int y){return 2*y;}

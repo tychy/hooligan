@@ -1,0 +1,1 @@
+int main(){int a; int b; int* c;a=12;b=15;c= &a - 1;return *c;}

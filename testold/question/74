@@ -1,0 +1,1 @@
+int main(){ two(24); }int two(int hogehoge) { hogehoge * 2; }

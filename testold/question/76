@@ -1,0 +1,1 @@
+int main(){ BIG(33); }int BIG(int x)x+10;
