@@ -65,6 +65,18 @@ static bool isreservedword(char *p, TokenKind kind)
     return false;
 }
 
+static TokenKind find_reserved_word(char *p)
+{
+    for (TokenKind tk = 0; tk < reserved_word_list_count; tk++)
+    {
+        if (isreservedword(p, tk))
+        {
+            return tk;
+        }
+    }
+    return -1; // Not Found
+}
+
 static bool isoperator(char *p)
 {
     for (int i = 0; i < operator_list_count; i++)
@@ -92,21 +104,15 @@ Token *tokenize(char *p)
             continue;
         }
 
-        bool is_reserved_word = false;
-        for (int i = 0; i < reserved_word_list_count; i++)
+        int tk = find_reserved_word(p); 
+        if (not(tk == -1))
         {
-            if (isreservedword(p, i))
-            {
-                cur = new_token(i, cur, p);
-                int len = strlen(reserved_word_list[i]);
-                cur->length = len;
-                p += len;
-                is_reserved_word = true;
-                break;
-            }
-        }
-        if (is_reserved_word)
+            cur = new_token(tk, cur, p);
+            int len = strlen(reserved_word_list[tk]);
+            cur->length += len;
+            p += len;
             continue;
+        }
 
         if (isident(*p))
         {
