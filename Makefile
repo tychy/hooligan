@@ -7,7 +7,7 @@ main: $(OBJS)
 $(OBJS): hooligan.h
 
 test: main bin/exe.out
-	./test.sh
+	./bin/test.sh
 clean:
 	rm -f bin/exe.out *.o *~ tmp*
 .PHONY: test clean
