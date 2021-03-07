@@ -21,6 +21,8 @@ typedef enum
     TK_FOR,
     TK_WHILE,
     TK_SIZEOF,
+    TK_INT,
+    TK_CHAR,
     // add reserved word above
     TK_OPERATOR,
     TK_NUMBER,
@@ -150,7 +152,7 @@ bool consume_rw(TokenKind tk);
 Type *consume_type();
 void expect(char *op);
 bool at_eof();
-bool istype(Token *tok, TypeKind ty); // consume_typeとかにできるかも？
+
 
 // parser.c
 int expect_number();

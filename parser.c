@@ -174,13 +174,13 @@ static Node *primary()
         node = expr();
         expect(")");
     }
-    else if (token->kind == TK_IDENT)
+    else if (token->kind == TK_NUMBER)
     {
-        node = ident();
+        node = num();
     }
     else
     {
-        node = num();
+        node = ident();
     }
     if (consume("["))
     {

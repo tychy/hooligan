@@ -27,32 +27,24 @@ bool consume_rw(TokenKind tk)
 
 Type *consume_type()
 {
-    if (istype(token, INT) || istype(token, CHAR))
+    Type *ty;
+    if (consume_rw(TK_INT))
     {
-        Type *ty;
-        if (istype(token, INT))
-        {
-            ty = new_type_int();
-        }
-        else if (istype(token, CHAR))
-        {
-            ty = new_type_char();
-        }
-        else
-        {
-            error("定義されていない型です");
-        }
-        token = token->next;
-        while (consume("*"))
-        {
-            ty = new_type_ptr(ty);
-        }
-        return ty;
+        ty = new_type_int();
+    }
+    else if (consume_rw(TK_CHAR))
+    {
+        ty = new_type_char();
     }
     else
     {
         return NULL;
     }
+    while (consume("*"))
+    {
+        ty = new_type_ptr(ty);
+    }
+    return ty;
 }
 
 void expect(char *op)
@@ -87,16 +79,4 @@ Token *consume_ident()
 bool at_eof()
 {
     return token->kind == TK_EOF;
-}
-
-static char *types[2] = {
-    "int",
-    "char",
-};
-
-bool istype(Token *tok, TypeKind ty)
-{
-    char *ref = types[ty];
-    int reflen = strlen(ref);
-    return tok->length == reflen && strncmp(tok->string, ref, reflen) == 0;
 }
