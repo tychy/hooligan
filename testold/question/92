@@ -1,0 +1,1 @@
+int main(){int p; int q; int *r;p = 10; q = 20; r = &q; return *(r + 1);}

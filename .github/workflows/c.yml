@@ -18,5 +18,5 @@ jobs:
         env:
           CC: cc
         run: |
-          make test
           ./bin/hcc testv2dr
+          ./bin/hcc testolddr

@@ -1,0 +1,1 @@
+int main(){ add_tri(4, 50, 14); }int add_tri(int a,int b,int c) a+b+c;

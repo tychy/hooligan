@@ -1,0 +1,1 @@
+int main(){int i; i=0;while(i<10) if(i==5) return i;else i = i+1;i; }
