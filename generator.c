@@ -283,6 +283,9 @@ void gen(Node *node)
     case ND_GVARDEF:
         gen_global_var_def(node);
         return;
+    case ND_STRING:
+        printf("  push offset .LC%d\n", node->strlabel);
+        return;
     case ND_ADDR:
         gen_var(node->lhs);
         return;

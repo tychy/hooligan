@@ -1,5 +1,23 @@
 #include "hooligan.h"
+static int new_string(char *p, int length)
+{
+    int strlabel;
+    Vec *new_vec = calloc(1, sizeof(Vec));
+    new_vec->length = length;
+    new_vec->p = p;
+    if (strings)
+    {
+        strlabel = strings->label + 1;
+    }
+    else
+    {
+        strlabel = 0;
+    }
 
+    new_vec->next = strings;
+    strings = new_vec;
+    return strlabel;
+}
 static Node *expr();
 static Node *stmt();
 static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
@@ -80,6 +98,14 @@ static Node *new_node_func(char *name, int length)
     return node;
 }
 
+static Node *new_node_string(int strlabel)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_STRING;
+    node->strlabel = strlabel;
+    node->ty = new_type_string();
+    return node;
+}
 static Node *num()
 {
     return new_node_num(expect_number());
@@ -209,6 +235,12 @@ static Node *unary()
     {
         Node *arg = unary();
         return new_node_num(calc_bytes(arg->ty));
+    }
+    else if (token->kind == TK_STRING)
+    {
+        int strlabel = new_string(token->string, token->length);
+        token = token->next;
+        return new_node_string(strlabel);
     }
     return primary();
 }

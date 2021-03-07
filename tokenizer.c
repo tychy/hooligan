@@ -125,6 +125,26 @@ Token *tokenize(char *p)
             p = q + 2;
             continue;
         }
+        if (*p == '"')
+        {
+            int i = 0;
+            p++;
+            char *p_top = p;
+            while (*p != '"')
+            {
+                p++;
+                i++;
+            }
+            if (*p != '"')
+                error("ダブルクォテーションが閉じていません");
+
+            p++;
+            cur = new_token(TK_STRING, cur, p_top);
+            cur->length = i;
+
+            continue;
+        }
+
         if (isreservedword(p))
         {
             int tk = find_reserved_word(p);
@@ -170,8 +190,7 @@ Token *tokenize(char *p)
             cur->value = strtol(p, &p, 10);
             continue;
         }
-
-        error("トークナイズできません");
+        error("%sトークナイズできません", p);
     }
     new_token(TK_EOF, cur, p);
     return head.next;

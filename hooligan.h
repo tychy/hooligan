@@ -26,6 +26,7 @@ typedef enum
     TK_NUMBER,
     TK_IDENT,
     TK_EOF,
+    TK_STRING,
 } TokenKind;
 
 typedef enum
@@ -54,6 +55,7 @@ typedef enum
     ND_ADDR,
     ND_DEREF,
     ND_GVARDEF,
+    ND_STRING,
 } NodeKind;
 
 typedef enum
@@ -70,6 +72,7 @@ typedef struct Token Token;
 typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
+typedef struct Vec Vec;
 
 struct Token
 {
@@ -110,6 +113,9 @@ struct Node
 
     // for function
     int args_region_size;
+
+    // for string
+    int strlabel;
 };
 struct Var
 {
@@ -121,13 +127,21 @@ struct Var
     bool is_local;
 };
 
+struct Vec
+{
+
+    char *p;
+    int length;
+    int label;
+    Vec *next;
+};
 // Declaration of global variables
 extern int label;
 extern Token *token;
 extern Node *nodes[200];
 extern Var *locals;
 extern Var *globals;
-
+extern Vec *strings;
 // Declaration of functions
 // read_token.c
 void error(char *fmt, ...); // これutilのほうがいい
@@ -151,6 +165,7 @@ int def_var(Token *tok, Type *ty, bool is_local);
 // type.c
 Type *new_type_int();
 Type *new_type_char();
+Type *new_type_string();
 Type *new_type_ptr(Type *ptr_to);
 Type *new_type_array(Type *ptr_to, size_t size);
 bool is_int(Type *ty);
