@@ -25,6 +25,36 @@ bool consume_rw(TokenKind tk)
     return true;
 }
 
+Type *consume_type()
+{
+    if (istype(token, INT) || istype(token, CHAR))
+    {
+        Type *ty;
+        if (istype(token, INT))
+        {
+            ty = new_type_int();
+        }
+        else if (istype(token, CHAR))
+        {
+            ty = new_type_char();
+        }
+        else
+        {
+            error("定義されていない型です");
+        }
+        token = token->next;
+        while (consume("*"))
+        {
+            ty = new_type_ptr(ty);
+        }
+        return ty;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
 void expect(char *op)
 {
     if (token->kind != TK_OPERATOR || token->string[0] != op[0])

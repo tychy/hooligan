@@ -113,45 +113,27 @@ static Node *num()
 
 static Node *ident()
 {
-    Token *tok = consume_ident();
-    if (istype(tok, INT) || istype(tok, CHAR))
+    Type *ty = consume_type();
+    Token *ident = consume_ident();
+    if (ty)
     {
-        Type *ty;
-
-        if (istype(tok, INT))
-        {
-            ty = new_type_int();
-        }
-        else if (istype(tok, CHAR))
-        {
-            ty = new_type_char();
-        }
-        else
-        {
-            error("定義されていない型です");
-        }
-        while (consume("*"))
-        {
-            ty = new_type_ptr(ty);
-        }
-        tok = consume_ident();
         if (consume("["))
         {
             int size = expect_number();
             ty = new_type_array(ty, size);
             expect("]");
-            int offset = def_var(tok, ty, true);
+            int offset = def_var(ident, ty, true);
             return new_node_var(offset, ty);
         }
         else
         {
-            int offset = def_var(tok, ty, true);
+            int offset = def_var(ident, ty, true);
             return new_node_var(offset, ty);
         }
     }
     if (consume("("))
     {
-        Node *node = new_node_func(tok->string, tok->length);
+        Node *node = new_node_func(ident->string, ident->length);
         Node *arg_top = node;
         int count = 0;
         while (!consume(")"))
@@ -168,14 +150,14 @@ static Node *ident()
     else
     {
         int offset;
-        Var *lvar = find_var(tok, true);
+        Var *lvar = find_var(ident, true);
         if (lvar)
             offset = lvar->offset;
         else
         {
-            Var *gvar = find_var(tok, false);
+            Var *gvar = find_var(ident, false);
             if (gvar)
-                return new_node_glob_var(tok, gvar->ty);
+                return new_node_glob_var(ident, gvar->ty);
             else
                 error("変数が定義されていません");
         }

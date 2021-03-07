@@ -147,6 +147,7 @@ extern Vec *strings;
 void error(char *fmt, ...); // これutilのほうがいい
 bool consume(char *op);
 bool consume_rw(TokenKind tk);
+Type *consume_type();
 void expect(char *op);
 bool at_eof();
 bool istype(Token *tok, TypeKind ty); // consume_typeとかにできるかも？
