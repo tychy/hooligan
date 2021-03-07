@@ -22,6 +22,21 @@ Type *new_type_char()
     return ty;
 }
 
+Type *new_type_string()
+{
+    //new_type_ptr(new_type_char())で代用できるがキャッシュできる分はやい？
+    //わかりやすさは勝っていると思う
+    static Type *ty;
+    if (!ty)
+    {
+        Type *c = new_type_char();
+        ty = calloc(1, sizeof(Type));
+        ty->ty = PTR;
+        ty->ptr_to = c;
+    }
+    return ty;
+}
+
 Type *new_type_ptr(Type *ptr_to)
 {
     Type *ty = calloc(1, sizeof(Type));
