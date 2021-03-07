@@ -1,7 +1,7 @@
 #include "hooligan.h"
 
 Token *token;
-
+Vec *strings;
 int label = 0;
 Node *nodes[200];
 Node *funcs[100];
@@ -62,6 +62,15 @@ int main(int argc, char **argv)
         gen(nodes[i]);
         i++;
     }
+    Vec *s = strings;
+    printf(".data\n");
+    while (s)
+    {
+        printf(".LC%d:\n", s->label);
+        printf("  .string \"%.*s\"\n", s->length, s->p);
+        s = s->next;
+    }
+
     printf(".text\n");
     for (int j = 0; j < func_count; j++)
     {
