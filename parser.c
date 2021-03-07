@@ -445,19 +445,10 @@ static Node *func(Token *ident, Type *ty)
             error("引数の数が多すぎます");
         if (arg_count != 1)
             expect(",");
-        Token *arg_token = consume_ident();
-        Type *arg_ty = new_type_int();
-        if (istype(arg_token, INT))
-        {
-            while (consume("*"))
-            {
-                arg_ty = new_type_ptr(arg_ty);
-            }
-
-            arg_token = consume_ident();
-        }
-        else
+        Type *arg_ty = consume_type();
+        if (!arg_ty)
             error("引数に型がありません");
+        Token *arg_token = consume_ident();
         int offset = def_var(arg_token, arg_ty, true);
         Node *arg = new_node_var(offset, arg_ty);
         arg_top->lhs = arg;
@@ -485,26 +476,15 @@ static Node *glob_var(Token *ident, Type *ty)
 
 static Node *def()
 {
-    Token *tok = consume_ident();
-    Type *ty = new_type_int();
-
-    if (istype(tok, INT))
-    {
-        while (consume("*"))
-        {
-            ty = new_type_ptr(ty);
-        }
-
-        tok = consume_ident();
-    }
-    else
-    {
+    Type *ty = consume_type();
+    if (!ty)
         error("定義式に型がありません");
-    }
+
+    Token *ident = consume_ident();
     Node *node;
     if (consume("("))
     {
-        node = func(tok, ty);
+        node = func(ident, ty);
     }
     else
     {
@@ -515,7 +495,7 @@ static Node *def()
             ty = new_type_array(ty, size);
             expect("]");
         }
-        node = glob_var(tok, ty);
+        node = glob_var(ident, ty);
     }
 
     return node;
