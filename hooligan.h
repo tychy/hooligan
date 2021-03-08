@@ -143,6 +143,7 @@ extern Node *nodes[200];
 extern Var *locals;
 extern Var *globals;
 extern Vec *strings;
+
 // Declaration of functions
 // read_token.c
 bool consume(char *op);
@@ -150,13 +151,16 @@ bool consume_rw(TokenKind tk);
 Type *consume_type();
 void expect(char *op);
 bool at_eof();
-
-
-// parser.c
 int expect_number();
 Token *consume_ident();
+
+// tokenizer.c
 Token *tokenize();
+
+// parser.c
 void program();
+
+// generator.c
 void gen(Node *node);
 
 // variable.c
@@ -175,7 +179,7 @@ bool is_int_or_char(Type *ty);
 int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
 
-//utils
+// util.c
 bool not(bool flag);
 void error(char *fmt, ...);
 
