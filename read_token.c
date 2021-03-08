@@ -25,6 +25,28 @@ bool consume_rw(TokenKind tk)
     return true;
 }
 
+Type *consume_type()
+{
+    Type *ty;
+    if (consume_rw(TK_INT))
+    {
+        ty = new_type_int();
+    }
+    else if (consume_rw(TK_CHAR))
+    {
+        ty = new_type_char();
+    }
+    else
+    {
+        return NULL;
+    }
+    while (consume("*"))
+    {
+        ty = new_type_ptr(ty);
+    }
+    return ty;
+}
+
 void expect(char *op)
 {
     if (token->kind != TK_OPERATOR || token->string[0] != op[0])
@@ -57,16 +79,4 @@ Token *consume_ident()
 bool at_eof()
 {
     return token->kind == TK_EOF;
-}
-
-static char *types[2] = {
-    "int",
-    "char",
-};
-
-bool istype(Token *tok, TypeKind ty)
-{
-    char *ref = types[ty];
-    int reflen = strlen(ref);
-    return tok->length == reflen && strncmp(tok->string, ref, reflen) == 0;
 }
