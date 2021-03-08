@@ -3,8 +3,7 @@ int main()
     int a;
 
     a = 0;
-    int counter;
-    for (counter = 0; counter < 100; counter = counter + 1)
+    for (int counter = 0; counter < 100; counter = counter + 1)
         if (counter * counter == 400)
             a = counter;
     if (a != 20)

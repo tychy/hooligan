@@ -68,12 +68,12 @@ static Node *new_node_num(int val)
     return node;
 }
 
-static Node *new_node_var(int offset, Type *ty)
+static Node *new_node_var(Var *lvar)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
-    node->offset = offset;
-    node->ty = ty;
+    node->offset = lvar->offset;
+    node->ty = lvar->ty;
     node->is_local = true;
     return node;
 }
@@ -113,24 +113,7 @@ static Node *num()
 
 static Node *ident()
 {
-    Type *ty = consume_type();
     Token *ident = consume_ident();
-    if (ty)
-    {
-        if (consume("["))
-        {
-            int size = expect_number();
-            ty = new_type_array(ty, size);
-            expect("]");
-            int offset = def_var(ident, ty, true);
-            return new_node_var(offset, ty);
-        }
-        else
-        {
-            int offset = def_var(ident, ty, true);
-            return new_node_var(offset, ty);
-        }
-    }
     if (consume("("))
     {
         Node *node = new_node_func(ident->string, ident->length);
@@ -149,10 +132,9 @@ static Node *ident()
     }
     else
     {
-        int offset;
         Var *lvar = find_var(ident, true);
         if (lvar)
-            offset = lvar->offset;
+            return new_node_var(lvar);
         else
         {
             Var *gvar = find_var(ident, false);
@@ -161,8 +143,6 @@ static Node *ident()
             else
                 error("変数が定義されていません");
         }
-
-        return new_node_var(offset, lvar->ty);
     }
 }
 
@@ -328,9 +308,53 @@ static Node *assign()
     return node;
 }
 
+static Node *init()
+{
+    if (consume("{"))
+    {
+        Node *node = new_node_single(ND_INIT, expr());
+        Node *init_top = node;
+        while (!consume("}"))
+        {
+            expect(",");
+            Node *init = new_node_single(ND_INIT, expr());
+            init_top->rhs = init;
+            init_top = init;
+        }
+        return node;
+    }
+    return assign();
+}
+
 static Node *expr()
 {
     return assign();
+}
+
+static Node *defl()
+{
+    Type *ty = consume_type();
+    if (ty)
+    {
+        Token *ident = consume_ident();
+        if (consume("["))
+        {
+            int size = expect_number();
+            ty = new_type_array(ty, size);
+            expect("]");
+        }
+        Var *lvar = def_var(ident, ty, true);
+        Node *node = new_node_var(lvar);
+        if (consume("="))
+        {
+            node = new_node_assign(node, init());
+        }
+        return node;
+    }
+    else
+    {
+        return expr();
+    }
 }
 
 static Node *stmt()
@@ -380,7 +404,7 @@ static Node *stmt()
         }
         else
         {
-            init = expr();
+            init = defl();
             expect(";");
         }
 
@@ -424,7 +448,7 @@ static Node *stmt()
     }
     else
     {
-        node = expr();
+        node = defl();
         expect(";");
     }
     return node;
@@ -449,8 +473,8 @@ static Node *func(Token *ident, Type *ty)
         if (!arg_ty)
             error("引数に型がありません");
         Token *arg_token = consume_ident();
-        int offset = def_var(arg_token, arg_ty, true);
-        Node *arg = new_node_var(offset, arg_ty);
+        Var *lvar = def_var(arg_token, arg_ty, true);
+        Node *arg = new_node_var(lvar);
         arg_top->lhs = arg;
         arg_top = arg;
     }

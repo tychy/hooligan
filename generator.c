@@ -208,6 +208,55 @@ static void gen_function_def(Node *node)
     printf("  ret\n");
 }
 
+void gen_assign(Node *node)
+{
+    if (node->kind != ND_ASSIGN)
+    {
+        error("代入式ではありません");
+    }
+    if (node->rhs && node->rhs->kind == ND_INIT)
+    {
+        if (is_int_or_char(node->lhs->ty))
+        {
+            error("ポインタ型が必要です");
+        }
+        Node *cur = node->rhs;
+        int counter = 0;
+        while (cur)
+        {
+            gen_var(node->lhs);
+            gen(cur->lhs);
+            printf("  pop rdi\n");
+            printf("  pop rax\n");
+            printf("  add rax, %d\n", calc_bytes(node->lhs->ty->ptr_to) * counter);
+            if (is_int(cur->ty))
+                printf("  mov [rax], edi\n");
+            else if (is_char(cur->ty))
+            {
+                printf("  mov [rax], dil\n");
+            }
+            else
+                printf("  mov [rax], rdi\n");
+            cur = cur->rhs;
+            counter++;
+        }
+        return;
+    }
+    gen_var(node->lhs);
+    gen(node->rhs);
+    printf("  pop rdi\n");
+    printf("  pop rax\n");
+    if (is_int(node->ty))
+        printf("  mov [rax], edi\n");
+    else if (is_char(node->ty))
+    {
+        printf("  mov [rax], dil\n");
+    }
+    else
+        printf("  mov [rax], rdi\n");
+    printf("  push rdi\n");
+}
+
 void gen(Node *node)
 {
     switch (node->kind)
@@ -233,19 +282,7 @@ void gen(Node *node)
         printf("  push rax\n");
         return;
     case ND_ASSIGN:
-        gen_var(node->lhs);
-        gen(node->rhs);
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        if (is_int(node->ty))
-            printf("  mov [rax], edi\n");
-        else if (is_char(node->ty))
-        {
-            printf("  mov [rax], dil\n");
-        }
-        else
-            printf("  mov [rax], rdi\n");
-        printf("  push rdi\n");
+        gen_assign(node);
         return;
     case ND_RETURN:
         gen(node->lhs);
