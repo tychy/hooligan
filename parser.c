@@ -324,14 +324,9 @@ static Node *defl()
             int size = expect_number();
             ty = new_type_array(ty, size);
             expect("]");
-            Var *lvar = def_var(ident, ty, true);
-            return new_node_var(lvar);
         }
-        else
-        {
-            Var *lvar = def_var(ident, ty, true);
-            return new_node_var(lvar);
-        }
+        Var *lvar = def_var(ident, ty, true);
+        return new_node_var(lvar);
     }
     else
     {
