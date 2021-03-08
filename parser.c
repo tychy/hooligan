@@ -311,7 +311,18 @@ static Node *assign()
 static Node *init()
 {
     if (consume("{"))
-        error("not implemented");
+    {
+        Node *node = new_node_single(ND_INIT, expr());
+        Node *init_top = node;
+        while (!consume("}"))
+        {
+            expect(",");
+            Node *init = new_node_single(ND_INIT, expr());
+            init_top->rhs = init;
+            init_top = init;
+        }
+        return node;
+    }
     return assign();
 }
 

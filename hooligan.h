@@ -58,6 +58,7 @@ typedef enum
     ND_DEREF,
     ND_GVARDEF,
     ND_STRING,
+    ND_INIT,
 } NodeKind;
 
 typedef enum
