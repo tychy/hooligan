@@ -160,7 +160,7 @@ Token *tokenize();
 void program();
 
 // generator.c
-void gen(Node *node);
+void gen_asm_intel();
 
 // variable.c
 Var *find_var(Token *tok, bool is_local);

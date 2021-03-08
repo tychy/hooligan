@@ -1,13 +1,9 @@
 #include "hooligan.h"
 
 Token *token;
-String *strings;
-int label = 0; // なんのラベルかわからん
-Node *nodes[200];
-Node *funcs[100];
 
 // 指定されたファイルの内容を返す
-char *read_file(char *path)
+static char *read_file(char *path)
 {
     // ファイルを開く
     FILE *fp = fopen(path, "r");
@@ -45,36 +41,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    printf(".intel_syntax noprefix\n");
-    printf(".bss\n");
-    program();
-    int i = 0;
-    int func_count = 0;
-    while (nodes[i] != NULL)
-    {
-        if (nodes[i]->kind == ND_FUNCDEF)
-        {
-            funcs[func_count] = nodes[i];
-            func_count++;
-            i++;
-            continue;
-        }
-        gen(nodes[i]);
-        i++;
-    }
-    String *s = strings;
-    printf(".data\n");
-    while (s)
-    {
-        printf(".LC%d:\n", s->label);
-        printf("  .string \"%.*s\"\n", s->length, s->p);
-        s = s->next;
-    }
+    gen_asm_intel();
 
-    printf(".text\n");
-    for (int j = 0; j < func_count; j++)
-    {
-        gen(funcs[j]);
-    }
     return 0;
 }

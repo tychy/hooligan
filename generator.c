@@ -1,4 +1,6 @@
 #include "hooligan.h"
+void gen(Node *node);
+
 static char *reg32[6] = {
     "edi",
     "esi",
@@ -208,7 +210,7 @@ static void gen_function_def(Node *node)
     printf("  ret\n");
 }
 
-void gen_assign(Node *node)
+static void gen_assign(Node *node)
 {
     if (node->kind != ND_ASSIGN)
     {
@@ -445,5 +447,45 @@ void gen(Node *node)
         printf("  movzb rax, al\n");
         printf("  push rax\n");
         break;
+    }
+}
+
+String *strings;
+int label = 0; // なんのラベルかわからん
+Node *nodes[200];
+Node *funcs[100];
+
+void gen_asm_intel()
+{
+    printf(".intel_syntax noprefix\n");
+    printf(".bss\n");
+    program();
+    int i = 0;
+    int func_count = 0;
+    while (nodes[i] != NULL)
+    {
+        if (nodes[i]->kind == ND_FUNCDEF)
+        {
+            funcs[func_count] = nodes[i];
+            func_count++;
+            i++;
+            continue;
+        }
+        gen(nodes[i]);
+        i++;
+    }
+    String *s = strings;
+    printf(".data\n");
+    while (s)
+    {
+        printf(".LC%d:\n", s->label);
+        printf("  .string \"%.*s\"\n", s->length, s->p);
+        s = s->next;
+    }
+
+    printf(".text\n");
+    for (int j = 0; j < func_count; j++)
+    {
+        gen(funcs[j]);
     }
 }
