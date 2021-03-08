@@ -18,6 +18,16 @@ static char *reg64[6] = {
     "r9",
 };
 
+// TODO 写経したけどなんでうごくのかわからない
+__attribute__((format(printf, 1, 2)))
+static void println(char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  vprintf(fmt, ap);
+  va_end(ap);
+  printf("\n");
+}
+
 static void gen_for(Node *node, int lab)
 {
     if (node->kind != ND_FOR)
@@ -25,36 +35,36 @@ static void gen_for(Node *node, int lab)
 
     if (node->init != NULL)
         gen(node->init);
-    printf(".Lforstart%d:\n", lab);
+    println(".Lforstart%d:", lab);
 
     if (node->condition != NULL)
         gen(node->condition);
     else
-        printf("  push 1\n"); // 無条件でtrueとなるように
-    printf("  pop rax\n");
-    printf("  cmp rax, 0\n");
-    printf("  je .Lforend%d\n", lab);
+        println("  push 1"); // 無条件でtrueとなるように
+    println("  pop rax");
+    println("  cmp rax, 0");
+    println("  je .Lforend%d", lab);
 
     gen(node->body);
 
     if (node->on_end != NULL)
         gen(node->on_end);
-    printf("  jmp .Lforstart%d\n", lab);
-    printf(".Lforend%d:\n", lab);
+    println("  jmp .Lforstart%d", lab);
+    println(".Lforend%d:", lab);
 }
 
 static void gen_while(Node *node, int lab)
 {
     if (node->kind != ND_WHILE)
         error("while文ではありません");
-    printf(".Lwhilestart%d:\n", lab);
+    println(".Lwhilestart%d:", lab);
     gen(node->condition);
-    printf("  pop rax\n");
-    printf("  cmp rax, 0\n");
-    printf("  je .Lwhileend%d\n", lab);
+    println("  pop rax");
+    println("  cmp rax, 0");
+    println("  je .Lwhileend%d", lab);
     gen(node->body);
-    printf("  jmp .Lwhilestart%d\n", lab);
-    printf(".Lwhileend%d:\n", lab);
+    println("  jmp .Lwhilestart%d", lab);
+    println(".Lwhileend%d:", lab);
 }
 
 static void gen_if(Node *node, int lab)
@@ -63,20 +73,20 @@ static void gen_if(Node *node, int lab)
         error("if文ではありません");
     bool else_exist = node->on_else;
     gen(node->condition);
-    printf("  pop rax\n");
-    printf("  cmp rax, 0\n");
+    println("  pop rax");
+    println("  cmp rax, 0");
     if (else_exist)
-        printf("  je .Lelse%d\n", lab);
+        println("  je .Lelse%d", lab);
     else
-        printf("  je .Lend%d\n", lab);
+        println("  je .Lend%d", lab);
     gen(node->body);
     if (else_exist)
     {
-        printf("  jmp .Lend%d\n", lab);
-        printf(".Lelse%d:\n", lab);
+        println("  jmp .Lend%d", lab);
+        println(".Lelse%d:", lab);
         gen(node->on_else);
     }
-    printf(".Lend%d:\n", lab);
+    println(".Lend%d:", lab);
 }
 
 static void gen_function(Node *node)
@@ -106,7 +116,7 @@ static void gen_function(Node *node)
 
         if (count < 6)
         {
-            printf("  pop  %s\n", reg64[count]);
+            println("  pop  %s", reg64[count]);
         }
         else
         {
@@ -120,10 +130,10 @@ static void gen_function(Node *node)
     if (first_arg != NULL)
     {
         gen(first_arg->lhs);
-        printf("  pop %s\n", reg64[0]);
+        println("  pop %s", reg64[0]);
     }
-    printf("  call %.*s\n", node->length, node->name);
-    printf("  push rax\n");
+    println("  call %.*s", node->length, node->name);
+    println("  push rax");
 }
 
 static void gen_global_var_def(Node *node)
@@ -132,8 +142,8 @@ static void gen_global_var_def(Node *node)
     {
         error("グローバル変数定義ではありません");
     }
-    printf("%.*s:\n", node->length, node->name);
-    printf("  .zero  %d\n", calc_bytes(node->ty));
+    println("%.*s:", node->length, node->name);
+    println("  .zero  %d", calc_bytes(node->ty));
 }
 
 static void gen_var(Node *node)
@@ -148,14 +158,14 @@ static void gen_var(Node *node)
 
     if (node->is_local)
     {
-        printf("  mov rax, rbp\n");
-        printf("  sub rax, %d\n", node->offset);
-        printf("  push rax\n");
+        println("  mov rax, rbp");
+        println("  sub rax, %d", node->offset);
+        println("  push rax");
     }
     else
     {
-        printf("  lea rax, %.*s\n", node->length, node->name);
-        printf("  push rax\n");
+        println("  lea rax, %.*s", node->length, node->name);
+        println("  push rax");
     }
     return;
 }
@@ -167,12 +177,12 @@ static void gen_function_def(Node *node)
         error("関数定義ではありません");
     }
 
-    printf(".globl %.*s\n", node->length, node->name);
-    printf("%.*s:\n", node->length, node->name);
+    println(".globl %.*s", node->length, node->name);
+    println("%.*s:", node->length, node->name);
     // プロローグ
-    printf("  push rbp\n");
-    printf("  mov rbp, rsp\n");
-    printf("  sub rsp, %d\n", node->args_region_size);
+    println("  push rbp");
+    println("  mov rbp, rsp");
+    println("  sub rsp, %d", node->args_region_size);
 
     // 第1〜6引数をローカル変数の領域に書き出す
     int count = 0;
@@ -180,7 +190,7 @@ static void gen_function_def(Node *node)
     while (arg != NULL)
     {
         gen_var(arg);
-        printf("  pop rax\n");
+        println("  pop rax");
         if (count < 6)
         {
             char *reg;
@@ -189,7 +199,7 @@ static void gen_function_def(Node *node)
             else
                 reg = reg64[count];
 
-            printf("  mov [rax], %s\n", reg);
+            println("  mov [rax], %s", reg);
         }
         else
         {
@@ -201,13 +211,13 @@ static void gen_function_def(Node *node)
     }
 
     gen(node->rhs);
-    printf("  pop rax\n");
+    println("  pop rax");
 
     // エピローグ
     // ここに書くと多分returnなしで戻り値を指定できるようになってしまう、どうすべきか
-    printf("  mov rsp, rbp\n");
-    printf("  pop rbp\n");
-    printf("  ret\n");
+    println("  mov rsp, rbp");
+    println("  pop rbp");
+    println("  ret");
 }
 
 static void gen_assign(Node *node)
@@ -228,17 +238,17 @@ static void gen_assign(Node *node)
         {
             gen_var(node->lhs);
             gen(cur->lhs);
-            printf("  pop rdi\n");
-            printf("  pop rax\n");
-            printf("  add rax, %d\n", calc_bytes(node->lhs->ty->ptr_to) * counter);
+            println("  pop rdi");
+            println("  pop rax");
+            println("  add rax, %d", calc_bytes(node->lhs->ty->ptr_to) * counter);
             if (is_int(cur->ty))
-                printf("  mov [rax], edi\n");
+                println("  mov [rax], edi");
             else if (is_char(cur->ty))
             {
-                printf("  mov [rax], dil\n");
+                println("  mov [rax], dil");
             }
             else
-                printf("  mov [rax], rdi\n");
+                println("  mov [rax], rdi");
             cur = cur->rhs;
             counter++;
         }
@@ -246,17 +256,17 @@ static void gen_assign(Node *node)
     }
     gen_var(node->lhs);
     gen(node->rhs);
-    printf("  pop rdi\n");
-    printf("  pop rax\n");
+    println("  pop rdi");
+    println("  pop rax");
     if (is_int(node->ty))
-        printf("  mov [rax], edi\n");
+        println("  mov [rax], edi");
     else if (is_char(node->ty))
     {
-        printf("  mov [rax], dil\n");
+        println("  mov [rax], dil");
     }
     else
-        printf("  mov [rax], rdi\n");
-    printf("  push rdi\n");
+        println("  mov [rax], rdi");
+    println("  push rdi");
 }
 
 void gen(Node *node)
@@ -264,7 +274,7 @@ void gen(Node *node)
     switch (node->kind)
     {
     case ND_NUM:
-        printf("  push %d\n", node->val);
+        println("  push %d", node->val);
         return;
     case ND_VAR:
         gen_var(node);
@@ -272,26 +282,26 @@ void gen(Node *node)
         {
             return;
         }
-        printf("  pop rax\n");
+        println("  pop rax");
         if (is_int(node->ty))
-            printf("  mov eax, [rax]\n");
+            println("  mov eax, [rax]");
         else if (is_char(node->ty))
         {
-            printf("  movsx eax, BYTE PTR [rax]\n");
+            println("  movsx eax, BYTE PTR [rax]");
         }
         else
-            printf("  mov rax, [rax]\n");
-        printf("  push rax\n");
+            println("  mov rax, [rax]");
+        println("  push rax");
         return;
     case ND_ASSIGN:
         gen_assign(node);
         return;
     case ND_RETURN:
         gen(node->lhs);
-        printf("  pop rax\n");
-        printf("  mov rsp, rbp\n");
-        printf("  pop rbp\n");
-        printf("  ret\n");
+        println("  pop rax");
+        println("  mov rsp, rbp");
+        println("  pop rbp");
+        println("  ret");
         return;
     case ND_IF:
         label++;
@@ -323,23 +333,23 @@ void gen(Node *node)
         gen_global_var_def(node);
         return;
     case ND_STRING:
-        printf("  push offset .LC%d\n", node->strlabel);
+        println("  push offset .LC%d", node->strlabel);
         return;
     case ND_ADDR:
         gen_var(node->lhs);
         return;
     case ND_DEREF:
         gen(node->lhs);
-        printf("  pop rax\n");
+        println("  pop rax");
         if (is_int(node->ty))
-            printf("  mov eax, [rax]\n");
+            println("  mov eax, [rax]");
         else if (is_char(node->ty))
         {
-            printf("  movsx eax, BYTE PTR [rax]\n");
+            println("  movsx eax, BYTE PTR [rax]");
         }
         else
-            printf("  mov rax, [rax]\n");
-        printf("  push rax\n");
+            println("  mov rax, [rax]");
+        println("  push rax");
         return;
     case ND_ADD:
     case ND_SUB:
@@ -347,25 +357,25 @@ void gen(Node *node)
         gen(node->rhs);
         if (is_int_or_char(node->ty))
         {
-            printf("  pop rdi\n");
-            printf("  pop rax\n");
+            println("  pop rdi");
+            println("  pop rax");
             if (node->kind == ND_ADD)
-                printf("  add eax, edi\n");
+                println("  add eax, edi");
             else
-                printf("  sub eax, edi\n");
+                println("  sub eax, edi");
         }
         else
         {
-            printf("  pop rdi\n");
-            printf("  pop rax\n");
+            println("  pop rdi");
+            println("  pop rax");
             int size = calc_bytes(node->ty->ptr_to);
             if (is_int_or_char(node->lhs->ty))
             {
-                printf("  imul rax, %d\n", size);
+                println("  imul rax, %d", size);
             }
             else if (is_int_or_char(node->rhs->ty))
             {
-                printf("  imul rdi, %d\n", size);
+                println("  imul rdi, %d", size);
             }
             else
             {
@@ -373,11 +383,11 @@ void gen(Node *node)
             }
 
             if (node->kind == ND_ADD)
-                printf("  add rax, rdi\n");
+                println("  add rax, rdi");
             else
-                printf("  sub rax, rdi\n");
+                println("  sub rax, rdi");
         }
-        printf("  push rax\n");
+        println("  push rax");
         return;
     }
 
@@ -387,65 +397,65 @@ void gen(Node *node)
     switch (node->kind)
     {
     case ND_MUL:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  imul rax, rdi\n");
-        printf("  push rax\n");
+        println("  pop rdi");
+        println("  pop rax");
+        println("  imul rax, rdi");
+        println("  push rax");
         break;
     case ND_DIV:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  cdq\n");
-        printf("  idiv edi\n");
-        printf("  push rax\n");
+        println("  pop rdi");
+        println("  pop rax");
+        println("  cdq");
+        println("  idiv edi");
+        println("  push rax");
         break;
     case ND_EQUAL:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  cmp rax, rdi\n");
-        printf("  sete al\n");
-        printf("  movzb rax, al\n");
-        printf("  push rax\n");
+        println("  pop rdi");
+        println("  pop rax");
+        println("  cmp rax, rdi");
+        println("  sete al");
+        println("  movzb rax, al");
+        println("  push rax");
         break;
     case ND_NEQUAL:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  cmp rax, rdi\n");
-        printf("  setne al\n");
-        printf("  movzb rax, al\n");
-        printf("  push rax\n");
+        println("  pop rdi");
+        println("  pop rax");
+        println("  cmp rax, rdi");
+        println("  setne al");
+        println("  movzb rax, al");
+        println("  push rax");
         break;
     case ND_GEQ:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  cmp rax, rdi\n");
-        printf("  setge al\n");
-        printf("  movzb rax, al\n");
-        printf("  push rax\n");
+        println("  pop rdi");
+        println("  pop rax");
+        println("  cmp rax, rdi");
+        println("  setge al");
+        println("  movzb rax, al");
+        println("  push rax");
         break;
     case ND_LEQ:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  cmp rax, rdi\n");
-        printf("  setle al\n");
-        printf("  movzb rax, al\n");
-        printf("  push rax\n");
+        println("  pop rdi");
+        println("  pop rax");
+        println("  cmp rax, rdi");
+        println("  setle al");
+        println("  movzb rax, al");
+        println("  push rax");
         break;
     case ND_GTH:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  cmp rax, rdi\n");
-        printf("  setg al\n");
-        printf("  movzb rax, al\n");
-        printf("  push rax\n");
+        println("  pop rdi");
+        println("  pop rax");
+        println("  cmp rax, rdi");
+        println("  setg al");
+        println("  movzb rax, al");
+        println("  push rax");
         break;
     case ND_LTH:
-        printf("  pop rdi\n");
-        printf("  pop rax\n");
-        printf("  cmp rax, rdi\n");
-        printf("  setl al\n");
-        printf("  movzb rax, al\n");
-        printf("  push rax\n");
+        println("  pop rdi");
+        println("  pop rax");
+        println("  cmp rax, rdi");
+        println("  setl al");
+        println("  movzb rax, al");
+        println("  push rax");
         break;
     }
 }
@@ -457,8 +467,8 @@ Node *funcs[100];
 
 void gen_asm_intel()
 {
-    printf(".intel_syntax noprefix\n");
-    printf(".bss\n");
+    println(".intel_syntax noprefix");
+    println(".bss");
     program();
     int i = 0;
     int func_count = 0;
@@ -475,15 +485,15 @@ void gen_asm_intel()
         i++;
     }
     String *s = strings;
-    printf(".data\n");
+    println(".data");
     while (s)
     {
-        printf(".LC%d:\n", s->label);
-        printf("  .string \"%.*s\"\n", s->length, s->p);
+        println(".LC%d:", s->label);
+        println("  .string \"%.*s\"", s->length, s->p);
         s = s->next;
     }
 
-    printf(".text\n");
+    println(".text");
     for (int j = 0; j < func_count; j++)
     {
         gen(funcs[j]);
