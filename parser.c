@@ -308,6 +308,13 @@ static Node *assign()
     return node;
 }
 
+static Node *init()
+{
+    if (consume("{"))
+        error("not implemented");
+    return assign();
+}
+
 static Node *expr()
 {
     return assign();
@@ -329,7 +336,7 @@ static Node *defl()
         Node *node = new_node_var(lvar);
         if (consume("="))
         {
-            node = new_node_assign(node, assign());
+            node = new_node_assign(node, init());
         }
         return node;
     }
