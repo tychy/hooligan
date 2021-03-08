@@ -9,8 +9,6 @@
 #include <string.h>
 #include <errno.h>
 
-//utils
-bool not(bool flag);
 
 // NOTE: 予約語を先頭に持ってくる
 typedef enum
@@ -147,7 +145,6 @@ extern Var *globals;
 extern Vec *strings;
 // Declaration of functions
 // read_token.c
-void error(char *fmt, ...); // これutilのほうがいい
 bool consume(char *op);
 bool consume_rw(TokenKind tk);
 Type *consume_type();
@@ -177,5 +174,9 @@ bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
 int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
+
+//utils
+bool not(bool flag);
+void error(char *fmt, ...);
 
 #endif
