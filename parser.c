@@ -381,7 +381,7 @@ static Node *stmt()
         }
         else
         {
-            init = expr();
+            init = defl();
             expect(";");
         }
 
