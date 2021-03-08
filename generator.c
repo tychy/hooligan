@@ -1,5 +1,5 @@
 #include "hooligan.h"
-void gen(Node *node);
+static void gen(Node *node);
 
 static char *reg32[6] = {
     "edi",
