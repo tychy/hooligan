@@ -163,7 +163,7 @@ void gen(Node *node);
 
 // variable.c
 Var *find_var(Token *tok, bool is_local);
-int def_var(Token *tok, Type *ty, bool is_local);
+Var *def_var(Token *tok, Type *ty, bool is_local);
 
 // type.c
 Type *new_type_int();

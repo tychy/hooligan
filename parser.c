@@ -68,12 +68,12 @@ static Node *new_node_num(int val)
     return node;
 }
 
-static Node *new_node_var(int offset, Type *ty)
+static Node *new_node_var(Var *lvar)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
-    node->offset = offset;
-    node->ty = ty;
+    node->offset = lvar->offset;
+    node->ty = lvar->ty;
     node->is_local = true;
     return node;
 }
@@ -134,7 +134,7 @@ static Node *ident()
     {
         Var *lvar = find_var(ident, true);
         if (lvar)
-            return new_node_var(lvar->offset, lvar->ty);
+            return new_node_var(lvar);
         else
         {
             Var *gvar = find_var(ident, false);
@@ -324,13 +324,13 @@ static Node *defl()
             int size = expect_number();
             ty = new_type_array(ty, size);
             expect("]");
-            int offset = def_var(ident, ty, true);
-            return new_node_var(offset, ty);
+            Var *lvar = def_var(ident, ty, true);
+            return new_node_var(lvar);
         }
         else
         {
-            int offset = def_var(ident, ty, true);
-            return new_node_var(offset, ty);
+            Var *lvar = def_var(ident, ty, true);
+            return new_node_var(lvar);
         }
     }
     else
@@ -459,8 +459,8 @@ static Node *func(Token *ident, Type *ty)
         if (!arg_ty)
             error("引数に型がありません");
         Token *arg_token = consume_ident();
-        int offset = def_var(arg_token, arg_ty, true);
-        Node *arg = new_node_var(offset, arg_ty);
+        Var *lvar = def_var(arg_token, arg_ty, true);
+        Node *arg = new_node_var(lvar);
         arg_top->lhs = arg;
         arg_top = arg;
     }
