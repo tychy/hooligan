@@ -132,10 +132,9 @@ static Node *ident()
     }
     else
     {
-        int offset;
         Var *lvar = find_var(ident, true);
         if (lvar)
-            offset = lvar->offset;
+            return new_node_var(lvar->offset, lvar->ty);
         else
         {
             Var *gvar = find_var(ident, false);
@@ -144,7 +143,6 @@ static Node *ident()
             else
                 error("変数が定義されていません");
         }
-        return new_node_var(offset, lvar->ty);
     }
 }
 
