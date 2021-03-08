@@ -113,24 +113,7 @@ static Node *num()
 
 static Node *ident()
 {
-    Type *ty = consume_type();
     Token *ident = consume_ident();
-    if (ty)
-    {
-        if (consume("["))
-        {
-            int size = expect_number();
-            ty = new_type_array(ty, size);
-            expect("]");
-            int offset = def_var(ident, ty, true);
-            return new_node_var(offset, ty);
-        }
-        else
-        {
-            int offset = def_var(ident, ty, true);
-            return new_node_var(offset, ty);
-        }
-    }
     if (consume("("))
     {
         Node *node = new_node_func(ident->string, ident->length);
@@ -161,7 +144,6 @@ static Node *ident()
             else
                 error("変数が定義されていません");
         }
-
         return new_node_var(offset, lvar->ty);
     }
 }
@@ -333,6 +315,32 @@ static Node *expr()
     return assign();
 }
 
+static Node *defl()
+{
+    Type *ty = consume_type();
+    if (ty)
+    {
+        Token *ident = consume_ident();
+        if (consume("["))
+        {
+            int size = expect_number();
+            ty = new_type_array(ty, size);
+            expect("]");
+            int offset = def_var(ident, ty, true);
+            return new_node_var(offset, ty);
+        }
+        else
+        {
+            int offset = def_var(ident, ty, true);
+            return new_node_var(offset, ty);
+        }
+    }
+    else
+    {
+        return expr();
+    }
+}
+
 static Node *stmt()
 {
     Node *node;
@@ -424,7 +432,11 @@ static Node *stmt()
     }
     else
     {
-        node = expr();
+        node = defl();
+        if (consume("="))
+        {
+            node = new_node_assign(node, assign());
+        }
         expect(";");
     }
     return node;
