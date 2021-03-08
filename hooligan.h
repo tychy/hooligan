@@ -73,7 +73,7 @@ typedef struct Token Token;
 typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
-typedef struct Vec Vec;
+typedef struct String String;
 
 struct Token
 {
@@ -128,13 +128,12 @@ struct Var
     bool is_local;
 };
 
-struct Vec
+struct String
 {
-
     char *p;
     int length;
     int label;
-    Vec *next;
+    String *next;
 };
 // Declaration of global variables
 extern int label;
@@ -142,7 +141,7 @@ extern Token *token;
 extern Node *nodes[200];
 extern Var *locals;
 extern Var *globals;
-extern Vec *strings;
+extern String *strings;
 
 // Declaration of functions
 // read_token.c
