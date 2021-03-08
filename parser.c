@@ -326,7 +326,12 @@ static Node *defl()
             expect("]");
         }
         Var *lvar = def_var(ident, ty, true);
-        return new_node_var(lvar);
+        Node *node = new_node_var(lvar);
+        if (consume("="))
+        {
+            node = new_node_assign(node, assign());
+        }
+        return node;
     }
     else
     {
@@ -426,10 +431,6 @@ static Node *stmt()
     else
     {
         node = defl();
-        if (consume("="))
-        {
-            node = new_node_assign(node, assign());
-        }
         expect(";");
     }
     return node;
