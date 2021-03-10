@@ -30,6 +30,18 @@ int testStructPtr()
     {
         return 1;
     }
+    if (v->x != 3)
+    {
+        return 1;
+    }
+    if (v->y != 4)
+    {
+        return 1;
+    }
+    if (v->z != 5)
+    {
+        return 1;
+    }
     return 0;
 }
 
