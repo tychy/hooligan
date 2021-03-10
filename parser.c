@@ -2,9 +2,9 @@
 static int new_string(char *p, int length)
 {
     int strlabel;
-    Vec *new_vec = calloc(1, sizeof(Vec));
-    new_vec->length = length;
-    new_vec->p = p;
+    String *new_string = calloc(1, sizeof(String));
+    new_string->length = length;
+    new_string->p = p;
     if (strings)
     {
         strlabel = strings->label + 1;
@@ -14,8 +14,8 @@ static int new_string(char *p, int length)
         strlabel = 0;
     }
 
-    new_vec->next = strings;
-    strings = new_vec;
+    new_string->next = strings;
+    strings = new_string;
     return strlabel;
 }
 static Node *expr();

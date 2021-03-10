@@ -9,8 +9,6 @@
 #include <string.h>
 #include <errno.h>
 
-//utils
-bool not(bool flag);
 
 // NOTE: 予約語を先頭に持ってくる
 typedef enum
@@ -78,7 +76,7 @@ typedef struct Token Token;
 typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
-typedef struct Vec Vec;
+typedef struct String String;
 typedef struct Member Member;
 
 struct Token
@@ -139,13 +137,12 @@ struct Var
     bool is_local;
 };
 
-struct Vec
+struct String
 {
-
     char *p;
     int length;
     int label;
-    Vec *next;
+    String *next;
 };
 
 struct Member
@@ -164,22 +161,26 @@ extern Token *token;
 extern Node *nodes[200];
 extern Var *locals;
 extern Var *globals;
-extern Vec *strings;
+extern String *strings;
+
 // Declaration of functions
 // read_token.c
-void error(char *fmt, ...); // これutilのほうがいい
 bool consume(char *op);
 bool consume_rw(TokenKind tk);
 Type *consume_type();
 void expect(char *op);
+int expect_number();
 bool at_eof();
+Token *consume_ident();
+
+// tokenizer.c
+Token *tokenize();
 
 // parser.c
-int expect_number();
-Token *consume_ident();
-Token *tokenize();
 void program();
-void gen(Node *node);
+
+// generator.c
+void gen_asm_intel();
 
 // variable.c
 Var *find_var(Token *tok, bool is_local);
@@ -197,5 +198,9 @@ bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
 int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
+
+// util.c
+bool not(bool flag);
+void error(char *fmt, ...);
 
 #endif
