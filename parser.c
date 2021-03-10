@@ -194,6 +194,7 @@ static Node *primary()
             Member *mem = get_struct_member(node->ty);
             node = new_node_single(ND_MEMBER, node);
             node->member = mem;
+            node->ty = mem->ty;
             token = token->next;
             continue;
         }
