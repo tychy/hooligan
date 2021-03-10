@@ -7,6 +7,7 @@ static char *operator_list[22] = {
     "!=",
     ">=",
     "<=",
+    "->",
     ">",
     "<",
     "+",
@@ -24,7 +25,6 @@ static char *operator_list[22] = {
     "[",
     "]",
     ".",
-    "->",
 };
 
 static int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
