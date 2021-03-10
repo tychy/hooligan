@@ -111,20 +111,6 @@ Type *determine_expr_type(Type *lhs, Type *rhs)
         return new_type_int();
 }
 
-Type *get_defined_type(Token *ident)
-{
-    Var *defined_type = find_var(ident, true, true);
-    if (!defined_type)
-    {
-        defined_type = find_var(ident, false, true);
-    }
-    if (!defined_type)
-    {
-        return NULL;
-    }
-    return defined_type->ty;
-}
-
 Type *local_types;
 Type *global_types;
 

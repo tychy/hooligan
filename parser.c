@@ -134,7 +134,7 @@ static Node *ident()
     }
     else
     {
-        Var *lvar = find_var(ident, true, false);
+        Var *lvar = find_var(ident, true);
 
         if (lvar)
         {
@@ -143,7 +143,7 @@ static Node *ident()
         }
         else
         {
-            Var *gvar = find_var(ident, false, false);
+            Var *gvar = find_var(ident, false);
             if (gvar)
             {
                 return new_node_glob_var(ident, gvar->ty);
@@ -410,7 +410,7 @@ static Node *defl()
             def_type(ident, ty, true);
             return new_node_num(0); // なにかNodeをかえさなきゃいけないので適当に返してるだけ
         }
-        Var *lvar = def_var(ident, ty, true, is_typedef);
+        Var *lvar = def_var(ident, ty, true);
         Node *node = new_node_var(lvar);
         if (consume("="))
         {
@@ -540,7 +540,7 @@ static Node *func(Token *ident, Type *ty)
         if (!arg_ty)
             error("引数に型がありません");
         Token *arg_token = consume_ident();
-        Var *lvar = def_var(arg_token, arg_ty, true, false);
+        Var *lvar = def_var(arg_token, arg_ty, true);
         Node *arg = new_node_var(lvar);
         arg_top->lhs = arg;
         arg_top = arg;
@@ -561,7 +561,7 @@ static Node *glob_var(Token *ident, Type *ty)
     node->length = ident->length;
     node->ty = ty;
     expect(";");
-    def_var(ident, ty, false, false);
+    def_var(ident, ty, false);
     return node;
 }
 

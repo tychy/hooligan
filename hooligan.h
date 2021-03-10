@@ -9,7 +9,6 @@
 #include <string.h>
 #include <errno.h>
 
-
 // NOTE: 予約語を先頭に持ってくる
 typedef enum
 {
@@ -96,7 +95,7 @@ struct Type
     size_t array_size;
     int size; // structで使う
     Member *members;
-    
+
     // for defined type
     char *name;
     int length;
@@ -194,8 +193,8 @@ void program();
 void gen_asm_intel();
 
 // variable.c
-Var *find_var(Token *tok, bool is_local, bool is_typedef);
-Var *def_var(Token *tok, Type *ty, bool is_local, bool is_typedef);
+Var *find_var(Token *tok, bool is_local);
+Var *def_var(Token *tok, Type *ty, bool is_local);
 
 // type.c
 Type *new_type_int();
@@ -209,7 +208,6 @@ bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
 int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
-Type *get_defined_type(Token *ident);
 Type *def_type(Token *tok, Type *ty, bool is_local);
 Type *find_type(Token *tok);
 
