@@ -18,17 +18,12 @@ bool consume_rw(TokenKind tk)
 
 Type *consume_type()
 {
-    Var *defined_type = find_var(token, true, true);
-    if (!defined_type)
-    {
-        defined_type = find_var(token, false, true);
-    }
-    if (defined_type)
+    Type *ty = get_defined_type(token);
+    if (ty)
     {
         token = token->next;
-        return defined_type->ty;
+        return ty;
     }
-    Type *ty;
     if (consume_rw(TK_INT))
     {
         ty = new_type_int();

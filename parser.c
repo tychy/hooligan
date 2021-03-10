@@ -150,17 +150,13 @@ static Node *ident()
             }
             else
             {
-                Var *defined_type = find_var(ident, true, true);
-                if (!defined_type)
+                Type *ty = get_defined_type(ident);
+                if (!ty)
                 {
-                    defined_type = find_var(ident, false, true);
-                }
-                if (!defined_type)
-                {
-                    error("変数が定義されていません");
+                    error("識別子が解決できませんでした");
                 }
                 Node *node = calloc(1, sizeof(Node));
-                node->ty = defined_type->ty;
+                node->ty = ty;
                 return node;
             }
         }
