@@ -105,16 +105,17 @@ struct Type
 struct Node
 {
     NodeKind kind;
-    Node *lhs;
-    Node *rhs;
     int val;
     int offset;
     char *name;
     int length;
     Type *ty;
 
-    // for variable
-    bool is_local;
+    // for binary tree node
+    Node *lhs;
+    Node *rhs;
+    // for single child node
+    Node *child;
 
     // for(init; condition; on_end) body;
     Node *init;
@@ -124,6 +125,9 @@ struct Node
 
     // if(condition) body else on_else
     Node *on_else;
+
+    // for variable
+    bool is_local;
 
     // for function
     int args_region_size;
