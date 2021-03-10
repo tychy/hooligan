@@ -13,7 +13,7 @@ static int new_string(char *p, int length)
     {
         strlabel = 0;
     }
-
+    new_string->label = strlabel;
     new_string->next = strings;
     strings = new_string;
     return strlabel;
