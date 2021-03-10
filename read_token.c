@@ -36,6 +36,10 @@ Type *consume_type()
     {
         ty = new_type_char();
     }
+    else if (consume_rw(TK_STRUCT))
+    {
+        ty = new_type_struct();
+    }
     else
     {
         return NULL;
