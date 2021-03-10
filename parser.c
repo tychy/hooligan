@@ -18,9 +18,11 @@ static int new_string(char *p, int length)
     strings = new_string;
     return strlabel;
 }
+
 static Node *unary();
 static Node *expr();
 static Node *stmt();
+
 static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
     Node *node = calloc(1, sizeof(Node));
@@ -33,21 +35,21 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     return node;
 }
 
-static Node *new_node_single(NodeKind kind, Node *lhs)
+static Node *new_node_single(NodeKind kind, Node *child)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
-    node->lhs = lhs;
+    node->child = child;
     if (kind == ND_DEREF)
     {
-        if (is_int_or_char(lhs->ty))
+        if (is_int_or_char(child->ty))
             error("pointer型である必要があります");
-        node->ty = lhs->ty->ptr_to;
+        node->ty = child->ty->ptr_to;
     }
     else if (kind == ND_ADDR)
-        node->ty = new_type_ptr(node->lhs->ty);
+        node->ty = new_type_ptr(node->child->ty);
     else
-        node->ty = lhs->ty;
+        node->ty = child->ty;
     return node;
 }
 
@@ -124,7 +126,7 @@ static Node *ident()
             if (count > 0)
                 expect(",");
             Node *arg = new_node_single(ND_ARG, expr());
-            arg_top->rhs = arg;
+            arg_top->next = arg;
             arg_top = arg;
             count++;
         }
@@ -367,7 +369,7 @@ static Node *init()
         {
             expect(",");
             Node *init = new_node_single(ND_INIT, expr());
-            init_top->rhs = init;
+            init_top->next = init;
             init_top = init;
         }
         return node;

@@ -116,6 +116,8 @@ struct Node
     Node *rhs;
     // for single child node
     Node *child;
+    // for
+    Node *next;
 
     // for(init; condition; on_end) body;
     Node *init;
@@ -131,6 +133,7 @@ struct Node
 
     // for function
     int args_region_size;
+    Node *args;
 
     // for string
     int strlabel;

@@ -95,7 +95,7 @@ static void gen_function(Node *node)
     {
         error("関数ではありません");
     }
-    Node *arg = node->rhs;
+    Node *arg = node->next;
     Node *first_arg = NULL;
     int count = 0;
     while (arg != NULL)
@@ -108,11 +108,11 @@ static void gen_function(Node *node)
         if (count == 0)
         {
             first_arg = arg;
-            arg = arg->rhs;
+            arg = arg->next;
             count++;
             continue;
         }
-        gen(arg->lhs);
+        gen(arg->child);
 
         if (count < 6)
         {
@@ -124,12 +124,12 @@ static void gen_function(Node *node)
             error("引数の数が多すぎます");
         }
 
-        arg = arg->rhs;
+        arg = arg->next;
         count++;
     }
     if (first_arg != NULL)
     {
-        gen(first_arg->lhs);
+        gen(first_arg->child);
         println("  pop %s", reg64[0]);
     }
     println("  call %.*s", node->length, node->name);
@@ -151,7 +151,7 @@ static void gen_addr(Node *node)
     switch (node->kind)
     {
     case ND_DEREF:
-        gen(node->lhs);
+        gen(node->child);
         return;
     case ND_VAR:
         if (node->is_local)
@@ -167,7 +167,7 @@ static void gen_addr(Node *node)
         }
         return;
     case ND_MEMBER:
-        gen_addr(node->lhs);
+        gen_addr(node->child);
         println("  pop rax");
         println("  add rax, %d", node->member->offset);
         println("  push rax");
@@ -245,7 +245,7 @@ static void gen_assign(Node *node)
         while (cur)
         {
             gen_addr(node->lhs);
-            gen(cur->lhs);
+            gen(cur->child);
             println("  pop rdi");
             println("  pop rax");
             println("  add rax, %d", calc_bytes(node->lhs->ty->ptr_to) * counter);
@@ -257,7 +257,7 @@ static void gen_assign(Node *node)
             }
             else
                 println("  mov [rax], rdi");
-            cur = cur->rhs;
+            cur = cur->next;
             counter++;
         }
         return;
@@ -306,7 +306,7 @@ void gen(Node *node)
         gen_assign(node);
         return;
     case ND_RETURN:
-        gen(node->lhs);
+        gen(node->child);
         println("  pop rax");
         println("  mov rsp, rbp");
         println("  pop rbp");
@@ -364,10 +364,10 @@ void gen(Node *node)
         printf("  push rax\n");
         return;
     case ND_ADDR:
-        gen_addr(node->lhs);
+        gen_addr(node->child);
         return;
     case ND_DEREF:
-        gen(node->lhs);
+        gen(node->child);
         println("  pop rax");
         if (is_int(node->ty))
             println("  mov eax, [rax]");
