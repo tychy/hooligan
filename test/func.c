@@ -1,7 +1,11 @@
 int testFunc()
 {
     int x = 10;
-    return 11 - x;
+    if (11 - x != 1)
+    {
+        return 1;
+    }
+    return 0;
 }
 int a;
 int g[10];
@@ -37,11 +41,11 @@ int testFuncPtr()
 
 int main()
 {
-    if (testFunc() != 1)
+    if (testFunc() != 0)
     {
         return 1;
     }
-    if (testFuncPtr() != 1)
+    if (testFuncPtr() != 0)
     {
         return 1;
     }
