@@ -157,6 +157,7 @@ static void gen_addr(Node *node)
         return;
     case ND_MEMBER:
         gen_addr(node->lhs);
+        printf("  pop rax\n");
         printf("  add rax, %d\n", node->member->offset);
         printf("  push rax\n");
         return;
@@ -335,6 +336,11 @@ void gen(Node *node)
 
     case ND_MEMBER:
         gen_addr(node);
+        if (node->ty->ty == ARRAY)
+        {
+            return;
+        }
+
         printf("  pop rax\n");
         if (is_int(node->member->ty))
             printf("  mov eax, [rax]\n");
