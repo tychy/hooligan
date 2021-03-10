@@ -545,7 +545,7 @@ static Node *def()
             ty = new_type_array(ty, arr_size);
             expect("]");
         }
-        def_var(ident, ty, true, true);
+        def_var(ident, ty, false, true);
         expect(";");
         return NULL;
     }
@@ -580,6 +580,7 @@ void program()
         nodes[i] = node;
         i++;
         locals = NULL;
+        local_defined_types = NULL;
     }
     nodes[i + 1] = NULL;
 }

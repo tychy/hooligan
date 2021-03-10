@@ -163,7 +163,8 @@ extern Token *token;
 extern Node *nodes[200];
 extern Var *locals;
 extern Var *globals;
-extern Var *defined_types;
+extern Var *local_defined_types;
+extern Var *global_defined_types;
 extern String *strings;
 
 // Declaration of functions
