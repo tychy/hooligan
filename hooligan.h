@@ -21,6 +21,7 @@ typedef enum
     TK_SIZEOF,
     TK_INT,
     TK_CHAR,
+    TK_STRUCT,
     // add reserved word above
     TK_OPERATOR,
     TK_NUMBER,
@@ -57,6 +58,7 @@ typedef enum
     ND_GVARDEF,
     ND_STRING,
     ND_INIT,
+    ND_MEMBER,
 } NodeKind;
 
 typedef enum
@@ -65,6 +67,7 @@ typedef enum
     CHAR,
     PTR,
     ARRAY,
+    STRUCT,
 
 } TypeKind;
 
@@ -74,6 +77,7 @@ typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
 typedef struct String String;
+typedef struct Member Member;
 
 struct Token
 {
@@ -88,6 +92,8 @@ struct Type
     TypeKind ty;
     Type *ptr_to;
     size_t array_size;
+    int size; // structで使う
+    Member *members;
 };
 struct Node
 {
@@ -117,6 +123,9 @@ struct Node
 
     // for string
     int strlabel;
+
+    //for struct
+    Member *member;
 };
 struct Var
 {
@@ -135,6 +144,17 @@ struct String
     int label;
     String *next;
 };
+
+struct Member
+{
+
+    Member *next;
+    char *name;
+    Type *ty;
+    int length;
+    int offset;
+};
+
 // Declaration of global variables
 extern int label;
 extern Token *token;
@@ -149,8 +169,8 @@ bool consume(char *op);
 bool consume_rw(TokenKind tk);
 Type *consume_type();
 void expect(char *op);
-bool at_eof();
 int expect_number();
+bool at_eof();
 Token *consume_ident();
 
 // tokenizer.c
@@ -172,6 +192,7 @@ Type *new_type_char();
 Type *new_type_string();
 Type *new_type_ptr(Type *ptr_to);
 Type *new_type_array(Type *ptr_to, size_t size);
+Type *new_type_struct();
 bool is_int(Type *ty);
 bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);

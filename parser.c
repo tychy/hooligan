@@ -106,6 +106,7 @@ static Node *new_node_string(int strlabel)
     node->ty = new_type_string();
     return node;
 }
+
 static Node *num()
 {
     return new_node_num(expect_number());
@@ -133,8 +134,12 @@ static Node *ident()
     else
     {
         Var *lvar = find_var(ident, true);
+
         if (lvar)
+        {
+
             return new_node_var(lvar);
+        }
         else
         {
             Var *gvar = find_var(ident, false);
@@ -145,7 +150,14 @@ static Node *ident()
         }
     }
 }
-
+static Member *get_struct_member(Type *ty)
+{
+    for (Member *mem = ty->members; mem; mem = mem->next)
+        if (mem->length == token->length &&
+            strncmp(mem->name, token->string, token->length) == 0)
+            return mem;
+    error("メンバーがありません");
+}
 static Node *primary()
 {
     Node *node;
@@ -162,15 +174,31 @@ static Node *primary()
     {
         node = ident();
     }
-    if (consume("["))
+    for (;;)
     {
-        Node *index = primary();
-        expect("]");
-        Node *mid = new_node(ND_ADD, node, index);
-        return new_node_single(ND_DEREF, mid);
-    }
-    else
-    {
+        if (consume("["))
+        {
+            Node *index = primary();
+            expect("]");
+            Node *mid = new_node(ND_ADD, node, index);
+            node = new_node_single(ND_DEREF, mid);
+            continue;
+        }
+
+        if (consume("."))
+        {
+            if (node->ty->ty != STRUCT)
+            {
+                error("構造体ではありません");
+            }
+            Member *mem = get_struct_member(node->ty);
+            node = new_node_single(ND_MEMBER, node);
+            node->member = mem;
+            node->ty = mem->ty;
+            token = token->next;
+            continue;
+        }
+
         return node;
     }
 }
@@ -336,6 +364,37 @@ static Node *defl()
     Type *ty = consume_type();
     if (ty)
     {
+        if (consume("{"))
+        {
+            int offset = 0;
+            Member *head = calloc(1, sizeof(Member));
+            Member *cur = head;
+            while (not(consume("}")))
+            {
+
+                Member *mem = calloc(1, sizeof(Member));
+                Type *mem_ty = consume_type();
+                Token *mem_tok = consume_ident();
+                if (consume("["))
+                {
+                    int arr_size = expect_number();
+                    mem_ty = new_type_array(mem_ty, arr_size);
+                    expect("]");
+                }
+
+                mem->name = mem_tok->string;
+                mem->length = mem_tok->length;
+                mem->offset = offset;
+                offset += calc_bytes(mem_ty);
+                mem->ty = mem_ty;
+                cur->next = mem;
+                cur = mem;
+                expect(";");
+            }
+            ty->members = head;
+            ty->size = offset;
+        }
+
         Token *ident = consume_ident();
         if (consume("["))
         {
@@ -501,6 +560,7 @@ static Node *glob_var(Token *ident, Type *ty)
 static Node *def()
 {
     Type *ty = consume_type();
+
     if (!ty)
         error("定義式に型がありません");
 
@@ -515,8 +575,8 @@ static Node *def()
 
         if (consume("["))
         {
-            int size = expect_number();
-            ty = new_type_array(ty, size);
+            int arr_size = expect_number();
+            ty = new_type_array(ty, arr_size);
             expect("]");
         }
         node = glob_var(ident, ty);

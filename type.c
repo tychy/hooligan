@@ -55,6 +55,17 @@ Type *new_type_array(Type *ptr_to, size_t size)
     return ty;
 }
 
+Type *new_type_struct()
+{
+    static Type *ty;
+    if (!ty)
+    {
+        ty = calloc(1, sizeof(Type));
+        ty->ty = STRUCT;
+    }
+    return ty;
+}
+
 bool is_int(Type *ty)
 {
     return ty->ty == INT;
@@ -83,6 +94,8 @@ int calc_bytes(Type *ty)
         return calc_bytes(ty->ptr_to) * ty->array_size;
     case CHAR:
         return 1;
+    case STRUCT:
+        return ty->size;
     }
 }
 
