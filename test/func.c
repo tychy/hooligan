@@ -5,9 +5,9 @@ int testfunc()
 }
 int main()
 {
-    if (testfunc() != 0)
+    if (testfunc() != 1)
     {
         return 1;
-    };
+    }
     return 0;
 }
