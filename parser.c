@@ -13,7 +13,7 @@ static int new_string(char *p, int length)
     {
         strlabel = 0;
     }
-
+    new_string->label = strlabel;
     new_string->next = strings;
     strings = new_string;
     return strlabel;
@@ -545,12 +545,26 @@ static Node *glob_var(Token *ident, Type *ty)
 
 static Node *def()
 {
+    bool is_typedef = consume_rw(TK_TYPEDEF);
     Type *ty = consume_type();
-
     if (!ty)
+    {
         error("定義式に型がありません");
+    }
 
     Token *ident = consume_ident();
+    if (is_typedef)
+    {
+        if (consume("["))
+        {
+            int arr_size = expect_number();
+            ty = new_type_array(ty, arr_size);
+            expect("]");
+        }
+        def_var(ident, ty, false, true);
+        expect(";");
+        return NULL;
+    }
     Node *node;
     if (consume("("))
     {
@@ -577,9 +591,12 @@ void program()
     while (!at_eof())
     {
         Node *node = def();
+        if (!node)
+            continue;
         nodes[i] = node;
         i++;
         locals = NULL;
+        local_defined_types = NULL;
     }
     nodes[i + 1] = NULL;
 }
