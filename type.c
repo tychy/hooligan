@@ -124,3 +124,48 @@ Type *get_defined_type(Token *ident)
     }
     return defined_type->ty;
 }
+
+Type *local_types;
+Type *global_types;
+
+Type *find_type(Token *tok)
+{
+    for (Type *type = local_types; type; type = type->next)
+    {
+        if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
+        {
+            return type;
+        }
+    }
+    for (Type *type = global_types; type; type = type->next)
+    {
+        if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
+        {
+            return type;
+        }
+    }
+    return NULL;
+}
+
+Type *def_type(Token *tok, Type *ty, bool is_local)
+{
+    Type *new_type = calloc(1, sizeof(Type));
+    new_type->name = tok->string;
+    new_type->length = tok->length;
+    new_type->ty = ty->ty;
+    new_type->ptr_to = ty->ptr_to;
+    new_type->array_size = ty->array_size;
+    new_type->members = ty->members;
+    new_type->size = ty->size;
+    if (is_local)
+    {
+        new_type->next = local_types;
+        local_types = new_type;
+    }
+    else
+    {
+        new_type->next = global_types;
+        global_types = new_type;
+    }
+    return new_type;
+}

@@ -18,7 +18,7 @@ bool consume_rw(TokenKind tk)
 
 Type *consume_type()
 {
-    Type *ty = get_defined_type(token);
+    Type *ty = find_type(token);
     if (ty)
     {
         token = token->next;

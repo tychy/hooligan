@@ -150,7 +150,7 @@ static Node *ident()
             }
             else
             {
-                Type *ty = get_defined_type(ident);
+                Type *ty = find_type(ident);
                 if (!ty)
                 {
                     error("識別子が解決できませんでした");
@@ -405,6 +405,11 @@ static Node *defl()
             ty = new_type_array(ty, size);
             expect("]");
         }
+        if (is_typedef)
+        {
+            def_type(ident, ty, true);
+            return new_node_num(0); // なにかNodeをかえさなきゃいけないので適当に返してるだけ
+        }
         Var *lvar = def_var(ident, ty, true, is_typedef);
         Node *node = new_node_var(lvar);
         if (consume("="))
@@ -578,7 +583,7 @@ static Node *def()
             ty = new_type_array(ty, arr_size);
             expect("]");
         }
-        def_var(ident, ty, false, true);
+        def_type(ident, ty, false);
         expect(";");
         return NULL;
     }
@@ -613,7 +618,7 @@ void program()
         nodes[i] = node;
         i++;
         locals = NULL;
-        local_defined_types = NULL;
+        local_types = NULL;
     }
     nodes[i + 1] = NULL;
 }

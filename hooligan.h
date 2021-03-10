@@ -88,6 +88,7 @@ struct Token
     int length;
     char *string;
 };
+
 struct Type
 {
     TypeKind ty;
@@ -95,7 +96,13 @@ struct Type
     size_t array_size;
     int size; // structで使う
     Member *members;
+    
+    // for defined type
+    char *name;
+    int length;
+    Type *next;
 };
+
 struct Node
 {
     NodeKind kind;
@@ -163,8 +170,8 @@ extern Token *token;
 extern Node *nodes[200];
 extern Var *locals;
 extern Var *globals;
-extern Var *local_defined_types;
-extern Var *global_defined_types;
+extern Type *local_types;
+extern Type *global_types;
 extern String *strings;
 
 // Declaration of functions
@@ -203,6 +210,8 @@ bool is_int_or_char(Type *ty);
 int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
 Type *get_defined_type(Token *ident);
+Type *def_type(Token *tok, Type *ty, bool is_local);
+Type *find_type(Token *tok);
 
 // util.c
 bool not(bool flag);
