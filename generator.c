@@ -134,28 +134,36 @@ static void gen_global_var_def(Node *node)
     printf("  .zero  %d\n", calc_bytes(node->ty));
 }
 
-static void gen_var(Node *node)
+static void gen_addr(Node *node)
 {
-    if (node->kind == ND_DEREF)
+    switch (node->kind)
     {
+    case ND_DEREF:
         gen(node->lhs);
         return;
-    }
-    if (node->kind != ND_VAR)
-        error("変数ではありません");
 
-    if (node->is_local)
-    {
-        printf("  mov rax, rbp\n");
-        printf("  sub rax, %d\n", node->offset);
+    case ND_VAR:
+        if (node->is_local)
+        {
+            printf("  mov rax, rbp\n");
+            printf("  sub rax, %d\n", node->offset);
+            printf("  push rax\n");
+        }
+        else
+        {
+            printf("  lea rax, %.*s\n", node->length, node->name);
+            printf("  push rax\n");
+        }
+        return;
+    case ND_MEMBER:
+        gen_addr(node->lhs);
+        printf("  add rax, %d\n", node->member->offset);
         printf("  push rax\n");
+        return;
+
+    default:
+        error("アドレスが計算できません");
     }
-    else
-    {
-        printf("  lea rax, %.*s\n", node->length, node->name);
-        printf("  push rax\n");
-    }
-    return;
 }
 
 static void gen_function_def(Node *node)
@@ -177,7 +185,7 @@ static void gen_function_def(Node *node)
     Node *arg = node->lhs;
     while (arg != NULL)
     {
-        gen_var(arg);
+        gen_addr(arg);
         printf("  pop rax\n");
         if (count < 6)
         {
@@ -224,7 +232,7 @@ void gen_assign(Node *node)
         int counter = 0;
         while (cur)
         {
-            gen_var(node->lhs);
+            gen_addr(node->lhs);
             gen(cur->lhs);
             printf("  pop rdi\n");
             printf("  pop rax\n");
@@ -242,7 +250,8 @@ void gen_assign(Node *node)
         }
         return;
     }
-    gen_var(node->lhs);
+
+    gen_addr(node->lhs);
     gen(node->rhs);
     printf("  pop rdi\n");
     printf("  pop rax\n");
@@ -265,7 +274,7 @@ void gen(Node *node)
         printf("  push %d\n", node->val);
         return;
     case ND_VAR:
-        gen_var(node);
+        gen_addr(node);
         if (node->ty->ty == ARRAY)
         {
             return;
@@ -323,8 +332,22 @@ void gen(Node *node)
     case ND_STRING:
         printf("  push offset .LC%d\n", node->strlabel);
         return;
+
+    case ND_MEMBER:
+        gen_addr(node);
+        printf("  pop rax\n");
+        if (is_int(node->member->ty))
+            printf("  mov eax, [rax]\n");
+        else if (is_char(node->member->ty))
+        {
+            printf("  movsx eax, BYTE PTR [rax]\n");
+        }
+        else
+            printf("  mov rax, [rax]\n");
+        printf("  push rax\n");
+        return;
     case ND_ADDR:
-        gen_var(node->lhs);
+        gen_addr(node->lhs);
         return;
     case ND_DEREF:
         gen(node->lhs);
