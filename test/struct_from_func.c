@@ -38,6 +38,21 @@ int teststructarray()
     }
     return res;
 }
+
+int teststructchar()
+{
+    struct
+    {
+        int val;
+        int offset;
+        char c;
+    } d;
+    d.val = 12;
+    d.offset = 2;
+    d.c = 8;
+    d.c = d.c + d.val;
+    return d.c;
+}
 int main()
 {
     if (20 != teststruct())
@@ -45,6 +60,11 @@ int main()
         return 1;
     }
     if (55 != teststructarray())
+    {
+        return 1;
+    }
+
+    if (20 != teststructchar())
     {
         return 1;
     }
