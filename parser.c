@@ -361,6 +361,7 @@ static Node *expr()
 
 static Node *defl()
 {
+    bool is_typedef = consume_rw(TK_TYPEDEF);
     Type *ty = consume_type();
     if (ty)
     {
@@ -371,7 +372,7 @@ static Node *defl()
             ty = new_type_array(ty, size);
             expect("]");
         }
-        Var *lvar = def_var(ident, ty, true, false);
+        Var *lvar = def_var(ident, ty, true, is_typedef);
         Node *node = new_node_var(lvar);
         if (consume("="))
         {
