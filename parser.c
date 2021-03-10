@@ -154,7 +154,7 @@ static Member *get_struct_member(Type *ty)
 {
     for (Member *mem = ty->members; mem; mem = mem->next)
         if (mem->length == token->length &&
-            !strncmp(mem->name, token->string, token->length))
+            strncmp(mem->name, token->string, token->length) == 0)
             return mem;
     error("メンバーがありません");
 }
