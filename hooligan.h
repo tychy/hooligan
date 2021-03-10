@@ -22,6 +22,7 @@ typedef enum
     TK_INT,
     TK_CHAR,
     TK_STRUCT,
+    TK_TYPEDEF,
     // add reserved word above
     TK_OPERATOR,
     TK_NUMBER,
