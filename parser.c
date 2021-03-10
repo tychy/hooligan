@@ -368,7 +368,7 @@ static Node *defl()
         {
             int offset = 0;
             Member *head = calloc(1, sizeof(Member));
-            Member *cur = head; //おかしい？
+            Member *cur = head;
             while (not(consume("}")))
             {
 
