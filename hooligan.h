@@ -22,6 +22,7 @@ typedef enum
     TK_INT,
     TK_CHAR,
     TK_STRUCT,
+    TK_TYPEDEF,
     // add reserved word above
     TK_OPERATOR,
     TK_NUMBER,
@@ -135,6 +136,7 @@ struct Var
     Type *ty;
     Var *next;
     bool is_local;
+    bool is_typedef;
 };
 
 struct String
@@ -161,6 +163,7 @@ extern Token *token;
 extern Node *nodes[200];
 extern Var *locals;
 extern Var *globals;
+extern Var *defined_types;
 extern String *strings;
 
 // Declaration of functions
@@ -183,8 +186,8 @@ void program();
 void gen_asm_intel();
 
 // variable.c
-Var *find_var(Token *tok, bool is_local);
-Var *def_var(Token *tok, Type *ty, bool is_local);
+Var *find_var(Token *tok, bool is_local, bool is_typedef);
+Var *def_var(Token *tok, Type *ty, bool is_local, bool is_typedef);
 
 // type.c
 Type *new_type_int();

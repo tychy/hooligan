@@ -18,6 +18,12 @@ bool consume_rw(TokenKind tk)
 
 Type *consume_type()
 {
+    Var *defined_type = find_var(token, false, true);
+    if (defined_type)
+    {
+        token = token->next;
+        return defined_type->ty;
+    }
     Type *ty;
     if (consume_rw(TK_INT))
     {
@@ -35,6 +41,37 @@ Type *consume_type()
     {
         return NULL;
     }
+    if (ty->ty == STRUCT && consume("{"))
+    {
+        int offset = 0;
+        Member *head = calloc(1, sizeof(Member));
+        Member *cur = head;
+        while (not(consume("}")))
+        {
+
+            Member *mem = calloc(1, sizeof(Member));
+            Type *mem_ty = consume_type();
+            Token *mem_tok = consume_ident();
+            if (consume("["))
+            {
+                int arr_size = expect_number();
+                mem_ty = new_type_array(mem_ty, arr_size);
+                expect("]");
+            }
+
+            mem->name = mem_tok->string;
+            mem->length = mem_tok->length;
+            mem->offset = offset;
+            offset += calc_bytes(mem_ty);
+            mem->ty = mem_ty;
+            cur->next = mem;
+            cur = mem;
+            expect(";");
+        }
+        ty->members = head;
+        ty->size = offset;
+    }
+
     while (consume("*"))
     {
         ty = new_type_ptr(ty);
