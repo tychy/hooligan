@@ -60,6 +60,7 @@ typedef enum
     ND_GVARDEF,
     ND_STRING,
     ND_INIT,
+    ND_MEMBER,
 } NodeKind;
 
 typedef enum
@@ -78,6 +79,7 @@ typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
 typedef struct Vec Vec;
+typedef struct Member Member;
 
 struct Token
 {
@@ -92,6 +94,8 @@ struct Type
     TypeKind ty;
     Type *ptr_to;
     size_t array_size;
+    int size; // structで使う
+    Member *members;
 };
 struct Node
 {
@@ -121,6 +125,9 @@ struct Node
 
     // for string
     int strlabel;
+
+    //for struct
+    Member *member;
 };
 struct Var
 {
@@ -140,6 +147,17 @@ struct Vec
     int label;
     Vec *next;
 };
+
+struct Member
+{
+
+    Member *next;
+    char *name;
+    Type *ty;
+    int length;
+    int offset;
+};
+
 // Declaration of global variables
 extern int label;
 extern Token *token;
@@ -152,6 +170,7 @@ extern Vec *strings;
 void error(char *fmt, ...); // これutilのほうがいい
 bool consume(char *op);
 bool consume_rw(TokenKind tk);
+bool equal_rw(TokenKind tk);
 Type *consume_type();
 void expect(char *op);
 bool at_eof();
