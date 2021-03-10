@@ -23,6 +23,7 @@ typedef enum
     TK_SIZEOF,
     TK_INT,
     TK_CHAR,
+    TK_STRUCT,
     // add reserved word above
     TK_OPERATOR,
     TK_NUMBER,
@@ -67,6 +68,7 @@ typedef enum
     CHAR,
     PTR,
     ARRAY,
+    STRUCT,
 
 } TypeKind;
 
@@ -154,7 +156,6 @@ Type *consume_type();
 void expect(char *op);
 bool at_eof();
 
-
 // parser.c
 int expect_number();
 Token *consume_ident();
@@ -172,6 +173,7 @@ Type *new_type_char();
 Type *new_type_string();
 Type *new_type_ptr(Type *ptr_to);
 Type *new_type_array(Type *ptr_to, size_t size);
+Type *new_type_struct();
 bool is_int(Type *ty);
 bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);

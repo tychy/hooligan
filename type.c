@@ -55,6 +55,17 @@ Type *new_type_array(Type *ptr_to, size_t size)
     return ty;
 }
 
+Type *new_type_struct()
+{
+    static Type *ty;
+    if (!ty)
+    {
+        ty = calloc(1, sizeof(Type));
+        ty->ty = STRUCT;
+    }
+    return ty;
+}
+
 bool is_int(Type *ty)
 {
     return ty->ty == INT;
