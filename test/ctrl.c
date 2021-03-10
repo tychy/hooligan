@@ -1,4 +1,4 @@
-int main()
+int testCtrl()
 {
     int a;
 
@@ -22,5 +22,13 @@ int main()
             i = i + 1;
     if (a != 5)
         return 1;
+    return 0;
+}
+int main()
+{
+    if (testCtrl() != 0)
+    {
+        return 1;
+    }
     return 0;
 }
