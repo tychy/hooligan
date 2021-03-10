@@ -89,16 +89,6 @@ static Node *new_node_var(Var *var)
     return node;
 }
 
-static Node *new_node_func(char *name, int length)
-{
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_FUNC;
-    node->name = name;
-    node->length = length;
-    node->ty = new_type_int();
-    return node;
-}
-
 static Node *new_node_string(int strlabel)
 {
     Node *node = calloc(1, sizeof(Node));
@@ -118,7 +108,12 @@ static Node *ident()
     Token *ident = consume_ident();
     if (consume("("))
     {
-        Node *node = new_node_func(ident->string, ident->length);
+        Node *node = calloc(1, sizeof(Node));
+        node->kind = ND_FUNC;
+        node->name = ident->string;
+        node->length = ident->length;
+        node->ty = new_type_int(); // TODO 関数の戻り値をどこかに保存しなければならない
+
         Node *arg_top = node;
         int count = 0;
         while (!consume(")"))
