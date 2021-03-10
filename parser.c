@@ -532,7 +532,9 @@ static Node *def()
     bool is_typedef = consume_rw(TK_TYPEDEF);
     Type *ty = consume_type();
     if (!ty)
+    {
         error("定義式に型がありません");
+    }
 
     Token *ident = consume_ident();
     if (is_typedef)
@@ -544,6 +546,7 @@ static Node *def()
             expect("]");
         }
         def_var(ident, ty, true, true);
+        expect(";");
         return NULL;
     }
     Node *node;
