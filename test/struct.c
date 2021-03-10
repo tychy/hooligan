@@ -1,3 +1,4 @@
+
 int main()
 {
     struct
@@ -7,9 +8,15 @@ int main()
     } Hello;
     Hello.val = 10;
     Hello.offset = 32;
+    int x;
+    x = Hello.val;
     if (Hello.val != 10)
     {
-        return 1;
+        return Hello.val;
+    }
+    if (x != 10)
+    {
+        return x;
     }
 
     if (Hello.offset != 32)
