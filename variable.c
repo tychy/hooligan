@@ -1,7 +1,9 @@
 #include "hooligan.h"
 
 Var *locals;
-static Var *find_lvar(Token *tok)
+Var *globals;
+
+Var *find_var(Token *tok)
 {
     for (Var *lvar = locals; lvar; lvar = lvar->next)
     {
@@ -10,12 +12,6 @@ static Var *find_lvar(Token *tok)
             return lvar;
         }
     }
-    return NULL;
-}
-
-Var *globals;
-static Var *find_gvar(Token *tok)
-{
     for (Var *gvar = globals; gvar; gvar = gvar->next)
     {
         if (gvar->length == tok->length && memcmp(gvar->name, tok->string, gvar->length) == 0)
@@ -24,14 +20,6 @@ static Var *find_gvar(Token *tok)
         }
     }
     return NULL;
-}
-
-Var *find_var(Token *tok, bool is_local)
-{
-    if (is_local)
-        return find_lvar(tok);
-    else
-        return find_gvar(tok);
 }
 
 static Var *def_lvar(Token *tok, Type *ty)
@@ -54,6 +42,7 @@ static Var *def_lvar(Token *tok, Type *ty)
     }
 
     new_lvar->offset = offset;
+    new_lvar->is_local = true;
     new_lvar->next = locals;
     locals = new_lvar;
     return new_lvar;
@@ -66,6 +55,7 @@ static Var *def_gvar(Token *tok, Type *ty)
     new_gvar->length = tok->length;
     new_gvar->ty = ty;
     new_gvar->next = globals;
+    new_gvar->is_local = false;
     globals = new_gvar;
     return new_gvar;
 }

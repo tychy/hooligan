@@ -193,7 +193,7 @@ void program();
 void gen_asm_intel();
 
 // variable.c
-Var *find_var(Token *tok, bool is_local);
+Var *find_var(Token *tok);
 Var *def_var(Token *tok, Type *ty, bool is_local);
 
 // type.c

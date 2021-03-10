@@ -69,24 +69,22 @@ static Node *new_node_num(int val)
     return node;
 }
 
-static Node *new_node_var(Var *lvar)
+static Node *new_node_var(Var *var)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
-    node->offset = lvar->offset;
-    node->ty = lvar->ty;
-    node->is_local = true;
+    if (var->is_local)
+    {
+        node->offset = var->offset;
+    }
+    else
+    {
+        node->name = var->name;
+        node->length = var->length;
+    }
+    node->ty = var->ty;
+    node->is_local = var->is_local;
     return node;
-}
-
-static Node *new_node_glob_var(Token *tok, Type *ty)
-{
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_VAR;
-    node->name = tok->string;
-    node->length = tok->length;
-    node->ty = ty;
-    node->is_local = false;
 }
 
 static Node *new_node_func(char *name, int length)
@@ -134,31 +132,21 @@ static Node *ident()
     }
     else
     {
-        Var *lvar = find_var(ident, true);
-
-        if (lvar)
+        Var *var = find_var(ident);
+        if (var)
         {
-
-            return new_node_var(lvar);
+            return new_node_var(var);
         }
-        else
         {
-            Var *gvar = find_var(ident, false);
-            if (gvar)
+            // for sizeof
+            Type *ty = find_type(ident);
+            if (!ty)
             {
-                return new_node_glob_var(ident, gvar->ty);
+                error("識別子が解決できませんでした");
             }
-            else
-            {
-                Type *ty = find_type(ident);
-                if (!ty)
-                {
-                    error("識別子が解決できませんでした");
-                }
-                Node *node = calloc(1, sizeof(Node));
-                node->ty = ty;
-                return node;
-            }
+            Node *node = calloc(1, sizeof(Node));
+            node->ty = ty;
+            return node;
         }
     }
 }
