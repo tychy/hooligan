@@ -202,6 +202,7 @@ bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
 int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
+Type *get_defined_type(Token *ident);
 
 // util.c
 bool not(bool flag);

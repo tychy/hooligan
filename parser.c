@@ -18,6 +18,7 @@ static int new_string(char *p, int length)
     strings = new_string;
     return strlabel;
 }
+static Node *unary();
 static Node *expr();
 static Node *stmt();
 static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
@@ -144,9 +145,20 @@ static Node *ident()
         {
             Var *gvar = find_var(ident, false, false);
             if (gvar)
+            {
                 return new_node_glob_var(ident, gvar->ty);
+            }
             else
-                error("変数が定義されていません");
+            {
+                Type *ty = get_defined_type(ident);
+                if (!ty)
+                {
+                    error("識別子が解決できませんでした");
+                }
+                Node *node = calloc(1, sizeof(Node));
+                node->ty = ty;
+                return node;
+            }
         }
     }
 }
@@ -170,9 +182,14 @@ static Node *primary()
     {
         node = num();
     }
-    else
+    else if (token->kind == TK_IDENT)
     {
         node = ident();
+    }
+    else
+    {
+        node = calloc(1, sizeof(Node));
+        node->ty = consume_type();
     }
     for (;;)
     {
@@ -239,8 +256,8 @@ static Node *unary()
     }
     else if (consume_rw(TK_SIZEOF))
     {
-        Node *arg = unary();
-        return new_node_num(calc_bytes(arg->ty));
+        Node *node = unary();
+        return new_node_num(calc_bytes(node->ty));
     }
     else if (token->kind == TK_STRING)
     {

@@ -20,5 +20,18 @@ int main()
         return 1;
     if (sizeof(b) != 40)
         return 1;
+    if (sizeof(int) != 4)
+    {
+        return 1;
+    }
+    if (sizeof(char) != 1)
+    {
+        return 1;
+    }
+    typedef int ARRAY[10];
+    if (sizeof(ARRAY) != 40)
+    {
+        return 1;
+    }
     return 0;
 }
