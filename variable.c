@@ -22,49 +22,34 @@ Var *find_var(Token *tok)
     return NULL;
 }
 
-static Var *def_lvar(Token *tok, Type *ty)
-{
-    int offset;
-    Var *new_lvar = calloc(1, sizeof(Var));
-
-    new_lvar->length = tok->length;
-    new_lvar->name = tok->string;
-    new_lvar->ty = ty;
-    int var_size = calc_bytes(ty);
-
-    if (locals)
-    {
-        offset = locals->offset + var_size;
-    }
-    else
-    {
-        offset = var_size;
-    }
-
-    new_lvar->offset = offset;
-    new_lvar->is_local = true;
-    new_lvar->next = locals;
-    locals = new_lvar;
-    return new_lvar;
-}
-
-static Var *def_gvar(Token *tok, Type *ty)
-{
-    Var *new_gvar = calloc(1, sizeof(Var));
-    new_gvar->name = tok->string;
-    new_gvar->length = tok->length;
-    new_gvar->ty = ty;
-    new_gvar->next = globals;
-    new_gvar->is_local = false;
-    globals = new_gvar;
-    return new_gvar;
-}
-
 Var *def_var(Token *tok, Type *ty, bool is_local)
 {
+    int offset;
+    Var *new_type = calloc(1, sizeof(Var));
 
+    new_type->length = tok->length;
+    new_type->name = tok->string;
+    new_type->ty = ty;
     if (is_local)
-        return def_lvar(tok, ty);
+    {
+        int var_size = calc_bytes(ty);
+        if (locals)
+        {
+            offset = locals->offset + var_size;
+        }
+        else
+        {
+            offset = var_size;
+        }
+        new_type->offset = offset;
+        new_type->next = locals;
+        locals = new_type;
+    }
     else
-        return def_gvar(tok, ty);
+    {
+        new_type->next = globals;
+        globals = new_type;
+    }
+    new_type->is_local = is_local;
+    return new_type;
 }
