@@ -94,6 +94,8 @@ int calc_bytes(Type *ty)
         return calc_bytes(ty->ptr_to) * ty->array_size;
     case CHAR:
         return 1;
+    case STRUCT:
+        return ty->size;
     }
 }
 
