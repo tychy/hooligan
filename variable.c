@@ -1,7 +1,5 @@
 #include "hooligan.h"
 
-Var *locals;
-Var *globals;
 int offset;
 
 Var *find_var(Token *tok)
