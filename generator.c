@@ -1,21 +1,23 @@
 #include "hooligan.h"
 static void gen(Node *node);
 
-static char *reg32[6] = {
+static char *reg32[7] = {
     "edi",
     "esi",
     "edx",
     "ecx",
     "r8d",
     "r9d",
+    "eax",
 };
-static char *reg64[6] = {
+static char *reg64[7] = {
     "rdi",
     "rsi",
     "rdx",
     "rcx",
     "r8",
     "r9",
+    "rax",
 };
 
 // TODO 写経したけどなんでうごくのかわからない

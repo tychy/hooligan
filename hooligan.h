@@ -77,6 +77,17 @@ typedef enum
 
 } TypeKind;
 
+typedef enum
+{
+    RG_RDI,
+    RG_RSI,
+    RG_RDX,
+    RG_RCX,
+    RG_R8,
+    RG_R9,
+    RG_RAX,
+} RegisterName;
+
 // type definition
 typedef struct Token Token;
 typedef struct Type Type;
