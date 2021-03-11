@@ -346,11 +346,20 @@ static Node *equality()
 static Node *assign()
 {
     Node *node = equality();
-    if (consume("="))
+    if (consume("+="))
+    {
+        Node *rhs = new_node(ND_ADD, node, expr());
+        node = new_node_assign(node, rhs);
+    }
+    else if (consume("-="))
+    {
+        Node *rhs = new_node(ND_SUB, node, expr());
+        node = new_node_assign(node, rhs);
+    }
+    else if (consume("="))
     {
         node = new_node_assign(node, assign());
     }
-
     return node;
 }
 

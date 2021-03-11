@@ -16,10 +16,10 @@ int testCtrl()
         if (i == 5)
         {
             a = i;
-            i = i + 1;
+            i += 1;
         }
         else
-            i = i + 1;
+            i += 1;
     if (a != 5)
         return 1;
     return 0;
@@ -28,7 +28,7 @@ int testCtrl()
 int testBreak()
 {
     int res = -1;
-    for (int i = 0; i < 100; i = i + 1)
+    for (int i = 0; i < 100; i += 1)
     {
         if (i == 50)
         {
@@ -51,11 +51,11 @@ int testWhileContinue()
     {
         if (i / 2 != i - i / 2) // 奇数
         {
-            i = i + 1;
+            i += 1;
             continue;
         }
         total = total + i;
-        i = i + 1;
+        i += 1;
     }
     if (total != 30)
     {
