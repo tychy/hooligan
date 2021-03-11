@@ -414,15 +414,13 @@ static Node *stmt()
     Node *node;
     if (consume("{"))
     {
-        Node *cur = calloc(1, sizeof(Node));
-        cur->kind = ND_BLOCK;
-        node = cur;
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_BLOCK;
+        Node *cur = node;
         while (!consume("}"))
         {
-            cur->lhs = stmt();
-            cur->rhs = calloc(1, sizeof(Node));
-            cur->kind = ND_BLOCK;
-            cur = cur->rhs;
+            cur->statements = stmt();
+            cur = cur->statements;
         }
         return node;
     }
