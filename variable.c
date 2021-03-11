@@ -34,7 +34,6 @@ Var *def_var(Token *tok, Type *ty, bool is_local)
     current_scope->variables = new_var;
     new_var->is_local = is_local;
     new_var->is_static = false;
-
     return new_var;
 }
 
@@ -42,5 +41,6 @@ Var *def_var_static(Token *tok, Type *ty, bool is_local)
 {
     Var *new_var = def_var(tok, ty, is_local);
     new_var->is_static = true;
+    new_var->label = current_scope->label;
     return new_var;
 }
