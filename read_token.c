@@ -98,13 +98,13 @@ int expect_number()
 
 int expect_char()
 {
-    if (token->kind != TK_CHAR)
+    if (token->kind != TK_CHARACTER)
     {
         error("文字ではありません");
-        int value = token->value;
-        token = token->next;
-        return value;
     }
+    int value = token->value;
+    token = token->next;
+    return value;
 }
 
 Token *consume_ident()

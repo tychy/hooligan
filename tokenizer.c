@@ -164,7 +164,7 @@ Token *tokenize(char *p)
         if(*p == 39){ // ' バックスラッシュによるエスケープを使いたくなかった
         
             p++;
-            cur = new_token(TK_CHAR, cur, p);
+            cur = new_token(TK_CHARACTER, cur, p);
             cur->length = 1;
             cur->value = *p;
             p++;

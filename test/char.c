@@ -134,6 +134,33 @@ int testString()
     return 0;
 }
 
+int testCharLiteral()
+{
+    char c = 'a';
+    if (c != 97)
+    {
+        return 1;
+    }
+    c += 1;
+    if (c != 'b')
+    {
+        return 1;
+    }
+    if ('z' - 'a' != 25)
+    {
+        return 1;
+    }
+    if ('Z' - 'A' != 25)
+    {
+        return 1;
+    }
+    if ('"' != 34)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testChar() != 0)
@@ -149,6 +176,10 @@ int main()
         return 1;
     }
     if (testString() != 0)
+    {
+        return 1;
+    }
+    if (testCharLiteral() != 0)
     {
         return 1;
     }
