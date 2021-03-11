@@ -124,16 +124,23 @@ int testGvarHard()
 }
 
 extern int e_one; // この行を消すと"識別子を解決できませんでした"となる
+extern int e_two;
 int testExternHelp()
 {
     e_one = 1111;
+    e_two = 2222;
     return 0;
 }
 int e_one;
+int e_two;
 int testExtern()
 {
     testExternHelp();
     if (e_one != 1111)
+    {
+        return 1;
+    }
+    if (e_two != 2222)
     {
         return 1;
     }
