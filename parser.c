@@ -437,8 +437,25 @@ static Node *defl()
     if (consume_rw(TK_TYPEDEF))
     {
         return deftype();
-    };
-    bool is_extern = consume_rw(TK_EXTERN);
+    }
+    else if (consume_rw(TK_EXTERN))
+    {
+        bool is_extern = consume_rw(TK_EXTERN);
+        Type *ty = consume_type();
+        if (not(ty))
+        {
+            error("定義式に型がありません");
+        }
+        Token *ident = consume_ident();
+        if (consume("["))
+        {
+            int size = expect_number();
+            ty = new_type_array(ty, size);
+            expect("]");
+        }
+        def_var(ident, ty, false);
+        return new_node_nop();
+    }
     Type *ty = consume_type();
     if (ty)
     {
@@ -448,11 +465,6 @@ static Node *defl()
             int size = expect_number();
             ty = new_type_array(ty, size);
             expect("]");
-        }
-        if (is_extern)
-        {
-            def_var(ident, ty, false);
-            return new_node_nop();
         }
         Var *lvar = def_var(ident, ty, true);
         Node *node = new_node_var(lvar);
