@@ -511,6 +511,10 @@ static Node *block()
 
 static Node *func(Token *ident, Type *ty)
 {
+    Scope *scope = calloc(1, sizeof(Node));
+    scope->prev = current_scope;
+    current_scope->next = scope;
+    current_scope = scope;
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_FUNCDEF;
     node->name = ident->string;
@@ -534,10 +538,8 @@ static Node *func(Token *ident, Type *ty)
         arg_top = arg;
     }
     node->rhs = block();
-    if (locals)
-        node->args_region_size = locals->offset;
-    else
-        node->args_region_size = 0;
+    node->args_region_size = offset;
+    current_scope = current_scope->prev;
     return node;
 }
 
@@ -561,7 +563,6 @@ static Node *def()
     {
         error("定義式に型がありません");
     }
-
     Token *ident = consume_ident();
     if (is_typedef)
     {
@@ -597,6 +598,7 @@ static Node *def()
 
 void program()
 {
+    current_scope = calloc(1, sizeof(Scope));
     int i = 0;
     while (!at_eof())
     {
@@ -605,7 +607,7 @@ void program()
             continue;
         nodes[i] = node;
         i++;
-        locals = NULL;
+        offset = 0;
         local_types = NULL;
     }
     nodes[i + 1] = NULL;

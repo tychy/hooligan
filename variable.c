@@ -2,21 +2,18 @@
 
 Var *locals;
 Var *globals;
+int offset;
 
 Var *find_var(Token *tok)
 {
-    for (Var *lvar = locals; lvar; lvar = lvar->next)
+    for (Scope *scope = current_scope; scope; scope = scope->prev)
     {
-        if (lvar->length == tok->length && memcmp(lvar->name, tok->string, lvar->length) == 0)
+        for (Var *var = scope->variables; var; var = var->next)
         {
-            return lvar;
-        }
-    }
-    for (Var *gvar = globals; gvar; gvar = gvar->next)
-    {
-        if (gvar->length == tok->length && memcmp(gvar->name, tok->string, gvar->length) == 0)
-        {
-            return gvar;
+            if (var->length == tok->length && memcmp(var->name, tok->string, var->length) == 0)
+            {
+                return var;
+            }
         }
     }
     return NULL;
@@ -24,32 +21,19 @@ Var *find_var(Token *tok)
 
 Var *def_var(Token *tok, Type *ty, bool is_local)
 {
-    int offset;
-    Var *new_type = calloc(1, sizeof(Var));
+    Var *new_var = calloc(1, sizeof(Var));
 
-    new_type->length = tok->length;
-    new_type->name = tok->string;
-    new_type->ty = ty;
+    new_var->length = tok->length;
+    new_var->name = tok->string;
+    new_var->ty = ty;
     if (is_local)
     {
         int var_size = calc_bytes(ty);
-        if (locals)
-        {
-            offset = locals->offset + var_size;
-        }
-        else
-        {
-            offset = var_size;
-        }
-        new_type->offset = offset;
-        new_type->next = locals;
-        locals = new_type;
+        offset += var_size;
+        new_var->offset = offset;
     }
-    else
-    {
-        new_type->next = globals;
-        globals = new_type;
-    }
-    new_type->is_local = is_local;
-    return new_type;
+    new_var->next = current_scope->variables;
+    current_scope->variables = new_var;
+    new_var->is_local = is_local;
+    return new_var;
 }

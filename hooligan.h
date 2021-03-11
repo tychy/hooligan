@@ -78,6 +78,7 @@ typedef struct Node Node;
 typedef struct Var Var;
 typedef struct String String;
 typedef struct Member Member;
+typedef struct Scope Scope;
 
 struct Token
 {
@@ -172,15 +173,23 @@ struct Member
     int offset;
 };
 
+struct Scope
+{
+    Var *variables;
+    Type *types;
+    Scope *prev;
+    Scope *next;
+};
+
 // Declaration of global variables
 extern int label;
+extern int offset;
 extern Token *token;
 extern Node *nodes[200];
-extern Var *locals;
-extern Var *globals;
 extern Type *local_types;
 extern Type *global_types;
 extern String *strings;
+extern Scope *current_scope;
 
 // Declaration of functions
 // read_token.c
