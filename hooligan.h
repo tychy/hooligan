@@ -117,10 +117,8 @@ struct Node
     Node *rhs;
     // for single child node
     Node *child;
-    // for args and init
+    // for
     Node *next;
-    // for block
-    Node *statements;
 
     // for(init; condition; on_end) body;
     Node *init;

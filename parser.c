@@ -498,14 +498,21 @@ static Node *block()
 {
     if (consume("{"))
     {
+        if (consume("}"))
+        {
+            return new_node_num(0); // empty block
+        }
         new_scope();
-        Node *node = calloc(1, sizeof(Node));
-        node->kind = ND_BLOCK;
-        Node *cur = node;
+        Node *node;
+        Node *cur = calloc(1, sizeof(Node));
+        cur->kind = ND_BLOCK;
+        node = cur;
         while (!consume("}"))
         {
-            cur->statements = block();
-            cur = cur->statements;
+            cur->lhs = block();
+            cur->rhs = calloc(1, sizeof(Node));
+            cur->kind = ND_BLOCK;
+            cur = cur->rhs;
         }
         exit_scope();
         return node;

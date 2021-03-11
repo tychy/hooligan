@@ -19,13 +19,13 @@ static char *reg64[6] = {
 };
 
 // TODO 写経したけどなんでうごくのかわからない
-__attribute__((format(printf, 1, 2))) static void println(char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    vprintf(fmt, ap);
-    va_end(ap);
-    printf("\n");
+__attribute__((format(printf, 1, 2)))
+static void println(char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  vprintf(fmt, ap);
+  va_end(ap);
+  printf("\n");
 }
 
 static void gen_for(Node *node, int lab)
@@ -280,7 +280,6 @@ static void gen_assign(Node *node)
 
 void gen(Node *node)
 {
-    Node *cur; // case文の中では定義できない
     switch (node->kind)
     {
     case ND_NUM:
@@ -322,12 +321,12 @@ void gen(Node *node)
         gen_for(node, label);
         return;
     case ND_BLOCK:
-        cur = node->statements;
-        while (cur)
-        {
-            gen(cur);
-            cur = cur->statements;
-        }
+        if (node->lhs == NULL)
+            return;
+        gen(node->lhs);
+        if (node->rhs->lhs == NULL)
+            return;
+        gen(node->rhs);
         return;
     case ND_WHILE:
         label++;
