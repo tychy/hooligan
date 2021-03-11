@@ -391,24 +391,6 @@ static Node *assign()
     return node;
 }
 
-static Node *init()
-{
-    if (consume("{"))
-    {
-        Node *node = new_node_single(ND_INIT, expr());
-        Node *init_top = node;
-        while (!consume("}"))
-        {
-            expect(",");
-            Node *init = new_node_single(ND_INIT, expr());
-            init_top->next = init;
-            init_top = init;
-        }
-        return node;
-    }
-    return assign();
-}
-
 static Node *expr()
 {
     return assign();
@@ -474,7 +456,19 @@ static Node *defl()
         Node *node = new_node_var(lvar);
         if (consume("="))
         {
-            node = new_node_assign(node, init());
+            if (consume("{"))
+            {
+                Node *initial = new_node_single(ND_INIT, expr());
+                Node *cur = initial;
+                while (!consume("}"))
+                {
+                    expect(",");
+                    cur->next = new_node_single(ND_INIT, expr());
+                    cur = cur->next;
+                }
+                return new_node_assign(node, initial);
+            }
+            return new_node_assign(node, assign());
         }
         return node;
     }
