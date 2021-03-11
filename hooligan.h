@@ -86,6 +86,8 @@ typedef enum
     RG_R8,
     RG_R9,
     RG_RAX,
+    RG_RBP,
+    RG_RSP,
 } RegisterName;
 
 // type definition
