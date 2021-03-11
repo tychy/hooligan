@@ -123,6 +123,23 @@ int testGvarHard()
     return 0;
 }
 
+extern int e_one; // この行を消すと"識別子を解決できませんでした"となる
+int testExternHelp()
+{
+    e_one = 1111;
+    return 0;
+}
+int e_one;
+int testExtern()
+{
+    testExternHelp();
+    if (e_one != 1111)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testGvar() != 0)
@@ -138,6 +155,10 @@ int main()
         return 1;
     }
     if (testGvarHard() != 0)
+    {
+        return 1;
+    }
+    if (testExtern() != 0)
     {
         return 1;
     }
