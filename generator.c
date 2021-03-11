@@ -28,11 +28,11 @@ static void println(char *fmt, ...) {
   printf("\n");
 }
 
-static void gen_for(Node *node, int lab)
+static void gen_for(Node *node)
 {
     if (node->kind != ND_FOR)
         error("for文ではありません");
-
+    int lab = node->loop_label;
     if (node->init != NULL)
         gen(node->init);
     println(".Lforstart%d:", lab);
@@ -53,10 +53,11 @@ static void gen_for(Node *node, int lab)
     println(".Lforend%d:", lab);
 }
 
-static void gen_while(Node *node, int lab)
+static void gen_while(Node *node)
 {
     if (node->kind != ND_WHILE)
         error("while文ではありません");
+    int lab = node->loop_label;
     println(".Lwhilestart%d:", lab);
     gen(node->condition);
     println("  pop rax");
@@ -319,7 +320,7 @@ void gen(Node *node)
         return;
     case ND_FOR:
         label++;
-        gen_for(node, label);
+        gen_for(node);
         return;
     case ND_BLOCK:
         if (node->lhs == NULL)
@@ -331,7 +332,7 @@ void gen(Node *node)
         return;
     case ND_WHILE:
         label++;
-        gen_while(node, label);
+        gen_while(node);
         return;
     case ND_FUNC:
         gen_function(node);
