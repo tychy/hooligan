@@ -456,14 +456,22 @@ static Node *defl()
         Node *node = new_node_var(lvar);
         if (consume("="))
         {
-            if (consume("{"))
+            if (lvar->ty->ty == ARRAY && consume("{"))
             {
+                int size = lvar->ty->array_size;
                 Node *initial = new_node_single(ND_INIT, expr());
                 Node *cur = initial;
+                int cnt = 1;
                 while (!consume("}"))
                 {
                     expect(",");
                     cur->next = new_node_single(ND_INIT, expr());
+                    cur = cur->next;
+                    cnt++;
+                }
+                for (; cnt < size; cnt++)
+                {
+                    cur->next = new_node_single(ND_INIT, new_node_num(0));
                     cur = cur->next;
                 }
                 return new_node_assign(node, initial);
