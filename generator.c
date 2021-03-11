@@ -334,6 +334,12 @@ void gen(Node *node)
         label++;
         gen_while(node);
         return;
+    case ND_BREAK:
+        println("  jmp .LLoopEnd%d", node->loop_label);
+        return;
+    case ND_CONTINUE:
+        println("  jmp .LLoopStart%d", node->loop_label);
+        return;
     case ND_FUNC:
         gen_function(node);
         return;
@@ -346,7 +352,6 @@ void gen(Node *node)
     case ND_STRING:
         println("  push offset .LC%d", node->strlabel);
         return;
-
     case ND_MEMBER:
         gen_addr(node);
         if (node->ty->ty == ARRAY)
