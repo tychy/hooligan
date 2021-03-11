@@ -1,6 +1,7 @@
 int testArrayInit()
 {
     int x[3] = {1, 2, 3};
+    int y[4] = {1, 2, 3};
     if (x[0] != 1)
     {
         return 1;
@@ -10,6 +11,22 @@ int testArrayInit()
         return 1;
     }
     if (x[2] != 3)
+    {
+        return 1;
+    }
+    if (y[0] != 1)
+    {
+        return 1;
+    }
+    if (y[1] != 2)
+    {
+        return 1;
+    }
+    if (y[2] != 3)
+    {
+        return 1;
+    }
+    if (y[3] != 0)
     {
         return 1;
     }
