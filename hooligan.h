@@ -65,6 +65,9 @@ typedef enum
     ND_MEMBER,
     ND_BREAK,
     ND_CONTINUE,
+    ND_AND,
+    ND_OR,
+    ND_NOT,
 } NodeKind;
 
 typedef enum
