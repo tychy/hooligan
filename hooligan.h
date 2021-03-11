@@ -156,6 +156,7 @@ struct Node
     bool is_local;
     // for static
     bool is_static;
+    int scope_label;
     // for function
     int args_region_size;
     Node *args;
@@ -175,6 +176,7 @@ struct Var
     char *name;
     int length;
     int offset;
+    int label;
     Type *ty;
     Var *next;
     bool is_local;
@@ -195,6 +197,7 @@ struct StaticVar
     char *name;
     int length;
     Type *ty;
+    int label;
     StaticVar *next;
 };
 struct Member
