@@ -435,7 +435,7 @@ static Node *stmt()
     }
     else if (consume_rw(TK_FOR))
     {
-        new_scope();
+        start_loop();
         Node *init;
         Node *condition;
         Node *on_end;
@@ -476,12 +476,12 @@ static Node *stmt()
         node->condition = condition;
         node->on_end = on_end;
         node->body = body;
-        node->loop_label = current_scope->label;
-        exit_scope();
+        node->loop_label = current_scope->loop_label;
+        end_loop();
     }
     else if (consume_rw(TK_WHILE))
     {
-        new_scope();
+        start_loop();
         expect("(");
         Node *condition = expr();
         expect(")");
@@ -490,8 +490,8 @@ static Node *stmt()
         node->kind = ND_WHILE;
         node->condition = condition;
         node->body = body;
-        node->loop_label = current_scope->label;
-        exit_scope();
+        node->loop_label = current_scope->loop_label;
+        end_loop();
     }
     else
     {

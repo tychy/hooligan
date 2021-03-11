@@ -186,6 +186,7 @@ struct Scope
     Scope *prev;
     Scope *next;
     int label;
+    int loop_label; // for break and continue
 };
 
 // Declaration of global variables
@@ -237,6 +238,8 @@ Type *find_type(Token *tok);
 // scope.c
 void new_scope();
 void exit_scope();
+void start_loop();
+void end_loop();
 
 // util.c
 bool not(bool flag);

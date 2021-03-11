@@ -9,6 +9,7 @@ void new_scope()
     scope->prev = current_scope;
     scope_label++;
     scope->label = scope_label;
+    scope->loop_label = current_scope->loop_label;
     current_scope->next = scope;
     current_scope = scope;
 }
@@ -16,4 +17,15 @@ void new_scope()
 void exit_scope()
 {
     current_scope = current_scope->prev;
+}
+
+void start_loop()
+{
+    new_scope();
+    current_scope->loop_label = current_scope->label;
+}
+
+void end_loop()
+{
+    exit_scope();
 }
