@@ -199,13 +199,11 @@ static void gen_addr(Node *node)
             println("  mov rax, rbp");
             println("  sub rax, %d", node->offset);
             push(RG_RAX);
-            ;
         }
         else
         {
             println("  lea rax, %.*s", node->length, node->name);
             push(RG_RAX);
-            ;
         }
         return;
     case ND_MEMBER:
@@ -213,7 +211,6 @@ static void gen_addr(Node *node)
         pop(RG_RAX);
         println("  add rax, %d", node->member->offset);
         push(RG_RAX);
-        ;
         return;
 
     default:
@@ -352,7 +349,6 @@ void gen(Node *node)
         else
             println("  mov rax, [rax]");
         push(RG_RAX);
-        ;
         return;
     case ND_ASSIGN:
         gen_assign(node);
@@ -434,7 +430,6 @@ void gen(Node *node)
         else
             println("  mov rax, [rax]");
         push(RG_RAX);
-        ;
         return;
     case ND_ADD:
     case ND_SUB:
@@ -473,7 +468,6 @@ void gen(Node *node)
                 println("  sub rax, rdi");
         }
         push(RG_RAX);
-        ;
         return;
     }
 
@@ -487,7 +481,6 @@ void gen(Node *node)
         pop(RG_RAX);
         println("  imul rax, rdi");
         push(RG_RAX);
-        ;
         break;
     case ND_DIV:
         pop(RG_RDI);
@@ -495,7 +488,6 @@ void gen(Node *node)
         println("  cdq");
         println("  idiv edi");
         push(RG_RAX);
-        ;
         break;
     case ND_EQUAL:
         pop(RG_RDI);
@@ -504,7 +496,6 @@ void gen(Node *node)
         println("  sete al");
         println("  movzb rax, al");
         push(RG_RAX);
-        ;
         break;
     case ND_NEQUAL:
         pop(RG_RDI);
@@ -513,7 +504,6 @@ void gen(Node *node)
         println("  setne al");
         println("  movzb rax, al");
         push(RG_RAX);
-        ;
         break;
     case ND_GEQ:
         pop(RG_RDI);
@@ -522,7 +512,6 @@ void gen(Node *node)
         println("  setge al");
         println("  movzb rax, al");
         push(RG_RAX);
-        ;
         break;
     case ND_LEQ:
         pop(RG_RDI);
@@ -531,7 +520,6 @@ void gen(Node *node)
         println("  setle al");
         println("  movzb rax, al");
         push(RG_RAX);
-        ;
         break;
     case ND_GTH:
         pop(RG_RDI);
@@ -540,7 +528,6 @@ void gen(Node *node)
         println("  setg al");
         println("  movzb rax, al");
         push(RG_RAX);
-        ;
         break;
     case ND_LTH:
         pop(RG_RDI);
@@ -549,7 +536,6 @@ void gen(Node *node)
         println("  setl al");
         println("  movzb rax, al");
         push(RG_RAX);
-        ;
         break;
     case ND_AND:
         pop(RG_RDI);
