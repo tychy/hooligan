@@ -67,11 +67,12 @@ static void gen_while(Node *node, int lab)
     println(".Lwhileend%d:", lab);
 }
 
-static void gen_if(Node *node, int lab)
+static void gen_if(Node *node)
 {
     if (node->kind != ND_IF)
         error("if文ではありません");
     bool else_exist = node->on_else;
+    int lab = node->cond_label;
     gen(node->condition);
     println("  pop rax");
     println("  cmp rax, 0");
@@ -314,7 +315,7 @@ void gen(Node *node)
         return;
     case ND_IF:
         label++;
-        gen_if(node, label);
+        gen_if(node);
         return;
     case ND_FOR:
         label++;

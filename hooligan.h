@@ -126,6 +126,7 @@ struct Node
     Node *on_end;
     Node *body;
 
+
     // if(condition) body else on_else
     Node *on_else;
 
@@ -141,6 +142,10 @@ struct Node
 
     //for struct
     Member *member;
+
+    // labels
+    int loop_label; // for, while
+    int cond_label; // if, else
 };
 struct Var
 {
@@ -177,6 +182,7 @@ struct Scope
     Type *types;
     Scope *prev;
     Scope *next;
+    int label;
 };
 
 // Declaration of global variables
