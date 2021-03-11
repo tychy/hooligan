@@ -99,6 +99,7 @@ typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
 typedef struct String String;
+typedef struct StaticVar StaticVar;
 typedef struct Member Member;
 typedef struct Scope Scope;
 
@@ -153,7 +154,8 @@ struct Node
 
     // for variable
     bool is_local;
-
+    // for static
+    bool is_static;
     // for function
     int args_region_size;
     Node *args;
@@ -177,6 +179,7 @@ struct Var
     Var *next;
     bool is_local;
     bool is_typedef;
+    bool is_static;
 };
 
 struct String
@@ -187,6 +190,13 @@ struct String
     String *next;
 };
 
+struct StaticVar
+{
+    char *name;
+    int length;
+    Type *ty;
+    StaticVar *next;
+};
 struct Member
 {
 
@@ -213,6 +223,7 @@ extern int offset;
 extern Token *token;
 extern Node *nodes[200];
 extern String *strings;
+extern StaticVar *statics;
 extern Scope *current_scope;
 
 // Declaration of functions
@@ -237,7 +248,7 @@ void gen_asm_intel();
 // variable.c
 Var *find_var(Token *tok);
 Var *def_var(Token *tok, Type *ty, bool is_local);
-
+Var *def_var_static(Token *tok, Type *ty, bool is_local);
 // type.c
 Type *new_type_int();
 Type *new_type_char();
