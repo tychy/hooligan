@@ -1,31 +1,62 @@
 #include "hooligan.h"
 static void gen(Node *node);
 
-static char *reg32[6] = {
+static char *reg32[9] = {
     "edi",
     "esi",
     "edx",
     "ecx",
     "r8d",
     "r9d",
+    "eax",
+    "ebp",
+    "esp",
 };
-static char *reg64[6] = {
+static char *reg64[9] = {
     "rdi",
     "rsi",
     "rdx",
     "rcx",
     "r8",
     "r9",
+    "rax",
+    "rbp",
+    "rsp",
 };
 
 // TODO 写経したけどなんでうごくのかわからない
-__attribute__((format(printf, 1, 2)))
-static void println(char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  vprintf(fmt, ap);
-  va_end(ap);
-  printf("\n");
+__attribute__((format(printf, 1, 2))) static void println(char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    vprintf(fmt, ap);
+    va_end(ap);
+    printf("\n");
+}
+
+int depth;
+static void push(RegisterName r)
+{
+    println("  push  %s", reg64[r]);
+    depth++;
+}
+
+static void push_val(int val)
+{
+    println("  push  %d", val);
+    depth++;
+}
+
+static void push_str_addr(int label)
+{
+    println("  push offset .LC%d", label);
+    depth++;
+}
+
+static void pop(RegisterName r)
+{
+    println("  pop  %s", reg64[r]);
+    depth--;
 }
 
 static void gen_for(Node *node)
@@ -40,8 +71,8 @@ static void gen_for(Node *node)
     if (node->condition != NULL)
         gen(node->condition);
     else
-        println("  push 1"); // 無条件でtrueとなるように
-    println("  pop rax");
+        push_val(1); // 無条件でtrueとなるように
+    pop(RG_RAX);
     println("  cmp rax, 0");
     println("  je .LLoopEnd%d", lab);
 
@@ -60,7 +91,7 @@ static void gen_while(Node *node)
     int lab = node->loop_label;
     println(".LLoopStart%d:", lab);
     gen(node->condition);
-    println("  pop rax");
+    pop(RG_RAX);
     println("  cmp rax, 0");
     println("  je .LLoopEnd%d", lab);
     gen(node->body);
@@ -75,7 +106,7 @@ static void gen_if(Node *node)
     bool else_exist = node->on_else;
     int lab = node->cond_label;
     gen(node->condition);
-    println("  pop rax");
+    pop(RG_RAX);
     println("  cmp rax, 0");
     if (else_exist)
         println("  je .Lelse%d", lab);
@@ -118,11 +149,10 @@ static void gen_function(Node *node)
 
         if (count < 6)
         {
-            println("  pop  %s", reg64[count]);
+            pop(count);
         }
         else
         {
-
             error("引数の数が多すぎます");
         }
 
@@ -132,10 +162,18 @@ static void gen_function(Node *node)
     if (first_arg != NULL)
     {
         gen(first_arg->child);
-        println("  pop %s", reg64[0]);
+        pop(0);
+    }
+    if (depth % 2 == 0)
+    {
+        println("  sub rsp, 8");
     }
     println("  call %.*s", node->length, node->name);
-    println("  push rax");
+    if (depth % 2 == 0)
+    {
+        println("  add rsp, 8");
+    }
+    push(RG_RAX);
 }
 
 static void gen_global_var_def(Node *node)
@@ -160,19 +198,22 @@ static void gen_addr(Node *node)
         {
             println("  mov rax, rbp");
             println("  sub rax, %d", node->offset);
-            println("  push rax");
+            push(RG_RAX);
+            ;
         }
         else
         {
             println("  lea rax, %.*s", node->length, node->name);
-            println("  push rax");
+            push(RG_RAX);
+            ;
         }
         return;
     case ND_MEMBER:
         gen_addr(node->child);
-        println("  pop rax");
+        pop(RG_RAX);
         println("  add rax, %d", node->member->offset);
-        println("  push rax");
+        push(RG_RAX);
+        ;
         return;
 
     default:
@@ -190,7 +231,7 @@ static void gen_function_def(Node *node)
     println(".globl %.*s", node->length, node->name);
     println("%.*s:", node->length, node->name);
     // プロローグ
-    println("  push rbp");
+    push(RG_RBP);
     println("  mov rbp, rsp");
     println("  sub rsp, %d", node->args_region_size);
 
@@ -200,7 +241,7 @@ static void gen_function_def(Node *node)
     while (arg != NULL)
     {
         gen_addr(arg);
-        println("  pop rax");
+        pop(RG_RAX);
         if (count < 6)
         {
             char *reg;
@@ -221,12 +262,12 @@ static void gen_function_def(Node *node)
     }
 
     gen(node->rhs);
-    println("  pop rax");
+    pop(RG_RAX);
 
     // エピローグ
     // ここに書くと多分returnなしで戻り値を指定できるようになってしまう、どうすべきか
     println("  mov rsp, rbp");
-    println("  pop rbp");
+    pop(RG_RBP);
     println("  ret");
 }
 
@@ -248,8 +289,8 @@ static void gen_assign(Node *node)
         {
             gen_addr(node->lhs);
             gen(cur->child);
-            println("  pop rdi");
-            println("  pop rax");
+            pop(RG_RDI);
+            pop(RG_RAX);
             println("  add rax, %d", calc_bytes(node->lhs->ty->ptr_to) * counter);
             if (is_int(cur->ty))
                 println("  mov [rax], edi");
@@ -267,8 +308,8 @@ static void gen_assign(Node *node)
 
     gen_addr(node->lhs);
     gen(node->rhs);
-    println("  pop rdi");
-    println("  pop rax");
+    pop(RG_RDI);
+    pop(RG_RAX);
     if (is_int(node->ty))
         println("  mov [rax], edi");
     else if (is_char(node->ty))
@@ -277,7 +318,7 @@ static void gen_assign(Node *node)
     }
     else
         println("  mov [rax], rdi");
-    println("  push rdi");
+    push(RG_RDI);
 }
 
 void gen(Node *node)
@@ -285,7 +326,7 @@ void gen(Node *node)
     switch (node->kind)
     {
     case ND_NUM:
-        println("  push %d", node->val);
+        push_val(node->val);
         return;
     case ND_VAR:
         gen_addr(node);
@@ -293,7 +334,7 @@ void gen(Node *node)
         {
             return;
         }
-        println("  pop rax");
+        pop(RG_RAX);
         if (is_int(node->ty))
             println("  mov eax, [rax]");
         else if (is_char(node->ty))
@@ -302,16 +343,17 @@ void gen(Node *node)
         }
         else
             println("  mov rax, [rax]");
-        println("  push rax");
+        push(RG_RAX);
+        ;
         return;
     case ND_ASSIGN:
         gen_assign(node);
         return;
     case ND_RETURN:
         gen(node->child);
-        println("  pop rax");
+        pop(RG_RAX);
         println("  mov rsp, rbp");
-        println("  pop rbp");
+        pop(RG_RBP);
         println("  ret");
         return;
     case ND_IF:
@@ -350,7 +392,7 @@ void gen(Node *node)
         gen_global_var_def(node);
         return;
     case ND_STRING:
-        println("  push offset .LC%d", node->strlabel);
+        push_str_addr(node->strlabel);
         return;
     case ND_MEMBER:
         gen_addr(node);
@@ -358,24 +400,23 @@ void gen(Node *node)
         {
             return;
         }
-
-        printf("  pop rax\n");
+        pop(RG_RAX);
         if (is_int(node->member->ty))
-            printf("  mov eax, [rax]\n");
+            println("  mov eax, [rax]");
         else if (is_char(node->member->ty))
         {
-            printf("  movsx eax, BYTE PTR [rax]\n");
+            println("  movsx eax, BYTE PTR [rax]");
         }
         else
-            printf("  mov rax, [rax]\n");
-        printf("  push rax\n");
+            println("  mov rax, [rax]");
+        push(RG_RAX);
         return;
     case ND_ADDR:
         gen_addr(node->child);
         return;
     case ND_DEREF:
         gen(node->child);
-        println("  pop rax");
+        pop(RG_RAX);
         if (is_int(node->ty))
             println("  mov eax, [rax]");
         else if (is_char(node->ty))
@@ -384,7 +425,8 @@ void gen(Node *node)
         }
         else
             println("  mov rax, [rax]");
-        println("  push rax");
+        push(RG_RAX);
+        ;
         return;
     case ND_ADD:
     case ND_SUB:
@@ -392,8 +434,8 @@ void gen(Node *node)
         gen(node->rhs);
         if (is_int_or_char(node->ty))
         {
-            println("  pop rdi");
-            println("  pop rax");
+            pop(RG_RDI);
+            pop(RG_RAX);
             if (node->kind == ND_ADD)
                 println("  add eax, edi");
             else
@@ -401,8 +443,8 @@ void gen(Node *node)
         }
         else
         {
-            println("  pop rdi");
-            println("  pop rax");
+            pop(RG_RDI);
+            pop(RG_RAX);
             int size = calc_bytes(node->ty->ptr_to);
             if (is_int_or_char(node->lhs->ty))
             {
@@ -422,7 +464,8 @@ void gen(Node *node)
             else
                 println("  sub rax, rdi");
         }
-        println("  push rax");
+        push(RG_RAX);
+        ;
         return;
     }
 
@@ -432,65 +475,73 @@ void gen(Node *node)
     switch (node->kind)
     {
     case ND_MUL:
-        println("  pop rdi");
-        println("  pop rax");
+        pop(RG_RDI);
+        pop(RG_RAX);
         println("  imul rax, rdi");
-        println("  push rax");
+        push(RG_RAX);
+        ;
         break;
     case ND_DIV:
-        println("  pop rdi");
-        println("  pop rax");
+        pop(RG_RDI);
+        pop(RG_RAX);
         println("  cdq");
         println("  idiv edi");
-        println("  push rax");
+        push(RG_RAX);
+        ;
         break;
     case ND_EQUAL:
-        println("  pop rdi");
-        println("  pop rax");
+        pop(RG_RDI);
+        pop(RG_RAX);
         println("  cmp rax, rdi");
         println("  sete al");
         println("  movzb rax, al");
-        println("  push rax");
+        push(RG_RAX);
+        ;
         break;
     case ND_NEQUAL:
-        println("  pop rdi");
-        println("  pop rax");
+        pop(RG_RDI);
+        pop(RG_RAX);
         println("  cmp rax, rdi");
         println("  setne al");
         println("  movzb rax, al");
-        println("  push rax");
+        push(RG_RAX);
+        ;
         break;
     case ND_GEQ:
-        println("  pop rdi");
-        println("  pop rax");
+        pop(RG_RDI);
+        pop(RG_RAX);
         println("  cmp rax, rdi");
         println("  setge al");
         println("  movzb rax, al");
-        println("  push rax");
+        push(RG_RAX);
+        ;
         break;
     case ND_LEQ:
-        println("  pop rdi");
-        println("  pop rax");
+        pop(RG_RDI);
+        pop(RG_RAX);
         println("  cmp rax, rdi");
         println("  setle al");
         println("  movzb rax, al");
-        println("  push rax");
+        push(RG_RAX);
+        ;
         break;
     case ND_GTH:
-        println("  pop rdi");
-        println("  pop rax");
+        pop(RG_RDI);
+        pop(RG_RAX);
         println("  cmp rax, rdi");
         println("  setg al");
         println("  movzb rax, al");
-        println("  push rax");
+        push(RG_RAX);
+        ;
         break;
     case ND_LTH:
-        println("  pop rdi");
-        println("  pop rax");
+        pop(RG_RDI);
+        pop(RG_RAX);
         println("  cmp rax, rdi");
         println("  setl al");
         println("  movzb rax, al");
-        println("  push rax");
+        push(RG_RAX);
+        ;
         break;
     }
 }
