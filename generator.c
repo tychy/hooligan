@@ -194,7 +194,12 @@ static void gen_addr(Node *node)
         gen(node->child);
         return;
     case ND_VAR:
-        if (node->is_local)
+        if (node->is_local && node->is_static)
+        {
+            println("  lea rax, L%.*s.%d", node->length, node->name, node->scope_label);
+            push(RG_RAX);
+        }
+        else if (node->is_local)
         {
             println("  mov rax, rbp");
             println("  sub rax, %d", node->offset);
@@ -553,6 +558,7 @@ void gen(Node *node)
 }
 
 String *strings;
+StaticVar *statics;
 int label = 0; // なんのラベルかわからん
 Node *nodes[200];
 Node *funcs[100];
@@ -560,7 +566,7 @@ Node *funcs[100];
 void gen_asm_intel()
 {
     println(".intel_syntax noprefix");
-    println(".bss");
+    println(".data");
     program();
     int i = 0;
     int func_count = 0;
@@ -577,7 +583,32 @@ void gen_asm_intel()
         i++;
     }
     String *s = strings;
-    println(".data");
+    StaticVar *sv = statics;
+    while (sv)
+    {
+        println("L%.*s.%d:", sv->length, sv->name, sv->label);
+        switch (sv->ty->ty)
+        {
+        case CHAR:
+            println("  .byte %d", sv->init_val);
+            break;
+        case INT:
+            println("  .long %d", sv->init_val);
+            break;
+        case PTR:
+            println("  .quad %d", sv->init_val);
+            break;
+        case ARRAY:
+        case STRUCT:
+            println("  .zero  %d", calc_bytes(sv->ty));
+            break;
+        default:
+            error("型がサポートされていません");
+        }
+
+        sv = sv->next;
+    }
+
     while (s)
     {
         println(".LC%d:", s->label);

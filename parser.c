@@ -19,6 +19,19 @@ static int new_string(char *p, int length)
     return strlabel;
 }
 
+static void new_static_var(char *name, int length, Type *ty, int label, int init_val)
+{
+    StaticVar *new_static = calloc(1, sizeof(StaticVar));
+    new_static->length = length;
+    new_static->name = name;
+    new_static->ty = ty;
+    new_static->next = statics;
+    new_static->label = label;
+    new_static->init_val = init_val;
+    statics = new_static;
+    return;
+}
+
 static Node *unary();
 static Node *expr();
 static Node *block();
@@ -84,13 +97,15 @@ static Node *new_node_var(Var *var)
     {
         node->offset = var->offset;
     }
-    else
-    {
-        node->name = var->name;
-        node->length = var->length;
-    }
+    node->name = var->name;
+    node->length = var->length;
     node->ty = var->ty;
     node->is_local = var->is_local;
+    node->is_static = var->is_static;
+    if (node->is_static)
+    {
+        node->scope_label = var->label;
+    }
     return node;
 }
 
@@ -448,6 +463,7 @@ static Node *defl()
         return deftype();
     };
     bool is_extern = consume_rw(TK_EXTERN);
+    bool is_static = consume_rw(TK_STATIC); // extern static どうなる？
     Type *ty = consume_type();
     if (ty)
     {
@@ -461,6 +477,17 @@ static Node *defl()
         if (is_extern)
         {
             def_var(ident, ty, false);
+            return new_node_nop();
+        }
+        else if (is_static)
+        {
+            Var *svar = def_var_static(ident, ty, true);
+            int val = 0;
+            if (consume("="))
+            {
+                val = expect_number();
+            }
+            new_static_var(ident->string, ident->length, ty, svar->label, val);
             return new_node_nop();
         }
         Var *lvar = def_var(ident, ty, true);
@@ -696,8 +723,6 @@ void program()
     while (!at_eof())
     {
         Node *node = def();
-        if (!node)
-            continue;
         nodes[i] = node;
         i++;
         offset = 0;
