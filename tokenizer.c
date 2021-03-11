@@ -140,6 +140,7 @@ Token *tokenize(char *p)
             p = q + 2;
             continue;
         }
+
         if (*p == '"')
         {
             int i = 0;
@@ -157,6 +158,21 @@ Token *tokenize(char *p)
             cur = new_token(TK_STRING, cur, p_top);
             cur->length = i;
 
+            continue;
+        }
+
+        if(*p == 39){ // ' バックスラッシュによるエスケープを使いたくなかった
+        
+            p++;
+            cur = new_token(TK_CHARACTER, cur, p);
+            cur->length = 1;
+            cur->value = *p;
+            p++;
+            if (*p != 39)
+            {
+                error("シングルクォーテーションが閉じていません");
+            }
+            p++;
             continue;
         }
 
