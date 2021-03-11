@@ -622,6 +622,7 @@ static Node *def()
         expect(";");
         return node;
     }
+    bool is_extern = consume_rw(TK_EXTERN);
     Type *ty = consume_type();
     if (!ty)
     {
@@ -642,6 +643,10 @@ static Node *def()
             expect("]");
         }
         node = glob_var(ident, ty);
+        if (is_extern)
+        {
+            return new_node_nop();
+        }
     }
 
     return node;
