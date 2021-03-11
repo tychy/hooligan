@@ -24,6 +24,8 @@ typedef enum
     TK_TYPEDEF,
     TK_BREAK,
     TK_CONTINUE,
+    TK_STATIC,
+    TK_EXTERN,
     // add reserved word above
     TK_OPERATOR,
     TK_NUMBER,
