@@ -432,6 +432,7 @@ static Node *stmt()
     }
     else if (consume_rw(TK_FOR))
     {
+        new_scope();
         Node *init;
         Node *condition;
         Node *on_end;
@@ -472,6 +473,7 @@ static Node *stmt()
         node->condition = condition;
         node->on_end = on_end;
         node->body = body;
+        exit_scope();
     }
     else if (consume_rw(TK_WHILE))
     {
@@ -496,6 +498,7 @@ static Node *block()
 {
     if (consume("{"))
     {
+        new_scope();
         Node *node = calloc(1, sizeof(Node));
         node->kind = ND_BLOCK;
         Node *cur = node;
@@ -504,6 +507,7 @@ static Node *block()
             cur->statements = block();
             cur = cur->statements;
         }
+        exit_scope();
         return node;
     }
     return stmt();
