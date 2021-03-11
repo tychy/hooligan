@@ -186,8 +186,6 @@ extern int label;
 extern int offset;
 extern Token *token;
 extern Node *nodes[200];
-extern Type *local_types;
-extern Type *global_types;
 extern String *strings;
 extern Scope *current_scope;
 

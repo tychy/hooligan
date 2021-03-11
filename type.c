@@ -111,23 +111,16 @@ Type *determine_expr_type(Type *lhs, Type *rhs)
         return new_type_int();
 }
 
-Type *local_types;
-Type *global_types;
-
 Type *find_type(Token *tok)
 {
-    for (Type *type = local_types; type; type = type->next)
+    for (Scope *scope = current_scope; scope; scope = scope->prev)
     {
-        if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
+        for (Type *type = scope->types; type; type = type->next)
         {
-            return type;
-        }
-    }
-    for (Type *type = global_types; type; type = type->next)
-    {
-        if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
-        {
-            return type;
+            if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
+            {
+                return type;
+            }
         }
     }
     return NULL;
@@ -143,15 +136,7 @@ Type *def_type(Token *tok, Type *ty, bool is_local)
     new_type->array_size = ty->array_size;
     new_type->members = ty->members;
     new_type->size = ty->size;
-    if (is_local)
-    {
-        new_type->next = local_types;
-        local_types = new_type;
-    }
-    else
-    {
-        new_type->next = global_types;
-        global_types = new_type;
-    }
+    new_type->next = current_scope->types;
+    current_scope->types = new_type;
     return new_type;
 }

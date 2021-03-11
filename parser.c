@@ -608,7 +608,6 @@ void program()
         nodes[i] = node;
         i++;
         offset = 0;
-        local_types = NULL;
     }
     nodes[i + 1] = NULL;
 }
