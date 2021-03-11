@@ -511,10 +511,7 @@ static Node *block()
 
 static Node *func(Token *ident, Type *ty)
 {
-    Scope *scope = calloc(1, sizeof(Node));
-    scope->prev = current_scope;
-    current_scope->next = scope;
-    current_scope = scope;
+    new_scope();
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_FUNCDEF;
     node->name = ident->string;
@@ -539,7 +536,7 @@ static Node *func(Token *ident, Type *ty)
     }
     node->rhs = block();
     node->args_region_size = offset;
-    current_scope = current_scope->prev;
+    exit_scope();
     return node;
 }
 

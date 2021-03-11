@@ -227,6 +227,10 @@ Type *determine_expr_type(Type *lhs, Type *rhs);
 Type *def_type(Token *tok, Type *ty, bool is_local);
 Type *find_type(Token *tok);
 
+// scope.c
+void new_scope();
+void exit_scope();
+
 // util.c
 bool not(bool flag);
 void error(char *fmt, ...);
