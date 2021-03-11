@@ -566,7 +566,7 @@ Node *funcs[100];
 void gen_asm_intel()
 {
     println(".intel_syntax noprefix");
-    println(".bss");
+    println(".data");
     program();
     int i = 0;
     int func_count = 0;
@@ -587,13 +587,28 @@ void gen_asm_intel()
     while (sv)
     {
         println("L%.*s.%d:", sv->length, sv->name, sv->label);
-        println("  .long 0");
-        //println("  .zero  %d", calc_bytes(sv->ty));
+        switch (sv->ty->ty)
+        {
+        case CHAR:
+            println("  .byte %d", sv->init_val);
+            break;
+        case INT:
+            println("  .long %d", sv->init_val);
+            break;
+        case PTR:
+            println("  .quad %d", sv->init_val);
+            break;
+        case ARRAY:
+        case STRUCT:
+            println("  .zero  %d", calc_bytes(sv->ty));
+            break;
+        default:
+            error("型がサポートされていません");
+        }
 
         sv = sv->next;
     }
 
-    println(".data");
     while (s)
     {
         println(".LC%d:", s->label);

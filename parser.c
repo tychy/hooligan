@@ -19,7 +19,7 @@ static int new_string(char *p, int length)
     return strlabel;
 }
 
-static void new_static_var(char *name, int length, Type *ty, int label)
+static void new_static_var(char *name, int length, Type *ty, int label, int init_val)
 {
     StaticVar *new_static = calloc(1, sizeof(StaticVar));
     new_static->length = length;
@@ -27,6 +27,7 @@ static void new_static_var(char *name, int length, Type *ty, int label)
     new_static->ty = ty;
     new_static->next = statics;
     new_static->label = label;
+    new_static->init_val = init_val;
     statics = new_static;
     return;
 }
@@ -472,7 +473,12 @@ static Node *defl()
         else if (is_static)
         {
             Var *svar = def_var_static(ident, ty, true);
-            new_static_var(ident->string, ident->length, ty, svar->label);
+            int val = 0;
+            if (consume("="))
+            {
+                val = expect_number();
+            }
+            new_static_var(ident->string, ident->length, ty, svar->label, val);
             return new_node_nop();
         }
         Var *lvar = def_var(ident, ty, true);

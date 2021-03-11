@@ -198,6 +198,7 @@ struct StaticVar
     int length;
     Type *ty;
     int label;
+    int init_val;
     StaticVar *next;
 };
 struct Member
