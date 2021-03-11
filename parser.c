@@ -21,7 +21,7 @@ static int new_string(char *p, int length)
 
 static Node *unary();
 static Node *expr();
-static Node *stmt();
+static Node *block();
 
 static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
@@ -412,19 +412,7 @@ static Node *defl()
 static Node *stmt()
 {
     Node *node;
-    if (consume("{"))
-    {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_BLOCK;
-        Node *cur = node;
-        while (!consume("}"))
-        {
-            cur->statements = stmt();
-            cur = cur->statements;
-        }
-        return node;
-    }
-    else if (consume_rw(TK_RETURN))
+    if (consume_rw(TK_RETURN))
     {
         node = new_node_single(ND_RETURN, expr());
         expect(";");
@@ -434,13 +422,13 @@ static Node *stmt()
         expect("(");
         Node *condition = expr();
         expect(")");
-        Node *iftrue = stmt();
+        Node *iftrue = block();
         node = calloc(1, sizeof(Node));
         node->kind = ND_IF;
         node->condition = condition;
         node->body = iftrue;
         if (consume_rw(TK_ELSE))
-            node->on_else = stmt();
+            node->on_else = block();
     }
     else if (consume_rw(TK_FOR))
     {
@@ -477,7 +465,7 @@ static Node *stmt()
             on_end = expr();
             expect(")");
         }
-        Node *body = stmt();
+        Node *body = block();
         node = calloc(1, sizeof(Node));
         node->kind = ND_FOR;
         node->init = init;
@@ -490,7 +478,7 @@ static Node *stmt()
         expect("(");
         Node *condition = expr();
         expect(")");
-        Node *body = stmt();
+        Node *body = block();
         node = calloc(1, sizeof(Node));
         node->kind = ND_WHILE;
         node->condition = condition;
@@ -502,6 +490,23 @@ static Node *stmt()
         expect(";");
     }
     return node;
+}
+
+static Node *block()
+{
+    if (consume("{"))
+    {
+        Node *node = calloc(1, sizeof(Node));
+        node->kind = ND_BLOCK;
+        Node *cur = node;
+        while (!consume("}"))
+        {
+            cur->statements = block();
+            cur = cur->statements;
+        }
+        return node;
+    }
+    return stmt();
 }
 
 static Node *func(Token *ident, Type *ty)
@@ -528,7 +533,7 @@ static Node *func(Token *ident, Type *ty)
         arg_top->lhs = arg;
         arg_top = arg;
     }
-    node->rhs = stmt();
+    node->rhs = block();
     if (locals)
         node->args_region_size = locals->offset;
     else
