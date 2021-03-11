@@ -35,7 +35,7 @@ static void gen_for(Node *node)
     int lab = node->loop_label;
     if (node->init != NULL)
         gen(node->init);
-    println(".Lforstart%d:", lab);
+    println(".LLoopStart%d:", lab);
 
     if (node->condition != NULL)
         gen(node->condition);
@@ -43,14 +43,14 @@ static void gen_for(Node *node)
         println("  push 1"); // 無条件でtrueとなるように
     println("  pop rax");
     println("  cmp rax, 0");
-    println("  je .Lforend%d", lab);
+    println("  je .LLoopEnd%d", lab);
 
     gen(node->body);
 
     if (node->on_end != NULL)
         gen(node->on_end);
-    println("  jmp .Lforstart%d", lab);
-    println(".Lforend%d:", lab);
+    println("  jmp .LLoopStart%d", lab);
+    println(".LLoopEnd%d:", lab);
 }
 
 static void gen_while(Node *node)
@@ -58,14 +58,14 @@ static void gen_while(Node *node)
     if (node->kind != ND_WHILE)
         error("while文ではありません");
     int lab = node->loop_label;
-    println(".Lwhilestart%d:", lab);
+    println(".LLoopStart%d:", lab);
     gen(node->condition);
     println("  pop rax");
     println("  cmp rax, 0");
-    println("  je .Lwhileend%d", lab);
+    println("  je .LLoopEnd%d", lab);
     gen(node->body);
-    println("  jmp .Lwhilestart%d", lab);
-    println(".Lwhileend%d:", lab);
+    println("  jmp .LLoopStart%d", lab);
+    println(".LLoopEnd%d:", lab);
 }
 
 static void gen_if(Node *node)
