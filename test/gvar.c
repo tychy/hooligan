@@ -135,6 +135,15 @@ int e_one;
 int e_two;
 int testExtern()
 {
+    // 勝手に０で初期化されているっぽい？
+    if (e_one != 0)
+    {
+        return 1;
+    }
+    if (e_two != 0)
+    {
+        return 1;
+    }
     testExternHelp();
     if (e_one != 1111)
     {
