@@ -194,7 +194,11 @@ static void gen_addr(Node *node)
         gen(node->child);
         return;
     case ND_VAR:
-        if (node->is_local)
+        if (node->is_local && node->is_static)
+        {
+            println("  lea rax, L%.*s", node->length, node->name);
+        }
+        else if (node->is_local)
         {
             println("  mov rax, rbp");
             println("  sub rax, %d", node->offset);
@@ -553,6 +557,7 @@ void gen(Node *node)
 }
 
 String *strings;
+StaticVar *statics;
 int label = 0; // なんのラベルかわからん
 Node *nodes[200];
 Node *funcs[100];
@@ -577,6 +582,15 @@ void gen_asm_intel()
         i++;
     }
     String *s = strings;
+    StaticVar *sv = statics;
+    while (sv)
+    {
+        println("L%.*s:", sv->length, sv->name);
+        println("  .zero  %d", calc_bytes(sv->ty));
+
+        sv = sv->next;
+    }
+
     println(".data");
     while (s)
     {
