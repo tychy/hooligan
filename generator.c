@@ -196,7 +196,8 @@ static void gen_addr(Node *node)
     case ND_VAR:
         if (node->is_local && node->is_static)
         {
-            println("  lea rax, L%.*s", node->length, node->name);
+            println("  lea rax, L%.*s.%d", node->length, node->name, node->scope_label);
+            push(RG_RAX);
         }
         else if (node->is_local)
         {
@@ -585,8 +586,9 @@ void gen_asm_intel()
     StaticVar *sv = statics;
     while (sv)
     {
-        println("L%.*s:", sv->length, sv->name);
-        println("  .zero  %d", calc_bytes(sv->ty));
+        println("L%.*s.%d:", sv->length, sv->name, sv->label);
+        println("  .long 0");
+        //println("  .zero  %d", calc_bytes(sv->ty));
 
         sv = sv->next;
     }
