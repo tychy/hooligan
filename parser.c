@@ -108,6 +108,11 @@ static Node *num()
     return new_node_num(expect_number());
 }
 
+static Node *chara()
+{
+    return new_node_num(expect_char());
+}
+
 static Node *ident()
 {
     Token *ident = consume_ident();
@@ -171,6 +176,10 @@ static Node *primary()
     else if (token->kind == TK_NUMBER)
     {
         node = num();
+    }
+    else if (token->kind == TK_CHAR)
+    {
+        node = chara();
     }
     else if (token->kind == TK_IDENT)
     {

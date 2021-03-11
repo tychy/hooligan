@@ -96,6 +96,17 @@ int expect_number()
     return value;
 }
 
+int expect_char()
+{
+    if (token->kind != TK_CHAR)
+    {
+        error("文字ではありません");
+        int value = token->value;
+        token = token->next;
+        return value;
+    }
+}
+
 Token *consume_ident()
 {
     if (token->kind != TK_IDENT)

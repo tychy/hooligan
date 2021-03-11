@@ -222,6 +222,7 @@ bool consume_rw(TokenKind tk);
 Type *consume_type();
 void expect(char *op);
 int expect_number();
+int expect_char();
 bool at_eof();
 Token *consume_ident();
 
