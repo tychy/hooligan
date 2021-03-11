@@ -328,6 +328,14 @@ void gen(Node *node)
     case ND_NUM:
         push_val(node->val);
         return;
+    case ND_NOT:
+        gen(node->child);
+        pop(RG_RAX);
+        println("  cmp rax, 0");
+        println("  sete al");
+        println("  movzb rax, al");
+        push(RG_RAX);
+        return;
     case ND_VAR:
         gen_addr(node);
         if (node->ty->ty == ARRAY)
@@ -542,6 +550,18 @@ void gen(Node *node)
         println("  movzb rax, al");
         push(RG_RAX);
         ;
+        break;
+    case ND_AND:
+        pop(RG_RDI);
+        pop(RG_RAX);
+        println("  and rax, rdi");
+        push(RG_RAX);
+        break;
+    case ND_OR:
+        pop(RG_RDI);
+        pop(RG_RAX);
+        println("  or rax, rdi");
+        push(RG_RAX);
         break;
     }
 }

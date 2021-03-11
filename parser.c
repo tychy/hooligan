@@ -236,6 +236,10 @@ static Node *unary()
     {
         return new_node(ND_SUB, new_node_num(0), primary());
     }
+    else if (consume("!"))
+    {
+        return new_node_single(ND_NOT, unary());
+    }
     else if (consume("&"))
     {
         return new_node_single(ND_ADDR, unary());
@@ -348,9 +352,28 @@ static Node *equality()
     }
 }
 
-static Node *assign()
+static Node *logical()
 {
     Node *node = equality();
+    for (;;)
+    {
+        if (consume("&&"))
+        {
+            node = new_node(ND_AND, node, equality());
+        }
+        else if (consume("||"))
+        {
+            node = new_node(ND_OR, node, equality());
+        }
+        else
+        {
+            return node;
+        }
+    }
+}
+static Node *assign()
+{
+    Node *node = logical();
     if (consume("+="))
     {
         Node *rhs = new_node(ND_ADD, node, expr());
