@@ -111,16 +111,32 @@ Type *determine_expr_type(Type *lhs, Type *rhs)
         return new_type_int();
 }
 
-Type *get_defined_type(Token *ident)
+Type *find_type(Token *tok)
 {
-    Var *defined_type = find_var(ident, true, true);
-    if (!defined_type)
+    for (Scope *scope = current_scope; scope; scope = scope->prev)
     {
-        defined_type = find_var(ident, false, true);
+        for (Type *type = scope->types; type; type = type->next)
+        {
+            if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
+            {
+                return type;
+            }
+        }
     }
-    if (!defined_type)
-    {
-        return NULL;
-    }
-    return defined_type->ty;
+    return NULL;
+}
+
+Type *def_type(Token *tok, Type *ty, bool is_local)
+{
+    Type *new_type = calloc(1, sizeof(Type));
+    new_type->name = tok->string;
+    new_type->length = tok->length;
+    new_type->ty = ty->ty;
+    new_type->ptr_to = ty->ptr_to;
+    new_type->array_size = ty->array_size;
+    new_type->members = ty->members;
+    new_type->size = ty->size;
+    new_type->next = current_scope->types;
+    current_scope->types = new_type;
+    return new_type;
 }

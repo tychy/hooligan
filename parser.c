@@ -18,9 +18,11 @@ static int new_string(char *p, int length)
     strings = new_string;
     return strlabel;
 }
+
 static Node *unary();
 static Node *expr();
-static Node *stmt();
+static Node *block();
+
 static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
     Node *node = calloc(1, sizeof(Node));
@@ -33,21 +35,21 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     return node;
 }
 
-static Node *new_node_single(NodeKind kind, Node *lhs)
+static Node *new_node_single(NodeKind kind, Node *child)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
-    node->lhs = lhs;
+    node->child = child;
     if (kind == ND_DEREF)
     {
-        if (is_int_or_char(lhs->ty))
+        if (is_int_or_char(child->ty))
             error("pointer型である必要があります");
-        node->ty = lhs->ty->ptr_to;
+        node->ty = child->ty->ptr_to;
     }
     else if (kind == ND_ADDR)
-        node->ty = new_type_ptr(node->lhs->ty);
+        node->ty = new_type_ptr(node->child->ty);
     else
-        node->ty = lhs->ty;
+        node->ty = child->ty;
     return node;
 }
 
@@ -69,33 +71,21 @@ static Node *new_node_num(int val)
     return node;
 }
 
-static Node *new_node_var(Var *lvar)
+static Node *new_node_var(Var *var)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_VAR;
-    node->offset = lvar->offset;
-    node->ty = lvar->ty;
-    node->is_local = true;
-    return node;
-}
-
-static Node *new_node_glob_var(Token *tok, Type *ty)
-{
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_VAR;
-    node->name = tok->string;
-    node->length = tok->length;
-    node->ty = ty;
-    node->is_local = false;
-}
-
-static Node *new_node_func(char *name, int length)
-{
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_FUNC;
-    node->name = name;
-    node->length = length;
-    node->ty = new_type_int();
+    if (var->is_local)
+    {
+        node->offset = var->offset;
+    }
+    else
+    {
+        node->name = var->name;
+        node->length = var->length;
+    }
+    node->ty = var->ty;
+    node->is_local = var->is_local;
     return node;
 }
 
@@ -118,7 +108,12 @@ static Node *ident()
     Token *ident = consume_ident();
     if (consume("("))
     {
-        Node *node = new_node_func(ident->string, ident->length);
+        Node *node = calloc(1, sizeof(Node));
+        node->kind = ND_FUNC;
+        node->name = ident->string;
+        node->length = ident->length;
+        node->ty = new_type_int(); // TODO 関数の戻り値をどこかに保存しなければならない
+
         Node *arg_top = node;
         int count = 0;
         while (!consume(")"))
@@ -126,7 +121,7 @@ static Node *ident()
             if (count > 0)
                 expect(",");
             Node *arg = new_node_single(ND_ARG, expr());
-            arg_top->rhs = arg;
+            arg_top->next = arg;
             arg_top = arg;
             count++;
         }
@@ -134,31 +129,21 @@ static Node *ident()
     }
     else
     {
-        Var *lvar = find_var(ident, true, false);
-
-        if (lvar)
+        Var *var = find_var(ident);
+        if (var)
         {
-
-            return new_node_var(lvar);
+            return new_node_var(var);
         }
-        else
         {
-            Var *gvar = find_var(ident, false, false);
-            if (gvar)
+            // for sizeof
+            Type *ty = find_type(ident);
+            if (!ty)
             {
-                return new_node_glob_var(ident, gvar->ty);
+                error("識別子が解決できませんでした");
             }
-            else
-            {
-                Type *ty = get_defined_type(ident);
-                if (!ty)
-                {
-                    error("識別子が解決できませんでした");
-                }
-                Node *node = calloc(1, sizeof(Node));
-                node->ty = ty;
-                return node;
-            }
+            Node *node = calloc(1, sizeof(Node));
+            node->ty = ty;
+            return node;
         }
     }
 }
@@ -379,7 +364,7 @@ static Node *init()
         {
             expect(",");
             Node *init = new_node_single(ND_INIT, expr());
-            init_top->rhs = init;
+            init_top->next = init;
             init_top = init;
         }
         return node;
@@ -405,7 +390,12 @@ static Node *defl()
             ty = new_type_array(ty, size);
             expect("]");
         }
-        Var *lvar = def_var(ident, ty, true, is_typedef);
+        if (is_typedef)
+        {
+            def_type(ident, ty, true);
+            return new_node_num(0); // なにかNodeをかえさなきゃいけないので適当に返してるだけ
+        }
+        Var *lvar = def_var(ident, ty, true);
         Node *node = new_node_var(lvar);
         if (consume("="))
         {
@@ -422,40 +412,30 @@ static Node *defl()
 static Node *stmt()
 {
     Node *node;
-    if (consume("{"))
-    {
-        Node *cur = calloc(1, sizeof(Node));
-        cur->kind = ND_BLOCK;
-        node = cur;
-        while (!consume("}"))
-        {
-            cur->lhs = stmt();
-            cur->rhs = calloc(1, sizeof(Node));
-            cur->kind = ND_BLOCK;
-            cur = cur->rhs;
-        }
-        return node;
-    }
-    else if (consume_rw(TK_RETURN))
+    if (consume_rw(TK_RETURN))
     {
         node = new_node_single(ND_RETURN, expr());
         expect(";");
     }
     else if (consume_rw(TK_IF))
     {
+        new_scope();
         expect("(");
         Node *condition = expr();
         expect(")");
-        Node *iftrue = stmt();
+        Node *iftrue = block();
         node = calloc(1, sizeof(Node));
         node->kind = ND_IF;
         node->condition = condition;
         node->body = iftrue;
         if (consume_rw(TK_ELSE))
-            node->on_else = stmt();
+            node->on_else = block();
+        node->cond_label = current_scope->label;
+        exit_scope();
     }
     else if (consume_rw(TK_FOR))
     {
+        start_loop();
         Node *init;
         Node *condition;
         Node *on_end;
@@ -489,24 +469,41 @@ static Node *stmt()
             on_end = expr();
             expect(")");
         }
-        Node *body = stmt();
+        Node *body = block();
         node = calloc(1, sizeof(Node));
         node->kind = ND_FOR;
         node->init = init;
         node->condition = condition;
         node->on_end = on_end;
         node->body = body;
+        node->loop_label = current_scope->loop_label;
+        end_loop();
     }
     else if (consume_rw(TK_WHILE))
     {
+        start_loop();
         expect("(");
         Node *condition = expr();
         expect(")");
-        Node *body = stmt();
+        Node *body = block();
         node = calloc(1, sizeof(Node));
         node->kind = ND_WHILE;
         node->condition = condition;
         node->body = body;
+        node->loop_label = current_scope->loop_label;
+        end_loop();
+    }
+    else if (consume_rw(TK_BREAK))
+    {
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_BREAK;
+        node->loop_label = current_scope->loop_label;
+    }
+    else if (consume_rw(TK_CONTINUE))
+    {
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_CONTINUE;
+        node->loop_label = current_scope->loop_label;
     }
     else
     {
@@ -516,8 +513,35 @@ static Node *stmt()
     return node;
 }
 
+static Node *block()
+{
+    if (consume("{"))
+    {
+        if (consume("}"))
+        {
+            return new_node_num(0); // empty block
+        }
+        new_scope();
+        Node *node;
+        Node *cur = calloc(1, sizeof(Node));
+        cur->kind = ND_BLOCK;
+        node = cur;
+        while (!consume("}"))
+        {
+            cur->lhs = block();
+            cur->rhs = calloc(1, sizeof(Node));
+            cur->kind = ND_BLOCK;
+            cur = cur->rhs;
+        }
+        exit_scope();
+        return node;
+    }
+    return stmt();
+}
+
 static Node *func(Token *ident, Type *ty)
 {
+    new_scope();
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_FUNCDEF;
     node->name = ident->string;
@@ -535,16 +559,14 @@ static Node *func(Token *ident, Type *ty)
         if (!arg_ty)
             error("引数に型がありません");
         Token *arg_token = consume_ident();
-        Var *lvar = def_var(arg_token, arg_ty, true, false);
+        Var *lvar = def_var(arg_token, arg_ty, true);
         Node *arg = new_node_var(lvar);
         arg_top->lhs = arg;
         arg_top = arg;
     }
-    node->rhs = stmt();
-    if (locals)
-        node->args_region_size = locals->offset;
-    else
-        node->args_region_size = 0;
+    node->rhs = block();
+    node->args_region_size = offset;
+    exit_scope();
     return node;
 }
 
@@ -556,7 +578,7 @@ static Node *glob_var(Token *ident, Type *ty)
     node->length = ident->length;
     node->ty = ty;
     expect(";");
-    def_var(ident, ty, false, false);
+    def_var(ident, ty, false);
     return node;
 }
 
@@ -568,7 +590,6 @@ static Node *def()
     {
         error("定義式に型がありません");
     }
-
     Token *ident = consume_ident();
     if (is_typedef)
     {
@@ -578,7 +599,7 @@ static Node *def()
             ty = new_type_array(ty, arr_size);
             expect("]");
         }
-        def_var(ident, ty, false, true);
+        def_type(ident, ty, false);
         expect(";");
         return NULL;
     }
@@ -604,6 +625,7 @@ static Node *def()
 
 void program()
 {
+    current_scope = calloc(1, sizeof(Scope));
     int i = 0;
     while (!at_eof())
     {
@@ -612,8 +634,7 @@ void program()
             continue;
         nodes[i] = node;
         i++;
-        locals = NULL;
-        local_defined_types = NULL;
+        offset = 0;
     }
     nodes[i + 1] = NULL;
 }

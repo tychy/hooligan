@@ -28,14 +28,14 @@ static void println(char *fmt, ...) {
   printf("\n");
 }
 
-static void gen_for(Node *node, int lab)
+static void gen_for(Node *node)
 {
     if (node->kind != ND_FOR)
         error("for文ではありません");
-
+    int lab = node->loop_label;
     if (node->init != NULL)
         gen(node->init);
-    println(".Lforstart%d:", lab);
+    println(".LLoopStart%d:", lab);
 
     if (node->condition != NULL)
         gen(node->condition);
@@ -43,35 +43,37 @@ static void gen_for(Node *node, int lab)
         println("  push 1"); // 無条件でtrueとなるように
     println("  pop rax");
     println("  cmp rax, 0");
-    println("  je .Lforend%d", lab);
+    println("  je .LLoopEnd%d", lab);
 
     gen(node->body);
 
     if (node->on_end != NULL)
         gen(node->on_end);
-    println("  jmp .Lforstart%d", lab);
-    println(".Lforend%d:", lab);
+    println("  jmp .LLoopStart%d", lab);
+    println(".LLoopEnd%d:", lab);
 }
 
-static void gen_while(Node *node, int lab)
+static void gen_while(Node *node)
 {
     if (node->kind != ND_WHILE)
         error("while文ではありません");
-    println(".Lwhilestart%d:", lab);
+    int lab = node->loop_label;
+    println(".LLoopStart%d:", lab);
     gen(node->condition);
     println("  pop rax");
     println("  cmp rax, 0");
-    println("  je .Lwhileend%d", lab);
+    println("  je .LLoopEnd%d", lab);
     gen(node->body);
-    println("  jmp .Lwhilestart%d", lab);
-    println(".Lwhileend%d:", lab);
+    println("  jmp .LLoopStart%d", lab);
+    println(".LLoopEnd%d:", lab);
 }
 
-static void gen_if(Node *node, int lab)
+static void gen_if(Node *node)
 {
     if (node->kind != ND_IF)
         error("if文ではありません");
     bool else_exist = node->on_else;
+    int lab = node->cond_label;
     gen(node->condition);
     println("  pop rax");
     println("  cmp rax, 0");
@@ -95,7 +97,7 @@ static void gen_function(Node *node)
     {
         error("関数ではありません");
     }
-    Node *arg = node->rhs;
+    Node *arg = node->next;
     Node *first_arg = NULL;
     int count = 0;
     while (arg != NULL)
@@ -108,11 +110,11 @@ static void gen_function(Node *node)
         if (count == 0)
         {
             first_arg = arg;
-            arg = arg->rhs;
+            arg = arg->next;
             count++;
             continue;
         }
-        gen(arg->lhs);
+        gen(arg->child);
 
         if (count < 6)
         {
@@ -124,12 +126,12 @@ static void gen_function(Node *node)
             error("引数の数が多すぎます");
         }
 
-        arg = arg->rhs;
+        arg = arg->next;
         count++;
     }
     if (first_arg != NULL)
     {
-        gen(first_arg->lhs);
+        gen(first_arg->child);
         println("  pop %s", reg64[0]);
     }
     println("  call %.*s", node->length, node->name);
@@ -151,7 +153,7 @@ static void gen_addr(Node *node)
     switch (node->kind)
     {
     case ND_DEREF:
-        gen(node->lhs);
+        gen(node->child);
         return;
     case ND_VAR:
         if (node->is_local)
@@ -167,7 +169,7 @@ static void gen_addr(Node *node)
         }
         return;
     case ND_MEMBER:
-        gen_addr(node->lhs);
+        gen_addr(node->child);
         println("  pop rax");
         println("  add rax, %d", node->member->offset);
         println("  push rax");
@@ -245,7 +247,7 @@ static void gen_assign(Node *node)
         while (cur)
         {
             gen_addr(node->lhs);
-            gen(cur->lhs);
+            gen(cur->child);
             println("  pop rdi");
             println("  pop rax");
             println("  add rax, %d", calc_bytes(node->lhs->ty->ptr_to) * counter);
@@ -257,7 +259,7 @@ static void gen_assign(Node *node)
             }
             else
                 println("  mov [rax], rdi");
-            cur = cur->rhs;
+            cur = cur->next;
             counter++;
         }
         return;
@@ -306,7 +308,7 @@ void gen(Node *node)
         gen_assign(node);
         return;
     case ND_RETURN:
-        gen(node->lhs);
+        gen(node->child);
         println("  pop rax");
         println("  mov rsp, rbp");
         println("  pop rbp");
@@ -314,11 +316,11 @@ void gen(Node *node)
         return;
     case ND_IF:
         label++;
-        gen_if(node, label);
+        gen_if(node);
         return;
     case ND_FOR:
         label++;
-        gen_for(node, label);
+        gen_for(node);
         return;
     case ND_BLOCK:
         if (node->lhs == NULL)
@@ -330,7 +332,13 @@ void gen(Node *node)
         return;
     case ND_WHILE:
         label++;
-        gen_while(node, label);
+        gen_while(node);
+        return;
+    case ND_BREAK:
+        println("  jmp .LLoopEnd%d", node->loop_label);
+        return;
+    case ND_CONTINUE:
+        println("  jmp .LLoopStart%d", node->loop_label);
         return;
     case ND_FUNC:
         gen_function(node);
@@ -344,7 +352,6 @@ void gen(Node *node)
     case ND_STRING:
         println("  push offset .LC%d", node->strlabel);
         return;
-
     case ND_MEMBER:
         gen_addr(node);
         if (node->ty->ty == ARRAY)
@@ -364,10 +371,10 @@ void gen(Node *node)
         printf("  push rax\n");
         return;
     case ND_ADDR:
-        gen_addr(node->lhs);
+        gen_addr(node->child);
         return;
     case ND_DEREF:
-        gen(node->lhs);
+        gen(node->child);
         println("  pop rax");
         if (is_int(node->ty))
             println("  mov eax, [rax]");

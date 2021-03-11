@@ -29,7 +29,7 @@ static char *operator_list[22] = {
 
 static int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
 
-static char *reserved_word_list[10] = {
+static char *reserved_word_list[12] = {
     "return",
     "if",
     "else",
@@ -40,6 +40,8 @@ static char *reserved_word_list[10] = {
     "char",
     "struct",
     "typedef",
+    "break",
+    "continue",
 };
 
 static int reserved_word_list_count = sizeof(reserved_word_list) / sizeof(reserved_word_list[0]);

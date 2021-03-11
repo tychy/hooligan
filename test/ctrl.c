@@ -24,9 +24,57 @@ int testCtrl()
         return 1;
     return 0;
 }
+
+int testBreak()
+{
+    int res = -1;
+    for (int i = 0; i < 100; i = i + 1)
+    {
+        if (i == 50)
+        {
+            res = i;
+            break;
+        }
+    }
+    if (res != 50)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int testWhileContinue()
+{
+    int total = 0;
+    int i = 0;
+    while (i <= 10)
+    {
+        if (i / 2 != i - i / 2) // 奇数
+        {
+            i = i + 1;
+            continue;
+        }
+        total = total + i;
+        i = i + 1;
+    }
+    if (total != 30)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testCtrl() != 0)
+    {
+        return 1;
+    }
+    if (testBreak() != 0)
+    {
+        return 1;
+    }
+    if (testWhileContinue() != 0)
     {
         return 1;
     }

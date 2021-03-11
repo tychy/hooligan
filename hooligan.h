@@ -9,7 +9,6 @@
 #include <string.h>
 #include <errno.h>
 
-
 // NOTE: 予約語を先頭に持ってくる
 typedef enum
 {
@@ -23,6 +22,8 @@ typedef enum
     TK_CHAR,
     TK_STRUCT,
     TK_TYPEDEF,
+    TK_BREAK,
+    TK_CONTINUE,
     // add reserved word above
     TK_OPERATOR,
     TK_NUMBER,
@@ -60,6 +61,8 @@ typedef enum
     ND_STRING,
     ND_INIT,
     ND_MEMBER,
+    ND_BREAK,
+    ND_CONTINUE,
 } NodeKind;
 
 typedef enum
@@ -79,6 +82,7 @@ typedef struct Node Node;
 typedef struct Var Var;
 typedef struct String String;
 typedef struct Member Member;
+typedef struct Scope Scope;
 
 struct Token
 {
@@ -88,6 +92,7 @@ struct Token
     int length;
     char *string;
 };
+
 struct Type
 {
     TypeKind ty;
@@ -95,20 +100,29 @@ struct Type
     size_t array_size;
     int size; // structで使う
     Member *members;
+
+    // for defined type
+    char *name;
+    int length;
+    Type *next;
 };
+
 struct Node
 {
     NodeKind kind;
-    Node *lhs;
-    Node *rhs;
     int val;
     int offset;
     char *name;
     int length;
     Type *ty;
 
-    // for variable
-    bool is_local;
+    // for binary tree node
+    Node *lhs;
+    Node *rhs;
+    // for single child node
+    Node *child;
+    // for
+    Node *next;
 
     // for(init; condition; on_end) body;
     Node *init;
@@ -119,14 +133,22 @@ struct Node
     // if(condition) body else on_else
     Node *on_else;
 
+    // for variable
+    bool is_local;
+
     // for function
     int args_region_size;
+    Node *args;
 
     // for string
     int strlabel;
 
     //for struct
     Member *member;
+
+    // labels
+    int loop_label; // for, while
+    int cond_label; // if, else
 };
 struct Var
 {
@@ -157,15 +179,23 @@ struct Member
     int offset;
 };
 
+struct Scope
+{
+    Var *variables;
+    Type *types;
+    Scope *prev;
+    Scope *next;
+    int label;
+    int loop_label; // for break and continue
+};
+
 // Declaration of global variables
 extern int label;
+extern int offset;
 extern Token *token;
 extern Node *nodes[200];
-extern Var *locals;
-extern Var *globals;
-extern Var *local_defined_types;
-extern Var *global_defined_types;
 extern String *strings;
+extern Scope *current_scope;
 
 // Declaration of functions
 // read_token.c
@@ -187,8 +217,8 @@ void program();
 void gen_asm_intel();
 
 // variable.c
-Var *find_var(Token *tok, bool is_local, bool is_typedef);
-Var *def_var(Token *tok, Type *ty, bool is_local, bool is_typedef);
+Var *find_var(Token *tok);
+Var *def_var(Token *tok, Type *ty, bool is_local);
 
 // type.c
 Type *new_type_int();
@@ -202,7 +232,14 @@ bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
 int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
-Type *get_defined_type(Token *ident);
+Type *def_type(Token *tok, Type *ty, bool is_local);
+Type *find_type(Token *tok);
+
+// scope.c
+void new_scope();
+void exit_scope();
+void start_loop();
+void end_loop();
 
 // util.c
 bool not(bool flag);
