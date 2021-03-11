@@ -456,9 +456,13 @@ static Node *defl()
         def_var(ident, ty, false);
         return new_node_nop();
     }
-    Type *ty = consume_type();
-    if (ty)
+    else
     {
+        Type *ty = consume_type();
+        if (not(ty))
+        {
+            return expr();
+        }
         Token *ident = consume_ident();
         if (consume("["))
         {
@@ -473,10 +477,6 @@ static Node *defl()
             node = new_node_assign(node, init());
         }
         return node;
-    }
-    else
-    {
-        return expr();
     }
 }
 
