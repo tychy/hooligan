@@ -22,6 +22,8 @@ typedef enum
     TK_CHAR,
     TK_STRUCT,
     TK_TYPEDEF,
+    TK_BREAK,
+    TK_CONTINUE,
     // add reserved word above
     TK_OPERATOR,
     TK_NUMBER,
@@ -59,6 +61,8 @@ typedef enum
     ND_STRING,
     ND_INIT,
     ND_MEMBER,
+    ND_BREAK,
+    ND_CONTINUE,
 } NodeKind;
 
 typedef enum
@@ -125,7 +129,6 @@ struct Node
     Node *condition;
     Node *on_end;
     Node *body;
-
 
     // if(condition) body else on_else
     Node *on_else;
