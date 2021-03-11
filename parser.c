@@ -19,13 +19,14 @@ static int new_string(char *p, int length)
     return strlabel;
 }
 
-static void new_static_var(char *name, int length, Type *ty)
+static void new_static_var(char *name, int length, Type *ty, int label)
 {
     StaticVar *new_static = calloc(1, sizeof(StaticVar));
     new_static->length = length;
     new_static->name = name;
     new_static->ty = ty;
     new_static->next = statics;
+    new_static->label = label;
     statics = new_static;
     return;
 }
@@ -95,14 +96,15 @@ static Node *new_node_var(Var *var)
     {
         node->offset = var->offset;
     }
-    else
-    {
-        node->name = var->name;
-        node->length = var->length;
-    }
+    node->name = var->name;
+    node->length = var->length;
     node->ty = var->ty;
     node->is_local = var->is_local;
     node->is_static = var->is_static;
+    if (node->is_static)
+    {
+        node->scope_label = var->label;
+    }
     return node;
 }
 
@@ -456,7 +458,6 @@ static Node *defl()
     if (ty)
     {
         Token *ident = consume_ident();
-        Node *node;
         if (consume("["))
         {
             int size = expect_number();
@@ -470,15 +471,12 @@ static Node *defl()
         }
         else if (is_static)
         {
-            new_static_var(ident->string, ident->length, ty);
             Var *svar = def_var_static(ident, ty, true);
-            node = new_node_var(svar);
+            new_static_var(ident->string, ident->length, ty, svar->label);
+            return new_node_nop();
         }
-        else
-        {
-            Var *lvar = def_var(ident, ty, true);
-            node = new_node_var(lvar);
-        }
+        Var *lvar = def_var(ident, ty, true);
+        Node *node = new_node_var(lvar);
         if (consume("="))
         {
             node = new_node_assign(node, init());
