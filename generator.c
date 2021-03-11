@@ -164,7 +164,17 @@ static void gen_function(Node *node)
         gen(first_arg->child);
         pop(0);
     }
+    bool flag = false;
+    if (depth % 2 == 0)
+    {
+        println("  sub rsp, 8");
+        flag = true;
+    }
     println("  call %.*s", node->length, node->name);
+    if (flag)
+    {
+        println("  add rsp, 8");
+    }
     push(RG_RAX);
 }
 
