@@ -493,6 +493,18 @@ static Node *stmt()
         node->loop_label = current_scope->loop_label;
         end_loop();
     }
+    else if (consume_rw(TK_BREAK))
+    {
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_BREAK;
+        node->loop_label = current_scope->loop_label;
+    }
+    else if (consume_rw(TK_CONTINUE))
+    {
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_CONTINUE;
+        node->loop_label = current_scope->loop_label;
+    }
     else
     {
         node = defl();
