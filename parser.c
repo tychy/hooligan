@@ -71,6 +71,11 @@ static Node *new_node_num(int val)
     return node;
 }
 
+static Node *new_node_nop()
+{
+    return new_node_num(0);
+}
+
 static Node *new_node_var(Var *var)
 {
     Node *node = calloc(1, sizeof(Node));
@@ -386,9 +391,31 @@ static Node *expr()
     return assign();
 }
 
+static Node *deftype()
+{
+    Type *ty = consume_type();
+    if (not(ty))
+    {
+        error("定義式に型がありません");
+    }
+    Token *ident = consume_ident();
+    if (consume("["))
+    {
+        int size = expect_number();
+        ty = new_type_array(ty, size);
+        expect("]");
+    }
+    def_type(ident, ty, true);
+    return new_node_nop();
+}
+
 static Node *defl()
 {
-    bool is_typedef = consume_rw(TK_TYPEDEF);
+    if (consume_rw(TK_TYPEDEF))
+    {
+        return deftype();
+    };
+    bool is_extern = consume_rw(TK_EXTERN);
     Type *ty = consume_type();
     if (ty)
     {
@@ -399,10 +426,10 @@ static Node *defl()
             ty = new_type_array(ty, size);
             expect("]");
         }
-        if (is_typedef)
+        if (is_extern)
         {
-            def_type(ident, ty, true);
-            return new_node_num(0); // なにかNodeをかえさなきゃいけないので適当に返してるだけ
+            def_var(ident, ty, false);
+            return new_node_nop();
         }
         Var *lvar = def_var(ident, ty, true);
         Node *node = new_node_var(lvar);
@@ -593,26 +620,20 @@ static Node *glob_var(Token *ident, Type *ty)
 
 static Node *def()
 {
-    bool is_typedef = consume_rw(TK_TYPEDEF);
+    Node *node;
+    if (consume_rw(TK_TYPEDEF))
+    {
+        node = deftype();
+        expect(";");
+        return node;
+    }
+    bool is_extern = consume_rw(TK_EXTERN);
     Type *ty = consume_type();
     if (!ty)
     {
         error("定義式に型がありません");
     }
     Token *ident = consume_ident();
-    if (is_typedef)
-    {
-        if (consume("["))
-        {
-            int arr_size = expect_number();
-            ty = new_type_array(ty, arr_size);
-            expect("]");
-        }
-        def_type(ident, ty, false);
-        expect(";");
-        return NULL;
-    }
-    Node *node;
     if (consume("("))
     {
         node = func(ident, ty);
@@ -627,6 +648,10 @@ static Node *def()
             expect("]");
         }
         node = glob_var(ident, ty);
+        if (is_extern)
+        {
+            return new_node_nop();
+        }
     }
 
     return node;

@@ -123,6 +123,40 @@ int testGvarHard()
     return 0;
 }
 
+extern int e_one; // この行を消すと"識別子を解決できませんでした"となる
+int testExternHelp()
+{
+
+    extern int e_two;
+    e_one = 1111;
+    e_two = 2222;
+    return 0;
+}
+int e_one;
+int e_two;
+int testExtern()
+{
+    // 勝手に０で初期化されているっぽい？
+    if (e_one != 0)
+    {
+        return 1;
+    }
+    if (e_two != 0)
+    {
+        return 1;
+    }
+    testExternHelp();
+    if (e_one != 1111)
+    {
+        return 1;
+    }
+    if (e_two != 2222)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testGvar() != 0)
@@ -138,6 +172,10 @@ int main()
         return 1;
     }
     if (testGvarHard() != 0)
+    {
+        return 1;
+    }
+    if (testExtern() != 0)
     {
         return 1;
     }
