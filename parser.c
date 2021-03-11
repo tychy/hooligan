@@ -541,6 +541,7 @@ static Node *block()
 
 static Node *func(Token *ident, Type *ty)
 {
+    new_scope();
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_FUNCDEF;
     node->name = ident->string;
@@ -565,6 +566,7 @@ static Node *func(Token *ident, Type *ty)
     }
     node->rhs = block();
     node->args_region_size = offset;
+    exit_scope();
     return node;
 }
 
