@@ -145,6 +145,20 @@ int testArrayHard()
     }
     return 0;
 }
+
+int testArrayCharPtr()
+{
+    char *strings[4] = {
+        "Python",
+        "Ruby",
+        "PHP",
+        "Swift"};
+    for (int i = 0; i < 4; i += 1)
+    {
+        printf(strings[i]);
+    }
+    return 0;
+}
 int main()
 {
     if (testArray() != 0)
@@ -158,6 +172,11 @@ int main()
     }
 
     if (testArrayInitChar() != 0)
+    {
+        return 1;
+    }
+
+    if (testArrayCharPtr() != 0)
     {
         return 1;
     }
