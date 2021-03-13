@@ -443,6 +443,9 @@ void gen(Node *node)
         pop(RG_RAX); // インクリメント後の値がpopされる
         // スタックトップはインクリメント前の値
         return;
+    case ND_NOP:
+        println("  nop");
+        return;
     case ND_ADD:
     case ND_SUB:
         gen(node->lhs);
