@@ -37,13 +37,13 @@ __attribute__((format(printf, 1, 2))) static void println(char *fmt, ...)
 int depth;
 static void push(RegisterName r)
 {
-    println("  push  %s", reg64[r]);
+    println("  push %s", reg64[r]);
     depth++;
 }
 
 static void push_val(int val)
 {
-    println("  push  %d", val);
+    println("  push %d", val);
     depth++;
 }
 
@@ -55,7 +55,7 @@ static void push_str_addr(int label)
 
 static void pop(RegisterName r)
 {
-    println("  pop  %s", reg64[r]);
+    println("  pop %s", reg64[r]);
     depth--;
 }
 
@@ -295,9 +295,9 @@ static void gen_assign(Node *node)
             pop(RG_RDI);
             pop(RG_RAX);
             println("  add rax, %d", calc_bytes(node->lhs->ty->ptr_to) * counter);
-            if (is_int(cur->ty))
+            if (is_int(node->lhs->ty->ptr_to))
                 println("  mov [rax], edi");
-            else if (is_char(cur->ty))
+            else if (is_char(node->lhs->ty->ptr_to))
             {
                 println("  mov [rax], dil");
             }
