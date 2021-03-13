@@ -152,7 +152,8 @@ int testArrayCharPtr()
         "Python",
         "Ruby",
         "PHP",
-        "Swift"};
+        "Swift",
+    };
     for (int i = 0; i < 4; i += 1)
     {
         printf(strings[i]);

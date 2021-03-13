@@ -509,12 +509,13 @@ static Node *defl()
                 Node *initial = new_node_single(ND_INIT, expr());
                 Node *cur = initial;
                 int cnt = 1;
+                consume(",");
                 while (!consume("}"))
                 {
-                    expect(",");
                     cur->next = new_node_single(ND_INIT, expr());
                     cur = cur->next;
                     cnt++;
+                    consume(",");
                 }
                 for (; cnt < size; cnt++)
                 {
