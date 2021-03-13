@@ -247,7 +247,7 @@ void gen_asm_intel();
 // variable.c
 Var *find_var(Token *tok);
 Var *def_var(Token *tok, Type *ty, bool is_local);
-Var *def_var_static(Token *tok, Type *ty, bool is_local);
+Var *def_var_static(Token *tok, Type *ty, bool is_local, int init_val);
 // type.c
 Type *new_type_int();
 Type *new_type_char();

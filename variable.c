@@ -37,10 +37,21 @@ Var *def_var(Token *tok, Type *ty, bool is_local)
     return new_var;
 }
 
-Var *def_var_static(Token *tok, Type *ty, bool is_local)
+Var *def_var_static(Token *tok, Type *ty, bool is_local, int init_val)
 {
     Var *new_var = def_var(tok, ty, is_local);
     new_var->is_static = true;
     new_var->label = current_scope->label;
+    // nextメンバが上書きされてしまうので二回Varを生成している
+    Var *new_static = calloc(1, sizeof(Var));
+    new_static->length = tok->length;
+    new_static->name = tok->string;
+    new_static->ty = ty;
+    new_static->next = statics;
+    new_static->label = current_scope->label;
+    new_static->init_val = init_val;
+    new_static->is_static = true;
+    new_static->is_local = true;
+    statics = new_static;
     return new_var;
 }
