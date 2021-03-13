@@ -522,13 +522,31 @@ static Node *defl()
                 Node *initial = new_node_single(ND_INIT, expr());
                 Node *cur = initial;
                 int cnt = 1;
-                consume(",");
-                while (!consume("}"))
+                for (;;)
                 {
-                    cur->next = new_node_single(ND_INIT, expr());
-                    cur = cur->next;
-                    cnt++;
-                    consume(",");
+                    if (consume(","))
+                    {
+                        if (consume("}"))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            if (ty->array_size != -1 && cnt >= ty->array_size)
+                            {
+                                expr();
+                                continue;
+                            }
+                            cur->next = new_node_single(ND_INIT, expr());
+                            cur = cur->next;
+                            cnt++;
+                        }
+                    }
+                    else
+                    {
+                        expect("}");
+                        break;
+                    }
                 }
                 if (ty->array_size == -1)
                 {
