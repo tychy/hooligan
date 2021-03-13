@@ -438,6 +438,7 @@ static Node *deftype()
     return new_node_nop();
 }
 
+// これやばい、いいリファクタがあったら教えてほしい
 static Node *defl()
 {
     if (consume_rw(TK_TYPEDEF))
@@ -495,15 +496,28 @@ static Node *defl()
         Token *ident = consume_ident();
         if (consume("["))
         {
-            int size = expect_number();
+            int size;
+            if (consume("]"))
+            {
+                size = -1; // e.x. int array[] = {1, 2, 3};
+            }
+            else
+            {
+                size = expect_number();
+                expect("]");
+            }
             ty = new_type_array(ty, size);
-            expect("]");
         }
         if (consume("="))
         {
-            if (ty->ty == ARRAY && consume("{"))
+            if (ty->ty != ARRAY)
             {
-                int size = ty->array_size;
+                Var *lvar = def_var(ident, ty, true);
+                Node *node = new_node_var(lvar);
+                return new_node_assign(node, assign());
+            }
+            if (consume("{"))
+            {
                 Node *initial = new_node_single(ND_INIT, expr());
                 Node *cur = initial;
                 int cnt = 1;
@@ -515,18 +529,26 @@ static Node *defl()
                     cnt++;
                     consume(",");
                 }
-                for (; cnt < size; cnt++)
+                if (ty->array_size == -1)
                 {
-                    cur->next = new_node_single(ND_INIT, new_node_num(0));
-                    cur = cur->next;
+                    ty->array_size = cnt;
+                }
+                else
+                {
+                    for (; cnt < ty->array_size; cnt++)
+                    {
+                        cur->next = new_node_single(ND_INIT, new_node_num(0));
+                        cur = cur->next;
+                    }
                 }
                 Var *lvar = def_var(ident, ty, true);
                 Node *node = new_node_var(lvar);
                 return new_node_assign(node, initial);
             }
-            Var *lvar = def_var(ident, ty, true);
-            Node *node = new_node_var(lvar);
-            return new_node_assign(node, assign());
+            else
+            {
+                error("不正な初期化式です");
+            }
         }
         else
         {

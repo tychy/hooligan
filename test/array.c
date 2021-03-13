@@ -160,6 +160,43 @@ int testArrayCharPtr()
     }
     return 0;
 }
+
+int testArrayNonSpecifyCount()
+{
+    int a[] = {10, 11, 12};
+    int b[3] = {10, 11, 12};
+    if (sizeof(a) != sizeof(b))
+    {
+        return 1;
+    }
+    for (int i = 0; i < 3; i += 1)
+    {
+        if (a[i] != b[i])
+        {
+            return 1;
+        }
+    }
+    int c[] = {'h', 'e', 'l', 'l', 'o', 0};
+    int d[6] = {'h', 'e', 'l', 'l', 'o', 0};
+    if (sizeof(c) != sizeof(d))
+    {
+        return 1;
+    }
+    int cnt = 0;
+    for (; cnt < sizeof(d) / sizeof(d[0]); cnt += 1)
+    {
+        if (c[cnt] != d[cnt])
+        {
+            return 1;
+        }
+    }
+    if (cnt != 6)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testArray() != 0)
@@ -183,6 +220,11 @@ int main()
     }
 
     if (testArrayHard() != 0)
+    {
+        return 1;
+    }
+
+    if (testArrayNonSpecifyCount() != 0)
     {
         return 1;
     }
