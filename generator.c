@@ -437,6 +437,12 @@ void gen(Node *node)
             println("  mov rax, [rax]");
         push(RG_RAX);
         return;
+    case ND_POSTINC:
+        gen(node->lhs); // インクリメント前の値がpushされる
+        gen(node->rhs); // インクリメント後の値がpushされる
+        pop(RG_RAX); // インクリメント後の値がpopされる
+        // スタックトップはインクリメント前の値
+        return;
     case ND_ADD:
     case ND_SUB:
         gen(node->lhs);

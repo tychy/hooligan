@@ -246,6 +246,21 @@ static Node *primary()
             continue;
         }
 
+        if (consume("++"))
+        {
+            // インクリメントできるかのチェックがいるかも？
+            // 多分int++とかするとセグフォする
+            if (node->kind != ND_VAR)
+            {
+                error("変数ではありません");
+            }
+            Node *variable = node;
+            node = new_node(ND_ADD, variable, new_node_num(1));
+            node = new_node_assign(variable, node);
+            node = new_node(ND_POSTINC, variable, node);
+            return node;
+        }
+
         return node;
     }
 }
