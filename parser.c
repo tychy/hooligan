@@ -1,5 +1,5 @@
 #include "hooligan.h"
-static int new_string(char *p, int length)
+static String *new_string(char *p, int length)
 {
     int strlabel;
     String *new_string = calloc(1, sizeof(String));
@@ -16,7 +16,7 @@ static int new_string(char *p, int length)
     new_string->label = strlabel;
     new_string->next = strings;
     strings = new_string;
-    return strlabel;
+    return new_string;
 }
 
 static void new_static_var(char *name, int length, Type *ty, int label, int init_val)
@@ -109,11 +109,11 @@ static Node *new_node_var(Var *var)
     return node;
 }
 
-static Node *new_node_string(int strlabel)
+static Node *new_node_string(String *s)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_STRING;
-    node->strlabel = strlabel;
+    node->strlabel = s->label;
     node->ty = new_type_string();
     return node;
 }
@@ -279,9 +279,9 @@ static Node *unary()
     }
     else if (token->kind == TK_STRING)
     {
-        int strlabel = new_string(token->string, token->length);
+        String *s = new_string(token->string, token->length);
         token = token->next;
-        return new_node_string(strlabel);
+        return new_node_string(s);
     }
     return primary();
 }
