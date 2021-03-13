@@ -561,8 +561,6 @@ void gen(Node *node)
     }
 }
 
-String *strings;
-Var *statics;
 Node *nodes[200];
 Node *funcs[100];
 
@@ -585,8 +583,8 @@ void gen_asm_intel()
         gen(nodes[i]);
         i++;
     }
-    String *s = strings;
-    Var *sv = statics;
+    String *s = ctx->strings;
+    Var *sv = ctx->statics;
     while (sv)
     {
         println("L%.*s.%d:", sv->length, sv->name, sv->label);

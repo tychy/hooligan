@@ -5,17 +5,17 @@ static String *new_string(char *p, int length)
     String *new_string = calloc(1, sizeof(String));
     new_string->length = length;
     new_string->p = p;
-    if (strings)
+    if (ctx->strings)
     {
-        strlabel = strings->label + 1;
+        strlabel = ctx->strings->label + 1;
     }
     else
     {
         strlabel = 0;
     }
     new_string->label = strlabel;
-    new_string->next = strings;
-    strings = new_string;
+    new_string->next = ctx->strings;
+    ctx->strings = new_string;
     return new_string;
 }
 
@@ -621,7 +621,7 @@ static Node *stmt()
         node->body = iftrue;
         if (consume_rw(TK_ELSE))
             node->on_else = block();
-        node->cond_label = current_scope->label;
+        node->cond_label = ctx->scope->label;
         exit_scope();
     }
     else if (consume_rw(TK_FOR))
@@ -667,7 +667,7 @@ static Node *stmt()
         node->condition = condition;
         node->on_end = on_end;
         node->body = body;
-        node->loop_label = current_scope->loop_label;
+        node->loop_label = ctx->scope->loop_label;
         end_loop();
     }
     else if (consume_rw(TK_WHILE))
@@ -681,20 +681,20 @@ static Node *stmt()
         node->kind = ND_WHILE;
         node->condition = condition;
         node->body = body;
-        node->loop_label = current_scope->loop_label;
+        node->loop_label = ctx->scope->loop_label;
         end_loop();
     }
     else if (consume_rw(TK_BREAK))
     {
         node = calloc(1, sizeof(Node));
         node->kind = ND_BREAK;
-        node->loop_label = current_scope->loop_label;
+        node->loop_label = ctx->scope->loop_label;
     }
     else if (consume_rw(TK_CONTINUE))
     {
         node = calloc(1, sizeof(Node));
         node->kind = ND_CONTINUE;
-        node->loop_label = current_scope->loop_label;
+        node->loop_label = ctx->scope->loop_label;
     }
     else
     {
@@ -814,7 +814,8 @@ static Node *def()
 
 void program()
 {
-    current_scope = calloc(1, sizeof(Scope));
+    ctx = calloc(1, sizeof(Context));
+    ctx->scope = calloc(1, sizeof(Scope));
     int i = 0;
     while (!at_eof())
     {

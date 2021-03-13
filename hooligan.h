@@ -103,6 +103,7 @@ typedef struct Var Var;
 typedef struct String String;
 typedef struct Member Member;
 typedef struct Scope Scope;
+typedef struct Context Context;
 
 struct Token
 {
@@ -215,14 +216,17 @@ struct Scope
     int loop_label; // for break and continue
 };
 
+struct Context{
+    Scope *scope;
+    String *strings;
+    Var *statics;
+};
+
 // Declaration of global variables
-extern int label;
 extern int offset;
 extern Token *token;
 extern Node *nodes[200];
-extern String *strings;
-extern Var *statics;
-extern Scope *current_scope;
+extern Context *ctx;
 
 // Declaration of functions
 // read_token.c

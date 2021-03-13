@@ -113,7 +113,7 @@ Type *determine_expr_type(Type *lhs, Type *rhs)
 
 Type *find_type(Token *tok)
 {
-    for (Scope *scope = current_scope; scope; scope = scope->prev)
+    for (Scope *scope = ctx->scope; scope; scope = scope->prev)
     {
         for (Type *type = scope->types; type; type = type->next)
         {
@@ -136,7 +136,7 @@ Type *def_type(Token *tok, Type *ty, bool is_local)
     new_type->array_size = ty->array_size;
     new_type->members = ty->members;
     new_type->size = ty->size;
-    new_type->next = current_scope->types;
-    current_scope->types = new_type;
+    new_type->next = ctx->scope->types;
+    ctx->scope->types = new_type;
     return new_type;
 }
