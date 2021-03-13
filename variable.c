@@ -54,6 +54,18 @@ Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val)
     return new_var;
 }
 
+Var *find_func(Token *tok)
+{
+    for (Var *func = ctx->functions; func; func = func->next)
+    {
+        if (func->length == tok->length && memcmp(func->name, tok->string, func->length) == 0)
+        {
+            return func;
+        }
+    }
+    return NULL;
+}
+
 Var *def_func(Token *tok, Type *ty, bool is_static)
 {
     Var *new_func = calloc(1, sizeof(Var));

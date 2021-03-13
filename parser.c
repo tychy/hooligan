@@ -122,10 +122,19 @@ static Node *ident()
     {
         Node *node = calloc(1, sizeof(Node));
         node->kind = ND_FUNC;
-        node->name = ident->string;
-        node->length = ident->length;
-        node->ty = new_type_int(); // TODO 関数の戻り値をどこかに保存しなければならない
-
+        Var *func = find_func(ident);
+        if (func)
+        {
+            node->name = func->name;
+            node->length = func->length;
+            node->ty = func->ty;
+        }
+        else
+        {
+            node->name = ident->string;
+            node->length = ident->length;
+            node->ty = new_type_int();
+        }
         Node *arg_top = node;
         int count = 0;
         while (!consume(")"))
