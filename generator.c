@@ -367,11 +367,9 @@ void gen(Node *node)
         println("  ret");
         return;
     case ND_IF:
-        label++;
         gen_if(node);
         return;
     case ND_FOR:
-        label++;
         gen_for(node);
         return;
     case ND_BLOCK:
@@ -383,7 +381,6 @@ void gen(Node *node)
         gen(node->rhs);
         return;
     case ND_WHILE:
-        label++;
         gen_while(node);
         return;
     case ND_BREAK:
@@ -566,7 +563,6 @@ void gen(Node *node)
 
 String *strings;
 Var *statics;
-int label = 0; // なんのラベルかわからん
 Node *nodes[200];
 Node *funcs[100];
 
