@@ -168,6 +168,7 @@ static void gen_function(Node *node)
     {
         println("  sub rsp, 8");
     }
+    println("  mov al, 0");
     println("  call %.*s", node->length, node->name);
     if (depth % 2 == 0)
     {
