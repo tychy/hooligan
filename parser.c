@@ -499,13 +499,11 @@ static Node *defl()
             ty = new_type_array(ty, size);
             expect("]");
         }
-        Var *lvar = def_var(ident, ty, true);
-        Node *node = new_node_var(lvar);
         if (consume("="))
         {
-            if (lvar->ty->ty == ARRAY && consume("{"))
+            if (ty->ty == ARRAY && consume("{"))
             {
-                int size = lvar->ty->array_size;
+                int size = ty->array_size;
                 Node *initial = new_node_single(ND_INIT, expr());
                 Node *cur = initial;
                 int cnt = 1;
@@ -522,11 +520,19 @@ static Node *defl()
                     cur->next = new_node_single(ND_INIT, new_node_num(0));
                     cur = cur->next;
                 }
+                Var *lvar = def_var(ident, ty, true);
+                Node *node = new_node_var(lvar);
                 return new_node_assign(node, initial);
             }
+            Var *lvar = def_var(ident, ty, true);
+            Node *node = new_node_var(lvar);
             return new_node_assign(node, assign());
         }
-        return node;
+        else
+        {
+            Var *lvar = def_var(ident, ty, true);
+            return new_node_var(lvar);
+        }
     }
 }
 
