@@ -186,6 +186,8 @@ struct Var
     // for static variable
     bool is_static;
     int init_val;
+    // for function
+    bool is_function;
 };
 
 struct String
@@ -221,6 +223,7 @@ struct Context{
     Scope *scope;
     String *strings;
     Var *statics;
+    Var *functions;
     int offset; // for local variable
     int break_to;
     int continue_to;
@@ -255,6 +258,8 @@ void gen_asm_intel();
 Var *find_var(Token *tok);
 Var *def_var(Token *tok, Type *ty, bool is_local);
 Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val);
+Var *def_func(Token *tok, Type *ty, bool is_static);
+
 // type.c
 Type *new_type_int();
 Type *new_type_char();

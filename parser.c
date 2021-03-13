@@ -730,7 +730,7 @@ static Node *block()
     return stmt();
 }
 
-static Node *func(Token *ident, Type *ty)
+static Node *func(Token *ident, Type *ty, bool is_static)
 {
     new_scope();
     Node *node = calloc(1, sizeof(Node));
@@ -757,6 +757,7 @@ static Node *func(Token *ident, Type *ty)
     }
     node->rhs = block();
     node->args_region_size = ctx->offset;
+    def_func(ident, ty, is_static);
     exit_scope();
     return node;
 }
@@ -783,6 +784,7 @@ static Node *def()
         return node;
     }
     bool is_extern = consume_rw(TK_EXTERN);
+    bool is_static = consume_rw(is_static);
     Type *ty = consume_type();
     if (!ty)
     {
@@ -791,7 +793,7 @@ static Node *def()
     Token *ident = consume_ident();
     if (consume("("))
     {
-        node = func(ident, ty);
+        node = func(ident, ty, is_static);
     }
     else
     {

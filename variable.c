@@ -53,3 +53,16 @@ Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val)
     ctx->statics = new_static;
     return new_var;
 }
+
+Var *def_func(Token *tok, Type *ty, bool is_static)
+{
+    Var *new_func = calloc(1, sizeof(Var));
+    new_func->length = tok->length;
+    new_func->name = tok->string;
+    new_func->ty = ty;
+    new_func->next = ctx->functions;
+    new_func->label = ctx->scope->label;
+    new_func->is_static = is_static;
+    ctx->functions = new_func;
+    return new_func;
+}
