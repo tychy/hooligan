@@ -101,7 +101,6 @@ typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
 typedef struct String String;
-typedef struct StaticVar StaticVar;
 typedef struct Member Member;
 typedef struct Scope Scope;
 
@@ -183,7 +182,9 @@ struct Var
     Var *next;
     bool is_local;
     bool is_typedef;
+    // for static variable
     bool is_static;
+    int init_val;
 };
 
 struct String
@@ -194,15 +195,6 @@ struct String
     String *next;
 };
 
-struct StaticVar
-{
-    char *name;
-    int length;
-    Type *ty;
-    int label;
-    int init_val;
-    StaticVar *next;
-};
 struct Member
 {
 
@@ -229,7 +221,7 @@ extern int offset;
 extern Token *token;
 extern Node *nodes[200];
 extern String *strings;
-extern StaticVar *statics;
+extern Var *statics;
 extern Scope *current_scope;
 
 // Declaration of functions

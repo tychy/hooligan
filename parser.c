@@ -21,13 +21,15 @@ static String *new_string(char *p, int length)
 
 static void new_static_var(char *name, int length, Type *ty, int label, int init_val)
 {
-    StaticVar *new_static = calloc(1, sizeof(StaticVar));
+    Var *new_static = calloc(1, sizeof(Var));
     new_static->length = length;
     new_static->name = name;
     new_static->ty = ty;
     new_static->next = statics;
     new_static->label = label;
     new_static->init_val = init_val;
+    new_static->is_static = true;
+    new_static->is_local = true;
     statics = new_static;
     return;
 }
