@@ -1,5 +1,5 @@
 #include "hooligan.h"
-static int new_string(char *p, int length)
+static String *new_string(char *p, int length)
 {
     int strlabel;
     String *new_string = calloc(1, sizeof(String));
@@ -16,7 +16,7 @@ static int new_string(char *p, int length)
     new_string->label = strlabel;
     new_string->next = strings;
     strings = new_string;
-    return strlabel;
+    return new_string;
 }
 
 static void new_static_var(char *name, int length, Type *ty, int label, int init_val)
@@ -109,11 +109,11 @@ static Node *new_node_var(Var *var)
     return node;
 }
 
-static Node *new_node_string(int strlabel)
+static Node *new_node_string(String *s)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_STRING;
-    node->strlabel = strlabel;
+    node->strlabel = s->label;
     node->ty = new_type_string();
     return node;
 }
@@ -279,9 +279,9 @@ static Node *unary()
     }
     else if (token->kind == TK_STRING)
     {
-        int strlabel = new_string(token->string, token->length);
+        String *s = new_string(token->string, token->length);
         token = token->next;
-        return new_node_string(strlabel);
+        return new_node_string(s);
     }
     return primary();
 }
@@ -438,6 +438,7 @@ static Node *deftype()
     return new_node_nop();
 }
 
+// これやばい、いいリファクタがあったら教えてほしい
 static Node *defl()
 {
     if (consume_rw(TK_TYPEDEF))
@@ -495,37 +496,106 @@ static Node *defl()
         Token *ident = consume_ident();
         if (consume("["))
         {
-            int size = expect_number();
+            int size;
+            if (consume("]"))
+            {
+                size = -1; // e.x. int array[] = {1, 2, 3};
+            }
+            else
+            {
+                size = expect_number();
+                expect("]");
+            }
             ty = new_type_array(ty, size);
-            expect("]");
         }
-        Var *lvar = def_var(ident, ty, true);
-        Node *node = new_node_var(lvar);
         if (consume("="))
         {
-            if (lvar->ty->ty == ARRAY && consume("{"))
+            if (ty->ty != ARRAY)
             {
-                int size = lvar->ty->array_size;
+                Var *lvar = def_var(ident, ty, true);
+                Node *node = new_node_var(lvar);
+                return new_node_assign(node, assign());
+            }
+
+            if (consume("{"))
+            {
                 Node *initial = new_node_single(ND_INIT, expr());
                 Node *cur = initial;
                 int cnt = 1;
-                while (!consume("}"))
+                for (;;)
                 {
-                    expect(",");
-                    cur->next = new_node_single(ND_INIT, expr());
-                    cur = cur->next;
-                    cnt++;
+                    if (consume(","))
+                    {
+                        if (consume("}"))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            if (ty->array_size != -1 && cnt >= ty->array_size)
+                            {
+                                expr();
+                                continue;
+                            }
+                            cur->next = new_node_single(ND_INIT, expr());
+                            cur = cur->next;
+                            cnt++;
+                        }
+                    }
+                    else
+                    {
+                        expect("}");
+                        break;
+                    }
                 }
-                for (; cnt < size; cnt++)
+                if (ty->array_size == -1)
                 {
-                    cur->next = new_node_single(ND_INIT, new_node_num(0));
-                    cur = cur->next;
+                    ty->array_size = cnt;
                 }
+                else
+                {
+                    for (; cnt < ty->array_size; cnt++)
+                    {
+                        cur->next = new_node_single(ND_INIT, new_node_num(0));
+                        cur = cur->next;
+                    }
+                }
+                Var *lvar = def_var(ident, ty, true);
+                Node *node = new_node_var(lvar);
                 return new_node_assign(node, initial);
             }
-            return new_node_assign(node, assign());
+            else if (token->kind == TK_STRING)
+            {
+                if (not(ty->ptr_to->ty == CHAR))
+                {
+                    error("char型の配列が必要です");
+                }
+                ty->array_size = token->length + 1;
+                Var *lvar = def_var(ident, ty, true);
+                Node *node = new_node_var(lvar);
+                Node *initial = new_node_single(ND_INIT, new_node_num(token->string[0]));
+                Node *cur = initial;
+                int cnt = 1;
+                for (int i = 1; i < token->length; i++)
+                {
+                    cur->next = new_node_single(ND_INIT, new_node_num(token->string[i]));
+                    cur = cur->next;
+                }
+                cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
+                cur = cur->next;
+                token = token->next;
+                return new_node_assign(node, initial);
+            }
+            else
+            {
+                error("不正な初期化式です");
+            }
         }
-        return node;
+        else
+        {
+            Var *lvar = def_var(ident, ty, true);
+            return new_node_var(lvar);
+        }
     }
 }
 

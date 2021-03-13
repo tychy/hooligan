@@ -2,6 +2,7 @@ int testArrayInit()
 {
     int x[3] = {1, 2, 3};
     int y[4] = {1, 2, 3};
+    int z[3] = {1, 2, 3, 4, 5};
     if (x[0] != 1)
     {
         return 1;
@@ -30,6 +31,30 @@ int testArrayInit()
     {
         return 1;
     }
+
+    if (z[2] != 3)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int testArrayInitChar()
+{
+    char c_one[4] = {'a', 'b', 'c', 0};
+    if (c_one[0] != 'a')
+    {
+        return 1;
+    }
+    if (c_one[1] != 'b')
+    {
+        return 1;
+    }
+    if (c_one[2] != 'c')
+    {
+        return 1;
+    }
+    printf(c_one);
     return 0;
 }
 
@@ -126,6 +151,69 @@ int testArrayHard()
     }
     return 0;
 }
+
+int testArrayCharPtr()
+{
+    char *strings[4] = {
+        "Python",
+        "Ruby",
+        "PHP",
+        "Swift",
+    };
+    for (int i = 0; i < 4; i += 1)
+    {
+        printf(strings[i]);
+    }
+    return 0;
+}
+
+int testArrayNonSpecifyCount()
+{
+    int a[] = {10, 11, 12};
+    int b[3] = {10, 11, 12};
+    if (sizeof(a) != sizeof(b))
+    {
+        return 1;
+    }
+    for (int i = 0; i < 3; i += 1)
+    {
+        if (a[i] != b[i])
+        {
+            return 1;
+        }
+    }
+    int c[] = {'h', 'e', 'l', 'l', 'o', 0};
+    int d[6] = {'h', 'e', 'l', 'l', 'o', 0};
+    if (sizeof(c) != sizeof(d))
+    {
+        return 1;
+    }
+    int cnt = 0;
+    for (; cnt < sizeof(d) / sizeof(d[0]); cnt += 1)
+    {
+        if (c[cnt] != d[cnt])
+        {
+            return 1;
+        }
+    }
+    if (cnt != 6)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int testArrayInitString()
+{
+    char c_a[] = "java";
+    char c_b[7] = "kotlin";
+    char c_over[3] = "csharp"; // 現状の実装では配列のサイズを上書きしてしまう
+    printf(c_a);
+    printf(c_b);
+    printf(c_over);
+    return 0;
+}
+
 int main()
 {
     if (testArray() != 0)
@@ -138,7 +226,27 @@ int main()
         return 1;
     }
 
+    if (testArrayInitChar() != 0)
+    {
+        return 1;
+    }
+
+    if (testArrayCharPtr() != 0)
+    {
+        return 1;
+    }
+
     if (testArrayHard() != 0)
+    {
+        return 1;
+    }
+
+    if (testArrayNonSpecifyCount() != 0)
+    {
+        return 1;
+    }
+
+    if (testArrayInitString() != 0)
     {
         return 1;
     }
