@@ -726,7 +726,7 @@ static Node *block()
     {
         if (consume("}"))
         {
-            return new_node_num(0); // empty block
+            return new_node_nop();
         }
         new_scope();
         Node *node;
