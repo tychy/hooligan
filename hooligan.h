@@ -221,10 +221,10 @@ struct Context{
     Scope *scope;
     String *strings;
     Var *statics;
+    int offset; // for local variable
 };
 
 // Declaration of global variables
-extern int offset;
 extern Token *token;
 extern Node *nodes[200];
 extern Context *ctx;

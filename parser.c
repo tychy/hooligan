@@ -756,7 +756,7 @@ static Node *func(Token *ident, Type *ty)
         arg_top = arg;
     }
     node->rhs = block();
-    node->args_region_size = offset;
+    node->args_region_size = ctx->offset;
     exit_scope();
     return node;
 }
@@ -822,7 +822,7 @@ void program()
         Node *node = def();
         nodes[i] = node;
         i++;
-        offset = 0;
+        ctx->offset = 0;
     }
     nodes[i + 1] = NULL;
 }

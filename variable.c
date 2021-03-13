@@ -1,7 +1,5 @@
 #include "hooligan.h"
 
-int offset;
-
 Var *find_var(Token *tok)
 {
     for (Scope *scope = ctx->scope; scope; scope = scope->prev)
@@ -27,8 +25,8 @@ Var *def_var(Token *tok, Type *ty, bool is_local)
     if (is_local)
     {
         int var_size = calc_bytes(ty);
-        offset += var_size;
-        new_var->offset = offset;
+        ctx->offset += var_size;
+        new_var->offset = ctx->offset;
     }
     new_var->next = ctx->scope->variables;
     ctx->scope->variables = new_var;
