@@ -516,6 +516,7 @@ static Node *defl()
                 Node *node = new_node_var(lvar);
                 return new_node_assign(node, assign());
             }
+
             if (consume("{"))
             {
                 Node *initial = new_node_single(ND_INIT, expr());
@@ -543,6 +544,28 @@ static Node *defl()
                 }
                 Var *lvar = def_var(ident, ty, true);
                 Node *node = new_node_var(lvar);
+                return new_node_assign(node, initial);
+            }
+            else if (token->kind == TK_STRING)
+            {
+                if (not(ty->ptr_to->ty == CHAR))
+                {
+                    error("char型の配列が必要です");
+                }
+                ty->array_size = token->length + 1;
+                Var *lvar = def_var(ident, ty, true);
+                Node *node = new_node_var(lvar);
+                Node *initial = new_node_single(ND_INIT, new_node_num(token->string[0]));
+                Node *cur = initial;
+                int cnt = 1;
+                for (int i = 1; i < token->length; i++)
+                {
+                    cur->next = new_node_single(ND_INIT, new_node_num(token->string[i]));
+                    cur = cur->next;
+                }
+                cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
+                cur = cur->next;
+                token = token->next;
                 return new_node_assign(node, initial);
             }
             else

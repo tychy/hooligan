@@ -197,6 +197,15 @@ int testArrayNonSpecifyCount()
     return 0;
 }
 
+int testArrayInitString()
+{
+    char c_a[] = "java";
+    char c_b[7] = "kotlin";
+    printf(c_a);
+    printf(c_b);
+    return 0;
+}
+
 int main()
 {
     if (testArray() != 0)
@@ -225,6 +234,11 @@ int main()
     }
 
     if (testArrayNonSpecifyCount() != 0)
+    {
+        return 1;
+    }
+
+    if (testArrayInitString() != 0)
     {
         return 1;
     }
