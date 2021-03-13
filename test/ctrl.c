@@ -64,6 +64,32 @@ int testWhileContinue()
     return 0;
 }
 
+int testPostIncrement()
+{
+    int sum_one = 0;
+    int sum_two = 0;
+    int cnt = 0;
+    for (int i = 0; i < 100; i++)
+    {
+        // 両者同じ値が足されるはず
+        sum_one += i;
+        sum_two += cnt++;
+    }
+    if (cnt != 100)
+    {
+        return 1;
+    }
+    if (sum_one != 4950)
+    {
+        return 1;
+    }
+    if (sum_two != 4950)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testCtrl() != 0)
@@ -75,6 +101,10 @@ int main()
         return 1;
     }
     if (testWhileContinue() != 0)
+    {
+        return 1;
+    }
+    if (testPostIncrement() != 0)
     {
         return 1;
     }
