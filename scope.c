@@ -20,9 +20,13 @@ void start_loop()
 {
     new_scope();
     ctx->scope->loop_label = ctx->scope->label;
+    ctx->break_to = ctx->scope->loop_label;
+    ctx->continue_to = ctx->scope->loop_label;
 }
 
 void end_loop()
 {
     exit_scope();
+    ctx->break_to = ctx->scope->loop_label;
+    ctx->continue_to = ctx->scope->loop_label;
 }

@@ -688,13 +688,13 @@ static Node *stmt()
     {
         node = calloc(1, sizeof(Node));
         node->kind = ND_BREAK;
-        node->loop_label = ctx->scope->loop_label;
+        node->loop_label = ctx->break_to;
     }
     else if (consume_rw(TK_CONTINUE))
     {
         node = calloc(1, sizeof(Node));
         node->kind = ND_CONTINUE;
-        node->loop_label = ctx->scope->loop_label;
+        node->loop_label = ctx->continue_to;
     }
     else
     {

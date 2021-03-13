@@ -222,6 +222,8 @@ struct Context{
     String *strings;
     Var *statics;
     int offset; // for local variable
+    int break_to;
+    int continue_to;
 };
 
 // Declaration of global variables
