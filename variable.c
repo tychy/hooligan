@@ -37,7 +37,7 @@ Var *def_var(Token *tok, Type *ty, bool is_local)
     return new_var;
 }
 
-Var *def_var_static(Token *tok, Type *ty, bool is_local, int init_val)
+Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val)
 {
     Var *new_var = def_var(tok, ty, is_local);
     new_var->is_static = true;

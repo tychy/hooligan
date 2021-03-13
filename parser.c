@@ -484,7 +484,7 @@ static Node *defl()
         {
             val = expect_number();
         }
-        Var *svar = def_var_static(ident, ty, true, val);
+        Var *svar = def_static_var(ident, ty, true, val);
         return new_node_nop();
     }
     else
