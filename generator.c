@@ -437,7 +437,7 @@ void gen(Node *node)
     case ND_POSTINC:
         gen(node->lhs); // インクリメント前の値がpushされる
         gen(node->rhs); // インクリメント後の値がpushされる
-        pop(RG_RAX); // インクリメント後の値がpopされる
+        pop(RG_RAX);    // インクリメント後の値がpopされる
         // スタックトップはインクリメント前の値
         return;
     case ND_ADD:
@@ -561,11 +561,9 @@ void gen(Node *node)
     }
 }
 
-Node *nodes[200];
-Node *funcs[100];
-
 void gen_asm_intel()
 {
+    Node *funcs[100];
     println(".intel_syntax noprefix");
     println(".data");
     program();

@@ -1,6 +1,7 @@
 #include "hooligan.h"
 
 Token *token;
+Node *nodes[200];
 Context *ctx;
 
 // 指定されたファイルの内容を返す
