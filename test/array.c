@@ -33,6 +33,25 @@ int testArrayInit()
     return 0;
 }
 
+int testArrayInitChar()
+{
+    char c_one[4] = {'a', 'b', 'c', 0};
+    if (c_one[0] != 'a')
+    {
+        return 1;
+    }
+    if (c_one[1] != 'b')
+    {
+        return 1;
+    }
+    if (c_one[2] != 'c')
+    {
+        return 1;
+    }
+    printf(c_one);
+    return 0;
+}
+
 int testArray()
 {
     int a[4];
@@ -134,6 +153,11 @@ int main()
     }
 
     if (testArrayInit() != 0)
+    {
+        return 1;
+    }
+
+    if (testArrayInitChar() != 0)
     {
         return 1;
     }
