@@ -1,13 +1,11 @@
 #include "hooligan.h"
 
-int scope_label = 1;
-
 void new_scope()
 {
     Scope *scope = calloc(1, sizeof(Node));
     scope->prev = ctx->scope;
-    scope_label++;
-    scope->label = scope_label;
+    ctx->scope_serial_num++;
+    scope->label = ctx->scope_serial_num;
     scope->loop_label = ctx->scope->loop_label;
     ctx->scope->next = scope;
     ctx->scope = scope;

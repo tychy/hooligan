@@ -217,6 +217,7 @@ struct Scope
 };
 
 struct Context{
+    int scope_serial_num; // serial number for scope
     Scope *scope;
     String *strings;
     Var *statics;
