@@ -187,8 +187,9 @@ static Node *ident()
                 Node *arg = new_node_single(ND_ARG, expr());
                 arg_top->next = arg;
                 arg_top = arg;
+
+                count++;
             }
-            count++;
         }
 
         return node;
