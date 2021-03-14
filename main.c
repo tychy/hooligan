@@ -1,6 +1,8 @@
 #include "hooligan.h"
 
 Token *token;
+Node *nodes[200];
+Context *ctx;
 
 // 指定されたファイルの内容を返す
 static char *read_file(char *path)

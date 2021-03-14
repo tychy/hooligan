@@ -5,31 +5,18 @@ static String *new_string(char *p, int length)
     String *new_string = calloc(1, sizeof(String));
     new_string->length = length;
     new_string->p = p;
-    if (strings)
+    if (ctx->strings)
     {
-        strlabel = strings->label + 1;
+        strlabel = ctx->strings->label + 1;
     }
     else
     {
         strlabel = 0;
     }
     new_string->label = strlabel;
-    new_string->next = strings;
-    strings = new_string;
+    new_string->next = ctx->strings;
+    ctx->strings = new_string;
     return new_string;
-}
-
-static void new_static_var(char *name, int length, Type *ty, int label, int init_val)
-{
-    StaticVar *new_static = calloc(1, sizeof(StaticVar));
-    new_static->length = length;
-    new_static->name = name;
-    new_static->ty = ty;
-    new_static->next = statics;
-    new_static->label = label;
-    new_static->init_val = init_val;
-    statics = new_static;
-    return;
 }
 
 static Node *unary();
@@ -135,10 +122,19 @@ static Node *ident()
     {
         Node *node = calloc(1, sizeof(Node));
         node->kind = ND_FUNC;
-        node->name = ident->string;
-        node->length = ident->length;
-        node->ty = new_type_int(); // TODO 関数の戻り値をどこかに保存しなければならない
-
+        Var *func = find_func(ident);
+        if (func)
+        {
+            node->name = func->name;
+            node->length = func->length;
+            node->ty = func->ty;
+        }
+        else
+        {
+            node->name = ident->string;
+            node->length = ident->length;
+            node->ty = new_type_int();
+        }
         Node *arg_top = node;
         int count = 0;
         while (!consume(")"))
@@ -492,13 +488,12 @@ static Node *defl()
             ty = new_type_array(ty, size);
             expect("]");
         }
-        Var *svar = def_var_static(ident, ty, true);
         int val = 0;
         if (consume("="))
         {
             val = expect_number();
         }
-        new_static_var(ident->string, ident->length, ty, svar->label, val);
+        Var *svar = def_static_var(ident, ty, true, val);
         return new_node_nop();
     }
     else
@@ -635,7 +630,7 @@ static Node *stmt()
         node->body = iftrue;
         if (consume_rw(TK_ELSE))
             node->on_else = block();
-        node->cond_label = current_scope->label;
+        node->cond_label = ctx->scope->label;
         exit_scope();
     }
     else if (consume_rw(TK_FOR))
@@ -681,7 +676,7 @@ static Node *stmt()
         node->condition = condition;
         node->on_end = on_end;
         node->body = body;
-        node->loop_label = current_scope->loop_label;
+        node->loop_label = ctx->scope->loop_label;
         end_loop();
     }
     else if (consume_rw(TK_WHILE))
@@ -695,20 +690,20 @@ static Node *stmt()
         node->kind = ND_WHILE;
         node->condition = condition;
         node->body = body;
-        node->loop_label = current_scope->loop_label;
+        node->loop_label = ctx->scope->loop_label;
         end_loop();
     }
     else if (consume_rw(TK_BREAK))
     {
         node = calloc(1, sizeof(Node));
         node->kind = ND_BREAK;
-        node->loop_label = current_scope->loop_label;
+        node->loop_label = ctx->break_to;
     }
     else if (consume_rw(TK_CONTINUE))
     {
         node = calloc(1, sizeof(Node));
         node->kind = ND_CONTINUE;
-        node->loop_label = current_scope->loop_label;
+        node->loop_label = ctx->continue_to;
     }
     else
     {
@@ -744,7 +739,7 @@ static Node *block()
     return stmt();
 }
 
-static Node *func(Token *ident, Type *ty)
+static Node *func(Token *ident, Type *ty, bool is_static)
 {
     new_scope();
     Node *node = calloc(1, sizeof(Node));
@@ -770,7 +765,8 @@ static Node *func(Token *ident, Type *ty)
         arg_top = arg;
     }
     node->rhs = block();
-    node->args_region_size = offset;
+    node->args_region_size = ctx->offset;
+    def_func(ident, ty, is_static);
     exit_scope();
     return node;
 }
@@ -797,6 +793,7 @@ static Node *def()
         return node;
     }
     bool is_extern = consume_rw(TK_EXTERN);
+    bool is_static = consume_rw(is_static);
     Type *ty = consume_type();
     if (!ty)
     {
@@ -805,7 +802,7 @@ static Node *def()
     Token *ident = consume_ident();
     if (consume("("))
     {
-        node = func(ident, ty);
+        node = func(ident, ty, is_static);
     }
     else
     {
@@ -828,14 +825,15 @@ static Node *def()
 
 void program()
 {
-    current_scope = calloc(1, sizeof(Scope));
+    ctx = calloc(1, sizeof(Context));
+    ctx->scope = calloc(1, sizeof(Scope));
     int i = 0;
     while (!at_eof())
     {
         Node *node = def();
         nodes[i] = node;
         i++;
-        offset = 0;
+        ctx->offset = 0;
     }
     nodes[i + 1] = NULL;
 }

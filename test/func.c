@@ -29,6 +29,10 @@ int testFuncPtr()
     {
         return 1;
     }
+    if (*(bar(&a)) != 11)
+    {
+        return 1;
+    }
     g[0] = 1;
     g[1] = 2;
     g[2] = 3;

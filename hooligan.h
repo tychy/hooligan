@@ -101,9 +101,9 @@ typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
 typedef struct String String;
-typedef struct StaticVar StaticVar;
 typedef struct Member Member;
 typedef struct Scope Scope;
+typedef struct Context Context;
 
 struct Token
 {
@@ -183,7 +183,11 @@ struct Var
     Var *next;
     bool is_local;
     bool is_typedef;
+    // for static variable
     bool is_static;
+    int init_val;
+    // for function
+    bool is_function;
 };
 
 struct String
@@ -194,15 +198,6 @@ struct String
     String *next;
 };
 
-struct StaticVar
-{
-    char *name;
-    int length;
-    Type *ty;
-    int label;
-    int init_val;
-    StaticVar *next;
-};
 struct Member
 {
 
@@ -223,14 +218,21 @@ struct Scope
     int loop_label; // for break and continue
 };
 
+struct Context{
+    int scope_serial_num; // serial number for scope
+    Scope *scope;
+    String *strings;
+    Var *statics;
+    Var *functions;
+    int offset; // for local variable
+    int break_to;
+    int continue_to;
+};
+
 // Declaration of global variables
-extern int label;
-extern int offset;
 extern Token *token;
 extern Node *nodes[200];
-extern String *strings;
-extern StaticVar *statics;
-extern Scope *current_scope;
+extern Context *ctx;
 
 // Declaration of functions
 // read_token.c
@@ -255,7 +257,10 @@ void gen_asm_intel();
 // variable.c
 Var *find_var(Token *tok);
 Var *def_var(Token *tok, Type *ty, bool is_local);
-Var *def_var_static(Token *tok, Type *ty, bool is_local);
+Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val);
+Var *find_func(Token *tok);
+Var *def_func(Token *tok, Type *ty, bool is_static);
+
 // type.c
 Type *new_type_int();
 Type *new_type_char();

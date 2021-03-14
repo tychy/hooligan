@@ -367,11 +367,9 @@ void gen(Node *node)
         println("  ret");
         return;
     case ND_IF:
-        label++;
         gen_if(node);
         return;
     case ND_FOR:
-        label++;
         gen_for(node);
         return;
     case ND_BLOCK:
@@ -383,7 +381,6 @@ void gen(Node *node)
         gen(node->rhs);
         return;
     case ND_WHILE:
-        label++;
         gen_while(node);
         return;
     case ND_BREAK:
@@ -440,7 +437,7 @@ void gen(Node *node)
     case ND_POSTINC:
         gen(node->lhs); // インクリメント前の値がpushされる
         gen(node->rhs); // インクリメント後の値がpushされる
-        pop(RG_RAX); // インクリメント後の値がpopされる
+        pop(RG_RAX);    // インクリメント後の値がpopされる
         // スタックトップはインクリメント前の値
         return;
     case ND_ADD:
@@ -564,14 +561,9 @@ void gen(Node *node)
     }
 }
 
-String *strings;
-StaticVar *statics;
-int label = 0; // なんのラベルかわからん
-Node *nodes[200];
-Node *funcs[100];
-
 void gen_asm_intel()
 {
+    Node *funcs[100];
     println(".intel_syntax noprefix");
     println(".data");
     program();
@@ -589,8 +581,8 @@ void gen_asm_intel()
         gen(nodes[i]);
         i++;
     }
-    String *s = strings;
-    StaticVar *sv = statics;
+    String *s = ctx->strings;
+    Var *sv = ctx->statics;
     while (sv)
     {
         println("L%.*s.%d:", sv->length, sv->name, sv->label);
