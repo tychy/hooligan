@@ -70,6 +70,7 @@ typedef enum
     ND_OR,
     ND_NOT,
     ND_POSTINC,
+    ND_NOP,
 } NodeKind;
 
 typedef enum

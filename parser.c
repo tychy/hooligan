@@ -73,7 +73,9 @@ static Node *new_node_num(int val)
 
 static Node *new_node_nop()
 {
-    return new_node_num(0);
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_NOP;
+    return node;
 }
 
 static Node *new_node_var(Var *var)
@@ -719,7 +721,7 @@ static Node *block()
     {
         if (consume("}"))
         {
-            return new_node_num(0); // empty block
+            return new_node_nop();
         }
         new_scope();
         Node *node;
