@@ -163,6 +163,10 @@ static Node *ident()
                     arg_top->next = arg;
                     arg_top = arg;
                 }
+                else
+                {
+                    expr();
+                }
                 count++;
             }
             if (not(node->is_void) && count < node->num_args)
