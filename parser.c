@@ -125,29 +125,68 @@ static Node *ident()
         Node *node = calloc(1, sizeof(Node));
         node->kind = ND_FUNC;
         Var *func = find_func(ident);
+        Node *arg_top = node;
+        int count = 0;
+
         if (func)
         {
             node->name = func->name;
             node->length = func->length;
             node->ty = func->ty;
+            node->num_args = func->num_args;
+            for (int i = 0; i < node->num_args; i++)
+            {
+                node->arg_ty_ls[i] = func->arg_ty_ls[i];
+            }
+
+            if (node->num_args != 0 && node->arg_ty_ls[0]->ty == VOID)
+            {
+                node->is_void = true;
+            }
+            else
+            {
+                node->is_void = false;
+            }
+
+            while (!consume(")"))
+            {
+                if (count > 0)
+                    expect(",");
+
+                if (count < node->num_args)
+                {
+                    if (node->is_void)
+                    {
+                        error("引数は予期されていません");
+                    }
+                    Node *arg = new_node_single(ND_ARG, expr());
+                    arg_top->next = arg;
+                    arg_top = arg;
+                }
+                count++;
+            }
+            if (not(node->is_void) && count < node->num_args)
+            {
+                error("引数が少なすぎます got %d, expected %d", count, node->num_args);
+            }
         }
         else
         {
             node->name = ident->string;
             node->length = ident->length;
             node->ty = new_type_int();
-        }
-        Node *arg_top = node;
-        int count = 0;
-        while (!consume(")"))
-        {
-            if (count > 0)
-                expect(",");
-            Node *arg = new_node_single(ND_ARG, expr());
-            arg_top->next = arg;
-            arg_top = arg;
+            while (!consume(")"))
+            {
+                if (count > 0)
+                    expect(",");
+
+                Node *arg = new_node_single(ND_ARG, expr());
+                arg_top->next = arg;
+                arg_top = arg;
+            }
             count++;
         }
+
         return node;
     }
     else

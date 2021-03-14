@@ -164,6 +164,9 @@ struct Node
     // for function
     int args_region_size;
     Node *args;
+    int num_args;
+    Type *arg_ty_ls[6];
+    bool is_void;
 
     // for string
     int strlabel;
