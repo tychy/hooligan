@@ -59,6 +59,10 @@ static Node *new_node_assign(Node *lhs, Node *rhs)
     node->kind = ND_ASSIGN;
     node->lhs = lhs;
     node->rhs = rhs;
+    if (node->rhs->ty->ty == VOID)
+    {
+        error("void型の値は無視しなくてはいけません");
+    }
     node->ty = lhs->ty;
 }
 
@@ -664,8 +668,15 @@ static Node *stmt()
     Node *node;
     if (consume_rw(TK_RETURN))
     {
-        node = new_node_single(ND_RETURN, expr());
-        expect(";");
+        if (consume(";"))
+        {
+            node = new_node_nop();
+        }
+        else
+        {
+            node = new_node_single(ND_RETURN, expr());
+            expect(";");
+        }
     }
     else if (consume_rw(TK_IF))
     {

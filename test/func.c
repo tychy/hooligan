@@ -82,7 +82,7 @@ void setz()
 int testFuncVoid()
 {
     setz();
-
+    int x = setz();
     if (z != 20)
     {
         return 1;
