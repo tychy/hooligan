@@ -189,6 +189,8 @@ struct Var
     int init_val;
     // for function
     bool is_function;
+    int num_args;
+    Type *arg_ty_ls[6];
 };
 
 struct String
@@ -219,7 +221,8 @@ struct Scope
     int loop_label; // for break and continue
 };
 
-struct Context{
+struct Context
+{
     int scope_serial_num; // serial number for scope
     Scope *scope;
     String *strings;
@@ -260,7 +263,7 @@ Var *find_var(Token *tok);
 Var *def_var(Token *tok, Type *ty, bool is_local);
 Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val);
 Var *find_func(Token *tok);
-Var *def_func(Token *tok, Type *ty, bool is_static);
+Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[], bool is_static);
 
 // type.c
 Type *new_type_int();

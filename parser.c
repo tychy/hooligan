@@ -749,13 +749,13 @@ static Node *func(Token *ident, Type *ty, bool is_static)
     node->name = ident->string;
     node->length = ident->length;
     Node *arg_top = node;
-    int arg_count = 0;
+    Type *arg_ty_ls[6];
+    int arg_idx = 0;
     while (!consume(")"))
     {
-        arg_count++;
-        if (arg_count > 6)
+        if (arg_idx >= 6)
             error("引数の数が多すぎます");
-        if (arg_count != 1)
+        if (arg_idx != 0)
             expect(",");
         Type *arg_ty = consume_type();
         if (!arg_ty)
@@ -765,10 +765,12 @@ static Node *func(Token *ident, Type *ty, bool is_static)
         Node *arg = new_node_var(lvar);
         arg_top->lhs = arg;
         arg_top = arg;
+        arg_ty_ls[arg_idx] = arg_ty;
+        arg_idx++;
     }
     node->rhs = block();
     node->args_region_size = ctx->offset;
-    def_func(ident, ty, is_static);
+    def_func(ident, ty, arg_idx, arg_ty_ls, is_static);
     exit_scope();
     return node;
 }
