@@ -760,11 +760,14 @@ static Node *func(Token *ident, Type *ty, bool is_static)
         Type *arg_ty = consume_type();
         if (!arg_ty)
             error("引数に型がありません");
-        Token *arg_token = consume_ident();
-        Var *lvar = def_var(arg_token, arg_ty, true);
-        Node *arg = new_node_var(lvar);
-        arg_top->lhs = arg;
-        arg_top = arg;
+        else if (arg_ty->ty != VOID)
+        {
+            Token *arg_token = consume_ident();
+            Var *lvar = def_var(arg_token, arg_ty, true);
+            Node *arg = new_node_var(lvar);
+            arg_top->lhs = arg;
+            arg_top = arg;
+        }
         arg_ty_ls[arg_idx] = arg_ty;
         arg_idx++;
     }

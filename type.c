@@ -66,6 +66,17 @@ Type *new_type_struct()
     return ty;
 }
 
+Type *new_type_void()
+{
+    static Type *ty;
+    if (!ty)
+    {
+        ty = calloc(1, sizeof(Type));
+        ty->ty = VOID;
+    }
+    return ty;
+}
+
 bool is_int(Type *ty)
 {
     return ty->ty == INT;

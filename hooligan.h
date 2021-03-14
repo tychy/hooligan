@@ -18,6 +18,7 @@ typedef enum
     TK_FOR,
     TK_WHILE,
     TK_SIZEOF,
+    TK_VOID,
     TK_INT,
     TK_CHAR,
     TK_STRUCT,
@@ -75,12 +76,12 @@ typedef enum
 
 typedef enum
 {
+    VOID,
     INT,
     CHAR,
     PTR,
     ARRAY,
     STRUCT,
-
 } TypeKind;
 
 typedef enum
@@ -269,6 +270,8 @@ Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[], bool is_sta
 Type *new_type_int();
 Type *new_type_char();
 Type *new_type_string();
+Type *new_type_void();
+
 Type *new_type_ptr(Type *ptr_to);
 Type *new_type_array(Type *ptr_to, size_t size);
 Type *new_type_struct();

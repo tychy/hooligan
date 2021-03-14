@@ -213,7 +213,18 @@ int testArrayInitString()
     printf(c_over);
     return 0;
 }
-
+int foovoid(void)
+{
+    return 11;
+}
+int testArrayVoid()
+{
+    if (foovoid() != 11)
+    {
+        return 1;
+    }
+    return 0;
+}
 int main()
 {
     if (testArray() != 0)
@@ -247,6 +258,11 @@ int main()
     }
 
     if (testArrayInitString() != 0)
+    {
+        return 1;
+    }
+
+    if (testArrayVoid() != 0)
     {
         return 1;
     }
