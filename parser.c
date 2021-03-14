@@ -134,12 +134,7 @@ static Node *ident()
             node->length = func->length;
             node->ty = func->ty;
             node->num_args = func->num_args;
-            for (int i = 0; i < node->num_args; i++)
-            {
-                node->arg_ty_ls[i] = func->arg_ty_ls[i];
-            }
-
-            if (node->num_args != 0 && node->arg_ty_ls[0]->ty == VOID)
+            if (node->num_args != 0 && func->arg_ty_ls[0]->ty == VOID)
             {
                 node->is_void = true;
             }
