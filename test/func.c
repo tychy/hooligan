@@ -7,6 +7,25 @@ int testFunc()
     }
     return 0;
 }
+int sums(int x, int y)
+{
+    return x + y;
+}
+int testFuncTooMany()
+{
+    int x = 10;
+    int y = 22;
+    if (sums(x, y) != 32)
+    {
+        return 1;
+    }
+
+    if (sums(x, y, y) != 32)
+    {
+        return 1;
+    }
+    return 0;
+}
 int a;
 int g[10];
 
@@ -42,14 +61,34 @@ int testFuncPtr()
     }
     return 0;
 }
-
+int foovoid(void)
+{
+    return 11;
+}
+int testFuncVoid()
+{
+    if (foovoid() != 11)
+    {
+        return 1;
+    }
+    return 0;
+}
 int main()
 {
     if (testFunc() != 0)
     {
         return 1;
     }
+    if (testFuncTooMany() != 0)
+    {
+        return 1;
+    }
+
     if (testFuncPtr() != 0)
+    {
+        return 1;
+    }
+    if (testFuncVoid() != 0)
     {
         return 1;
     }
