@@ -522,6 +522,10 @@ static Node *defl()
         {
             error("定義式に型がありません");
         }
+        else if (ty->ty == VOID)
+        {
+            error("void型の変数は定義できません");
+        }
         Token *ident = consume_ident();
         if (consume("["))
         {
@@ -544,6 +548,11 @@ static Node *defl()
         {
             return expr();
         }
+        else if (ty->ty == VOID)
+        {
+            error("void型の変数は定義できません");
+        }
+
         Token *ident = consume_ident();
         if (consume("["))
         {
@@ -825,6 +834,11 @@ static Node *glob_var(Token *ident, Type *ty)
     node->length = ident->length;
     node->ty = ty;
     expect(";");
+    if (ty->ty == VOID)
+    {
+        error("void型の変数は定義できません");
+    }
+
     def_var(ident, ty, false);
     return node;
 }
