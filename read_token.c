@@ -36,6 +36,10 @@ Type *consume_type()
     {
         ty = new_type_struct();
     }
+    else if (consume_rw(TK_VOID))
+    {
+        ty = new_type_void();
+    }
     else
     {
         return NULL;

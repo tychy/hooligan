@@ -125,29 +125,68 @@ static Node *ident()
         Node *node = calloc(1, sizeof(Node));
         node->kind = ND_FUNC;
         Var *func = find_func(ident);
+        Node *arg_top = node;
+        int count = 0;
+
         if (func)
         {
             node->name = func->name;
             node->length = func->length;
             node->ty = func->ty;
+            node->num_args = func->num_args;
+            if (node->num_args != 0 && func->arg_ty_ls[0]->ty == VOID)
+            {
+                node->is_void = true;
+            }
+            else
+            {
+                node->is_void = false;
+            }
+
+            while (!consume(")"))
+            {
+                if (count > 0)
+                    expect(",");
+
+                if (count < node->num_args)
+                {
+                    if (node->is_void)
+                    {
+                        error("引数は予期されていません");
+                    }
+                    Node *arg = new_node_single(ND_ARG, expr());
+                    arg_top->next = arg;
+                    arg_top = arg;
+                }
+                else
+                {
+                    expr();
+                }
+                count++;
+            }
+            if (not(node->is_void) && count < node->num_args)
+            {
+                error("引数が少なすぎます got %d, expected %d", count, node->num_args);
+            }
         }
         else
         {
             node->name = ident->string;
             node->length = ident->length;
             node->ty = new_type_int();
+            while (!consume(")"))
+            {
+                if (count > 0)
+                    expect(",");
+
+                Node *arg = new_node_single(ND_ARG, expr());
+                arg_top->next = arg;
+                arg_top = arg;
+
+                count++;
+            }
         }
-        Node *arg_top = node;
-        int count = 0;
-        while (!consume(")"))
-        {
-            if (count > 0)
-                expect(",");
-            Node *arg = new_node_single(ND_ARG, expr());
-            arg_top->next = arg;
-            arg_top = arg;
-            count++;
-        }
+
         return node;
     }
     else
@@ -749,26 +788,31 @@ static Node *func(Token *ident, Type *ty, bool is_static)
     node->name = ident->string;
     node->length = ident->length;
     Node *arg_top = node;
-    int arg_count = 0;
+    Type *arg_ty_ls[6];
+    int arg_idx = 0;
     while (!consume(")"))
     {
-        arg_count++;
-        if (arg_count > 6)
+        if (arg_idx >= 6)
             error("引数の数が多すぎます");
-        if (arg_count != 1)
+        if (arg_idx != 0)
             expect(",");
         Type *arg_ty = consume_type();
         if (!arg_ty)
             error("引数に型がありません");
-        Token *arg_token = consume_ident();
-        Var *lvar = def_var(arg_token, arg_ty, true);
-        Node *arg = new_node_var(lvar);
-        arg_top->lhs = arg;
-        arg_top = arg;
+        else if (arg_ty->ty != VOID)
+        {
+            Token *arg_token = consume_ident();
+            Var *lvar = def_var(arg_token, arg_ty, true);
+            Node *arg = new_node_var(lvar);
+            arg_top->lhs = arg;
+            arg_top = arg;
+        }
+        arg_ty_ls[arg_idx] = arg_ty;
+        arg_idx++;
     }
     node->rhs = block();
     node->args_region_size = ctx->offset;
-    def_func(ident, ty, is_static);
+    def_func(ident, ty, arg_idx, arg_ty_ls, is_static);
     exit_scope();
     return node;
 }

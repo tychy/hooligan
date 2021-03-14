@@ -35,13 +35,14 @@ static char *operator_list[28] = {
 
 static int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
 
-static char *reserved_word_list[14] = {
+static char *reserved_word_list[15] = {
     "return",
     "if",
     "else",
     "for",
     "while",
     "sizeof",
+    "void",
     "int",
     "char",
     "struct",
@@ -162,8 +163,9 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if(*p == 39){ // ' バックスラッシュによるエスケープを使いたくなかった
-        
+        if (*p == 39)
+        { // ' バックスラッシュによるエスケープを使いたくなかった
+
             p++;
             cur = new_token(TK_CHARACTER, cur, p);
             cur->length = 1;
