@@ -65,7 +65,7 @@ int foovoid(void)
 {
     return 11;
 }
-int testFuncVoid()
+int testFuncArgVoid()
 {
     if (foovoid() != 11)
     {
@@ -73,6 +73,22 @@ int testFuncVoid()
     }
     return 0;
 }
+int z;
+void setz()
+{
+    z = 20;
+    return;
+}
+int testFuncVoid()
+{
+    setz();
+    if (z != 20)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testFunc() != 0)
@@ -88,10 +104,9 @@ int main()
     {
         return 1;
     }
-    if (testFuncVoid() != 0)
+    if (testFuncArgVoid() != 0)
     {
         return 1;
     }
-
     return 0;
 }

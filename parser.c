@@ -59,6 +59,10 @@ static Node *new_node_assign(Node *lhs, Node *rhs)
     node->kind = ND_ASSIGN;
     node->lhs = lhs;
     node->rhs = rhs;
+    if (node->rhs->ty->ty == VOID)
+    {
+        error("void型の値は無視しなくてはいけません");
+    }
     node->ty = lhs->ty;
 }
 
@@ -522,6 +526,10 @@ static Node *defl()
         {
             error("定義式に型がありません");
         }
+        else if (ty->ty == VOID)
+        {
+            error("void型の変数は定義できません");
+        }
         Token *ident = consume_ident();
         if (consume("["))
         {
@@ -544,6 +552,11 @@ static Node *defl()
         {
             return expr();
         }
+        else if (ty->ty == VOID)
+        {
+            error("void型の変数は定義できません");
+        }
+
         Token *ident = consume_ident();
         if (consume("["))
         {
@@ -655,8 +668,15 @@ static Node *stmt()
     Node *node;
     if (consume_rw(TK_RETURN))
     {
-        node = new_node_single(ND_RETURN, expr());
-        expect(";");
+        if (consume(";"))
+        {
+            node = new_node_single(ND_RETURN, new_node_num(0));
+        }
+        else
+        {
+            node = new_node_single(ND_RETURN, expr());
+            expect(";");
+        }
     }
     else if (consume_rw(TK_IF))
     {
@@ -825,6 +845,11 @@ static Node *glob_var(Token *ident, Type *ty)
     node->length = ident->length;
     node->ty = ty;
     expect(";");
+    if (ty->ty == VOID)
+    {
+        error("void型の変数は定義できません");
+    }
+
     def_var(ident, ty, false);
     return node;
 }
