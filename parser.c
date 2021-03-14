@@ -670,7 +670,7 @@ static Node *stmt()
     {
         if (consume(";"))
         {
-            node = new_node_nop();
+            node = new_node_single(ND_RETURN, new_node_num(0));
         }
         else
         {
