@@ -21,7 +21,7 @@ done
 
 shift $((OPTIND - 1))
 if "${VALUE_D}"; then
-    docker-compose run hooligan ./bin/hdb -d false $1
+    docker-compose run hooligan ./bin/hdb -d false ${@:1}
     exit
 fi
 compile "$@"
