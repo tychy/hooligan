@@ -23,6 +23,7 @@ assembly() {
 }
 
 src() {
+    make
     compile ${@:1}
     for fn in $(find . -name '*.s'); do
         printf "\n$(basename $fn)\n"
@@ -32,6 +33,7 @@ src() {
 }
 
 exec() {
+    make
     compile ${@:1}
     assembly
     ./a.out
