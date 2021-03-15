@@ -68,7 +68,6 @@ runtest() {
 }
 
 runtestold() {
-    make
     set +e
     for fn in testold/question/*; do
         i=$(basename $fn)
@@ -89,6 +88,15 @@ runtestold() {
         fi
     done
     set -e
+    clean
+}
+
+runtestmulti() {
+    compile multi/a.c multi/b.c
+    assembly
+    printf "multi file test"
+    ./a.out
+    printf "...passed\n"
     clean
 }
 
@@ -116,6 +124,7 @@ elif [ $1 = "test" ]; then
     if [ $# = 2 ] && [ $2 = "all" ]; then
         runtest
         runtestold
+        runtestmulti
     else
         runtest
     fi
