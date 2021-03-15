@@ -122,7 +122,7 @@ static void gen_if(Node *node)
     println(".Lend%d:", lab);
 }
 
-static void gen_function(Node *node)
+static void gen_function(Node *node) // gen_function_callとかのほうがいい気がする
 {
     if (node->kind != ND_FUNC)
     {
@@ -224,7 +224,7 @@ static void gen_addr(Node *node)
     }
 }
 
-static void gen_function_def(Node *node)
+static void gen_function_def(Node *node) // こっちがgen_functionという名前がいい気がする
 {
     if (node->kind != ND_FUNCDEF)
     {
