@@ -50,7 +50,7 @@ asm() {
 runtest() {
     result=0
     for fn in test/*; do
-        ./bin/hcc $fn
+        compile $fn
         find *.s | xargs cc -static
         printf $fn
         ./a.out
@@ -75,7 +75,7 @@ runtestold() {
         afile=testold/answer/$i
         expected="$(cat $afile)"
 
-        ./bin/hcc $qfile
+        compile $qfile
         find *.s | xargs cc # シンプルなテストなのでstaticをつけなくてもよい
         printf $qfile
         ./a.out
