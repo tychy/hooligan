@@ -564,9 +564,8 @@ void gen(Node *node)
     }
 }
 
-void gen_asm_intel(FILE *file)
+void gen_asm_intel()
 {
-    output = file;
     Node *funcs[100];
     println(".intel_syntax noprefix");
     println(".data");
