@@ -46,9 +46,9 @@ int main(int argc, char **argv)
 
     FILE *file = fopen("tmp.s", "w");
     if (file == NULL)
-    {                            // オープンに失敗した場合
-        printf("cannot open\n"); // エラーメッセージを出して
-        exit(1);                 // 異常終了
+    {
+        printf("cannot open\n");
+        exit(1);
     }
     gen_asm_intel(file);
 
