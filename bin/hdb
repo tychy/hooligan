@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# set -e -> エラーがでたらそこでストップする
+# set -u -> 未定義変数をエラーにする
+# set -o pipefail -> |の前がfailしたらそこでストップする
 set -euo pipefail
 
 compile() {
@@ -9,5 +12,17 @@ compile() {
     rm *.s
 }
 
+VALUE_D=true
+while getopts d: OPT; do
+    case $OPT in
+    'd') VALUE_D=$OPTARG ;;
+    esac
+done
+
+shift $((OPTIND - 1))
+if "${VALUE_D}"; then
+    docker-compose run hooligan ./bin/hdb -d false $1
+    exit
+fi
 compile "$@"
 ./a.out
