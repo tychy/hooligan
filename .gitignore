@@ -3,3 +3,4 @@ tmp
 *.out
 *.s
 .envrc
+bin/hcc
