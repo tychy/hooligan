@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -euo pipefail
+
+compile() {
+    make
+    ./bin/exe.out "$@"
+    find *.s | xargs cc -static
+    rm *.s
+}
+
+compile "$@"
+./a.out
