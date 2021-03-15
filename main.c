@@ -41,6 +41,7 @@ int main(int argc, char **argv)
     }
     for (int i = 1; i < argc; i++)
     {
+        token = NULL;
         token = tokenize(read_file(argv[i]));
         char filename[4] = {'a' + i - 1, '.', 's', 0}; // a.s -> b.s -> c.s -> d.s
         output = fopen(filename, "w");

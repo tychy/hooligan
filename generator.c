@@ -623,4 +623,9 @@ void gen_asm_intel()
     {
         gen(funcs[j]);
     }
+
+    for (int i = 0; i < 200; i++)
+    {
+        nodes[i] = NULL;
+    }
 }
