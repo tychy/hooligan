@@ -41,6 +41,12 @@ exec() {
     clean
 }
 
+asm() {
+    cc -static -c "$2" -o a.o
+    objdump -d -M Intel a.o
+    rm a.o tmp.c
+}
+
 runtest() {
     result=0
     for fn in test/*; do
@@ -103,6 +109,8 @@ if [ $1 = "src" ]; then
     src ${@:2}
 elif [ $1 = "exec" ]; then
     exec ${@:2}
+elif [ $1 = "asm" ]; then
+    asm $2
 elif [ $1 = "test" ]; then
     make
     if [ $# = 2 ] && [ $2 = "all" ]; then
