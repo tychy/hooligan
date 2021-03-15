@@ -5,11 +5,84 @@
 # set -o pipefail -> |の前がfailしたらそこでストップする
 set -euo pipefail
 
-compile() {
+clean() {
+    for fn in $(find . -name '*.s'); do
+        rm $fn
+    done
+    for fn in $(find . -name 'a.out'); do
+        rm $fn
+    done
+}
+
+emit() {
     make
     ./bin/exe.out "$@"
+}
+
+compile() {
+    emit "$@"
     find *.s | xargs cc -static
-    rm *.s
+}
+
+src() {
+    compile ${@:1}
+    for fn in $(find . -name '*.s'); do
+        printf "\n$(basename $fn)\n"
+        cat $fn
+    done
+    clean
+}
+
+exec() {
+    compile ${@:1}
+    ./a.out
+    echo "結果: $?"
+    clean
+}
+
+runtest() {
+    result=0
+    for fn in test/*; do
+        ./bin/exe.out $fn
+        find *.s | xargs cc -static
+        printf $fn
+        ./a.out
+        if [ $? = 0 ]; then
+            printf "...passed\n"
+        else
+            printf "...failed\n"
+            result=1
+        fi
+    done
+    clean
+    if [ $result -eq 1 ]; then
+        exit 1
+    fi
+}
+
+runtestold() {
+    make
+    set +e
+    for fn in testold/question/*; do
+        i=$(basename $fn)
+        qfile=testold/question/$i
+        afile=testold/answer/$i
+        expected="$(cat $afile)"
+
+        ./bin/exe.out $qfile
+        find *.s | xargs cc # シンプルなテストなのでstaticをつけなくてもよい
+        printf $qfile
+        ./a.out
+        actual="$?"
+        if [ "$actual" = "$expected" ]; then
+            printf "...passed\n"
+        else
+            printf "...failed\n"
+            exit 1
+        fi
+    done
+    set -e
+    clean
 }
 
 VALUE_D=true
@@ -24,5 +97,20 @@ if "${VALUE_D}"; then
     docker-compose run hooligan ./bin/hdb -d false ${@:1}
     exit
 fi
-compile "$@"
-./a.out
+
+if [ $1 = "src" ]; then
+    src ${@:2}
+elif [ $1 = "exec" ]; then
+    exec ${@:2}
+elif [ $1 = "test" ]; then
+    make
+    if [ $2 = "all" ]; then
+        runtest
+        runtestold
+    else
+        runtest
+    fi
+else
+    echo "存在しないサブコマンドです"
+    exit 1
+fi
