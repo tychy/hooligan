@@ -17,6 +17,8 @@ typedef enum
     TK_ELSE,
     TK_FOR,
     TK_WHILE,
+    TK_SWITCH,
+    TK_CASE,
     TK_SIZEOF,
     TK_VOID,
     TK_INT,
