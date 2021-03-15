@@ -240,6 +240,7 @@ struct Context
 extern Token *token;
 extern Node *nodes[200];
 extern Context *ctx;
+extern FILE *output;
 
 // Declaration of functions
 // read_token.c

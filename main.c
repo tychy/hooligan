@@ -3,6 +3,7 @@
 Token *token;
 Node *nodes[200];
 Context *ctx;
+FILE *output;
 
 // 指定されたファイルの内容を返す
 static char *read_file(char *path)
@@ -43,7 +44,13 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    gen_asm_intel();
+    FILE *file = fopen("tmp.s", "w");
+    if (file == NULL)
+    {                            // オープンに失敗した場合
+        printf("cannot open\n"); // エラーメッセージを出して
+        exit(1);                 // 異常終了
+    }
+    gen_asm_intel(file);
 
     return 0;
 }

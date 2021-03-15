@@ -29,9 +29,9 @@ __attribute__((format(printf, 1, 2))) static void println(char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vprintf(fmt, ap);
+    vfprintf(output, fmt, ap);
     va_end(ap);
-    printf("\n");
+    fprintf(output, "\n");
 }
 
 int depth;
@@ -564,8 +564,9 @@ void gen(Node *node)
     }
 }
 
-void gen_asm_intel()
+void gen_asm_intel(FILE *file)
 {
+    output = file;
     Node *funcs[100];
     println(".intel_syntax noprefix");
     println(".data");

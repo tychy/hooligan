@@ -8,7 +8,7 @@ testold() {
     afile=testold/answer/$i
     expected="$(cat $afile)"
 
-    ./bin/exe.out $qfile >tmp.s
+    ./bin/exe.out $qfile
     cc -o tmp tmp.s # シンプルなテストなのでstaticをつけなくてもよい
     printf $qfile
     ./tmp
@@ -23,7 +23,7 @@ testold() {
 
 test() {
     filename=$1
-    ./bin/exe.out $filename >tmp.s
+    ./bin/exe.out $filename
     cc -static -o tmp tmp.s
     printf $filename
     ./tmp
@@ -47,11 +47,13 @@ elif [ $1 = "src" ]; then
 elif [ $1 = "srcdr" ]; then
     make
     ./bin/exe.out "$2"
+    cat ./tmp.s
+    rm tmp*
 elif [ $1 = "exec" ]; then
     docker-compose run hooligan ./bin/hcc execdr "$2"
 elif [ $1 = "execdr" ]; then
     make
-    ./bin/exe.out "$2" >tmp.s
+    ./bin/exe.out "$2"
     cat ./tmp.s
     cc -static -o tmp tmp.s
     ./tmp
