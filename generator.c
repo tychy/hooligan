@@ -324,6 +324,20 @@ static void gen_assign(Node *node)
     push(RG_RDI);
 }
 
+void gen_block(Node *node)
+{
+    if (node->kind != ND_BLOCK)
+    {
+        error("ブロックではありません");
+    }
+    Node *cur = node->statements;
+    while (cur)
+    {
+        gen(cur);
+        cur = cur->next_stmt;
+    }
+}
+
 void gen(Node *node)
 {
     switch (node->kind)
@@ -373,12 +387,7 @@ void gen(Node *node)
         gen_for(node);
         return;
     case ND_BLOCK:
-        if (node->lhs == NULL)
-            return;
-        gen(node->lhs);
-        if (node->rhs->lhs == NULL)
-            return;
-        gen(node->rhs);
+        gen_block(node);
         return;
     case ND_WHILE:
         gen_while(node);
