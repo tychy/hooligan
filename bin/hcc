@@ -84,6 +84,18 @@ elif [ $1 = "testv2dr" ]; then
     exit $result
 elif [ $1 = "testall" ]; then
     docker-compose run hooligan bash -c "./bin/hcc testv2dr && ./bin/hcc testolddr"
+elif [ $1 = "testmulti" ]; then
+    make
+    ./bin/exe.out multi/a.c multi/b.c
+    find *.s | xargs cc -o tmp
+    ./tmp
+    if [ $? = 0 ]; then
+        printf "passed\n"
+    else
+        printf "failed\n"
+        exit 1;
+    fi
+    rm tmp *.s
 else
     echo "存在しないサブコマンドです"
     exit 1
