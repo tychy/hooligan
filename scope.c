@@ -30,3 +30,8 @@ void end_loop()
     ctx->break_to = ctx->scope->loop_label;
     ctx->continue_to = ctx->scope->loop_label;
 }
+
+int get_unique_num()
+{
+    return ctx->scope_serial_num++;
+}

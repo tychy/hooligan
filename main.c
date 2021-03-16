@@ -3,6 +3,7 @@
 Token *token;
 Node *nodes[200];
 Context *ctx;
+FILE *output;
 
 // 指定されたファイルの内容を返す
 static char *read_file(char *path)
@@ -33,17 +34,25 @@ static char *read_file(char *path)
 
 int main(int argc, char **argv)
 {
-    if (argc == 2)
+    if (argc == 1)
     {
-        token = tokenize(read_file(argv[1]));
+        fprintf(stderr, "ファイル名を指定してください\n");
+        exit(1);
     }
-    else
+    for (int i = 1; i < argc; i++)
     {
-        fprintf(stderr, "argument error\n");
-        return 1;
+        token = NULL;
+        token = tokenize(read_file(argv[i]));
+        char filename[4] = {'a' + i - 1, '.', 's', 0}; // a.s -> b.s -> c.s -> d.s
+        output = fopen(filename, "w");
+        if (output == NULL)
+        {
+            printf("cannot open\n");
+            exit(1);
+        }
+        gen_asm_intel();
+        fclose(output);
     }
-
-    gen_asm_intel();
 
     return 0;
 }

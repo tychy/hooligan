@@ -29,9 +29,9 @@ __attribute__((format(printf, 1, 2))) static void println(char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vprintf(fmt, ap);
+    vfprintf(output, fmt, ap);
     va_end(ap);
-    printf("\n");
+    fprintf(output, "\n");
 }
 
 int depth;
@@ -66,7 +66,7 @@ static void gen_for(Node *node)
     int lab = node->loop_label;
     if (node->init != NULL)
         gen(node->init);
-    println(".LLoopStart%d:", lab);
+    println(".L.Start%d:", lab);
 
     if (node->condition != NULL)
         gen(node->condition);
@@ -74,14 +74,14 @@ static void gen_for(Node *node)
         push_val(1); // 無条件でtrueとなるように
     pop(RG_RAX);
     println("  cmp rax, 0");
-    println("  je .LLoopEnd%d", lab);
+    println("  je .L.End%d", lab);
 
     gen(node->body);
 
     if (node->on_end != NULL)
         gen(node->on_end);
-    println("  jmp .LLoopStart%d", lab);
-    println(".LLoopEnd%d:", lab);
+    println("  jmp .L.Start%d", lab);
+    println(".L.End%d:", lab);
 }
 
 static void gen_while(Node *node)
@@ -89,14 +89,14 @@ static void gen_while(Node *node)
     if (node->kind != ND_WHILE)
         error("while文ではありません");
     int lab = node->loop_label;
-    println(".LLoopStart%d:", lab);
+    println(".L.Start%d:", lab);
     gen(node->condition);
     pop(RG_RAX);
     println("  cmp rax, 0");
-    println("  je .LLoopEnd%d", lab);
+    println("  je .L.End%d", lab);
     gen(node->body);
-    println("  jmp .LLoopStart%d", lab);
-    println(".LLoopEnd%d:", lab);
+    println("  jmp .L.Start%d", lab);
+    println(".L.End%d:", lab);
 }
 
 static void gen_if(Node *node)
@@ -392,11 +392,33 @@ void gen(Node *node)
     case ND_WHILE:
         gen_while(node);
         return;
+    case ND_SWITCH:
+        gen(node->condition);
+        pop(RG_RDI);
+        for (Node *c = node->next_case; c; c = c->next_case)
+        {
+            push_val(c->val);
+            pop(RG_RAX);
+            println("  cmp edi, eax"); // TODO rax eaxの使い分け
+            println("  je .L.Case%d", c->case_label);
+        }
+        if (node->default_case)
+        {
+            println("  jmp .L.Case%d", node->default_case->case_label);
+        }
+        println("  jmp .L.End%d", node->break_to);
+        gen(node->child);
+        println(".L.End%d:", node->break_to);
+        return;
+    case ND_CASE:
+        println(".L.Case%d:", node->case_label);
+        gen(node->child);
+        return;
     case ND_BREAK:
-        println("  jmp .LLoopEnd%d", node->loop_label);
+        println("  jmp .L.End%d", node->loop_label);
         return;
     case ND_CONTINUE:
-        println("  jmp .LLoopStart%d", node->loop_label);
+        println("  jmp .L.Start%d", node->loop_label);
         return;
     case ND_FUNC:
         gen_function(node);
@@ -631,5 +653,10 @@ void gen_asm_intel()
     for (int j = 0; j < func_count; j++)
     {
         gen(funcs[j]);
+    }
+
+    for (int i = 0; i < 200; i++)
+    {
+        nodes[i] = NULL;
     }
 }

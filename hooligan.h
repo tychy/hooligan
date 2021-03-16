@@ -17,6 +17,9 @@ typedef enum
     TK_ELSE,
     TK_FOR,
     TK_WHILE,
+    TK_SWITCH,
+    TK_CASE,
+    TK_DEFAULT,
     TK_SIZEOF,
     TK_VOID,
     TK_INT,
@@ -56,6 +59,8 @@ typedef enum
     ND_FOR,
     ND_BLOCK,
     ND_WHILE,
+    ND_SWITCH,
+    ND_CASE,
     ND_FUNC,
     ND_ARG,
     ND_FUNCDEF,
@@ -155,7 +160,9 @@ struct Node
 
     // if(condition) body else on_else
     Node *on_else;
-
+    // for switch-case
+    Node *next_case;
+    Node *default_case;
     // for variable
     bool is_local;
     // for static
@@ -173,9 +180,13 @@ struct Node
     //for struct
     Member *member;
 
+    //for break in switch
+    int break_to;
+
     // labels
     int loop_label; // for, while
     int cond_label; // if, else
+    int case_label; // switch-case
 
     Node *statements; // for block
     Node *next_stmt; // for block children
@@ -223,8 +234,10 @@ struct Scope
     Type *types;
     Scope *prev;
     Scope *next;
+    Node *current_switch;
     int label;
     int loop_label; // for break and continue
+    int break_to;
 };
 
 struct Context
@@ -243,6 +256,7 @@ struct Context
 extern Token *token;
 extern Node *nodes[200];
 extern Context *ctx;
+extern FILE *output;
 
 // Declaration of functions
 // read_token.c
@@ -293,6 +307,7 @@ void new_scope();
 void exit_scope();
 void start_loop();
 void end_loop();
+int get_unique_num();
 
 // util.c
 bool not(bool flag);
