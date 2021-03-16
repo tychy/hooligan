@@ -40,6 +40,33 @@ Type *consume_type()
     {
         ty = new_type_void();
     }
+    else if (consume_rw(TK_ENUM))
+    {
+        ty = new_type_int();
+        if (consume("{"))
+        {
+            int i = 0;
+            while (not(consume("}")))
+            {
+                Token *ident = consume_ident();
+                def_const(ident, i);
+                i++;
+                if (not(consume(",")))
+                {
+                    expect("}");
+                    break;
+                }
+            }
+            if (i == 0)
+            {
+                error("識別子が必要です");
+            }
+        }
+        else
+        {
+            error("識別子が必要です");
+        }
+    }
     else
     {
         return NULL;

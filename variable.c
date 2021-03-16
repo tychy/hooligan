@@ -83,3 +83,14 @@ Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[], bool is_sta
     ctx->functions = new_func;
     return new_func;
 }
+
+Var *def_const(Token *tok, int val)
+{
+    Var *new_const = calloc(1, sizeof(Var));
+    new_const->length = tok->length;
+    new_const->name = tok->string;
+    new_const->ty = new_type_int(); // constはintのみ
+    new_const->next = ctx->scope->constants;
+    ctx->scope->constants = new_const;
+    return new_const;
+}
