@@ -100,6 +100,25 @@ runtestmulti() {
     clean
 }
 
+runtestv3() {
+    for dn in `find tests/* -type d`; do
+        printf $dn
+        cfiles=`find $dn/*.c`
+        compile $cfiles
+        assembly
+        expectedout=`cat $dn/out`
+        stdout=`./a.out`
+        if [ $stdout == $expectedout ]; then
+            printf ...passed
+        else
+            printf ...failed
+            exit 1
+        fi
+        printf "\n"
+        clean
+    done
+}
+
 VALUE_D=true
 while getopts d: OPT; do
     case $OPT in
@@ -128,6 +147,9 @@ elif [ $1 = "test" ]; then
     else
         runtest
     fi
+elif [ $1 = "testv3" ]; then
+    make
+    runtestv3
 else
     echo "存在しないサブコマンドです"
     exit 1
