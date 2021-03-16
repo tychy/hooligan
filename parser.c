@@ -757,7 +757,7 @@ static Node *stmt()
     else if (consume_rw(TK_SWITCH))
     {
         new_scope();
-        ctx->break_to = get_unique_num();
+        ctx->break_to = ctx->scope->break_to = get_unique_num();
         expect("(");
         Node *condition = expr();
         expect(")");
@@ -767,8 +767,8 @@ static Node *stmt()
         node->break_to = ctx->break_to;
         ctx->scope->current_switch = node;
         node->child = stmt();
-        end_loop();
-        ctx->scope->current_switch = NULL;
+        exit_scope();
+        ctx->break_to = ctx->scope->break_to;
         return node;
     }
     else if (consume_rw(TK_CASE))

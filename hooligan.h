@@ -234,6 +234,7 @@ struct Scope
     Node *current_switch;
     int label;
     int loop_label; // for break and continue
+    int break_to;
 };
 
 struct Context

@@ -172,6 +172,43 @@ int testSwitchCaseMidC()
     return 0;
 }
 
+int testSwitchCaseMidD()
+{
+    int i = 7;
+    int x = 11;
+    int res = 0;
+    switch (i)
+    {
+    case 0:
+        res = 0;
+        break;
+    case 5:
+        res = 5;
+        break;
+    case 7:
+        res = 10;
+        switch (x)
+        {
+        case 11:
+            res = 7;
+            break;
+        default:
+            break;
+        }
+        break;
+    case 9:
+        res = 9;
+        break;
+    case 10:
+        res = 10;
+        break;
+    }
+    if (res != 7)
+    {
+        return 1;
+    }
+    return 0;
+}
 int main()
 {
     if (testSwitchCaseEasyA() != 0)
@@ -214,5 +251,9 @@ int main()
         return 1;
     }
 
+    if (testSwitchCaseMidD() != 0)
+    {
+        return 1;
+    }
     return 0;
 }
