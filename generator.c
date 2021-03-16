@@ -29,9 +29,9 @@ __attribute__((format(printf, 1, 2))) static void println(char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vprintf(fmt, ap);
+    vfprintf(output, fmt, ap);
     va_end(ap);
-    printf("\n");
+    fprintf(output, "\n");
 }
 
 int depth;
@@ -644,5 +644,10 @@ void gen_asm_intel()
     for (int j = 0; j < func_count; j++)
     {
         gen(funcs[j]);
+    }
+
+    for (int i = 0; i < 200; i++)
+    {
+        nodes[i] = NULL;
     }
 }

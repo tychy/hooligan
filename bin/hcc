@@ -8,8 +8,8 @@ testold() {
     afile=testold/answer/$i
     expected="$(cat $afile)"
 
-    ./bin/exe.out $qfile >tmp.s
-    cc -o tmp tmp.s # シンプルなテストなのでstaticをつけなくてもよい
+    ./bin/exe.out $qfile
+    cc -o tmp a.s # シンプルなテストなのでstaticをつけなくてもよい
     printf $qfile
     ./tmp
     actual="$?"
@@ -23,8 +23,8 @@ testold() {
 
 test() {
     filename=$1
-    ./bin/exe.out $filename >tmp.s
-    cc -static -o tmp tmp.s
+    ./bin/exe.out $filename
+    cc -static -o tmp a.s
     printf $filename
     ./tmp
     if [ $? = 0 ]; then
@@ -47,16 +47,18 @@ elif [ $1 = "src" ]; then
 elif [ $1 = "srcdr" ]; then
     make
     ./bin/exe.out "$2"
+    cat ./a.s
+    rm tmp*
 elif [ $1 = "exec" ]; then
     docker-compose run hooligan ./bin/hcc execdr "$2"
 elif [ $1 = "execdr" ]; then
     make
-    ./bin/exe.out "$2" >tmp.s
-    cat ./tmp.s
-    cc -static -o tmp tmp.s
+    ./bin/exe.out "$2"
+    cat ./a.s
+    cc -static -o tmp a.s
     ./tmp
     echo "結果: $?"
-    rm tmp.s
+    rm *.s
     rm tmp
 elif [ $1 = "asm" ]; then
     docker-compose run hooligan ./bin/hcc asmdr "$2"
@@ -71,17 +73,29 @@ elif [ $1 = "testolddr" ]; then
     for fn in testold/question/*; do
         testold $fn
     done
-    rm tmp.s tmp
+    rm *.s tmp
 elif [ $1 = "testv2dr" ]; then
     make
     result=0
     for fn in test/*; do
         test $fn
     done
-    rm tmp.s tmp
+    rm *.s tmp
     exit $result
 elif [ $1 = "testall" ]; then
     docker-compose run hooligan bash -c "./bin/hcc testv2dr && ./bin/hcc testolddr"
+elif [ $1 = "testmulti" ]; then
+    make
+    ./bin/exe.out multi/a.c multi/b.c
+    find *.s | xargs cc -o tmp
+    ./tmp
+    if [ $? = 0 ]; then
+        printf "passed\n"
+    else
+        printf "failed\n"
+        exit 1;
+    fi
+    rm tmp *.s
 else
     echo "存在しないサブコマンドです"
     exit 1
