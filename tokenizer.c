@@ -44,6 +44,7 @@ static char *reserved_word_list[17] = {
     "while",
     "switch",
     "case",
+    "default",
     "sizeof",
     "void",
     "int",
