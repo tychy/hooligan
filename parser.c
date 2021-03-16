@@ -818,16 +818,14 @@ static Node *stmt()
         {
             return new_node_nop();
         }
-        Node *node;
-        Node *cur = calloc(1, sizeof(Node));
-        cur->kind = ND_BLOCK;
-        node = cur;
+        Node *node = calloc(1, sizeof(Node));
+        node->kind = ND_BLOCK;
+        node->statements = block();
+        Node *cur = node->statements;
         while (!consume("}"))
         {
-            cur->lhs = block();
-            cur->rhs = calloc(1, sizeof(Node));
-            cur->kind = ND_BLOCK;
-            cur = cur->rhs;
+            cur->next_stmt = block();
+            cur = cur->next_stmt;
         }
         return node;
     }
@@ -848,16 +846,14 @@ static Node *block()
             return new_node_nop();
         }
         new_scope();
-        Node *node;
-        Node *cur = calloc(1, sizeof(Node));
-        cur->kind = ND_BLOCK;
-        node = cur;
+        Node *node = calloc(1, sizeof(Node));
+        node->kind = ND_BLOCK;
+        node->statements = block();
+        Node *cur = node->statements;
         while (!consume("}"))
         {
-            cur->lhs = block();
-            cur->rhs = calloc(1, sizeof(Node));
-            cur->kind = ND_BLOCK;
-            cur = cur->rhs;
+            cur->next_stmt = block();
+            cur = cur->next_stmt;
         }
         exit_scope();
         return node;

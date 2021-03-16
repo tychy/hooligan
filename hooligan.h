@@ -187,6 +187,9 @@ struct Node
     int loop_label; // for, while
     int cond_label; // if, else
     int case_label; // switch-case
+
+    Node *statements; // for block
+    Node *next_stmt; // for block children
 };
 struct Var
 {
@@ -253,6 +256,7 @@ struct Context
 extern Token *token;
 extern Node *nodes[200];
 extern Context *ctx;
+extern FILE *output;
 
 // Declaration of functions
 // read_token.c

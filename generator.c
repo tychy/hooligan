@@ -29,9 +29,9 @@ __attribute__((format(printf, 1, 2))) static void println(char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vprintf(fmt, ap);
+    vfprintf(output, fmt, ap);
     va_end(ap);
-    printf("\n");
+    fprintf(output, "\n");
 }
 
 int depth;
@@ -122,7 +122,7 @@ static void gen_if(Node *node)
     println(".Lend%d:", lab);
 }
 
-static void gen_function(Node *node)
+static void gen_function(Node *node) // gen_function_callとかのほうがいい気がする
 {
     if (node->kind != ND_FUNC)
     {
@@ -224,7 +224,7 @@ static void gen_addr(Node *node)
     }
 }
 
-static void gen_function_def(Node *node)
+static void gen_function_def(Node *node) // こっちがgen_functionという名前がいい気がする
 {
     if (node->kind != ND_FUNCDEF)
     {
@@ -324,6 +324,20 @@ static void gen_assign(Node *node)
     push(RG_RDI);
 }
 
+void gen_block(Node *node)
+{
+    if (node->kind != ND_BLOCK)
+    {
+        error("ブロックではありません");
+    }
+    Node *cur = node->statements;
+    while (cur)
+    {
+        gen(cur);
+        cur = cur->next_stmt;
+    }
+}
+
 void gen(Node *node)
 {
     switch (node->kind)
@@ -373,12 +387,7 @@ void gen(Node *node)
         gen_for(node);
         return;
     case ND_BLOCK:
-        if (node->lhs == NULL)
-            return;
-        gen(node->lhs);
-        if (node->rhs->lhs == NULL)
-            return;
-        gen(node->rhs);
+        gen_block(node);
         return;
     case ND_WHILE:
         gen_while(node);
@@ -642,5 +651,10 @@ void gen_asm_intel()
     for (int j = 0; j < func_count; j++)
     {
         gen(funcs[j]);
+    }
+
+    for (int i = 0; i < 200; i++)
+    {
+        nodes[i] = NULL;
     }
 }
