@@ -1,0 +1,134 @@
+#!/bin/bash
+
+# set -e -> エラーがでたらそこでストップする
+# set -u -> 未定義変数をエラーにする
+# set -o pipefail -> |の前がfailしたらそこでストップする
+set -euo pipefail
+
+clean() {
+    for fn in $(find . -name '*.s'); do
+        rm $fn
+    done
+    for fn in $(find . -name 'a.out'); do
+        rm $fn
+    done
+}
+
+compile() {
+    ./bin/hcc "$@"
+}
+
+assembly() {
+    find *.s | xargs cc -static
+}
+
+src() {
+    make
+    compile ${@:1}
+    for fn in $(find . -name '*.s'); do
+        printf "\n$(basename $fn)\n"
+        cat $fn
+    done
+    clean
+}
+
+exec() {
+    make
+    compile ${@:1}
+    assembly
+    ./a.out
+    echo "結果: $?"
+    clean
+}
+
+asm() {
+    cc -static -c "$2" -o a.o
+    objdump -d -M Intel a.o
+    rm a.o tmp.c
+}
+
+runtest() {
+    result=0
+    for fn in test/*; do
+        compile $fn
+        find *.s | xargs cc -static
+        printf $fn
+        ./a.out
+        if [ $? = 0 ]; then
+            printf "...passed\n"
+        else
+            printf "...failed\n"
+            result=1
+        fi
+    done
+    clean
+    if [ $result -eq 1 ]; then
+        exit 1
+    fi
+}
+
+runtestold() {
+    set +e
+    for fn in testold/question/*; do
+        i=$(basename $fn)
+        qfile=testold/question/$i
+        afile=testold/answer/$i
+        expected="$(cat $afile)"
+
+        compile $qfile
+        find *.s | xargs cc # シンプルなテストなのでstaticをつけなくてもよい
+        printf $qfile
+        ./a.out
+        actual="$?"
+        if [ "$actual" = "$expected" ]; then
+            printf "...passed\n"
+        else
+            printf "...failed\n"
+            exit 1
+        fi
+    done
+    set -e
+    clean
+}
+
+runtestmulti() {
+    compile multi/a.c multi/b.c
+    assembly
+    printf "multi file test"
+    ./a.out
+    printf "...passed\n"
+    clean
+}
+
+VALUE_D=true
+while getopts d: OPT; do
+    case $OPT in
+    'd') VALUE_D=$OPTARG ;;
+    esac
+done
+
+shift $((OPTIND - 1))
+if "${VALUE_D}"; then
+    docker-compose run hooligan ./bin/hdb -d false ${@:1}
+    exit
+fi
+
+if [ $1 = "src" ]; then
+    src ${@:2}
+elif [ $1 = "exec" ]; then
+    exec ${@:2}
+elif [ $1 = "asm" ]; then
+    asm $2
+elif [ $1 = "test" ]; then
+    make
+    if [ $# = 2 ] && [ $2 = "all" ]; then
+        runtest
+        runtestold
+        runtestmulti
+    else
+        runtest
+    fi
+else
+    echo "存在しないサブコマンドです"
+    exit 1
+fi
