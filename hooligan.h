@@ -180,9 +180,13 @@ struct Node
     //for struct
     Member *member;
 
+    //for break in switch
+    int break_to;
+
     // labels
     int loop_label; // for, while
     int cond_label; // if, else
+    int case_label; // switch-case
 };
 struct Var
 {
@@ -227,6 +231,7 @@ struct Scope
     Type *types;
     Scope *prev;
     Scope *next;
+    Node *current_switch;
     int label;
     int loop_label; // for break and continue
 };
@@ -297,6 +302,7 @@ void new_scope();
 void exit_scope();
 void start_loop();
 void end_loop();
+int get_unique_num();
 
 // util.c
 bool not(bool flag);

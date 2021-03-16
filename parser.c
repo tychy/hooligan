@@ -757,39 +757,47 @@ static Node *stmt()
     else if (consume_rw(TK_SWITCH))
     {
         new_scope();
-        ctx->break_to = ctx->scope->label;
+        ctx->break_to = get_unique_num();
         expect("(");
         Node *condition = expr();
         expect(")");
         node = calloc(1, sizeof(Node));
         node->kind = ND_SWITCH;
         node->condition = condition;
-        Node *cur = node;
-        expect("{");
-        for (;;)
-        {
-            if (consume_rw(TK_CASE))
-            {
-                int val = expect_number();
-                expect(":");
-                Node *body = new_node_single(ND_CASE, stmt());
-                body->val = val;
-                cur->next_case = body;
-                cur = body;
-                continue;
-            }
-            else if (consume_rw(TK_DEFAULT))
-            {
-                expect(":");
-                Node *body = new_node_single(ND_CASE, stmt());
-                body->kind = ND_CASE;
-                node->default_case = body;
-                continue;
-            }
-            break;
-        }
-        expect("}");
+        node->break_to = ctx->break_to;
+        ctx->scope->current_switch = node;
+        node->child = stmt();
         end_loop();
+        ctx->scope->current_switch = NULL;
+        return node;
+    }
+    else if (consume_rw(TK_CASE))
+    {
+        if (not(ctx->scope->current_switch))
+        {
+            error("caseの前にはswitchが必要です");
+        }
+        int val = expect_number();
+        expect(":");
+        Node *node = new_node_single(ND_CASE, stmt());
+        node->val = val;
+        node->case_label = get_unique_num();
+        node->next_case = ctx->scope->current_switch->next_case;
+        ctx->scope->current_switch->next_case = node;
+        return node;
+    }
+    else if (consume_rw(TK_DEFAULT))
+    {
+        if (not(ctx->scope->current_switch))
+        {
+            error("defaultの前にはswitchが必要です");
+        }
+        expect(":");
+        Node *node = new_node_single(ND_CASE, stmt());
+        node->kind = ND_CASE;
+        node->case_label = get_unique_num();
+        ctx->scope->current_switch->default_case = node;
+        return node;
     }
     else if (consume_rw(TK_BREAK))
     {
@@ -802,6 +810,26 @@ static Node *stmt()
         node = calloc(1, sizeof(Node));
         node->kind = ND_CONTINUE;
         node->loop_label = ctx->continue_to;
+    }
+    else if (consume("{"))
+    {
+        // スコープを作らない
+        if (consume("}"))
+        {
+            return new_node_nop();
+        }
+        Node *node;
+        Node *cur = calloc(1, sizeof(Node));
+        cur->kind = ND_BLOCK;
+        node = cur;
+        while (!consume("}"))
+        {
+            cur->lhs = block();
+            cur->rhs = calloc(1, sizeof(Node));
+            cur->kind = ND_BLOCK;
+            cur = cur->rhs;
+        }
+        return node;
     }
     else
     {

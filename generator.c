@@ -384,8 +384,27 @@ void gen(Node *node)
         gen_while(node);
         return;
     case ND_SWITCH:
-
+        gen(node->condition);
+        pop(RG_RDI);
+        for (Node *c = node->next_case; c; c = c->next_case)
+        {
+            push_val(c->val);
+            pop(RG_RAX);
+            println("  cmp edi, eax"); // TODO rax eaxの使い分け
+            println("  je .L.Case%d", c->case_label);
+        }
+        if (node->default_case)
+        {
+            println("  jmp .L.Case%d", node->default_case->case_label);
+        }
+        println("  jmp .L.End%d", node->break_to);
+        gen(node->child);
+        println(".L.End%d:", node->break_to);
+        return;
     case ND_CASE:
+        println(".L.Case%d:", node->case_label);
+        gen(node->child);
+        return;
     case ND_BREAK:
         println("  jmp .L.End%d", node->loop_label);
         return;
