@@ -19,6 +19,7 @@ typedef enum
     TK_WHILE,
     TK_SWITCH,
     TK_CASE,
+    TK_DEFAULT,
     TK_SIZEOF,
     TK_VOID,
     TK_INT,
@@ -58,6 +59,8 @@ typedef enum
     ND_FOR,
     ND_BLOCK,
     ND_WHILE,
+    ND_SWITCH,
+    ND_CASE,
     ND_FUNC,
     ND_ARG,
     ND_FUNCDEF,
@@ -157,7 +160,9 @@ struct Node
 
     // if(condition) body else on_else
     Node *on_else;
-
+    // for switch-case
+    Node *next_case;
+    Node *default_case;
     // for variable
     bool is_local;
     // for static
