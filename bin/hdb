@@ -91,15 +91,6 @@ runtestold() {
     clean
 }
 
-runtestmulti() {
-    compile multi/a.c multi/b.c
-    assembly
-    printf "multi file test"
-    ./a.out
-    printf "...passed\n"
-    clean
-}
-
 runtestv3() {
     for dn in $(find tests/* -type d); do
         printf $dn
@@ -149,7 +140,6 @@ elif [ $1 = "test" ]; then
     if [ $# = 2 ] && [ $2 = "all" ]; then
         runtest
         runtestold
-        runtestmulti
     else
         runtest
     fi
