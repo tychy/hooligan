@@ -169,7 +169,14 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         println("  sub rsp, 8");
     }
     println("  mov al, 0");
-    println("  call %.*s", node->length, node->name);
+    if (node->is_static)
+    {
+        println("  call L%.*s", node->length, node->name);
+    }
+    else
+    {
+        println("  call %.*s", node->length, node->name);
+    }
     if (depth % 2 == 0)
     {
         println("  add rsp, 8");
@@ -183,7 +190,15 @@ static void gen_global_var_def(Node *node)
     {
         error("グローバル変数定義ではありません");
     }
-    println("%.*s:", node->length, node->name);
+    if (node->is_static)
+    {
+
+        println("L%.*s:", node->length, node->name);
+    }
+    else
+    {
+        println("%.*s:", node->length, node->name);
+    }
     println("  .zero  %d", calc_bytes(node->ty));
 }
 
@@ -204,6 +219,11 @@ static void gen_addr(Node *node)
         {
             println("  mov rax, rbp");
             println("  sub rax, %d", node->offset);
+            push(RG_RAX);
+        }
+        else if (node->is_static)
+        {
+            println("  lea rax, L%.*s", node->length, node->name);
             push(RG_RAX);
         }
         else
@@ -231,8 +251,15 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
         error("関数定義ではありません");
     }
 
-    println(".globl %.*s", node->length, node->name);
-    println("%.*s:", node->length, node->name);
+    if (node->is_static)
+    {
+        println("L%.*s:", node->length, node->name);
+    }
+    else
+    {
+        println(".globl %.*s", node->length, node->name);
+        println("%.*s:", node->length, node->name);
+    }
     // プロローグ
     push(RG_RBP);
     println("  mov rbp, rsp");

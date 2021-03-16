@@ -189,7 +189,7 @@ struct Node
     int case_label; // switch-case
 
     Node *statements; // for block
-    Node *next_stmt; // for block children
+    Node *next_stmt;  // for block children
 };
 struct Var
 {
@@ -280,7 +280,7 @@ void gen_asm_intel();
 
 // variable.c
 Var *find_var(Token *tok);
-Var *def_var(Token *tok, Type *ty, bool is_local);
+Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static);
 Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val);
 Var *find_func(Token *tok);
 Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[], bool is_static);

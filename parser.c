@@ -138,6 +138,7 @@ static Node *ident()
             node->length = func->length;
             node->ty = func->ty;
             node->num_args = func->num_args;
+            node->is_static = func->is_static;
             if (node->num_args != 0 && func->arg_ty_ls[0]->ty == VOID)
             {
                 node->is_void = true;
@@ -516,7 +517,7 @@ static Node *defl()
             ty = new_type_array(ty, size);
             expect("]");
         }
-        def_var(ident, ty, false);
+        def_var(ident, ty, false, false);
         return new_node_nop();
     }
     else if (consume_rw(TK_STATIC))
@@ -576,7 +577,7 @@ static Node *defl()
         {
             if (ty->ty != ARRAY)
             {
-                Var *lvar = def_var(ident, ty, true);
+                Var *lvar = def_var(ident, ty, true, false);
                 Node *node = new_node_var(lvar);
                 return new_node_assign(node, assign());
             }
@@ -624,7 +625,7 @@ static Node *defl()
                         cur = cur->next;
                     }
                 }
-                Var *lvar = def_var(ident, ty, true);
+                Var *lvar = def_var(ident, ty, true, false);
                 Node *node = new_node_var(lvar);
                 return new_node_assign(node, initial);
             }
@@ -635,7 +636,7 @@ static Node *defl()
                     error("char型の配列が必要です");
                 }
                 ty->array_size = token->length + 1;
-                Var *lvar = def_var(ident, ty, true);
+                Var *lvar = def_var(ident, ty, true, false);
                 Node *node = new_node_var(lvar);
                 Node *initial = new_node_single(ND_INIT, new_node_num(token->string[0]));
                 Node *cur = initial;
@@ -657,7 +658,7 @@ static Node *defl()
         }
         else
         {
-            Var *lvar = def_var(ident, ty, true);
+            Var *lvar = def_var(ident, ty, true, false);
             return new_node_var(lvar);
         }
     }
@@ -883,7 +884,7 @@ static Node *func(Token *ident, Type *ty, bool is_static)
         else if (arg_ty->ty != VOID)
         {
             Token *arg_token = consume_ident();
-            Var *lvar = def_var(arg_token, arg_ty, true);
+            Var *lvar = def_var(arg_token, arg_ty, true, false);
             Node *arg = new_node_var(lvar);
             arg_top->lhs = arg;
             arg_top = arg;
@@ -893,25 +894,26 @@ static Node *func(Token *ident, Type *ty, bool is_static)
     }
     node->rhs = block();
     node->args_region_size = ctx->offset;
+    node->is_static = is_static;
     def_func(ident, ty, arg_idx, arg_ty_ls, is_static);
     exit_scope();
     return node;
 }
 
-static Node *glob_var(Token *ident, Type *ty)
+static Node *glob_var(Token *ident, Type *ty, bool is_static)
 {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_GVARDEF;
     node->name = ident->string;
     node->length = ident->length;
     node->ty = ty;
+    node->is_static = is_static;
     expect(";");
     if (ty->ty == VOID)
     {
         error("void型の変数は定義できません");
     }
-
-    def_var(ident, ty, false);
+    def_var(ident, ty, false, is_static);
     return node;
 }
 
@@ -924,8 +926,17 @@ static Node *def()
         expect(";");
         return node;
     }
-    bool is_extern = consume_rw(TK_EXTERN);
-    bool is_static = consume_rw(is_static);
+    bool is_extern = false;
+    bool is_static = false;
+    if (consume_rw(TK_EXTERN))
+    {
+        is_extern = true;
+    }
+    else if (consume_rw(TK_STATIC))
+    {
+        is_static = true;
+    }
+
     Type *ty = consume_type();
     if (!ty)
     {
@@ -945,7 +956,7 @@ static Node *def()
             ty = new_type_array(ty, arr_size);
             expect("]");
         }
-        node = glob_var(ident, ty);
+        node = glob_var(ident, ty, is_static);
         if (is_extern)
         {
             return new_node_nop();
