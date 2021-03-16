@@ -30,6 +30,7 @@ typedef enum
     TK_CONTINUE,
     TK_STATIC,
     TK_EXTERN,
+    TK_ENUM,
     // add reserved word above
     TK_OPERATOR,
     TK_NUMBER,
@@ -87,6 +88,7 @@ typedef enum
     PTR,
     ARRAY,
     STRUCT,
+    ENUM,
 } TypeKind;
 
 typedef enum
@@ -208,6 +210,8 @@ struct Var
     bool is_function;
     int num_args;
     Type *arg_ty_ls[6];
+    // for const
+    int value;
 };
 
 struct String
@@ -220,7 +224,6 @@ struct String
 
 struct Member
 {
-
     Member *next;
     char *name;
     Type *ty;
@@ -231,6 +234,7 @@ struct Member
 struct Scope
 {
     Var *variables;
+    Var *constants;
     Type *types;
     Scope *prev;
     Scope *next;
@@ -284,6 +288,8 @@ Var *def_var(Token *tok, Type *ty, bool is_local);
 Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val);
 Var *find_func(Token *tok);
 Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[], bool is_static);
+Var *find_const(Token *tok);
+Var *def_const(Token *tok, int val);
 
 // type.c
 Type *new_type_int();

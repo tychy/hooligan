@@ -66,6 +66,13 @@ Type *new_type_struct()
     return ty;
 }
 
+Type *new_type_enum()
+{
+    Type *ty = calloc(1, sizeof(Type));
+    ty->ty = ENUM;
+    return ty;
+}
+
 Type *new_type_void()
 {
     static Type *ty;
@@ -107,6 +114,8 @@ int calc_bytes(Type *ty)
         return 1;
     case STRUCT:
         return ty->size;
+    case ENUM:
+        return 4;
     }
 }
 

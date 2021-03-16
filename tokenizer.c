@@ -36,7 +36,7 @@ static char *operator_list[29] = {
 
 static int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
 
-static char *reserved_word_list[18] = {
+static char *reserved_word_list[19] = {
     "return",
     "if",
     "else",
@@ -55,6 +55,7 @@ static char *reserved_word_list[18] = {
     "continue",
     "static",
     "extern",
+    "enum",
 };
 
 static int reserved_word_list_count = sizeof(reserved_word_list) / sizeof(reserved_word_list[0]);

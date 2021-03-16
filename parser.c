@@ -195,6 +195,11 @@ static Node *ident()
     }
     else
     {
+        Var *con = find_const(ident);
+        if (con)
+        {
+            return new_node_num(con->value);
+        }
         Var *var = find_var(ident);
         if (var)
         {
