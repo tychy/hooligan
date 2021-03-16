@@ -35,6 +35,10 @@ src() {
 exec() {
     make
     compile ${@:1}
+    for fn in $(find . -name '*.s'); do
+        printf "\n$(basename $fn)\n"
+        cat $fn
+    done
     assembly
     ./a.out
     echo "結果: $?"
