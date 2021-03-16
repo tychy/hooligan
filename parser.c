@@ -754,6 +754,43 @@ static Node *stmt()
         node->loop_label = ctx->scope->loop_label;
         end_loop();
     }
+    else if (consume_rw(TK_SWITCH))
+    {
+        new_scope();
+        ctx->break_to = ctx->scope->label;
+        expect("(");
+        Node *condition = expr();
+        expect(")");
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_SWITCH;
+        node->condition = condition;
+        Node *cur = node;
+        expect("{");
+        for (;;)
+        {
+            if (consume_rw(TK_CASE))
+            {
+                int val = expect_number();
+                expect(":");
+                Node *body = new_node_single(ND_CASE, stmt());
+                body->val = val;
+                cur->next_case = body;
+                cur = body;
+                continue;
+            }
+            else if (consume_rw(TK_DEFAULT))
+            {
+                expect(":");
+                Node *body = new_node_single(ND_CASE, stmt());
+                body->kind = ND_CASE;
+                node->default_case = body;
+                continue;
+            }
+            break;
+        }
+        expect("}");
+        end_loop();
+    }
     else if (consume_rw(TK_BREAK))
     {
         node = calloc(1, sizeof(Node));
