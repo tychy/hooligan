@@ -385,12 +385,10 @@ void gen(Node *node)
         return;
     case ND_SWITCH:
         gen(node->condition);
-        pop(RG_RDI);
+        pop(RG_RAX);
         for (Node *c = node->next_case; c; c = c->next_case)
         {
-            push_val(c->val);
-            pop(RG_RAX);
-            println("  cmp edi, eax"); // TODO rax eaxの使い分け
+            println("  cmp eax, %d", c->val);
             println("  je .L.Case%d", c->case_label);
         }
         if (node->default_case)
