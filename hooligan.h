@@ -30,6 +30,7 @@ typedef enum
     TK_CONTINUE,
     TK_STATIC,
     TK_EXTERN,
+    TK_ENUM,
     // add reserved word above
     TK_OPERATOR,
     TK_NUMBER,

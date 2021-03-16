@@ -55,6 +55,7 @@ static char *reserved_word_list[18] = {
     "continue",
     "static",
     "extern",
+    "enum,"
 };
 
 static int reserved_word_list_count = sizeof(reserved_word_list) / sizeof(reserved_word_list[0]);
