@@ -288,6 +288,7 @@ Var *def_var(Token *tok, Type *ty, bool is_local);
 Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val);
 Var *find_func(Token *tok);
 Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[], bool is_static);
+Var *find_const(Token *tok);
 Var *def_const(Token *tok, int val);
 
 // type.c
