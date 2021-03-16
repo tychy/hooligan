@@ -15,7 +15,7 @@ Var *find_var(Token *tok)
     return NULL;
 }
 
-Var *def_var(Token *tok, Type *ty, bool is_local)
+Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static)
 {
     Var *new_var = calloc(1, sizeof(Var));
 
@@ -31,13 +31,14 @@ Var *def_var(Token *tok, Type *ty, bool is_local)
     new_var->next = ctx->scope->variables;
     ctx->scope->variables = new_var;
     new_var->is_local = is_local;
-    new_var->is_static = false;
+    new_var->is_static = is_static;
     return new_var;
 }
 
 Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val)
 {
-    Var *new_var = def_var(tok, ty, is_local);
+    // is_local == true && is_static==trueのときのみ呼ばれる
+    Var *new_var = def_var(tok, ty, is_local, true);
     new_var->is_static = true;
     new_var->label = ctx->scope->label;
     // nextメンバが上書きされてしまうので二回Varを生成している
