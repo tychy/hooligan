@@ -826,11 +826,11 @@ static Node *stmt()
         }
         Node *node = calloc(1, sizeof(Node));
         node->kind = ND_BLOCK;
-        node->statements = block();
+        node->statements = stmt();
         Node *cur = node->statements;
         while (!consume("}"))
         {
-            cur->next_stmt = block();
+            cur->next_stmt = stmt();
             cur = cur->next_stmt;
         }
         return node;
