@@ -47,26 +47,6 @@ asm() {
     rm a.o tmp.c
 }
 
-runtest() {
-    result=0
-    for fn in test/*; do
-        compile $fn
-        find *.s | xargs cc -static
-        printf $fn
-        ./a.out
-        if [ $? = 0 ]; then
-            printf "...passed\n"
-        else
-            printf "...failed\n"
-            result=1
-        fi
-    done
-    clean
-    if [ $result -eq 1 ]; then
-        exit 1
-    fi
-}
-
 runtestold() {
     set +e
     for fn in testold/question/*; do
@@ -91,7 +71,7 @@ runtestold() {
     clean
 }
 
-runtestv3() {
+runtest() {
     for dn in $(find tests/* -type d); do
         printf $dn
         cfiles=$(find $dn/*.c)
@@ -143,9 +123,6 @@ elif [ $1 = "test" ]; then
     else
         runtest
     fi
-elif [ $1 = "testv3" ]; then
-    make
-    runtestv3
 elif [ $1 = "gentest" ]; then
     gentest $2
 else
