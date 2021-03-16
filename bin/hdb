@@ -35,6 +35,10 @@ src() {
 exec() {
     make
     compile ${@:1}
+    for fn in $(find . -name '*.s'); do
+        printf "\n$(basename $fn)\n"
+        cat $fn
+    done
     assembly
     ./a.out
     echo "結果: $?"
@@ -45,26 +49,6 @@ asm() {
     cc -static -c "$2" -o a.o
     objdump -d -M Intel a.o
     rm a.o tmp.c
-}
-
-runtest() {
-    result=0
-    for fn in test/*; do
-        compile $fn
-        find *.s | xargs cc -static
-        printf $fn
-        ./a.out
-        if [ $? = 0 ]; then
-            printf "...passed\n"
-        else
-            printf "...failed\n"
-            result=1
-        fi
-    done
-    clean
-    if [ $result -eq 1 ]; then
-        exit 1
-    fi
 }
 
 runtestold() {
@@ -91,13 +75,29 @@ runtestold() {
     clean
 }
 
-runtestmulti() {
-    compile multi/a.c multi/b.c
-    assembly
-    printf "multi file test"
-    ./a.out
-    printf "...passed\n"
-    clean
+runtest() {
+    for dn in $(find tests/* -type d); do
+        printf $dn
+        cfiles=$(find $dn/*.c)
+        compile $cfiles
+        assembly
+        expectedout=$(cat $dn/out)
+        stdout=$(./a.out)
+        if [ "$stdout" == "$expectedout" ]; then
+            printf ...passed
+        else
+            printf ...failed
+            exit 1
+        fi
+        printf "\n"
+        clean
+    done
+}
+
+gentest() {
+    mkdir tests/$1
+    touch tests/$1/main.c
+    touch tests/$1/out
 }
 
 VALUE_D=true
@@ -124,10 +124,11 @@ elif [ $1 = "test" ]; then
     if [ $# = 2 ] && [ $2 = "all" ]; then
         runtest
         runtestold
-        runtestmulti
     else
         runtest
     fi
+elif [ $1 = "gentest" ]; then
+    gentest $2
 else
     echo "存在しないサブコマンドです"
     exit 1

@@ -1,4 +1,3 @@
-
 int func_a()
 {
     return 'a';
