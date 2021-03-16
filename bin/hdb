@@ -101,13 +101,13 @@ runtestmulti() {
 }
 
 runtestv3() {
-    for dn in `find tests/* -type d`; do
+    for dn in $(find tests/* -type d); do
         printf $dn
-        cfiles=`find $dn/*.c`
+        cfiles=$(find $dn/*.c)
         compile $cfiles
         assembly
-        expectedout=`cat $dn/out`
-        stdout=`./a.out`
+        expectedout=$(cat $dn/out)
+        stdout=$(./a.out)
         if [ $stdout == $expectedout ]; then
             printf ...passed
         else
@@ -117,6 +117,12 @@ runtestv3() {
         printf "\n"
         clean
     done
+}
+
+gentest() {
+    mkdir tests/$1
+    touch tests/$1/main.c
+    touch tests/$1/out
 }
 
 VALUE_D=true
@@ -150,6 +156,8 @@ elif [ $1 = "test" ]; then
 elif [ $1 = "testv3" ]; then
     make
     runtestv3
+elif [ $1 = "gentest" ]; then
+    gentest $2
 else
     echo "存在しないサブコマンドです"
     exit 1
