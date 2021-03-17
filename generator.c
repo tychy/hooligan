@@ -66,8 +66,13 @@ static void gen_for(Node *node)
     int lab = node->loop_label;
     if (node->init != NULL)
         gen(node->init);
+    println("  jmp .L.Cond%d", lab);
     println(".L.Start%d:", lab);
-
+    gen(node->body);
+    println(".L.OnEnd%d:", lab);
+    if (node->on_end != NULL)
+        gen(node->on_end);
+    println(".L.Cond%d:", lab);
     if (node->condition != NULL)
         gen(node->condition);
     else
@@ -75,11 +80,6 @@ static void gen_for(Node *node)
     pop(RG_RAX);
     println("  cmp rax, 0");
     println("  je .L.End%d", lab);
-
-    gen(node->body);
-
-    if (node->on_end != NULL)
-        gen(node->on_end);
     println("  jmp .L.Start%d", lab);
     println(".L.End%d:", lab);
 }
@@ -89,12 +89,15 @@ static void gen_while(Node *node)
     if (node->kind != ND_WHILE)
         error("while文ではありません");
     int lab = node->loop_label;
+    println("  jmp .L.Cond%d", lab);
     println(".L.Start%d:", lab);
+    gen(node->body);
+    println(".L.OnEnd%d:", lab);
+    println(".L.Cond%d:", lab);
     gen(node->condition);
     pop(RG_RAX);
     println("  cmp rax, 0");
     println("  je .L.End%d", lab);
-    gen(node->body);
     println("  jmp .L.Start%d", lab);
     println(".L.End%d:", lab);
 }
@@ -443,7 +446,7 @@ void gen(Node *node)
         println("  jmp .L.End%d", node->loop_label);
         return;
     case ND_CONTINUE:
-        println("  jmp .L.Start%d", node->loop_label);
+        println("  jmp .L.OnEnd%d", node->loop_label);
         return;
     case ND_FUNC:
         gen_function(node);

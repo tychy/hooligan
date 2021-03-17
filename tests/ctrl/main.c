@@ -43,6 +43,21 @@ int testBreak()
     return 0;
 }
 
+int testForContinue()
+{
+    int i;
+    int x;
+    for (i = 0; i < 10; i++)
+    {
+        x = i;
+        continue;
+    }
+    if (i != 10)
+    {
+        return 1;
+    }
+    return 0;
+}
 int testWhileContinue()
 {
     int total = 0;
@@ -97,6 +112,10 @@ int main()
         return 1;
     }
     if (testBreak() != 0)
+    {
+        return 1;
+    }
+    if (testForContinue() != 0)
     {
         return 1;
     }
