@@ -474,6 +474,16 @@ static Node *assign()
         Node *rhs = new_node(ND_SUB, node, expr());
         node = new_node_assign(node, rhs);
     }
+    else if (consume("*="))
+    {
+        Node *rhs = new_node(ND_MUL, node, expr());
+        node = new_node_assign(node, rhs);
+    }
+    else if (consume("%="))
+    {
+        Node *rhs = new_node(ND_MOD, node, expr());
+        node = new_node_assign(node, rhs);
+    }
     else if (consume("="))
     {
         node = new_node_assign(node, assign());
