@@ -115,6 +115,10 @@ int main()
     {
         return 1;
     }
+    if (testForContinue() != 0)
+    {
+        return 1;
+    }
     if (testWhileContinue() != 0)
     {
         return 1;
