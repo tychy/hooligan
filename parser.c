@@ -361,6 +361,10 @@ static Node *mul()
         {
             node = new_node(ND_DIV, node, unary());
         }
+        else if (consume("%"))
+        {
+            node = new_node(ND_MOD, node, unary());
+        }
         else
         {
             return node;
@@ -468,6 +472,16 @@ static Node *assign()
     else if (consume("-="))
     {
         Node *rhs = new_node(ND_SUB, node, expr());
+        node = new_node_assign(node, rhs);
+    }
+    else if (consume("*="))
+    {
+        Node *rhs = new_node(ND_MUL, node, expr());
+        node = new_node_assign(node, rhs);
+    }
+    else if (consume("%="))
+    {
+        Node *rhs = new_node(ND_MOD, node, expr());
         node = new_node_assign(node, rhs);
     }
     else if (consume("="))

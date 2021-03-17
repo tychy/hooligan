@@ -557,6 +557,13 @@ void gen(Node *node)
         println("  idiv edi");
         push(RG_RAX);
         break;
+    case ND_MOD:
+        pop(RG_RDI);
+        pop(RG_RAX);
+        println("  cdq");
+        println("  idiv edi");
+        push(RG_RDX);
+        break;
     case ND_EQUAL:
         pop(RG_RDI);
         pop(RG_RAX);
