@@ -68,6 +68,28 @@ int testCalc()
     {
         return 1;
     }
+
+    int b = 11;
+    int c = 128;
+    if (b % 2 != 1)
+    {
+        return 1;
+    }
+
+    if (b % 3 != 2)
+    {
+        return 1;
+    }
+
+    if (c % 2 != 0)
+    {
+        return 1;
+    }
+
+    if (c % 10 != 8)
+    {
+        return 1;
+    }
     return 0;
 }
 
