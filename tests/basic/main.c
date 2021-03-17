@@ -90,6 +90,23 @@ int testCalc()
     {
         return 1;
     }
+    b *= 2;
+    c *= 3;
+    if (b != 22)
+    {
+        return 1;
+    }
+
+    if (c != 384)
+    {
+        return 1;
+    }
+
+    c %= 2;
+    if (c != 0)
+    {
+        return 1;
+    }
     return 0;
 }
 
