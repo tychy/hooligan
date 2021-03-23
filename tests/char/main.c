@@ -161,6 +161,28 @@ int testCharLiteral()
     return 0;
 }
 
+int testCharEscape()
+{
+    char a = '\n';
+    char b = '\0';
+    char c = '\\';
+    if (a != 10)
+    {
+        return 1;
+    }
+
+    if (b != 0)
+    {
+        return 1;
+    }
+
+    if (c != 92)
+    {
+        return 0;
+    }
+    return 1;
+}
+
 int main()
 {
     if (testChar() != 0)
@@ -180,6 +202,11 @@ int main()
         return 1;
     }
     if (testCharLiteral() != 0)
+    {
+        return 1;
+    }
+
+    if (testCharEscape() != 0)
     {
         return 1;
     }
