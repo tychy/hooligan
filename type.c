@@ -140,7 +140,22 @@ Type *find_type(Token *tok)
         {
             if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
             {
-                return type;
+                if (type->ty == STRUCT)
+                {
+                    Token *cur = calloc(1, sizeof(Token));
+                    cur->string = type->tag->name;
+                    cur->length = type->tag->length;
+                    Tag *tag = find_tag(cur);
+                    if (!tag)
+                    {
+                        error("struct %.*s が定義されていません", cur->length, cur->string);
+                    }
+                    return tag->ty;
+                }
+                else
+                {
+                    return type;
+                }
             }
         }
     }
@@ -157,6 +172,7 @@ Type *def_type(Token *tok, Type *ty, bool is_local)
     new_type->array_size = ty->array_size;
     new_type->members = ty->members;
     new_type->size = ty->size;
+    new_type->tag = ty->tag;
     new_type->next = ctx->scope->types;
     ctx->scope->types = new_type;
     return new_type;

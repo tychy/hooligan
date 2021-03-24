@@ -504,6 +504,15 @@ static Node *decl_type()
         error("定義式に型がありません");
     }
     Token *ident = consume_ident();
+    if (ty->ty == STRUCT)
+    {
+        Token *new_name = consume_ident();
+
+        ty->tag = calloc(1, sizeof(Tag));
+        ty->tag->name = ident->string;
+        ty->tag->length = ident->length;
+        def_type(new_name, ty, true);
+    }
     if (consume("["))
     {
         int size = expect_number();

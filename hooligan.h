@@ -137,6 +137,9 @@ struct Type
     char *name;
     int length;
     Type *next;
+
+    // for struct
+    Tag *tag;
 };
 
 struct Node
