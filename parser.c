@@ -515,14 +515,16 @@ static Node *decl_type()
         ty->tag->name = ident->string;
         ty->tag->length = ident->length;
         def_type(new_name, ty, true);
+        return new_node_nop();
     }
-    else if (ty->ty == STRUCT)
+    else if (ty->ty == STRUCT && ty->size == -1)
     {
         Token *new_name = consume_ident();
         ty->tag = calloc(1, sizeof(Tag));
         ty->tag->name = ident->string;
         ty->tag->length = ident->length;
         def_type(new_name, ty, true);
+        return new_node_nop();
     }
 
     if (consume("["))
