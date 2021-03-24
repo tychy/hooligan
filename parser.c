@@ -980,6 +980,26 @@ static Node *def()
         error("定義式に型がありません");
     }
     Token *ident = consume_ident();
+    if (ty->ty == STRUCT && consume("{"))
+    {
+        set_struct_member(ty);
+        def_tag(ident, ty);
+        expect(";");
+        return new_node_nop();
+    }
+    else if (ty->ty == STRUCT && ty->size == -1)
+    {
+        Token *var_name = consume_ident();
+        Tag *struct_tag = find_tag(ident);
+        if (!struct_tag)
+        {
+            error("無効なデータ型です");
+        }
+        Var *gvar = def_var(var_name, struct_tag->ty, false, false);
+        expect(";");
+        return new_node_var(gvar);
+    }
+
     if (consume("("))
     {
         node = func(ident, ty, is_static);
