@@ -51,11 +51,13 @@ int testTypedefStructLocalA()
     typedef struct f ma;
     struct f
     {
-        int z;
+        int xx;
+        int yy;
+        int zz;
     };
-    ma x;
-    x.z = 10;
-    if (x.z != 10)
+    ma xyz;
+    xyz.zz = 10;
+    if (xyz.zz != 10)
     {
         return 1;
     }
@@ -73,6 +75,46 @@ int testTypedefStructLocalB()
     newton.x = 11;
     newton.z = 1;
     if (newton.x - newton.z != 10)
+    {
+        return 1;
+    }
+    return 0;
+}
+typedef struct money bank;
+struct money
+{
+    int yen;
+    int dollar;
+    int euro;
+};
+
+int testTypedefStructGlobalA()
+{
+    bank wallet;
+    wallet.yen = 1000;
+    wallet.dollar = 2;
+    wallet.euro = 3;
+    if (wallet.yen / 100 + wallet.dollar != 12)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+typedef struct continent
+{
+    int africa;
+    int eurasia;
+    int america;
+} c;
+
+int testTypedefStructGlobalB()
+{
+    c map;
+    map.africa = 1;
+    map.eurasia = 3;
+    map.america = 8;
+    if (map.africa + map.america != 9)
     {
         return 1;
     }
@@ -106,5 +148,14 @@ int main()
         return 1;
     }
 
+    if (testTypedefStructGlobalA() != 0)
+    {
+        return 1;
+    }
+
+    if (testTypedefStructGlobalB() != 0)
+    {
+        return 1;
+    }
     return 0;
 }
