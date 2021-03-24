@@ -46,7 +46,7 @@ int testStructTagGlobal()
     return 0;
 }
 
-int testTypedefStructLocal()
+int testTypedefStructLocalA()
 {
     typedef struct f ma;
     struct f
@@ -56,6 +56,23 @@ int testTypedefStructLocal()
     ma x;
     x.z = 10;
     if (x.z != 10)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int testTypedefStructLocalB()
+{
+    typedef struct f
+    {
+        int x;
+        int z;
+    } ma;
+    ma newton;
+    newton.x = 11;
+    newton.z = 1;
+    if (newton.x - newton.z != 10)
     {
         return 1;
     }
@@ -79,7 +96,12 @@ int main()
         return 1;
     }
 
-    if (testTypedefStructLocal() != 0)
+    if (testTypedefStructLocalA() != 0)
+    {
+        return 1;
+    }
+
+    if (testTypedefStructLocalB() != 0)
     {
         return 1;
     }
