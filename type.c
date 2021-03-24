@@ -63,6 +63,7 @@ Type *new_type_struct()
         ty = calloc(1, sizeof(Type));
         ty->ty = STRUCT;
     }
+    ty->size = -1;
     return ty;
 }
 
