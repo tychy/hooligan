@@ -16,37 +16,6 @@ bool consume_rw(TokenKind tk)
     return true;
 }
 
-void set_struct_member(Type *ty)
-{
-    int offset = 0;
-    Member *head = calloc(1, sizeof(Member));
-    Member *cur = head;
-    while (not(consume("}")))
-    {
-
-        Member *mem = calloc(1, sizeof(Member));
-        Type *mem_ty = consume_type();
-        Token *mem_tok = consume_ident();
-        if (consume("["))
-        {
-            int arr_size = expect_number();
-            mem_ty = new_type_array(mem_ty, arr_size);
-            expect("]");
-        }
-
-        mem->name = mem_tok->string;
-        mem->length = mem_tok->length;
-        mem->offset = offset;
-        offset += calc_bytes(mem_ty);
-        mem->ty = mem_ty;
-        cur->next = mem;
-        cur = mem;
-        expect(";");
-    }
-    ty->members = head;
-    ty->size = offset;
-}
-
 Type *consume_type()
 {
     Type *ty = find_type(token);

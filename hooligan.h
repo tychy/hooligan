@@ -308,6 +308,7 @@ int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
 Type *def_type(Token *tok, Type *ty, bool is_local);
 Type *find_type(Token *tok);
+void set_struct_member(Type *ty);
 
 // scope.c
 void new_scope();
