@@ -46,6 +46,22 @@ int testStructTagGlobal()
     return 0;
 }
 
+int testTypedefStructLocal()
+{
+    typedef struct f ma;
+    struct f
+    {
+        int z;
+    };
+    ma x;
+    x.z = 10;
+    if (x.z != 10)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testStruct() != 0)
@@ -62,5 +78,11 @@ int main()
     {
         return 1;
     }
+
+    if (testTypedefStructLocal() != 0)
+    {
+        return 1;
+    }
+
     return 0;
 }
