@@ -140,7 +140,7 @@ Type *find_type(Token *tok)
         {
             if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
             {
-                if (type->ty == STRUCT)
+                if (type->ty == STRUCT && type->tag)
                 {
                     Token *cur = calloc(1, sizeof(Token));
                     cur->string = type->tag->name;
