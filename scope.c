@@ -2,7 +2,7 @@
 
 void new_scope()
 {
-    Scope *scope = calloc(1, sizeof(Node));
+    Scope *scope = calloc(1, sizeof(Scope));
     scope->prev = ctx->scope;
     ctx->scope_serial_num++;
     scope->label = ctx->scope_serial_num;
