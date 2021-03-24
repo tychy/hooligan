@@ -161,6 +161,35 @@ Type *def_type(Token *tok, Type *ty, bool is_local)
     return new_type;
 }
 
+Tag *find_tag(Token *tok)
+{
+    for (Scope *scope = ctx->scope; scope; scope = scope->prev)
+    {
+        for (Tag *tag = scope->tags; tag; tag = tag->next)
+        {
+            if (tag->length == tok->length && memcmp(tag->name, tok->string, tag->length) == 0)
+            {
+                return tag;
+            }
+        }
+    }
+    return NULL;
+}
+
+Tag *def_tag(Token *tok, Type *ty)
+{
+    Tag *new_tag = calloc(1, sizeof(Tag));
+    new_tag->name = tok->string;
+    new_tag->length = tok->length;
+    new_tag->ty = calloc(1, sizeof(Type));
+    new_tag->ty->ty = ty->ty;
+    new_tag->ty->members = ty->members;
+    new_tag->ty->size = ty->size;
+    new_tag->next = ctx->scope->tags;
+    ctx->scope->tags = new_tag;
+    return new_tag;
+}
+
 void set_struct_member(Type *ty)
 {
     int offset = 0;
