@@ -110,6 +110,7 @@ typedef struct Token Token;
 typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
+typedef struct Tag Tag;
 typedef struct String String;
 typedef struct Member Member;
 typedef struct Scope Scope;
@@ -215,6 +216,14 @@ struct Var
     int value;
 };
 
+struct Tag
+{
+    Tag *next;
+    char *name;
+    int length;
+    Type *ty;
+};
+
 struct String
 {
     char *p;
@@ -236,6 +245,7 @@ struct Scope
 {
     Var *variables;
     Var *constants;
+    Tag *tags;
     Type *types;
     Scope *prev;
     Scope *next;
@@ -308,6 +318,9 @@ int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
 Type *def_type(Token *tok, Type *ty, bool is_local);
 Type *find_type(Token *tok);
+
+Tag *def_tag(Token *tok, Type *ty);
+Tag *find_tag(Token *tok);
 void set_struct_member(Type *ty);
 
 // scope.c
