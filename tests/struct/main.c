@@ -121,6 +121,20 @@ int testTypedefStructGlobalB()
     return 0;
 }
 
+int testTypedefStructPtr()
+{
+    c *map;
+    map = calloc(1, sizeof(c));
+    map->africa = 1;
+    map->eurasia = 3;
+    map->america = 8;
+    if (map->africa + map->america != 9)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testStruct() != 0)
@@ -154,6 +168,11 @@ int main()
     }
 
     if (testTypedefStructGlobalB() != 0)
+    {
+        return 1;
+    }
+
+    if (testTypedefStructPtr() != 0)
     {
         return 1;
     }

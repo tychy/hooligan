@@ -22,6 +22,11 @@ Type *consume_type()
     if (ty)
     {
         token = token->next;
+
+        while (consume("*"))
+        {
+            ty = new_type_ptr(ty);
+        }
         return ty;
     }
     if (consume_rw(TK_INT))
