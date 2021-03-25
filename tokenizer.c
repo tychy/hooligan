@@ -175,9 +175,31 @@ Token *tokenize(char *p)
         { // ' バックスラッシュによるエスケープを使いたくなかった
 
             p++;
-            cur = new_token(TK_CHARACTER, cur, p);
+            if (*p == 92)
+            {
+                p++;
+                if (*p == 92)
+                {
+                    cur = new_token(TK_CHARACTER, cur, p);
+                    cur->value = 92;
+                }
+                else if (*p == '0')
+                {
+                    cur = new_token(TK_CHARACTER, cur, p);
+                    cur->value = 0;
+                }
+                else if (*p == 'n')
+                {
+                    cur = new_token(TK_CHARACTER, cur, p);
+                    cur->value = 10;
+                }
+            }
+            else
+            {
+                cur = new_token(TK_CHARACTER, cur, p);
+                cur->value = *p;
+            }
             cur->length = 1;
-            cur->value = *p;
             p++;
             if (*p != 39)
             {
