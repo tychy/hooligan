@@ -46,7 +46,7 @@ int main(int argc, char **argv)
         char *p2 = calloc(1, 2 * strlen(p));
         memcpy(p2, p, strlen(p));
         preprocess(p2);
-        token = tokenize(read_file(argv[i]));
+        token = tokenize(p2);
         char filename[4] = {'a' + i - 1, '.', 's', 0}; // a.s -> b.s -> c.s -> d.s
         output = fopen(filename, "w");
         if (output == NULL)

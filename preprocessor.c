@@ -20,7 +20,10 @@ char *replace_all(char *str, char *what, char *with)
 
 char *preprocess(char *target)
 {
+    // stdio.h
     replace_all(target, "size_t", "int");
     replace_all(target, "FILE", "int");
+    replace_all(target, "SEEK_SET", "0");
+    replace_all(target, "SEEK_END", "2");
     return target;
 }
