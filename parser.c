@@ -508,9 +508,10 @@ static Node *decl_type()
     if (ty->ty == STRUCT)
     {
         // typedef strcut hoge{ int x; } hoge;
+        // typedef struct hoge { hoge* next; } foo;
+        Token *tag_name = consume_ident();
         if (consume("{"))
         {
-            Token *tag_name = consume_ident();
             if (tag_name)
             {
                 def_tag(tag_name, ty);
@@ -524,7 +525,6 @@ static Node *decl_type()
         }
         else if (ty->size == -1)
         {
-            Token *tag_name = consume_ident();
             if (tag_name)
             {
                 def_tag(tag_name, ty);
@@ -537,8 +537,7 @@ static Node *decl_type()
         }
         else
         {
-            Token *new_name = consume_ident();
-            def_type(new_name, ty, true);
+            def_type(tag_name, ty, true);
         }
         return new_node_nop();
     }
