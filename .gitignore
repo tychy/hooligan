@@ -4,3 +4,4 @@ tmp
 *.s
 .envrc
 bin/hcc
+sandbox
