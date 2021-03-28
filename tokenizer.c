@@ -142,6 +142,13 @@ Token *tokenize(char *p)
         }
 
         // ブロックコメントをスキップ
+        if (strncmp(p, "#", 1) == 0)
+        {
+            p += 1;
+            while (*p != '\n')
+                p++;
+            continue;
+        }
         if (strncmp(p, "/*", 2) == 0)
         {
             char *q = strstr(p + 2, "*/");
@@ -223,7 +230,7 @@ Token *tokenize(char *p)
         {
             int i = 0;
             char *p_top = p;
-            while (isident(*p))
+            while (isident(*p) || isdigit(*p))
             {
                 i++;
                 p++;

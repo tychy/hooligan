@@ -496,7 +496,7 @@ static Node *expr()
     return assign();
 }
 
-static Node *deftype()
+static Node *decl_type()
 {
     Type *ty = consume_type();
     if (not(ty))
@@ -504,6 +504,29 @@ static Node *deftype()
         error("定義式に型がありません");
     }
     Token *ident = consume_ident();
+
+    if (ty->ty == STRUCT && consume("{"))
+    {
+        set_struct_member(ty);
+        def_tag(ident, ty);
+        Token *new_name = consume_ident();
+
+        ty->tag = calloc(1, sizeof(Tag));
+        ty->tag->name = ident->string;
+        ty->tag->length = ident->length;
+        def_type(new_name, ty, true);
+        return new_node_nop();
+    }
+    else if (ty->ty == STRUCT && ty->size == -1)
+    {
+        Token *new_name = consume_ident();
+        ty->tag = calloc(1, sizeof(Tag));
+        ty->tag->name = ident->string;
+        ty->tag->length = ident->length;
+        def_type(new_name, ty, true);
+        return new_node_nop();
+    }
+
     if (consume("["))
     {
         int size = expect_number();
@@ -519,7 +542,7 @@ static Node *defl()
 {
     if (consume_rw(TK_TYPEDEF))
     {
-        return deftype();
+        return decl_type();
     }
     else if (consume_rw(TK_EXTERN))
     {
@@ -578,6 +601,24 @@ static Node *defl()
         }
 
         Token *ident = consume_ident();
+        if (ty->ty == STRUCT && consume("{"))
+        {
+            set_struct_member(ty);
+            def_tag(ident, ty);
+            return new_node_nop();
+        }
+        else if (ty->ty == STRUCT && ty->size == -1)
+        {
+            Token *var_name = consume_ident();
+            Tag *struct_tag = find_tag(ident);
+            if (!struct_tag)
+            {
+                error("無効なデータ型です");
+            }
+            Var *lvar = def_var(var_name, struct_tag->ty, true, false);
+            return new_node_var(lvar);
+        }
+
         if (consume("["))
         {
             int size;
@@ -941,7 +982,7 @@ static Node *def()
     Node *node;
     if (consume_rw(TK_TYPEDEF))
     {
-        node = deftype();
+        node = decl_type();
         expect(";");
         return node;
     }
@@ -962,6 +1003,26 @@ static Node *def()
         error("定義式に型がありません");
     }
     Token *ident = consume_ident();
+    if (ty->ty == STRUCT && consume("{"))
+    {
+        set_struct_member(ty);
+        def_tag(ident, ty);
+        expect(";");
+        return new_node_nop();
+    }
+    else if (ty->ty == STRUCT && ty->size == -1)
+    {
+        Token *var_name = consume_ident();
+        Tag *struct_tag = find_tag(ident);
+        if (!struct_tag)
+        {
+            error("無効なデータ型です");
+        }
+        Var *gvar = def_var(var_name, struct_tag->ty, false, false);
+        expect(";");
+        return new_node_var(gvar);
+    }
+
     if (consume("("))
     {
         node = func(ident, ty, is_static);

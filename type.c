@@ -63,6 +63,7 @@ Type *new_type_struct()
         ty = calloc(1, sizeof(Type));
         ty->ty = STRUCT;
     }
+    ty->size = -1;
     return ty;
 }
 
@@ -139,7 +140,22 @@ Type *find_type(Token *tok)
         {
             if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
             {
-                return type;
+                if (type->ty == STRUCT && type->tag)
+                {
+                    Token *cur = calloc(1, sizeof(Token));
+                    cur->string = type->tag->name;
+                    cur->length = type->tag->length;
+                    Tag *tag = find_tag(cur);
+                    if (!tag)
+                    {
+                        error("struct %.*s が定義されていません", cur->length, cur->string);
+                    }
+                    return tag->ty;
+                }
+                else
+                {
+                    return type;
+                }
             }
         }
     }
@@ -156,7 +172,68 @@ Type *def_type(Token *tok, Type *ty, bool is_local)
     new_type->array_size = ty->array_size;
     new_type->members = ty->members;
     new_type->size = ty->size;
+    new_type->tag = ty->tag;
     new_type->next = ctx->scope->types;
     ctx->scope->types = new_type;
     return new_type;
+}
+
+Tag *find_tag(Token *tok)
+{
+    for (Scope *scope = ctx->scope; scope; scope = scope->prev)
+    {
+        for (Tag *tag = scope->tags; tag; tag = tag->next)
+        {
+            if (tag->length == tok->length && memcmp(tag->name, tok->string, tag->length) == 0)
+            {
+                return tag;
+            }
+        }
+    }
+    return NULL;
+}
+
+Tag *def_tag(Token *tok, Type *ty)
+{
+    Tag *new_tag = calloc(1, sizeof(Tag));
+    new_tag->name = tok->string;
+    new_tag->length = tok->length;
+    new_tag->ty = calloc(1, sizeof(Type));
+    new_tag->ty->ty = ty->ty;
+    new_tag->ty->members = ty->members;
+    new_tag->ty->size = ty->size;
+    new_tag->next = ctx->scope->tags;
+    ctx->scope->tags = new_tag;
+    return new_tag;
+}
+
+void set_struct_member(Type *ty)
+{
+    int offset = 0;
+    Member *head = calloc(1, sizeof(Member));
+    Member *cur = head;
+    while (not(consume("}")))
+    {
+
+        Member *mem = calloc(1, sizeof(Member));
+        Type *mem_ty = consume_type();
+        Token *mem_tok = consume_ident();
+        if (consume("["))
+        {
+            int arr_size = expect_number();
+            mem_ty = new_type_array(mem_ty, arr_size);
+            expect("]");
+        }
+
+        mem->name = mem_tok->string;
+        mem->length = mem_tok->length;
+        mem->offset = offset;
+        offset += calc_bytes(mem_ty);
+        mem->ty = mem_ty;
+        cur->next = mem;
+        cur = mem;
+        expect(";");
+    }
+    ty->members = head;
+    ty->size = offset;
 }
