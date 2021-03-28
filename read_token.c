@@ -76,9 +76,41 @@ Type *consume_type()
     {
         return NULL;
     }
-    if (ty->ty == STRUCT && consume("{"))
+
+    if (ty->ty == STRUCT)
     {
-        set_struct_member(ty);
+        Token *ident = consume_ident();
+        if (consume("{"))
+        {
+            if (ident)
+            {
+                def_tag(ident, ty);
+                ty->tag = calloc(1, sizeof(Tag));
+                ty->tag->name = ident->string;
+                ty->tag->length = ident->length;
+            }
+            set_struct_member(ty);
+        }
+        else if (ty->size == -1)
+        {
+            if (ident)
+            {
+                // typedef struct f ma;
+                // struct f{ int x;}
+                // struct f ma;
+                Tag *defined_tag = find_tag(ident);
+                if (defined_tag)
+                {
+                    ty = defined_tag->ty;
+                }
+                else
+                {
+                    ty->tag = calloc(1, sizeof(Tag));
+                    ty->tag->name = ident->string;
+                    ty->tag->length = ident->length;
+                }
+            }
+        }
     }
 
     while (consume("*"))

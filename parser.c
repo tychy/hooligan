@@ -498,7 +498,6 @@ static Node *expr()
 
 static Node *decl_type()
 {
-    // typedef struct{ int x; } hoge;
     Type *ty = consume_type();
     if (not(ty))
     {
@@ -507,38 +506,8 @@ static Node *decl_type()
 
     if (ty->ty == STRUCT)
     {
-        // typedef strcut hoge{ int x; } hoge;
-        // typedef struct hoge { hoge* next; } foo;
-        Token *tag_name = expect_ident();
-        if (consume("{"))
-        {
-            if (tag_name)
-            {
-                def_tag(tag_name, ty);
-                ty->tag = calloc(1, sizeof(Tag));
-                ty->tag->name = tag_name->string;
-                ty->tag->length = tag_name->length;
-            }
-            set_struct_member(ty);
-            Token *new_name = expect_ident();
-            def_type(new_name, ty, true);
-        }
-        else if (ty->size == -1)
-        {
-            if (tag_name)
-            {
-                def_tag(tag_name, ty);
-                ty->tag = calloc(1, sizeof(Tag));
-                ty->tag->name = tag_name->string;
-                ty->tag->length = tag_name->length;
-            }
-            Token *new_name = expect_ident();
-            def_type(new_name, ty, true);
-        }
-        else
-        {
-            def_type(tag_name, ty, true);
-        }
+        Token *new_name = expect_ident();
+        def_type(new_name, ty, true);
         return new_node_nop();
     }
 
@@ -616,26 +585,26 @@ static Node *defl()
         {
             error("void型の変数は定義できません");
         }
+        if (ty->ty == STRUCT)
+        {
+            Token *ident = consume_ident();
+            if (ident)
+            {
+                // struct {int x;} a;
+                // struct hoge {int x;} a;
+                // struct hoge a;
+                Var *lvar = def_var(ident, ty, true, false);
+                return new_node_var(lvar);
+            }
+            else
+            {
+                // struct hoge{int x;};
+                // struct {int x;};
+                return new_node_nop();
+            }
+        }
 
         Token *ident = expect_ident();
-        if (ty->ty == STRUCT && consume("{"))
-        {
-            set_struct_member(ty);
-            def_tag(ident, ty);
-            return new_node_nop();
-        }
-        else if (ty->ty == STRUCT && ty->size == -1)
-        {
-            Token *var_name = expect_ident();
-            Tag *struct_tag = find_tag(ident);
-            if (!struct_tag)
-            {
-                error("無効なデータ型です");
-            }
-            Var *lvar = def_var(var_name, struct_tag->ty, true, false);
-            return new_node_var(lvar);
-        }
-
         if (consume("["))
         {
             int size;
@@ -1019,26 +988,29 @@ static Node *def()
     {
         error("定義式に型がありません");
     }
-    Token *ident = expect_ident();
-    if (ty->ty == STRUCT && consume("{"))
+    if (ty->ty == STRUCT)
     {
-        set_struct_member(ty);
-        def_tag(ident, ty);
-        expect(";");
-        return new_node_nop();
-    }
-    else if (ty->ty == STRUCT && ty->size == -1)
-    {
-        Token *var_name = expect_ident();
-        Tag *struct_tag = find_tag(ident);
-        if (!struct_tag)
+        Token *ident = consume_ident();
+        if (ident)
         {
-            error("無効なデータ型です");
+            // unused
+            // struct {int x;} a;
+            // struct hoge {int x;} a;
+            // struct hoge a;
+            Var *lvar = def_var(ident, ty, false, false);
+            expect(";");
+            return new_node_var(lvar);
         }
-        Var *gvar = def_var(var_name, struct_tag->ty, false, false);
-        expect(";");
-        return new_node_var(gvar);
+        else
+        {
+            // struct hoge{int x;};
+            // struct {int x;};
+            expect(";");
+            return new_node_nop();
+        }
     }
+
+    Token *ident = expect_ident();
 
     if (consume("("))
     {
