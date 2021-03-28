@@ -121,7 +121,7 @@ Token *consume_ident()
 {
     if (token->kind != TK_IDENT)
     {
-        error("変数ではありません got %s", token->string);
+        error("識別子ではありません got %s", token->string);
     }
     Token *tok = token;
     token = token->next;
