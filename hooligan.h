@@ -286,6 +286,7 @@ int expect_number();
 int expect_char();
 bool at_eof();
 Token *consume_ident();
+Token *expect_ident();
 
 // tokenizer.c
 Token *tokenize();

@@ -121,6 +121,17 @@ Token *consume_ident()
 {
     if (token->kind != TK_IDENT)
     {
+        return NULL;
+    }
+    Token *tok = token;
+    token = token->next;
+    return tok;
+}
+
+Token *expect_ident()
+{
+    if (token->kind != TK_IDENT)
+    {
         error("識別子ではありません got %s", token->string);
     }
     Token *tok = token;
