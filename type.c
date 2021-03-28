@@ -58,11 +58,8 @@ Type *new_type_array(Type *ptr_to, size_t size)
 Type *new_type_struct()
 {
     static Type *ty;
-    if (!ty)
-    {
-        ty = calloc(1, sizeof(Type));
-        ty->ty = STRUCT;
-    }
+    ty = calloc(1, sizeof(Type));
+    ty->ty = STRUCT;
     ty->size = -1;
     return ty;
 }
