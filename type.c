@@ -58,11 +58,8 @@ Type *new_type_array(Type *ptr_to, size_t size)
 Type *new_type_struct()
 {
     static Type *ty;
-    if (!ty)
-    {
-        ty = calloc(1, sizeof(Type));
-        ty->ty = STRUCT;
-    }
+    ty = calloc(1, sizeof(Type));
+    ty->ty = STRUCT;
     ty->size = -1;
     return ty;
 }
@@ -198,10 +195,7 @@ Tag *def_tag(Token *tok, Type *ty)
     Tag *new_tag = calloc(1, sizeof(Tag));
     new_tag->name = tok->string;
     new_tag->length = tok->length;
-    new_tag->ty = calloc(1, sizeof(Type));
-    new_tag->ty->ty = ty->ty;
-    new_tag->ty->members = ty->members;
-    new_tag->ty->size = ty->size;
+    new_tag->ty = ty;
     new_tag->next = ctx->scope->tags;
     ctx->scope->tags = new_tag;
     return new_tag;

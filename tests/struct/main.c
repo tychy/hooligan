@@ -135,6 +135,29 @@ int testTypedefStructPtr()
     return 0;
 }
 
+int testTypedefStructSelf()
+{
+    typedef struct Graph Graph;
+    struct Graph
+    {
+        int val;
+        Graph *next;
+    };
+    Graph *g = calloc(1, sizeof(Graph));
+    g->val = 10;
+
+    Graph *f = calloc(1, sizeof(Graph));
+    f->val = 20;
+    g->next = f;
+    f->next = g;
+
+    if (g->next->next->val != 10)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testStruct() != 0)
@@ -173,6 +196,11 @@ int main()
     }
 
     if (testTypedefStructPtr() != 0)
+    {
+        return 1;
+    }
+
+    if (testTypedefStructSelf() != 0)
     {
         return 1;
     }
