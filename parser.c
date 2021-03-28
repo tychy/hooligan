@@ -498,34 +498,52 @@ static Node *expr()
 
 static Node *decl_type()
 {
+    // typedef struct{ int x; } hoge;
     Type *ty = consume_type();
     if (not(ty))
     {
         error("定義式に型がありません");
     }
-    Token *ident = consume_ident();
 
-    if (ty->ty == STRUCT && consume("{"))
+    if (ty->ty == STRUCT)
     {
-        set_struct_member(ty);
-        def_tag(ident, ty);
-        Token *new_name = consume_ident();
-
-        ty->tag = calloc(1, sizeof(Tag));
-        ty->tag->name = ident->string;
-        ty->tag->length = ident->length;
-        def_type(new_name, ty, true);
+        // typedef strcut hoge{ int x; } hoge;
+        if (consume("{"))
+        {
+            Token *tag_name = consume_ident();
+            if (tag_name)
+            {
+                def_tag(tag_name, ty);
+                ty->tag = calloc(1, sizeof(Tag));
+                ty->tag->name = tag_name->string;
+                ty->tag->length = tag_name->length;
+            }
+            set_struct_member(ty);
+            Token *new_name = consume_ident();
+            def_type(new_name, ty, true);
+        }
+        else if (ty->size == -1)
+        {
+            Token *tag_name = consume_ident();
+            if (tag_name)
+            {
+                def_tag(tag_name, ty);
+                ty->tag = calloc(1, sizeof(Tag));
+                ty->tag->name = tag_name->string;
+                ty->tag->length = tag_name->length;
+            }
+            Token *new_name = consume_ident();
+            def_type(new_name, ty, true);
+        }
+        else
+        {
+            Token *new_name = consume_ident();
+            def_type(new_name, ty, true);
+        }
         return new_node_nop();
     }
-    else if (ty->ty == STRUCT && ty->size == -1)
-    {
-        Token *new_name = consume_ident();
-        ty->tag = calloc(1, sizeof(Tag));
-        ty->tag->name = ident->string;
-        ty->tag->length = ident->length;
-        def_type(new_name, ty, true);
-        return new_node_nop();
-    }
+
+    Token *new_name = consume_ident();
 
     if (consume("["))
     {
@@ -533,7 +551,7 @@ static Node *decl_type()
         ty = new_type_array(ty, size);
         expect("]");
     }
-    def_type(ident, ty, true);
+    def_type(new_name, ty, true);
     return new_node_nop();
 }
 
