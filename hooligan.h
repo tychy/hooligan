@@ -277,6 +277,9 @@ extern Context *ctx;
 extern FILE *output;
 
 // Declaration of functions
+// preprocessor.c
+char *preprocess(char *target);
+
 // read_token.c
 bool consume(char *op);
 bool consume_rw(TokenKind tk);
