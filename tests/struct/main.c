@@ -292,6 +292,63 @@ int testTypedefStructSelf()
     return 0;
 }
 
+typedef struct IntCharMix IntCharMix;
+struct IntCharMix
+{
+    int index;
+    char c;
+    int val;
+    char s;
+    int *next;
+};
+
+int get_val_mod2(IntCharMix *mix)
+{
+    return mix->val % 2;
+}
+
+char add_c_s(IntCharMix *mix)
+{
+    return mix->c + mix->s;
+}
+
+int testStructAllign()
+{
+    IntCharMix mix;
+    IntCharMix mix_next;
+    mix.index = 1;
+    mix.val = 11;
+    mix.c = 6;
+    mix.s = 1;
+    mix_next.index = 2;
+    mix_next.val = 100;
+    mix_next.c = 1;
+    mix_next.s = 7;
+
+    mix.next = &mix_next;
+    if (mix.c != 6)
+    {
+        return 1;
+    }
+    if (get_val_mod2(&mix) != 1)
+    {
+        return 1;
+    }
+    if (get_val_mod2(&mix_next) != 0)
+    {
+        return 1;
+    }
+    if (get_val_mod2(mix.next) != 0)
+    {
+        return 1;
+    }
+
+    if (add_c_s(&mix) != 7)
+    {
+        return 1;
+    }
+    return 0;
+}
 int main()
 {
     if (testStruct() != 0)
@@ -353,6 +410,9 @@ int main()
     {
         return 1;
     }
-
+    if (testStructAllign() != 0)
+    {
+        return 1;
+    }
     return 0;
 }
