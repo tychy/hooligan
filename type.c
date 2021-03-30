@@ -153,15 +153,6 @@ Type *add_defined_type(Token *tok, Type *ty, bool is_local)
     return ty;
 }
 
-Type *add_tagged_type(Token *tok, Type *ty, bool is_local)
-{
-    ty->tag_name = tok->string;
-    ty->tag_length = tok->length;
-    ty->next_tagged = ctx->scope->tagged_types;
-    ctx->scope->tagged_types = ty;
-    return ty;
-}
-
 Type *find_tagged_type(Token *tok)
 {
     for (Scope *scope = ctx->scope; scope; scope = scope->prev)
@@ -176,6 +167,16 @@ Type *find_tagged_type(Token *tok)
     }
     return NULL;
 }
+
+Type *add_tagged_type(Token *tok, Type *ty, bool is_local)
+{
+    ty->tag_name = tok->string;
+    ty->tag_length = tok->length;
+    ty->next_tagged = ctx->scope->tagged_types;
+    ctx->scope->tagged_types = ty;
+    return ty;
+}
+
 
 void set_struct_member(Type *ty)
 {
