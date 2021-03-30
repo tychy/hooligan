@@ -110,7 +110,6 @@ typedef struct Token Token;
 typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
-typedef struct Tag Tag;
 typedef struct String String;
 typedef struct Member Member;
 typedef struct Scope Scope;
@@ -136,10 +135,12 @@ struct Type
     // for defined type
     char *name;
     int length;
-    Type *next;
+    Type *next_defined;
 
     // for struct
-    Tag *tag;
+    char *tag_name;
+    int tag_length;
+    Type *next_tagged;
 };
 
 struct Node
@@ -219,14 +220,6 @@ struct Var
     int value;
 };
 
-struct Tag
-{
-    Tag *next;
-    char *name;
-    int length;
-    Type *ty;
-};
-
 struct String
 {
     char *p;
@@ -248,8 +241,8 @@ struct Scope
 {
     Var *variables;
     Var *constants;
-    Tag *tags;
-    Type *types;
+    Type *defined_type; // for typedef
+    Type *tagged_types; // for tag(e.x. struct)
     Scope *prev;
     Scope *next;
     Node *current_switch;
@@ -314,7 +307,6 @@ Type *new_type_int();
 Type *new_type_char();
 Type *new_type_string();
 Type *new_type_void();
-
 Type *new_type_ptr(Type *ptr_to);
 Type *new_type_array(Type *ptr_to, size_t size);
 Type *new_type_struct();
@@ -323,11 +315,10 @@ bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
 int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
-Type *def_type(Token *tok, Type *ty, bool is_local);
-Type *find_type(Token *tok);
-
-Tag *def_tag(Token *tok, Type *ty);
-Tag *find_tag(Token *tok);
+Type *add_defined_type(Token *tok, Type *ty, bool is_local);
+Type *add_tagged_type(Token *tok, Type* ty, bool is_local);
+Type *find_defined_type(Token *tok);
+Type *find_tagged_type(Token *tok);
 void set_struct_member(Type *ty);
 
 // scope.c
