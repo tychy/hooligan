@@ -36,6 +36,6 @@ static char *read_file(char *path)
 
 int main()
 {
-    printf("%s\n", read_file("hooligan.h"));
+    printf("%s\n", read_file("Dockerfile"));
     return 0;
 }
