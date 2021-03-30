@@ -1,5 +1,6 @@
 #include "hooligan.h"
 
+// #defineを再現できる
 char *replace_all(char *str, char *what, char *with)
 {
     if (!*what)
@@ -25,5 +26,10 @@ char *preprocess(char *target)
     replace_all(target, "FILE", "int");
     replace_all(target, "SEEK_SET", "0");
     replace_all(target, "SEEK_END", "2");
+    
+    replace_all(target, "NULL", "0");
+    replace_all(target, "bool", "int");
+    replace_all(target, "true", "1");
+    replace_all(target, "false", "0");
     return target;
 }
