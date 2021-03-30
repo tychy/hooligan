@@ -206,17 +206,15 @@ static Node *ident()
         {
             return new_node_var(var);
         }
+        // for sizeof
+        Type *ty = find_defined_type(ident);
+        if (!ty)
         {
-            // for sizeof
-            Type *ty = find_defined_type(ident);
-            if (!ty)
-            {
-                error("識別子が解決できませんでした");
-            }
-            Node *node = calloc(1, sizeof(Node));
-            node->ty = ty;
-            return node;
+            error("識別子が解決できませんでした");
         }
+        Node *node = calloc(1, sizeof(Node));
+        node->ty = ty;
+        return node;
     }
 }
 static Member *get_struct_member(Type *ty)
