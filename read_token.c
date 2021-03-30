@@ -84,10 +84,15 @@ Type *consume_type()
         {
             if (ident)
             {
-                def_tag(ident, ty);
-                ty->tag = calloc(1, sizeof(Tag));
-                ty->tag->name = ident->string;
-                ty->tag->length = ident->length;
+                Type *ty_has_tag = find_type_by_tag(ident);
+                if (ty_has_tag)
+                {
+                    ty = ty_has_tag;
+                }
+                else
+                {
+                    add_tagged_type(ident, ty, true);
+                }
             }
             set_struct_member(ty);
         }
@@ -98,16 +103,14 @@ Type *consume_type()
                 // typedef struct f ma;
                 // struct f{ int x;}
                 // struct f ma;
-                Tag *defined_tag = find_tag(ident);
-                if (defined_tag)
+                Type *ty_has_tag = find_type_by_tag(ident);
+                if (ty_has_tag)
                 {
-                    ty = defined_tag->ty;
+                    ty = ty_has_tag;
                 }
                 else
                 {
-                    ty->tag = calloc(1, sizeof(Tag));
-                    ty->tag->name = ident->string;
-                    ty->tag->length = ident->length;
+                    add_tagged_type(ident, ty, true);
                 }
             }
         }

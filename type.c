@@ -137,22 +137,7 @@ Type *find_type(Token *tok)
         {
             if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
             {
-                if (type->ty == STRUCT && type->tag)
-                {
-                    Token *cur = calloc(1, sizeof(Token));
-                    cur->string = type->tag->name;
-                    cur->length = type->tag->length;
-                    Tag *tag = find_tag(cur);
-                    if (!tag)
-                    {
-                        error("struct %.*s が定義されていません", cur->length, cur->string);
-                    }
-                    return tag->ty;
-                }
-                else
-                {
-                    return type;
-                }
+                return type;
             }
         }
     }
@@ -161,44 +146,35 @@ Type *find_type(Token *tok)
 
 Type *def_type(Token *tok, Type *ty, bool is_local)
 {
-    Type *new_type = calloc(1, sizeof(Type));
-    new_type->name = tok->string;
-    new_type->length = tok->length;
-    new_type->ty = ty->ty;
-    new_type->ptr_to = ty->ptr_to;
-    new_type->array_size = ty->array_size;
-    new_type->members = ty->members;
-    new_type->size = ty->size;
-    new_type->tag = ty->tag;
-    new_type->next = ctx->scope->types;
-    ctx->scope->types = new_type;
-    return new_type;
+    ty->name = tok->string;
+    ty->length = tok->length;
+    ty->next = ctx->scope->types;
+    ctx->scope->types = ty;
+    return ty;
 }
 
-Tag *find_tag(Token *tok)
+Type *add_tagged_type(Token *tok, Type *ty, bool is_local)
+{
+    ty->tag_name = tok->string;
+    ty->tag_length = tok->length;
+    ty->tagged_next = ctx->scope->tagged_types;
+    ctx->scope->tagged_types = ty;
+    return ty;
+}
+
+Type *find_type_by_tag(Token *tok)
 {
     for (Scope *scope = ctx->scope; scope; scope = scope->prev)
     {
-        for (Tag *tag = scope->tags; tag; tag = tag->next)
+        for (Type *type = scope->tagged_types; type; type = type->tagged_next)
         {
-            if (tag->length == tok->length && memcmp(tag->name, tok->string, tag->length) == 0)
+            if (type->tag_length == tok->length && memcmp(type->tag_name, tok->string, type->tag_length) == 0)
             {
-                return tag;
+                return type;
             }
         }
     }
     return NULL;
-}
-
-Tag *def_tag(Token *tok, Type *ty)
-{
-    Tag *new_tag = calloc(1, sizeof(Tag));
-    new_tag->name = tok->string;
-    new_tag->length = tok->length;
-    new_tag->ty = ty;
-    new_tag->next = ctx->scope->tags;
-    ctx->scope->tags = new_tag;
-    return new_tag;
 }
 
 void set_struct_member(Type *ty)
