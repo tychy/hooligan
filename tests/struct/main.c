@@ -233,6 +233,42 @@ int testStructsCircularRefGlobal()
     return 0;
 }
 
+typedef struct A A;
+typedef struct B B;
+struct A
+{
+    int val;
+    B *next;
+};
+
+struct B
+{
+    int val;
+    A *next;
+};
+
+int testStructsCircularRefGlobalPtr()
+{
+
+    A *a = calloc(1, sizeof(A));
+
+    B *b = calloc(1, sizeof(B));
+    a->next = b;
+    a->val = 5;
+    b->next = a;
+    b->val = 11;
+    if (b->val != 11)
+    {
+        return 1;
+    }
+    if (b->next->val != 5)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
 int testTypedefStructSelf()
 {
     typedef struct Graph Graph;
@@ -309,6 +345,11 @@ int main()
     }
 
     if (testStructsCircularRefGlobal() != 0)
+    {
+        return 1;
+    }
+
+    if (testStructsCircularRefGlobalPtr() != 0)
     {
         return 1;
     }
