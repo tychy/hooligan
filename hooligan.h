@@ -135,12 +135,12 @@ struct Type
     // for defined type
     char *name;
     int length;
-    Type *next;
+    Type *next_defined;
 
     // for struct
     char *tag_name;
     int tag_length;
-    Type *tagged_next;
+    Type *next_tagged;
 };
 
 struct Node

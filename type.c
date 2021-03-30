@@ -133,7 +133,7 @@ Type *find_defined_type(Token *tok)
 {
     for (Scope *scope = ctx->scope; scope; scope = scope->prev)
     {
-        for (Type *type = scope->defined_type; type; type = type->next)
+        for (Type *type = scope->defined_type; type; type = type->next_defined)
         {
             if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
             {
@@ -148,7 +148,7 @@ Type *add_defined_type(Token *tok, Type *ty, bool is_local)
 {
     ty->name = tok->string;
     ty->length = tok->length;
-    ty->next = ctx->scope->defined_type;
+    ty->next_defined = ctx->scope->defined_type;
     ctx->scope->defined_type = ty;
     return ty;
 }
@@ -157,7 +157,7 @@ Type *add_tagged_type(Token *tok, Type *ty, bool is_local)
 {
     ty->tag_name = tok->string;
     ty->tag_length = tok->length;
-    ty->tagged_next = ctx->scope->tagged_types;
+    ty->next_tagged = ctx->scope->tagged_types;
     ctx->scope->tagged_types = ty;
     return ty;
 }
@@ -166,7 +166,7 @@ Type *find_tagged_type(Token *tok)
 {
     for (Scope *scope = ctx->scope; scope; scope = scope->prev)
     {
-        for (Type *type = scope->tagged_types; type; type = type->tagged_next)
+        for (Type *type = scope->tagged_types; type; type = type->next_tagged)
         {
             if (type->tag_length == tok->length && memcmp(type->tag_name, tok->string, type->tag_length) == 0)
             {
