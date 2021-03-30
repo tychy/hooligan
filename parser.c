@@ -208,7 +208,7 @@ static Node *ident()
         }
         {
             // for sizeof
-            Type *ty = find_type(ident);
+            Type *ty = find_defined_type(ident);
             if (!ty)
             {
                 error("識別子が解決できませんでした");
@@ -507,7 +507,7 @@ static Node *decl_type()
     if (ty->ty == STRUCT)
     {
         Token *new_name = expect_ident();
-        def_type(new_name, ty, true);
+        add_defined_type(new_name, ty, true);
         return new_node_nop();
     }
 
@@ -519,7 +519,7 @@ static Node *decl_type()
         ty = new_type_array(ty, size);
         expect("]");
     }
-    def_type(new_name, ty, true);
+    add_defined_type(new_name, ty, true);
     return new_node_nop();
 }
 

@@ -18,7 +18,7 @@ bool consume_rw(TokenKind tk)
 
 Type *consume_type()
 {
-    Type *ty = find_type(token);
+    Type *ty = find_defined_type(token);
     if (ty)
     {
         token = token->next;
@@ -84,10 +84,10 @@ Type *consume_type()
         {
             if (ident)
             {
-                Type *ty_has_tag = find_type_by_tag(ident);
-                if (ty_has_tag)
+                Type *tagged_type = find_tagged_type(ident);
+                if (tagged_type)
                 {
-                    ty = ty_has_tag;
+                    ty = tagged_type;
                 }
                 else
                 {
@@ -103,10 +103,10 @@ Type *consume_type()
                 // typedef struct f ma;
                 // struct f{ int x;}
                 // struct f ma;
-                Type *ty_has_tag = find_type_by_tag(ident);
-                if (ty_has_tag)
+                Type *tagged_type = find_tagged_type(ident);
+                if (tagged_type)
                 {
-                    ty = ty_has_tag;
+                    ty = tagged_type;
                 }
                 else
                 {

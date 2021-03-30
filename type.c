@@ -129,11 +129,11 @@ Type *determine_expr_type(Type *lhs, Type *rhs)
         return new_type_int();
 }
 
-Type *find_type(Token *tok)
+Type *find_defined_type(Token *tok)
 {
     for (Scope *scope = ctx->scope; scope; scope = scope->prev)
     {
-        for (Type *type = scope->types; type; type = type->next)
+        for (Type *type = scope->defined_type; type; type = type->next)
         {
             if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
             {
@@ -144,12 +144,12 @@ Type *find_type(Token *tok)
     return NULL;
 }
 
-Type *def_type(Token *tok, Type *ty, bool is_local)
+Type *add_defined_type(Token *tok, Type *ty, bool is_local)
 {
     ty->name = tok->string;
     ty->length = tok->length;
-    ty->next = ctx->scope->types;
-    ctx->scope->types = ty;
+    ty->next = ctx->scope->defined_type;
+    ctx->scope->defined_type = ty;
     return ty;
 }
 
@@ -162,7 +162,7 @@ Type *add_tagged_type(Token *tok, Type *ty, bool is_local)
     return ty;
 }
 
-Type *find_type_by_tag(Token *tok)
+Type *find_tagged_type(Token *tok)
 {
     for (Scope *scope = ctx->scope; scope; scope = scope->prev)
     {

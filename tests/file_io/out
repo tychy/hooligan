@@ -241,8 +241,8 @@ struct Scope
 {
     Var *variables;
     Var *constants;
-    Type *types;
-    Type *tagged_types;
+    Type *defined_type; // for typedef
+    Type *tagged_types; // for tag(e.x. struct)
     Scope *prev;
     Scope *next;
     Node *current_switch;
@@ -307,7 +307,6 @@ Type *new_type_int();
 Type *new_type_char();
 Type *new_type_string();
 Type *new_type_void();
-
 Type *new_type_ptr(Type *ptr_to);
 Type *new_type_array(Type *ptr_to, size_t size);
 Type *new_type_struct();
@@ -316,10 +315,10 @@ bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
 int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
-Type *def_type(Token *tok, Type *ty, bool is_local);
+Type *add_defined_type(Token *tok, Type *ty, bool is_local);
 Type *add_tagged_type(Token *tok, Type* ty, bool is_local);
-Type *find_type(Token *tok);
-Type *find_type_by_tag(Token *tok);
+Type *find_defined_type(Token *tok);
+Type *find_tagged_type(Token *tok);
 void set_struct_member(Type *ty);
 
 // scope.c
