@@ -298,7 +298,7 @@ Var *find_var(Token *tok);
 Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static);
 Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val);
 Var *find_func(Token *tok);
-Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[], bool is_static);
+Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[6], bool is_static);
 Var *find_const(Token *tok);
 Var *def_const(Token *tok, int val);
 
@@ -316,7 +316,7 @@ bool is_int_or_char(Type *ty);
 int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
 Type *add_defined_type(Token *tok, Type *ty, bool is_local);
-Type *add_tagged_type(Token *tok, Type* ty, bool is_local);
+Type *add_tagged_type(Token *tok, Type *ty, bool is_local);
 Type *find_defined_type(Token *tok);
 Type *find_tagged_type(Token *tok);
 void set_struct_member(Type *ty);
