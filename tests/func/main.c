@@ -91,12 +91,19 @@ int testFuncVoid()
 typedef struct Hoge Hoge;
 struct Hoge
 {
+    int index;
+    int hash;
     int val;
 };
 
-int func_hoge(Hoge h[10])
+int func_hoge_val(Hoge *h[10])
 {
-    return h[0].val + h[1].val + h[2].val;
+    return h[0]->val + h[1]->val + h[2]->val;
+}
+
+int func_hoge_index(Hoge *h[10])
+{
+    return h[0]->index + h[1]->index + h[2]->index;
 }
 
 int func_array(int c[10])
@@ -119,17 +126,27 @@ int testFuncArray()
 
 int testFuncStructArrayLocal()
 {
-    Hoge hogearray[10];
+    Hoge *hogearray[10];
     Hoge ha;
     Hoge hb;
     Hoge hc;
+    ha.index = 100;
+    hb.index = 200;
+    hc.index = 300;
+
     ha.val = 1;
     hb.val = 2;
     hc.val = 3;
-    hogearray[0] = ha;
-    hogearray[1] = hb;
-    hogearray[2] = hc;
-    if (func_hoge(hogearray) != 6)
+
+    hogearray[0] = &ha;
+    hogearray[1] = &hb;
+    hogearray[2] = &hc;
+    if (func_hoge_val(hogearray) != 6)
+    {
+        return 1;
+    }
+
+    if (func_hoge_index(hogearray) != 600)
     {
         return 1;
     }
