@@ -20,7 +20,7 @@ Type *new_type_string()
 {
     //new_type_ptr(new_type_char())で代用できるがキャッシュできる分はやい？
     //わかりやすさは勝っていると思う
-    static Type *ty;
+    Type *ty;
     Type *c = new_type_char();
     ty = calloc(1, sizeof(Type));
     ty->ty = PTR;
