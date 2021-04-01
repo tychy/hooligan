@@ -152,6 +152,31 @@ int testFuncStructArrayLocal()
     }
     return 0;
 }
+Hoge *hogeglob[10];
+Hoge haglob;
+int func_hoge_glob(Hoge *h[10])
+{
+    return h[0]->val + h[1]->val + h[2]->val;
+}
+
+int testFuncStructArrayGlobal()
+{
+
+    Hoge *hbglob = calloc(1, sizeof(Hoge));
+    Hoge *hcglob = calloc(1, sizeof(Hoge));
+    haglob.val = 3;
+    hbglob->val = 22;
+    hcglob->val = 33;
+    hogeglob[0] = &haglob;
+    hogeglob[1] = hbglob;
+    hogeglob[2] = hcglob;
+
+    if (func_hoge_glob(hogeglob) != 58)
+    {
+        return 1;
+    }
+    return 0;
+}
 
 int main()
 {
@@ -178,6 +203,11 @@ int main()
     }
 
     if (testFuncStructArrayLocal() != 0)
+    {
+        return 1;
+    }
+
+    if (testFuncStructArrayGlobal() != 0)
     {
         return 1;
     }
