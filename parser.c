@@ -586,8 +586,15 @@ static Node *defl()
         if (ty->ty == STRUCT)
         {
             Token *ident = consume_ident();
+
             if (ident)
             {
+                if (consume("["))
+                {
+                    int size = expect_number();
+                    ty = new_type_array(ty, size);
+                    expect("]");
+                }
                 // struct {int x;} a;
                 // struct hoge {int x;} a;
                 // struct hoge a;
@@ -924,10 +931,21 @@ static Node *func(Token *ident, Type *ty, bool is_static)
             expect(",");
         Type *arg_ty = consume_type();
         if (!arg_ty)
+        {
+
+            printf("%s\n", token->string);
             error("引数に型がありません");
+        }
         else if (arg_ty->ty != VOID)
         {
             Token *arg_token = expect_ident();
+            if (consume("["))
+            {
+                int size = expect_number();
+                arg_ty = new_type_ptr(arg_ty);
+                expect("]");
+            }
+
             Var *lvar = def_var(arg_token, arg_ty, true, false);
             Node *arg = new_node_var(lvar);
             arg_top->lhs = arg;
@@ -995,6 +1013,13 @@ static Node *def()
             // struct {int x;} a;
             // struct hoge {int x;} a;
             // struct hoge a;
+            if (consume("["))
+            {
+                int size = expect_number();
+                ty = new_type_array(ty, size);
+                expect("]");
+            }
+
             Var *lvar = def_var(ident, ty, false, false);
             expect(";");
             return new_node_var(lvar);
@@ -1009,7 +1034,6 @@ static Node *def()
     }
 
     Token *ident = expect_ident();
-
     if (consume("("))
     {
         node = func(ident, ty, is_static);
