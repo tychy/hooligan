@@ -2,23 +2,17 @@
 
 Type *new_type_int()
 {
-    static Type *ty;
-    if (!ty)
-    {
-        ty = calloc(1, sizeof(Type));
-        ty->ty = INT;
-    }
+    Type *ty;
+    ty = calloc(1, sizeof(Type));
+    ty->ty = INT;
     return ty;
 }
 
 Type *new_type_char()
 {
-    static Type *ty;
-    if (!ty)
-    {
-        ty = calloc(1, sizeof(Type));
-        ty->ty = CHAR;
-    }
+    Type *ty;
+    ty = calloc(1, sizeof(Type));
+    ty->ty = CHAR;
     return ty;
 }
 
@@ -26,14 +20,11 @@ Type *new_type_string()
 {
     //new_type_ptr(new_type_char())で代用できるがキャッシュできる分はやい？
     //わかりやすさは勝っていると思う
-    static Type *ty;
-    if (!ty)
-    {
-        Type *c = new_type_char();
-        ty = calloc(1, sizeof(Type));
-        ty->ty = PTR;
-        ty->ptr_to = c;
-    }
+    Type *ty;
+    Type *c = new_type_char();
+    ty = calloc(1, sizeof(Type));
+    ty->ty = PTR;
+    ty->ptr_to = c;
     return ty;
 }
 
@@ -57,7 +48,7 @@ Type *new_type_array(Type *ptr_to, size_t size)
 
 Type *new_type_struct()
 {
-    static Type *ty;
+    Type *ty;
     ty = calloc(1, sizeof(Type));
     ty->ty = STRUCT;
     ty->size = -1;
@@ -73,12 +64,9 @@ Type *new_type_enum()
 
 Type *new_type_void()
 {
-    static Type *ty;
-    if (!ty)
-    {
-        ty = calloc(1, sizeof(Type));
-        ty->ty = VOID;
-    }
+    Type *ty;
+    ty = calloc(1, sizeof(Type));
+    ty->ty = VOID;
     return ty;
 }
 
@@ -176,7 +164,6 @@ Type *add_tagged_type(Token *tok, Type *ty, bool is_local)
     ctx->scope->tagged_types = ty;
     return ty;
 }
-
 
 void set_struct_member(Type *ty)
 {
