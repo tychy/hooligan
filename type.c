@@ -65,11 +65,8 @@ Type *new_type_enum()
 Type *new_type_void()
 {
     Type *ty;
-    if (!ty)
-    {
-        ty = calloc(1, sizeof(Type));
-        ty->ty = VOID;
-    }
+    ty = calloc(1, sizeof(Type));
+    ty->ty = VOID;
     return ty;
 }
 
