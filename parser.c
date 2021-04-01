@@ -1020,9 +1020,7 @@ static Node *def()
                 expect("]");
             }
 
-            Var *lvar = def_var(ident, ty, false, false);
-            expect(";");
-            return new_node_var(lvar);
+            return glob_var(ident, ty, is_static);
         }
         else
         {
