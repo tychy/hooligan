@@ -40,9 +40,11 @@ exec() {
         cat $fn
     done
     assembly
+    set +e
     ./a.out
     echo "結果: $?"
     clean
+    set -e
 }
 
 asm() {
