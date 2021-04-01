@@ -954,6 +954,12 @@ static Node *func(Token *ident, Type *ty, bool is_static)
         arg_ty_ls[arg_idx] = arg_ty;
         arg_idx++;
     }
+    if (consume(";"))
+    {
+        exit_scope();
+        return new_node_nop();
+    }
+
     node->rhs = block();
     node->args_region_size = ctx->offset;
     node->is_static = is_static;
