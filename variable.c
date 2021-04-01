@@ -67,7 +67,7 @@ Var *find_func(Token *tok)
     return NULL;
 }
 
-Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[], bool is_static)
+Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[6], bool is_static)
 {
     Var *new_func = calloc(1, sizeof(Var));
     new_func->length = tok->length;
