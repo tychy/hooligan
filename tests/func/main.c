@@ -88,6 +88,53 @@ int testFuncVoid()
     }
     return 0;
 }
+typedef struct Hoge Hoge;
+struct Hoge
+{
+    int val;
+};
+
+int func_hoge(Hoge h[10])
+{
+    return h[0].val + h[1].val + h[2].val;
+}
+
+int func_array(int c[10])
+{
+    return c[0] + c[1];
+}
+
+int testFuncArray()
+{
+    int a[10];
+    a[0] = 1;
+    a[1] = 2;
+
+    if (func_array(a) != 3)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int testFuncStructArrayLocal()
+{
+    Hoge hogearray[10];
+    Hoge ha;
+    Hoge hb;
+    Hoge hc;
+    ha.val = 1;
+    hb.val = 2;
+    hc.val = 3;
+    hogearray[0] = ha;
+    hogearray[1] = hb;
+    hogearray[2] = hc;
+    if (func_hoge(hogearray) != 6)
+    {
+        return 1;
+    }
+    return 0;
+}
 
 int main()
 {
@@ -108,5 +155,15 @@ int main()
     {
         return 1;
     }
+    if (testFuncArray() != 0)
+    {
+        return 1;
+    }
+
+    if (testFuncStructArrayLocal() != 0)
+    {
+        return 1;
+    }
+
     return 0;
 }
