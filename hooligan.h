@@ -330,6 +330,7 @@ int get_unique_num();
 
 // util.c
 bool not(bool flag);
-void error(char *fmt, ...);
-
+void error(char *fmt);
+void error1(char *fmt, char *v1);
+void error2(char *fmt, char *v1, char *v2);
 #endif
