@@ -1,7 +1,7 @@
 #include "hooligan.h"
 
 Token *token;
-Node *nodes[200];
+Node *nodes[500];
 Context *ctx;
 FILE *output;
 
@@ -32,6 +32,53 @@ static char *read_file(char *path)
     return buf;
 }
 
+char *preprocess_include(char *str, char *header)
+{
+    char *p = str;
+    char *inc = "#include";
+    while ((p = strstr(p, inc)) != NULL)
+    {
+        char *remain = p + strlen(inc);
+        if (isspace(*remain))
+        {
+            remain++;
+            if (*remain == '"')
+            {
+                remain++;
+                if (strncmp(header, remain, strlen(header)) == 0)
+                {
+                    remain += strlen(header);
+                    if (*remain == '"')
+                    {
+                        remain++;
+                        while (*remain != '\n')
+                        {
+                            remain++;
+                        }
+                        remain++; //次の行の先頭
+                        char *f = read_file(header);
+
+                        size_t line_len = remain - p;
+                        size_t f_len = strlen(f);
+                        size_t prologue = p - str;
+                        size_t epilogue = strlen(remain);
+                        size_t size = prologue + f_len + epilogue;
+
+                        char *buf = calloc(1, size);
+                        memcpy(buf, str, prologue);
+                        memcpy(buf + prologue, f, f_len);
+                        memcpy(buf + prologue + f_len, remain, epilogue);
+                        str = buf;
+                        p = buf + prologue + f_len;
+                        continue;
+                    }
+                }
+            }
+        }
+        p = remain;
+    }
+    return str;
+}
 int main(int argc, char **argv)
 {
     if (argc == 1)
@@ -45,6 +92,9 @@ int main(int argc, char **argv)
         char *p = read_file(argv[i]);
         char *p2 = calloc(1, 2 * strlen(p));
         memcpy(p2, p, strlen(p));
+
+        p2 = preprocess_include(p2, "hooligan.h");
+        printf("%s", p2);
         preprocess(p2);
         token = tokenize(p2);
         char filename[4] = {'a' + i - 1, '.', 's', 0}; // a.s -> b.s -> c.s -> d.s
