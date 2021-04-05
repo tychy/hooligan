@@ -127,7 +127,7 @@ void expect(char *op)
 {
     if (token->kind != TK_OPERATOR || token->string[0] != op[0])
     {
-        error("'%c'ではありません, got %s", op[0], token->string);
+        error("'%s'ではありません, got %s", op, token->string);
     }
     token = token->next;
 }
@@ -167,7 +167,7 @@ Token *expect_ident()
 {
     if (token->kind != TK_IDENT)
     {
-        error("識別子ではありません got %s", token->string);
+        error1("識別子ではありません got %s", token->string);
     }
     Token *tok = token;
     token = token->next;
