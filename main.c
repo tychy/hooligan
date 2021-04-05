@@ -11,27 +11,26 @@ static char *read_file(char *path)
     // ファイルを開く
     FILE *fp = fopen(path, "r");
     if (!fp)
-        error2("cannot open %s: %s", path, strerror(errno));
+        error1("cannot open %s", path);
 
     // ファイルの長さを調べる
     if (fseek(fp, 0, SEEK_END) == -1)
-        error2("%s: fseek: %s", path, strerror(errno));
+        error1("%s: fseek", path);
     size_t size = ftell(fp);
     if (fseek(fp, 0, SEEK_SET) == -1)
-        error2("%s: fseek: %s", path, strerror(errno));
+        error1("%s: fseek", path);
 
     // ファイル内容を読み込む
     char *buf = calloc(1, size + 2);
     fread(buf, size, 1, fp);
 
     // ファイルが必ず"\n\0"で終わっているようにする
-    if (size == 0 || buf[size - 1] != '\n')
+    if (size == 0 || buf[(size - 1)] != '\n')
         buf[size++] = '\n';
     buf[size] = '\0';
     fclose(fp);
     return buf;
 }
-
 char *preprocess_include(char *str, char *header)
 {
     char *p = str;
@@ -63,8 +62,11 @@ char *preprocess_include(char *str, char *header)
                         size_t prologue = p - str;
                         size_t epilogue = strlen(remain);
                         size_t size = prologue + f_len + epilogue;
+                        // ... prologue
+                        // #include "hooligan.h"
+                        // ... epilogue
 
-                        char *buf = calloc(1, size);
+                        char *buf = calloc(1, 2 * size);
                         memcpy(buf, str, prologue);
                         memcpy(buf + prologue, f, f_len);
                         memcpy(buf + prologue + f_len, remain, epilogue);
@@ -93,20 +95,25 @@ int main(int argc, char **argv)
         char *p2 = calloc(1, 2 * strlen(p));
         memcpy(p2, p, strlen(p));
 
-        p2 = preprocess_include(p2, "hooligan.h");
-        printf("%s", p2);
+        //p2 = preprocess_include(p2, "hooligan.h");
         preprocess(p2);
+
+        printf("%s", p2);
+
         token = tokenize(p2);
         char filename[4] = {'a' + i - 1, '.', 's', 0}; // a.s -> b.s -> c.s -> d.s
+
         output = fopen(filename, "w");
+
         if (output == NULL)
         {
             printf("cannot open\n");
             exit(1);
         }
+
         gen_asm_intel();
+
         fclose(output);
     }
-
     return 0;
 }
