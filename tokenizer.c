@@ -260,7 +260,7 @@ Token *tokenize(char *p)
             cur->value = strtol(p, &p, 10);
             continue;
         }
-        error("%sトークナイズできません", p);
+        error1("%sトークナイズできません", p);
     }
     new_token(TK_EOF, cur, p);
     return head.next;
