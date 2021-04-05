@@ -265,7 +265,7 @@ struct Context
 
 // Declaration of global variables
 extern Token *token;
-extern Node *nodes[200];
+extern Node *nodes[500];
 extern Context *ctx;
 extern FILE *output;
 
