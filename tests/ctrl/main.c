@@ -155,6 +155,48 @@ int testPostIncrementCharPtr()
     return 0;
 }
 
+int testPostIncrementStruct()
+{
+    typedef struct Hoge Hoge;
+    struct Hoge
+    {
+        int val;
+    };
+    Hoge x;
+    Hoge *y;
+    y = calloc(1, sizeof(Hoge));
+    y->val = 100;
+    x.val = 10;
+    if (x.val != 10)
+    {
+        return 1;
+    }
+
+    if (x.val++ != 10)
+    {
+        return 1;
+    }
+    if (x.val != 11)
+    {
+        return 1;
+    }
+
+    if (y->val != 100)
+    {
+        return 1;
+    }
+
+    if (y->val++ != 100)
+    {
+        return 1;
+    }
+    if (y->val != 101)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testCtrl() != 0)

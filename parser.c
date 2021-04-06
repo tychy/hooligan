@@ -309,9 +309,9 @@ static Node *primary()
         {
             // インクリメントできるかのチェックがいるかも？
             // 多分int++とかするとセグフォする
-            if (node->kind != ND_VAR)
+            if (node->kind != ND_VAR && node->kind != ND_MEMBER)
             {
-                error("変数ではありません");
+                error("インクリメントには左辺値が必要です");
             }
             Node *variable = node;
             node = new_node(ND_ADD, variable, new_node_num(1));
