@@ -88,7 +88,7 @@ static bool isreservedword(char *p)
     {
         char *word = reserved_word_list[tk];
         int len = strlen(word);
-        if (strncmp(p, word, len) == 0 && not(isident(*(p + len))))
+        if (strncmp(p, word, len) == 0 && !(isident(*(p + len))))
             return true;
     }
     return false;
@@ -100,7 +100,7 @@ static TokenKind find_reserved_word(char *p)
     {
         char *word = reserved_word_list[tk];
         int len = strlen(word);
-        if (strncmp(p, word, len) == 0 && not(isident(*(p + len))))
+        if (strncmp(p, word, len) == 0 && !(isident(*(p + len))))
             return tk;
     }
     error("予約語ではありません");

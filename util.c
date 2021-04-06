@@ -1,10 +1,5 @@
 #include "hooligan.h"
 
-bool not(bool flag)
-{
-    return !flag;
-}
-
 void error(char *fmt)
 {
     fprintf(stderr, fmt, "");
