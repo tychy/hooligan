@@ -313,6 +313,7 @@ Type *new_type_struct();
 bool is_int(Type *ty);
 bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
+bool is_ptr(Type *ty);
 int calc_bytes(Type *ty);
 Type *determine_expr_type(Type *lhs, Type *rhs);
 Type *add_defined_type(Token *tok, Type *ty, bool is_local);
