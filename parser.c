@@ -1008,12 +1008,17 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
     node->length = ident->length;
     node->ty = ty;
     node->is_static = is_static;
-    expect(";");
     if (ty->ty == VOID)
     {
         error("void型の変数は定義できません");
     }
     def_var(ident, ty, false, is_static);
+
+    if (consume("="))
+    {
+        node->gvar_val = expect_number();
+    }
+    expect(";");
     return node;
 }
 
