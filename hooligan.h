@@ -152,6 +152,9 @@ struct Node
     int length;
     Type *ty;
 
+    // for gvar
+    int gvar_val;
+
     // for binary tree node
     Node *lhs;
     Node *rhs;

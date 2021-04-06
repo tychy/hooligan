@@ -202,7 +202,15 @@ static void gen_global_var_def(Node *node)
     {
         println("%.*s:", node->length, node->name);
     }
-    println("  .zero  %d", calc_bytes(node->ty));
+    if (node->gvar_val)
+    {
+
+        println("  .long %d", node->gvar_val);
+    }
+    else
+    {
+        println("  .zero  %d", calc_bytes(node->ty));
+    }
 }
 
 static void gen_addr(Node *node)
