@@ -35,6 +35,20 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     return node;
 }
 
+static Node *new_node_inc(Node *lhs, Node *rhs)
+{
+    if (lhs->ty->ty != rhs->ty->ty || lhs->ty->ptr_to != rhs->ty->ptr_to)
+    {
+        error("lhsとrhsの型は同一である必要があります\n");
+    }
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_POSTINC;
+    node->lhs = lhs;
+    node->rhs = rhs;
+    node->ty = lhs->ty;
+    return node;
+}
 static Node *new_node_single(NodeKind kind, Node *child)
 {
     Node *node = calloc(1, sizeof(Node));
@@ -302,7 +316,7 @@ static Node *primary()
             Node *variable = node;
             node = new_node(ND_ADD, variable, new_node_num(1));
             node = new_node_assign(variable, node);
-            node = new_node(ND_POSTINC, variable, node);
+            node = new_node_inc(variable, node);
             return node;
         }
 
