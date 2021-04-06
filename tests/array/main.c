@@ -214,6 +214,60 @@ int testArrayInitString()
     return 0;
 }
 
+int testArrayExpr()
+{
+    int x[3] = {1, 2, 3};
+    int y[4] = {1, 2, 3};
+    int z[3] = {1, 2, 3, 4, 5};
+    if (x[0 + 0] != 1)
+    {
+        return 1;
+    }
+    if (x[x[2] - x[1]] != 2)
+    {
+        return 1;
+    }
+
+    if (x[x[2] - x[0]] != 3)
+    {
+        return 1;
+    }
+
+    if (y[x[0] - y[0]] != 1)
+    {
+        return 1;
+    }
+
+    if (y[x[0] + y[0] - 1] != 2)
+    {
+        return 1;
+    }
+
+    if (y[(2)] != 3)
+    {
+        return 1;
+    }
+
+    if (y[z[2]] != 0)
+    {
+        return 1;
+    }
+    if (z[z[2] / 3] != 2)
+    {
+        return 1;
+    }
+    if (z[z[0] * 2] != 3)
+    {
+        return 1;
+    }
+
+    if (z[4 / 2] != 3)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testArray() != 0)
@@ -247,6 +301,11 @@ int main()
     }
 
     if (testArrayInitString() != 0)
+    {
+        return 1;
+    }
+
+    if (testArrayExpr() != 0)
     {
         return 1;
     }

@@ -268,7 +268,7 @@ static Node *primary()
     {
         if (consume("["))
         {
-            Node *index = primary();
+            Node *index = expr();
             expect("]");
             Node *mid = new_node(ND_ADD, node, index);
             node = new_node_single(ND_DEREF, mid);
