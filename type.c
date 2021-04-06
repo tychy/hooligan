@@ -86,6 +86,15 @@ bool is_int_or_char(Type *ty)
     return is_int(ty) || is_char(ty);
 }
 
+bool is_ptr(Type *ty)
+{
+    if (!ty->ptr_to)
+    {
+        return false;
+    }
+    return true;
+}
+
 int calc_bytes(Type *ty)
 {
     switch (ty->ty)
@@ -108,7 +117,13 @@ int calc_bytes(Type *ty)
 Type *determine_expr_type(Type *lhs, Type *rhs)
 {
     if (not(is_int_or_char(lhs)) && not(is_int_or_char(rhs)))
+    {
+        if (is_ptr(lhs) && is_ptr(rhs))
+        {
+            return lhs;
+        }
         return NULL;
+    }
     else if (is_int_or_char(lhs) && not(is_int_or_char(rhs)))
         return rhs;
     else if (not(is_int_or_char(lhs)) && is_int_or_char(rhs))

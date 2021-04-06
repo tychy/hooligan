@@ -528,9 +528,15 @@ void gen(Node *node)
             {
                 println("  imul rdi, %d", size);
             }
+            else if (is_ptr(node->rhs->ty) && is_ptr(node->lhs->ty) && node->kind == ND_SUB)
+            {
+                println("  sub rax, rdi");
+                push(RG_RAX);
+                return;
+            }
             else
             {
-                error("式にはintが必要です");
+                error("適切でない演算です");
             }
 
             if (node->kind == ND_ADD)

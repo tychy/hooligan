@@ -138,6 +138,25 @@ int testPtr()
     return 0;
 }
 
+int testSubPtr()
+{
+    char *x = "abcdef";
+    char *pos;
+    pos = x;
+    pos++;
+    if (pos - x != 1)
+    {
+        return 1;
+    }
+    pos++;
+    if (pos - x != 2)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
 int main()
 {
 
@@ -157,6 +176,9 @@ int main()
     {
         return 1;
     }
-
+    if (testSubPtr() != 0)
+    {
+        return 1;
+    }
     return 0;
 }
