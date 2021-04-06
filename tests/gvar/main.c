@@ -194,6 +194,22 @@ int testGlobalInitArray()
     return 0;
 }
 
+char gvar_x = 'x';
+char *gvar_y = "abc";
+int testGlobalInitConst()
+{
+    if (gvar_x != 'x')
+    {
+        return 1;
+    }
+
+    if (gvar_y[0] != 'a')
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testGvar() != 0)
@@ -225,6 +241,9 @@ int main()
     {
         return 1;
     }
-
+    if (testGlobalInitConst() != 0)
+    {
+        return 1;
+    }
     return 0;
 }
