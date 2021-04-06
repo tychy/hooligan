@@ -49,6 +49,22 @@ static Node *new_node_inc(Node *lhs, Node *rhs)
     node->ty = lhs->ty;
     return node;
 }
+
+static Node *new_node_dec(Node *lhs, Node *rhs)
+{
+    if (lhs->ty->ty != rhs->ty->ty || lhs->ty->ptr_to != rhs->ty->ptr_to)
+    {
+        error("lhsとrhsの型は同一である必要があります\n");
+    }
+
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = ND_POSTDEC;
+    node->lhs = lhs;
+    node->rhs = rhs;
+    node->ty = lhs->ty;
+    return node;
+}
+
 static Node *new_node_single(NodeKind kind, Node *child)
 {
     Node *node = calloc(1, sizeof(Node));
@@ -317,6 +333,18 @@ static Node *primary()
             node = new_node(ND_ADD, variable, new_node_num(1));
             node = new_node_assign(variable, node);
             node = new_node_inc(variable, node);
+            return node;
+        }
+        if (consume("--"))
+        {
+            if (node->kind != ND_VAR && node->kind != ND_MEMBER)
+            {
+                error("デクリメントには左辺値が必要です");
+            }
+            Node *variable = node;
+            node = new_node(ND_SUB, variable, new_node_num(1));
+            node = new_node_assign(variable, node);
+            node = new_node_dec(variable, node);
             return node;
         }
 
