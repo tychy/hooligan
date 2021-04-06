@@ -102,6 +102,12 @@ gentest() {
     touch tests/$1/out
 }
 
+unittest() {
+    gcc unittest/utiltest.c
+    ./a.out
+    clean
+}
+
 VALUE_D=true
 while getopts d: OPT; do
     case $OPT in
@@ -131,6 +137,8 @@ elif [ $1 = "test" ]; then
     fi
 elif [ $1 = "gentest" ]; then
     gentest $2
+elif [ $1 = "unittest" ]; then
+    unittest
 else
     echo "存在しないサブコマンドです"
     exit 1
