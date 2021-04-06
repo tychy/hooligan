@@ -209,6 +209,30 @@ int testSwitchCaseMidD()
     }
     return 0;
 }
+
+int testSwitchCaseEnum()
+{
+    typedef enum
+    {
+        APPLE,
+        ORANGE,
+        PEACH,
+        LEMON,
+    } Fruit;
+    Fruit f_a;
+    f_a = ORANGE;
+    switch (f_a)
+    {
+    case APPLE:
+        return 1;
+        break;
+    case ORANGE:
+        return 0;
+    default:
+        return 1;
+    }
+    return 0;
+}
 int main()
 {
     if (testSwitchCaseEasyA() != 0)
@@ -252,6 +276,11 @@ int main()
     }
 
     if (testSwitchCaseMidD() != 0)
+    {
+        return 1;
+    }
+
+    if (testSwitchCaseEnum() != 0)
     {
         return 1;
     }
