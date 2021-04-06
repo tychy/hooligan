@@ -163,7 +163,7 @@ Token *tokenize(char *p)
             int i = 0;
             p++;
             char *p_top = p;
-            while (*p != '"')
+            while (not(*p == '"' && *(p-1) != '\\'))
             {
                 p++;
                 i++;
