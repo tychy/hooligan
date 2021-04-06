@@ -19,63 +19,90 @@ char *replace_all(char *str, char *what, char *with)
     return str;
 }
 
-static char *process_include(char *target)
+static char *process_include(char *p)
 {
-    char *p_top = strstr(target, "#include");
-    if (p_top == NULL)
-        return target;
-    char *p = p_top;
-    char *path;
-    int path_length = 0;
-    bool is_dq = false;
-    while (*p != '"' && *p != '<')
+    char *p_start = p;
+    while (*p)
     {
+        if (isspace(*p))
+        {
+            p++;
+            continue;
+        }
+
+        if (*p == '#')
+        {
+            if (memcmp(p, "#include", strlen("#include")) == 0)
+            {
+                char *p_top = p;
+                char *path;
+                int path_length = 0;
+                bool is_dq = false;
+                while (*p != '"' && *p != '<')
+                {
+                    p++;
+                }
+                if (*p == '"')
+                {
+                    is_dq = true;
+                }
+                p++;
+                if (is_dq)
+                {
+                    while (*p != '"')
+                    {
+                        path_length++;
+                        p++;
+                    }
+                }
+                else
+                {
+                    while (*p != '>')
+                    {
+                        path_length++;
+                        p++;
+                    }
+                };
+                path = calloc(1, path_length);
+                memcpy(path, p - path_length, path_length);
+                memset(p_top, ' ', p - p_top + 1); // include文を消す
+                printf("%s\n", path);
+
+                if (is_dq)
+                {
+                    p = insert_str(p_start, p - p_start, read_file(path));
+                }
+                else
+                {
+                    path = join_str("include/", path);
+                    p = insert_str(p_start, p - p_start, read_file(path));
+                }
+                p_start = p;
+                continue;
+            }
+            else
+            {
+                while (*p != '\n')
+                {
+                    p++;
+                }
+                p++;
+                continue;
+            }
+        }
+        while (*p != '\n')
+        {
+            p++;
+        }
         p++;
     }
-    if (*p == '"')
-    {
-        is_dq = true;
-    }
-    p++;
-    if (is_dq)
-    {
-        while (*p != '"')
-        {
-            path_length++;
-            p++;
-        }
-    }
-    else
-    {
-        while (*p != '>')
-        {
-            path_length++;
-            p++;
-        }
-    };
-    path = calloc(1, path_length);
-    memcpy(path, p - path_length, path_length);
-    memset(p_top, ' ', p - p_top + 1); // include文を消す
-    char *res;
-    if (is_dq)
-    {
-        res = insert_str(target, p_top - target, read_file(path));
-    }
-    else
-    {
-        path = join_str("include/", path);
-        res = insert_str(target, p_top - target, read_file(path));
-    }
-    return res;
+    return p_start;
 }
 
 char *preprocess(char *target)
 {
     // include文の処理
-    while (strstr(target, "#include"))
-    {
-        target = process_include(target);
-    }
+    target = process_include(target);
 
     // stdio.h
     replace_all(target, "size_t", "int");
