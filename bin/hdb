@@ -86,12 +86,11 @@ runtest() {
         expectedout=$(cat $dn/out)
         stdout=$(./a.out)
         if [ "$stdout" == "$expectedout" ]; then
-            printf ...passed
+            echo ...passed
         else
-            printf ...failed
+            echo ...failed
             exit 1
         fi
-        printf "\n"
         clean
     done
 }
@@ -100,6 +99,20 @@ gentest() {
     mkdir tests/$1
     touch tests/$1/main.c
     touch tests/$1/out
+}
+
+unittest() {
+    gcc unittest/utiltest.c
+    expectedout=$(cat unittest/utiltest.txt)
+    stdout=$(./a.out)
+    if [ "$stdout" == "$expectedout" ]; then
+        printf ...passed
+    else
+        printf ...failed
+        exit 1
+    fi
+    printf "\n"
+    clean
 }
 
 VALUE_D=true
@@ -111,8 +124,10 @@ done
 
 shift $((OPTIND - 1))
 if "${VALUE_D}"; then
-    docker-compose run hooligan ./bin/hdb -d false ${@:1}
-    exit
+    if [ $1 != "unittest" ] && [ $1 != "gentest" ]; then
+        docker-compose run hooligan ./bin/hdb -d false ${@:1}
+        exit
+    fi
 fi
 
 if [ $1 = "src" ]; then
@@ -126,11 +141,14 @@ elif [ $1 = "test" ]; then
     if [ $# = 2 ] && [ $2 = "all" ]; then
         runtest
         runtestold
+        unittest
     else
         runtest
     fi
 elif [ $1 = "gentest" ]; then
     gentest $2
+elif [ $1 = "unittest" ]; then
+    unittest
 else
     echo "存在しないサブコマンドです"
     exit 1

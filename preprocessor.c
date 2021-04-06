@@ -19,14 +19,70 @@ char *replace_all(char *str, char *what, char *with)
     return str;
 }
 
+static char *process_include(char *target)
+{
+    char *p_top = strstr(target, "#include");
+    if (p_top == NULL)
+        return target;
+    char *p = p_top;
+    char *path;
+    int path_length = 0;
+    bool is_dq = false;
+    while (*p != '"' && *p != '<')
+    {
+        p++;
+    }
+    if (*p == '"')
+    {
+        is_dq = true;
+    }
+    p++;
+    if (is_dq)
+    {
+        while (*p != '"')
+        {
+            path_length++;
+            p++;
+        }
+    }
+    else
+    {
+        while (*p != '>')
+        {
+            path_length++;
+            p++;
+        }
+    };
+    path = calloc(1, path_length);
+    memcpy(path, p - path_length, path_length);
+    memset(p_top, ' ', p - p_top + 1); // include文を消す
+    char *res;
+    if (is_dq)
+    {
+        res = insert_str(target, p_top - target, read_file(path));
+    }
+    else
+    {
+        path = join_str("include/", path);
+        res = insert_str(target, p_top - target, read_file(path));
+    }
+    return res;
+}
+
 char *preprocess(char *target)
 {
+    // include文の処理
+    while (strstr(target, "#include"))
+    {
+        target = process_include(target);
+    }
+
     // stdio.h
     replace_all(target, "size_t", "int");
     replace_all(target, "FILE", "int");
     replace_all(target, "SEEK_SET", "0");
     replace_all(target, "SEEK_END", "2");
-    
+
     replace_all(target, "NULL", "0");
     replace_all(target, "bool", "int");
     replace_all(target, "true", "1");
