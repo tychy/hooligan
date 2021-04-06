@@ -503,6 +503,27 @@ static Node *assign()
     return node;
 }
 
+static Node *const_expr()
+{
+    if (token->kind == TK_NUMBER)
+    {
+        return num();
+    }
+    else if (token->kind == TK_CHARACTER)
+    {
+        return character();
+    }
+    else if (token->kind == TK_STRING)
+    {
+        String *s = new_string(token->string, token->length);
+        token = token->next;
+        return new_node_string(s);
+    }
+    else
+    {
+        error("定数ではありません");
+    }
+}
 static Node *expr()
 {
     return assign();
@@ -1018,11 +1039,11 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
     {
         if (ty->ty != ARRAY)
         {
-            node->gvar_init = new_node_num(expect_number());
+            node->gvar_init = const_expr();
         }
         else if (consume("{"))
         {
-            Node *initial = new_node_single(ND_INIT, new_node_num(expect_number()));
+            Node *initial = new_node_single(ND_INIT, const_expr());
             Node *cur = initial;
             int cnt = 1;
             for (;;)
@@ -1037,10 +1058,10 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
                     {
                         if (ty->array_size != -1 && cnt >= ty->array_size)
                         {
-                            expect_number();
+                            const_expr();
                             continue;
                         }
-                        cur->next = new_node_single(ND_INIT, new_node_num(expect_number()));
+                        cur->next = new_node_single(ND_INIT, const_expr());
                         cur = cur->next;
                         cnt++;
                     }
