@@ -209,7 +209,28 @@ int testGlobalInitConst()
     }
     return 0;
 }
+char *operator_list[2] = {"++", "+="};
 
+int testGlobalInitString()
+{
+    if (operator_list[0][0] != '+')
+    {
+        return 1;
+    }
+    if (operator_list[0][1] != '+')
+    {
+        return 1;
+    }
+    if (operator_list[1][0] != '+')
+    {
+        return 1;
+    }
+    if (operator_list[1][1] != '=')
+    {
+        return 1;
+    }
+    return 0;
+}
 int main()
 {
     if (testGvar() != 0)
@@ -242,6 +263,11 @@ int main()
         return 1;
     }
     if (testGlobalInitConst() != 0)
+    {
+        return 1;
+    }
+
+    if (testGlobalInitString() != 0)
     {
         return 1;
     }
