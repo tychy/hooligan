@@ -141,6 +141,7 @@ elif [ $1 = "test" ]; then
     if [ $# = 2 ] && [ $2 = "all" ]; then
         runtest
         runtestold
+        unittest
     else
         runtest
     fi
