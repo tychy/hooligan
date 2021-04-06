@@ -210,6 +210,10 @@ static void gen_global_var_def(Node *node)
 
             println("  .long %d", node->gvar_init->val);
         }
+        else if (is_char(node->ty->ptr_to))
+        {
+            println("  .quad .LC%d", node->gvar_init->strlabel);
+        }
         else
         {
             Node *cur = node->gvar_init;
