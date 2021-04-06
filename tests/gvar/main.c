@@ -169,6 +169,7 @@ int testGlobalInit()
 
 int xarr[3] = {1, 2, 3};
 int yarr[5] = {1, 2, 3};
+int zarr[2] = {1, 2, 3};
 int testGlobalInitArray()
 {
     if (xarr[0] != 1)
@@ -186,6 +187,10 @@ int testGlobalInitArray()
         return 1;
     }
 
+    if (zarr[1] != 2)
+    {
+        return 1;
+    }
     return 0;
 }
 
