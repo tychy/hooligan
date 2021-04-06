@@ -98,7 +98,7 @@ int main(int argc, char **argv)
         //p2 = preprocess_include(p2, "hooligan.h");
         preprocess(p2);
 
-        printf("%s", p2);
+        //printf("%s", p2);
 
         token = tokenize(p2);
         char filename[4] = {'a' + i - 1, '.', 's', 0}; // a.s -> b.s -> c.s -> d.s
