@@ -35,3 +35,12 @@ char *join_str(char *pre, char *post)
     memcpy(res + pre_size, post, post_size);
     return res;
 }
+
+char *insert_str(char *src, int pos, char *target)
+{
+    char *res = calloc(1, strlen(src) + strlen(target) + 1);
+    memcpy(res, src, pos);
+    memcpy(res + pos, target, strlen(target));
+    memcpy(res + pos + strlen(target), src + pos, strlen(src) - pos);
+    return res;
+}
