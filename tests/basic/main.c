@@ -138,7 +138,34 @@ int testPtr()
     return 0;
 }
 
-int testSubPtr()
+int testSubIntPtr()
+{
+    int x[5] = {1, 2, 3, 4, 5};
+    int *pos;
+    pos = x;
+    pos++;
+    if (pos - x != 1)
+    {
+        return 1;
+    }
+    if (*pos != 2)
+    {
+        return 1;
+    }
+    pos++;
+    if (pos - x != 2)
+    {
+        return 1;
+    }
+
+    if (*pos != 3)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int testSubCharPtr()
 {
     char *x = "abcdef";
     char *pos;
@@ -176,9 +203,14 @@ int main()
     {
         return 1;
     }
-    if (testSubPtr() != 0)
+    if (testSubIntPtr() != 0)
     {
         return 1;
     }
+    if (testSubCharPtr() != 0)
+    {
+        return 1;
+    }
+
     return 0;
 }
