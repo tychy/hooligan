@@ -202,10 +202,31 @@ static void gen_global_var_def(Node *node)
     {
         println("%.*s:", node->length, node->name);
     }
-    if (node->gvar_val)
+    if (node->gvar_init)
     {
 
-        println("  .long %d", node->gvar_val);
+        if (is_int_or_char(node->ty))
+        {
+
+            println("  .long %d", node->gvar_init->val);
+        }
+        else
+        {
+            Node *cur = node->gvar_init;
+            int counter = 0;
+            while (cur)
+            {
+                println("  .long %d", cur->child->val);
+                cur = cur->next;
+                counter++;
+            }
+            int remain_size = (node->ty->array_size - counter) * calc_bytes(node->ty->ptr_to);
+            if (remain_size)
+            {
+                println("  .zero %d", remain_size);
+            }
+            return;
+        }
     }
     else
     {

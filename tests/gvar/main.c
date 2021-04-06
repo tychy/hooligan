@@ -156,6 +156,38 @@ int testExtern()
     }
     return 0;
 }
+int xx = 5;
+int testGlobalInit()
+{
+    if (xx != 5)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+int xarr[3] = {1, 2, 3};
+int yarr[5] = {1, 2, 3};
+int testGlobalInitArray()
+{
+    if (xarr[0] != 1)
+    {
+        return 1;
+    }
+
+    if (yarr[1] != 2)
+    {
+        return 1;
+    }
+
+    if (yarr[3] != 0)
+    {
+        return 1;
+    }
+
+    return 0;
+}
 
 int main()
 {
@@ -179,5 +211,15 @@ int main()
     {
         return 1;
     }
+
+    if (testGlobalInit() != 0)
+    {
+        return 1;
+    }
+    if (testGlobalInitArray() != 0)
+    {
+        return 1;
+    }
+
     return 0;
 }

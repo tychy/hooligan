@@ -1016,7 +1016,59 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
 
     if (consume("="))
     {
-        node->gvar_val = expect_number();
+        if (ty->ty != ARRAY)
+        {
+            node->gvar_init = new_node_num(expect_number());
+        }
+        else
+        {
+
+            if (consume("{"))
+            {
+                Node *initial = new_node_single(ND_INIT, new_node_num(expect_number()));
+                Node *cur = initial;
+                int cnt = 1;
+                for (;;)
+                {
+                    if (consume(","))
+                    {
+                        if (consume("}"))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            if (ty->array_size != -1 && cnt >= ty->array_size)
+                            {
+                                expect_number();
+                                continue;
+                            }
+                            cur->next = new_node_single(ND_INIT, new_node_num(expect_number()));
+                            cur = cur->next;
+                            cnt++;
+                        }
+                    }
+                    else
+                    {
+                        expect("}");
+                        break;
+                    }
+                }
+                if (ty->array_size == -1)
+                {
+                    ty->array_size = cnt;
+                }
+                else
+                {
+                    for (; cnt < ty->array_size; cnt++)
+                    {
+                        cur->next = new_node_single(ND_INIT, new_node_num(0));
+                        cur = cur->next;
+                    }
+                }
+                node->gvar_init = initial;
+            }
+        }
     }
     expect(";");
     return node;

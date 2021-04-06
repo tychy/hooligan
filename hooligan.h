@@ -153,7 +153,7 @@ struct Node
     Type *ty;
 
     // for gvar
-    int gvar_val;
+    Node *gvar_init;
 
     // for binary tree node
     Node *lhs;
