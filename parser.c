@@ -750,11 +750,11 @@ static Node *stmt()
         expect("(");
         Node *condition = expr();
         expect(")");
-        Node *iftrue = block();
+        Node *body = block();
         node = calloc(1, sizeof(Node));
         node->kind = ND_IF;
         node->condition = condition;
-        node->body = iftrue;
+        node->body = body;
         if (consume_rw(TK_ELSE))
             node->on_else = block();
         node->cond_label = ctx->scope->label;
