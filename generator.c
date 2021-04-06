@@ -220,7 +220,14 @@ static void gen_global_var_def(Node *node)
             int counter = 0;
             while (cur)
             {
-                println("  .long %d", cur->child->val);
+                if (cur->child->kind == ND_STRING)
+                {
+                    println("  .quad .LC%d", cur->child->strlabel);
+                }
+                else
+                {
+                    println("  .long %d", cur->child->val);
+                }
                 cur = cur->next;
                 counter++;
             }
