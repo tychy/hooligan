@@ -199,7 +199,7 @@ static Node *ident()
                 }
                 count++;
             }
-            if (not(node->is_void) && count < node->num_args)
+            if (!(node->is_void) && count < node->num_args)
             {
                 error("引数が少なすぎます");
             }
@@ -560,7 +560,7 @@ static Node *expr()
 static Node *decl_type()
 {
     Type *ty = consume_type();
-    if (not(ty))
+    if (!ty)
     {
         error("定義式に型がありません");
     }
@@ -595,7 +595,7 @@ static Node *defl()
     {
         bool is_extern = consume_rw(TK_EXTERN);
         Type *ty = consume_type();
-        if (not(ty))
+        if (!ty)
         {
             error("定義式に型がありません");
         }
@@ -612,7 +612,7 @@ static Node *defl()
     else if (consume_rw(TK_STATIC))
     {
         Type *ty = consume_type();
-        if (not(ty))
+        if (!ty)
         {
             error("定義式に型がありません");
         }
@@ -638,7 +638,7 @@ static Node *defl()
     else
     {
         Type *ty = consume_type();
-        if (not(ty))
+        if (!ty)
         {
             return expr();
         }
@@ -745,7 +745,7 @@ static Node *defl()
             }
             else if (token->kind == TK_STRING)
             {
-                if (not(ty->ptr_to->ty == CHAR))
+                if (!(ty->ptr_to->ty == CHAR))
                 {
                     error("char型の配列が必要です");
                 }
@@ -888,7 +888,7 @@ static Node *stmt()
     }
     else if (consume_rw(TK_CASE))
     {
-        if (not(ctx->scope->current_switch))
+        if (!(ctx->scope->current_switch))
         {
             error("caseの前にはswitchが必要です");
         }
@@ -921,7 +921,7 @@ static Node *stmt()
     }
     else if (consume_rw(TK_DEFAULT))
     {
-        if (not(ctx->scope->current_switch))
+        if (!(ctx->scope->current_switch))
         {
             error("defaultの前にはswitchが必要です");
         }

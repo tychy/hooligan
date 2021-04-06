@@ -51,12 +51,12 @@ Type *consume_type()
         if (consume("{"))
         {
             int i = 0;
-            while (not(consume("}")))
+            while (!(consume("}")))
             {
                 Token *ident = consume_ident();
                 def_const(ident, i);
                 i++;
-                if (not(consume(",")))
+                if (!(consume(",")))
                 {
                     expect("}");
                     break;

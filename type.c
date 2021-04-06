@@ -116,7 +116,7 @@ int calc_bytes(Type *ty)
 
 Type *determine_expr_type(Type *lhs, Type *rhs)
 {
-    if (not(is_int_or_char(lhs)) && not(is_int_or_char(rhs)))
+    if (!(is_int_or_char(lhs)) && !(is_int_or_char(rhs)))
     {
         if (is_ptr(lhs) && is_ptr(rhs))
         {
@@ -124,9 +124,9 @@ Type *determine_expr_type(Type *lhs, Type *rhs)
         }
         return NULL;
     }
-    else if (is_int_or_char(lhs) && not(is_int_or_char(rhs)))
+    else if (is_int_or_char(lhs) && !(is_int_or_char(rhs)))
         return rhs;
-    else if (not(is_int_or_char(lhs)) && is_int_or_char(rhs))
+    else if (!(is_int_or_char(lhs)) && is_int_or_char(rhs))
         return lhs;
     else if (is_int_or_char(lhs) && is_int_or_char(rhs))
         return new_type_int();
@@ -185,7 +185,7 @@ void set_struct_member(Type *ty)
     int offset = 0;
     Member *head = calloc(1, sizeof(Member));
     Member *cur = head;
-    while (not(consume("}")))
+    while (!(consume("}")))
     {
 
         Member *mem = calloc(1, sizeof(Member));

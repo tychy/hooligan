@@ -2,7 +2,7 @@
 
 int main()
 {
-    if (not(true))
+    if (!(true))
         return 1;
     char *s1 = "hogehoge";
     char *s2 = "fugafuga";
