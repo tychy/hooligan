@@ -843,7 +843,25 @@ static Node *stmt()
         {
             error("caseの前にはswitchが必要です");
         }
-        int val = expect_number();
+        int val;
+        Token *ident = consume_ident();
+        if (ident)
+        {
+            Var *con = find_const(ident);
+            if (con)
+            {
+                val = con->value;
+            }
+            else
+            {
+                error("予期されていないidentです\n");
+            }
+        }
+        else
+        {
+
+            val = expect_number();
+        }
         expect(":");
         Node *node = new_node_single(ND_CASE, stmt());
         node->val = val;
