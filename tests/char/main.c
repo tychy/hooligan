@@ -166,17 +166,23 @@ int testCharEscape()
     char a = '\n';
     char b = '\0';
     char c = '\\';
-    if (a != 10)
+    char d = '\"';
+    if (a != 10 || a != '\n')
     {
         return 1;
     }
 
-    if (b != 0)
+    if (b != 0 || b != '\0')
     {
         return 1;
     }
 
-    if (c != 92)
+    if (c != 92 || c != '\\')
+    {
+        return 1;
+    }
+
+    if (d != 34 || d != '\"')
     {
         return 1;
     }
