@@ -24,38 +24,52 @@ static char *reg64[9] = {
     "rsp",
 };
 
-// TODO 写経したけどなんでうごくのかわからない
-__attribute__((format(printf, 1, 2))) static void println(char *fmt, ...)
+void println(char *fmt)
 {
-    va_list ap;
-    va_start(ap, fmt);
-    vfprintf(output, fmt, ap);
-    va_end(ap);
+    fprintf(output, fmt);
+    fprintf(output, "\n");
+}
+
+void println1(char *fmt, char *v1)
+{
+    fprintf(output, fmt, v1);
+    fprintf(output, "\n");
+}
+
+void println2(char *fmt, char *v1, char *v2)
+{
+    fprintf(output, fmt, v1, v2);
+    fprintf(output, "\n");
+}
+
+void println3(char *fmt, char *v1, char *v2, char *v3)
+{
+    fprintf(output, fmt, v1, v2, v3);
     fprintf(output, "\n");
 }
 
 int depth;
 static void push(RegisterName r)
 {
-    println("  push %s", reg64[r]);
+    println1("  push %s", reg64[r]);
     depth++;
 }
 
 static void push_val(int val)
 {
-    println("  push %d", val);
+    println1("  push %d", val);
     depth++;
 }
 
 static void push_str_addr(int label)
 {
-    println("  push offset .LC%d", label);
+    println1("  push offset .LC%d", label);
     depth++;
 }
 
 static void pop(RegisterName r)
 {
-    println("  pop %s", reg64[r]);
+    println1("  pop %s", reg64[r]);
     depth--;
 }
 
@@ -66,22 +80,22 @@ static void gen_for(Node *node)
     int lab = node->loop_label;
     if (node->init != NULL)
         gen(node->init);
-    println("  jmp .L.Cond%d", lab);
-    println(".L.Start%d:", lab);
+    println1("  jmp .L.Cond%d", lab);
+    println1(".L.Start%d:", lab);
     gen(node->body);
-    println(".L.OnEnd%d:", lab);
+    println1(".L.OnEnd%d:", lab);
     if (node->on_end != NULL)
         gen(node->on_end);
-    println(".L.Cond%d:", lab);
+    println1(".L.Cond%d:", lab);
     if (node->condition != NULL)
         gen(node->condition);
     else
         push_val(1); // 無条件でtrueとなるように
     pop(RG_RAX);
     println("  cmp rax, 0");
-    println("  je .L.End%d", lab);
-    println("  jmp .L.Start%d", lab);
-    println(".L.End%d:", lab);
+    println1("  je .L.End%d", lab);
+    println1("  jmp .L.Start%d", lab);
+    println1(".L.End%d:", lab);
 }
 
 static void gen_while(Node *node)
@@ -89,17 +103,17 @@ static void gen_while(Node *node)
     if (node->kind != ND_WHILE)
         error("while文ではありません");
     int lab = node->loop_label;
-    println("  jmp .L.Cond%d", lab);
-    println(".L.Start%d:", lab);
+    println1("  jmp .L.Cond%d", lab);
+    println1(".L.Start%d:", lab);
     gen(node->body);
-    println(".L.OnEnd%d:", lab);
-    println(".L.Cond%d:", lab);
+    println1(".L.OnEnd%d:", lab);
+    println1(".L.Cond%d:", lab);
     gen(node->condition);
     pop(RG_RAX);
     println("  cmp rax, 0");
-    println("  je .L.End%d", lab);
-    println("  jmp .L.Start%d", lab);
-    println(".L.End%d:", lab);
+    println1("  je .L.End%d", lab);
+    println1("  jmp .L.Start%d", lab);
+    println1(".L.End%d:", lab);
 }
 
 static void gen_if(Node *node)
@@ -112,17 +126,17 @@ static void gen_if(Node *node)
     pop(RG_RAX);
     println("  cmp rax, 0");
     if (else_exist)
-        println("  je .Lelse%d", lab);
+        println1("  je .Lelse%d", lab);
     else
-        println("  je .Lend%d", lab);
+        println1("  je .Lend%d", lab);
     gen(node->body);
     if (else_exist)
     {
-        println("  jmp .Lend%d", lab);
-        println(".Lelse%d:", lab);
+        println1("  jmp .Lend%d", lab);
+        println1(".Lelse%d:", lab);
         gen(node->on_else);
     }
-    println(".Lend%d:", lab);
+    println1(".Lend%d:", lab);
 }
 
 static void gen_function(Node *node) // gen_function_callとかのほうがいい気がする
@@ -174,11 +188,11 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     println("  mov al, 0");
     if (node->is_static)
     {
-        println("  call L%.*s", node->length, node->name);
+        println2("  call L%.*s", node->length, node->name);
     }
     else
     {
-        println("  call %.*s", node->length, node->name);
+        println2("  call %.*s", node->length, node->name);
     }
     if (depth % 2 == 0)
     {
@@ -196,23 +210,22 @@ static void gen_global_var_def(Node *node)
     if (node->is_static)
     {
 
-        println("L%.*s:", node->length, node->name);
+        println2("L%.*s:", node->length, node->name);
     }
     else
     {
-        println("%.*s:", node->length, node->name);
+        println2("%.*s:", node->length, node->name);
     }
     if (node->gvar_init)
     {
 
         if (is_int_or_char(node->ty))
         {
-
-            println("  .long %d", node->gvar_init->val);
+            println1("  .long %d", node->gvar_init->val);
         }
         else if (is_char(node->ty->ptr_to))
         {
-            println("  .quad .LC%d", node->gvar_init->strlabel);
+            println1("  .quad .LC%d", node->gvar_init->strlabel);
         }
         else
         {
@@ -222,11 +235,11 @@ static void gen_global_var_def(Node *node)
             {
                 if (cur->child->kind == ND_STRING)
                 {
-                    println("  .quad .LC%d", cur->child->strlabel);
+                    println1("  .quad .LC%d", cur->child->strlabel);
                 }
                 else
                 {
-                    println("  .long %d", cur->child->val);
+                    println1("  .long %d", cur->child->val);
                 }
                 cur = cur->next;
                 counter++;
@@ -234,14 +247,14 @@ static void gen_global_var_def(Node *node)
             int remain_size = (node->ty->array_size - counter) * calc_bytes(node->ty->ptr_to);
             if (remain_size)
             {
-                println("  .zero %d", remain_size);
+                println1("  .zero %d", remain_size);
             }
             return;
         }
     }
     else
     {
-        println("  .zero  %d", calc_bytes(node->ty));
+        println1("  .zero  %d", calc_bytes(node->ty));
     }
 }
 
@@ -255,30 +268,30 @@ static void gen_addr(Node *node)
     case ND_VAR:
         if (node->is_local && node->is_static)
         {
-            println("  lea rax, L%.*s.%d", node->length, node->name, node->scope_label);
+            println3("  lea rax, L%.*s.%d", node->length, node->name, node->scope_label);
             push(RG_RAX);
         }
         else if (node->is_local)
         {
             println("  mov rax, rbp");
-            println("  sub rax, %d", node->offset);
+            println1("  sub rax, %d", node->offset);
             push(RG_RAX);
         }
         else if (node->is_static)
         {
-            println("  lea rax, L%.*s", node->length, node->name);
+            println2("  lea rax, L%.*s", node->length, node->name);
             push(RG_RAX);
         }
         else
         {
-            println("  lea rax, %.*s", node->length, node->name);
+            println2("  lea rax, %.*s", node->length, node->name);
             push(RG_RAX);
         }
         return;
     case ND_MEMBER:
         gen_addr(node->child);
         pop(RG_RAX);
-        println("  add rax, %d", node->member->offset);
+        println1("  add rax, %d", node->member->offset);
         push(RG_RAX);
         return;
 
@@ -296,17 +309,17 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
 
     if (node->is_static)
     {
-        println("L%.*s:", node->length, node->name);
+        println2("L%.*s:", node->length, node->name);
     }
     else
     {
-        println(".globl %.*s", node->length, node->name);
-        println("%.*s:", node->length, node->name);
+        println2(".globl %.*s", node->length, node->name);
+        println2("%.*s:", node->length, node->name);
     }
     // プロローグ
     push(RG_RBP);
     println("  mov rbp, rsp");
-    println("  sub rsp, %d", node->args_region_size);
+    println1("  sub rsp, %d", node->args_region_size);
 
     // 第1〜6引数をローカル変数の領域に書き出す
     int count = 0;
@@ -323,7 +336,7 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
             else
                 reg = reg64[count];
 
-            println("  mov [rax], %s", reg);
+            println1("  mov [rax], %s", reg);
         }
         else
         {
@@ -364,7 +377,7 @@ static void gen_assign(Node *node)
             gen(cur->child);
             pop(RG_RDI);
             pop(RG_RAX);
-            println("  add rax, %d", calc_bytes(node->lhs->ty->ptr_to) * counter);
+            println1("  add rax, %d", calc_bytes(node->lhs->ty->ptr_to) * counter);
             if (is_int(node->lhs->ty->ptr_to))
                 println("  mov [rax], edi");
             else if (is_char(node->lhs->ty->ptr_to))
@@ -467,26 +480,26 @@ void gen(Node *node)
         pop(RG_RAX);
         for (Node *c = node->next_case; c; c = c->next_case)
         {
-            println("  cmp eax, %d", c->val);
-            println("  je .L.Case%d", c->case_label);
+            println1("  cmp eax, %d", c->val);
+            println1("  je .L.Case%d", c->case_label);
         }
         if (node->default_case)
         {
-            println("  jmp .L.Case%d", node->default_case->case_label);
+            println1("  jmp .L.Case%d", node->default_case->case_label);
         }
-        println("  jmp .L.End%d", node->break_to);
+        println1("  jmp .L.End%d", node->break_to);
         gen(node->child);
-        println(".L.End%d:", node->break_to);
+        println1(".L.End%d:", node->break_to);
         return;
     case ND_CASE:
-        println(".L.Case%d:", node->case_label);
+        println1(".L.Case%d:", node->case_label);
         gen(node->child);
         return;
     case ND_BREAK:
-        println("  jmp .L.End%d", node->loop_label);
+        println1("  jmp .L.End%d", node->loop_label);
         return;
     case ND_CONTINUE:
-        println("  jmp .L.OnEnd%d", node->loop_label);
+        println1("  jmp .L.OnEnd%d", node->loop_label);
         return;
     case ND_FUNC:
         gen_function(node);
@@ -562,17 +575,17 @@ void gen(Node *node)
             int size = calc_bytes(node->ty->ptr_to);
             if (is_int_or_char(node->lhs->ty))
             {
-                println("  imul rax, %d", size);
+                println1("  imul rax, %d", size);
             }
             else if (is_int_or_char(node->rhs->ty))
             {
-                println("  imul rdi, %d", size);
+                println1("  imul rdi, %d", size);
             }
             else if (is_ptr(node->rhs->ty) && is_ptr(node->lhs->ty) && node->kind == ND_SUB)
             {
                 println("  sub rax, rdi");
                 println("  cqo");
-                println("  mov rdi, %d", size);
+                println1("  mov rdi, %d", size);
                 println("  idiv rdi");
                 push(RG_RAX);
                 return;
@@ -703,21 +716,21 @@ void gen_asm_intel()
     Var *sv = ctx->statics;
     while (sv)
     {
-        println("L%.*s.%d:", sv->length, sv->name, sv->label);
+        println3("L%.*s.%d:", sv->length, sv->name, sv->label);
         switch (sv->ty->ty)
         {
         case CHAR:
-            println("  .byte %d", sv->init_val);
+            println1("  .byte %d", sv->init_val);
             break;
         case INT:
-            println("  .long %d", sv->init_val);
+            println1("  .long %d", sv->init_val);
             break;
         case PTR:
-            println("  .quad %d", sv->init_val);
+            println1("  .quad %d", sv->init_val);
             break;
         case ARRAY:
         case STRUCT:
-            println("  .zero  %d", calc_bytes(sv->ty));
+            println1("  .zero  %d", calc_bytes(sv->ty));
             break;
         default:
             error("型がサポートされていません");
@@ -728,8 +741,8 @@ void gen_asm_intel()
 
     while (s)
     {
-        println(".LC%d:", s->label);
-        println("  .string \"%.*s\"", s->length, s->p);
+        println1(".LC%d:", s->label);
+        println2("  .string \"%.*s\"", s->length, s->p);
         s = s->next;
     }
 
