@@ -534,6 +534,7 @@ void gen(Node *node)
         push(RG_RAX);
         return;
     case ND_POSTINC:
+    case ND_POSTDEC:
         gen(node->lhs); // インクリメント前の値がpushされる
         gen(node->rhs); // インクリメント後の値がpushされる
         pop(RG_RAX);    // インクリメント後の値がpopされる
