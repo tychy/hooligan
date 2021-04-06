@@ -1,3 +1,4 @@
+#include <string.h>
 int s;
 int testCharGvar()
 {
@@ -189,6 +190,35 @@ int testCharEscape()
     return 0;
 }
 
+int testStringWithEscape()
+{
+    char *x;
+    char *y;
+    char *z;
+    char *v;
+    x = "abc\nd";
+    y = "abc\"d";
+    z = "abc\"\"d";
+    v = "abc\"\"\\d";
+    if (strlen(x) != 5)
+    {
+        return 1;
+    }
+    if (strlen(y) != 5)
+    {
+        return 1;
+    }
+    if (strlen(z) != 6)
+    {
+        return 1;
+    }
+    if (strlen(v) != 7)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testChar() != 0)
@@ -216,5 +246,10 @@ int main()
     {
         return 1;
     }
+    if (testStringWithEscape() != 0)
+    {
+        return 1;
+    }
+
     return 0;
 }
