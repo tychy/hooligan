@@ -105,6 +105,33 @@ int testPostIncrement()
     return 0;
 }
 
+int testPostIncrementChar()
+{
+    char *x = "abcde";
+    if (*x != 'a')
+    {
+        return 1;
+    }
+    x++;
+    if (*x != 'b')
+    {
+        return 1;
+    }
+    if (*x++ != 'b')
+    {
+        return 1;
+    }
+    if (*x != 'c')
+    {
+        return 1;
+    }
+    if (*x != 'c')
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testCtrl() != 0)
@@ -127,5 +154,10 @@ int main()
     {
         return 1;
     }
+    if (testPostIncrementChar() != 0)
+    {
+        return 1;
+    }
+
     return 0;
 }
