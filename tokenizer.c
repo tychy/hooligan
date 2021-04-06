@@ -163,10 +163,27 @@ Token *tokenize(char *p)
             int i = 0;
             p++;
             char *p_top = p;
-            while (*p != '"')
+            for (;;)
             {
-                p++;
-                i++;
+                if (*p == '\\')
+                {
+                    p++;
+                    i++;
+                    if (*p == '"')
+                    {
+                        p++;
+                        i++;
+                    }
+                }
+                else if (*p == '"')
+                {
+                    break;
+                }
+                else
+                {
+                    p++;
+                    i++;
+                }
             }
             if (*p != '"')
                 error("ダブルクォテーションが閉じていません");
@@ -203,6 +220,10 @@ Token *tokenize(char *p)
                 {
                     cur = new_token(TK_CHARACTER, cur, p);
                     cur->value = '\"';
+                }
+                else
+                {
+                    error("未定義のエスケープ文字です");
                 }
             }
             else
