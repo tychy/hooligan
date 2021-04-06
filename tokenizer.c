@@ -178,8 +178,8 @@ Token *tokenize(char *p)
             continue;
         }
 
-        if (*p == 39)
-        { // ' バックスラッシュによるエスケープを使いたくなかった
+        if (*p == 39) // 39 = '
+        {             // ' バックスラッシュによるエスケープを使いたくなかった
             p++;
             if (*p == 92)
             {
@@ -187,17 +187,22 @@ Token *tokenize(char *p)
                 if (*p == 92)
                 {
                     cur = new_token(TK_CHARACTER, cur, p);
-                    cur->value = 92;
+                    cur->value = '\\';
                 }
                 else if (*p == '0')
                 {
                     cur = new_token(TK_CHARACTER, cur, p);
-                    cur->value = 0;
+                    cur->value = '\0';
                 }
                 else if (*p == 'n')
                 {
                     cur = new_token(TK_CHARACTER, cur, p);
-                    cur->value = 10;
+                    cur->value = '\n';
+                }
+                else if (*p == 34)
+                {
+                    cur = new_token(TK_CHARACTER, cur, p);
+                    cur->value = '\"';
                 }
             }
             else
