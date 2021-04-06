@@ -531,6 +531,9 @@ void gen(Node *node)
             else if (is_ptr(node->rhs->ty) && is_ptr(node->lhs->ty) && node->kind == ND_SUB)
             {
                 println("  sub rax, rdi");
+                println("  cqo");
+                println("  mov rdi, %d", size);
+                println("  idiv rdi");
                 push(RG_RAX);
                 return;
             }
