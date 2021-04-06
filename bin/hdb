@@ -124,8 +124,10 @@ done
 
 shift $((OPTIND - 1))
 if "${VALUE_D}"; then
-    docker-compose run hooligan ./bin/hdb -d false ${@:1}
-    exit
+    if [ $1 != "unittest" ] && [ $1 != "gentest" ]; then
+        docker-compose run hooligan ./bin/hdb -d false ${@:1}
+        exit
+    fi
 fi
 
 if [ $1 = "src" ]; then
