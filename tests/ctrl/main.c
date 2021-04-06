@@ -104,8 +104,31 @@ int testPostIncrement()
     }
     return 0;
 }
+int testPostIncrementIntPtr()
+{
 
-int testPostIncrementChar()
+    int x[4] = {1, 2, 3, 4};
+    int *y = x;
+    if (*y != 1)
+    {
+        return 1;
+    }
+    if (*y++ != 1)
+    {
+        return 1;
+    }
+    if (*y != 2)
+    {
+        return 1;
+    }
+    y++;
+    if (*y != 3)
+    {
+        return 1;
+    }
+    return 0;
+}
+int testPostIncrementCharPtr()
 {
     char *x = "abcde";
     if (*x != 'a')
@@ -154,7 +177,11 @@ int main()
     {
         return 1;
     }
-    if (testPostIncrementChar() != 0)
+    if (testPostIncrementIntPtr() != 0)
+    {
+        return 1;
+    }
+    if (testPostIncrementCharPtr() != 0)
     {
         return 1;
     }
