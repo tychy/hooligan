@@ -1020,54 +1020,42 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
         {
             node->gvar_init = new_node_num(expect_number());
         }
-        else
+        else if (consume("{"))
         {
-
-            if (consume("{"))
+            Node *initial = new_node_single(ND_INIT, new_node_num(expect_number()));
+            Node *cur = initial;
+            int cnt = 1;
+            for (;;)
             {
-                Node *initial = new_node_single(ND_INIT, new_node_num(expect_number()));
-                Node *cur = initial;
-                int cnt = 1;
-                for (;;)
+                if (consume(","))
                 {
-                    if (consume(","))
+                    if (consume("}"))
                     {
-                        if (consume("}"))
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            if (ty->array_size != -1 && cnt >= ty->array_size)
-                            {
-                                expect_number();
-                                continue;
-                            }
-                            cur->next = new_node_single(ND_INIT, new_node_num(expect_number()));
-                            cur = cur->next;
-                            cnt++;
-                        }
+                        break;
                     }
                     else
                     {
-                        expect("}");
-                        break;
+                        if (ty->array_size != -1 && cnt >= ty->array_size)
+                        {
+                            expect_number();
+                            continue;
+                        }
+                        cur->next = new_node_single(ND_INIT, new_node_num(expect_number()));
+                        cur = cur->next;
+                        cnt++;
                     }
-                }
-                if (ty->array_size == -1)
-                {
-                    ty->array_size = cnt;
                 }
                 else
                 {
-                    for (; cnt < ty->array_size; cnt++)
-                    {
-                        cur->next = new_node_single(ND_INIT, new_node_num(0));
-                        cur = cur->next;
-                    }
+                    expect("}");
+                    break;
                 }
-                node->gvar_init = initial;
             }
+            if (ty->array_size == -1)
+            {
+                ty->array_size = cnt;
+            }
+            node->gvar_init = initial;
         }
     }
     expect(";");
