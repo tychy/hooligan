@@ -171,7 +171,7 @@ static Node *ident()
             }
             if (not(node->is_void) && count < node->num_args)
             {
-                error("引数が少なすぎます got %d, expected %d", count, node->num_args);
+                error("引数が少なすぎます");
             }
         }
         else
