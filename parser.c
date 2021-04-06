@@ -503,6 +503,27 @@ static Node *assign()
     return node;
 }
 
+static Node *const_expr()
+{
+    if (token->kind == TK_NUMBER)
+    {
+        return num();
+    }
+    else if (token->kind == TK_CHARACTER)
+    {
+        return character();
+    }
+    else if (token->kind == TK_STRING)
+    {
+        String *s = new_string(token->string, token->length);
+        token = token->next;
+        return new_node_string(s);
+    }
+    else
+    {
+        error("定数ではありません");
+    }
+}
 static Node *expr()
 {
     return assign();
@@ -1008,12 +1029,57 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
     node->length = ident->length;
     node->ty = ty;
     node->is_static = is_static;
-    expect(";");
     if (ty->ty == VOID)
     {
         error("void型の変数は定義できません");
     }
     def_var(ident, ty, false, is_static);
+
+    if (consume("="))
+    {
+        if (ty->ty != ARRAY)
+        {
+            node->gvar_init = const_expr();
+        }
+        else if (consume("{"))
+        {
+            Node *initial = new_node_single(ND_INIT, const_expr());
+            Node *cur = initial;
+            int cnt = 1;
+            for (;;)
+            {
+                if (consume(","))
+                {
+                    if (consume("}"))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        if (ty->array_size != -1 && cnt >= ty->array_size)
+                        {
+                            const_expr();
+                            continue;
+                        }
+                        cur->next = new_node_single(ND_INIT, const_expr());
+                        cur = cur->next;
+                        cnt++;
+                    }
+                }
+                else
+                {
+                    expect("}");
+                    break;
+                }
+            }
+            if (ty->array_size == -1)
+            {
+                ty->array_size = cnt;
+            }
+            node->gvar_init = initial;
+        }
+    }
+    expect(";");
     return node;
 }
 

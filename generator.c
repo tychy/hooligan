@@ -202,7 +202,47 @@ static void gen_global_var_def(Node *node)
     {
         println("%.*s:", node->length, node->name);
     }
-    println("  .zero  %d", calc_bytes(node->ty));
+    if (node->gvar_init)
+    {
+
+        if (is_int_or_char(node->ty))
+        {
+
+            println("  .long %d", node->gvar_init->val);
+        }
+        else if (is_char(node->ty->ptr_to))
+        {
+            println("  .quad .LC%d", node->gvar_init->strlabel);
+        }
+        else
+        {
+            Node *cur = node->gvar_init;
+            int counter = 0;
+            while (cur)
+            {
+                if (cur->child->kind == ND_STRING)
+                {
+                    println("  .quad .LC%d", cur->child->strlabel);
+                }
+                else
+                {
+                    println("  .long %d", cur->child->val);
+                }
+                cur = cur->next;
+                counter++;
+            }
+            int remain_size = (node->ty->array_size - counter) * calc_bytes(node->ty->ptr_to);
+            if (remain_size)
+            {
+                println("  .zero %d", remain_size);
+            }
+            return;
+        }
+    }
+    else
+    {
+        println("  .zero  %d", calc_bytes(node->ty));
+    }
 }
 
 static void gen_addr(Node *node)
