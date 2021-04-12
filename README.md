@@ -1,10 +1,13 @@
 # hooligan
 
-低レイヤを知りたい人のためのCコンパイラ作成入門
+hooligan is yet another tiny pre-self-hosted C compiler.
 
-https://www.sigbus.info/compilerbook
+### todo
+- [ ] self-host
 
-## 前提
+
+## How to use
+### 前提
 
 プロジェクトルートで以下のコマンドを走らせる
 
@@ -13,14 +16,25 @@ https://www.sigbus.info/compilerbook
 もしくは.envrcに以下のコマンドを記述
 
 `PATH_add bin`
-## テストコマンド
-`hcc test`
+### Command
+```
+// テストをすべて走らせる
+hdb test
 
-もしくは
+// selfhostを走らせる
+hdb selfhost
 
-`docker-compose run hooligan make test`
+// a.cに対してアセンブリの出力
+hdb src a.c
+
+// a.cに対してアセンブリを出力し実行する
+hdb exec a.c
+
+```
 
 ## 参考リンク
+[低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook)
+
 [アセンブリ命令](https://www.mztn.org/lxasm64/amd00.html)
 
 [文字列操作](https://ja.wikibooks.org/wiki/C言語/標準ライブラリ/文字列操作)
@@ -35,8 +49,4 @@ https://www.sigbus.info/compilerbook
 
 [さくっとアセンブリ入門 hello,world編](https://rabbitfoot141.hatenablog.com/entry/2016/05/01/124410)
 
-[System V ABI](https://software.intel.com/sites/default/files/article/402129/mpx-linux64-abi.pdf)
-
-## 関数呼び出しABI
-
-If the class is INTEGER or POINTER, the next available register of the sequence %rdi, %rsi, %rdx, %rcx, %r8 and %r9 is used.
+[System V ABI](https://software.intel.com/content/dam/develop/external/us/en/documents/mpx-linux64-abi.pdf)
