@@ -410,7 +410,7 @@ void gen_block(Node *node)
     }
 }
 
-void gen(Node *node)
+static void gen(Node *node)
 {
     switch (node->kind)
     {
