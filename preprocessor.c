@@ -19,7 +19,7 @@ char *replace_all(char *str, char *what, char *with)
     return str;
 }
 
-static char *process_include(char *p)
+static char *process_include(char *base_dir, char *p)
 {
     char *p_start = p;
     while (*p)
@@ -66,11 +66,12 @@ static char *process_include(char *p)
                 path = calloc(1, path_length);
                 memcpy(path, p - path_length, path_length);
                 memset(p_top, ' ', p - p_top + 1); // include文を消す
-                printf("%s\n", path);
 
                 if (is_dq)
                 {
-                    p = insert_str(p_start, p - p_start, read_file(path));
+                    char *full_path = join_str(base_dir, path);
+                    char *p_rec = process_include(extract_dir(full_path), read_file(full_path));
+                    p = insert_str(p_start, p - p_start, p_rec);
                 }
                 else
                 {
@@ -99,10 +100,10 @@ static char *process_include(char *p)
     return p_start;
 }
 
-char *preprocess(char *target)
+char *preprocess(char *base_dir, char *target)
 {
     // include文の処理
-    target = process_include(target);
+    target = process_include(base_dir, target);
 
     // stdio.h
     replace_all(target, "size_t", "int");

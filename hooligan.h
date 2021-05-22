@@ -275,7 +275,7 @@ extern FILE *output;
 
 // Declaration of functions
 // preprocessor.c
-char *preprocess(char *target);
+char *preprocess(char *base_dir, char *target);
 
 // read_token.c
 bool consume(char *op);
@@ -340,4 +340,5 @@ void error2(char *fmt, char *v1, char *v2);
 char *insert_str(char *src, int pos, char *target);
 char *join_str(char *pre, char *post);
 char *read_file(char *path);
+char *extract_dir(char *path);
 #endif
