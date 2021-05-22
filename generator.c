@@ -154,21 +154,9 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         {
             error("引数ではありません");
         }
-        // 第一引数のレジスタRDIは計算で使われるため最後にpopしなければならない
-        if (count == 0)
-        {
-            first_arg = arg;
-            arg = arg->next;
-            count++;
-            continue;
-        }
         gen(arg->child);
 
-        if (count < 6)
-        {
-            pop(count);
-        }
-        else
+        if (count >= 6)
         {
             error("引数の数が多すぎます");
         }
@@ -176,10 +164,10 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         arg = arg->next;
         count++;
     }
-    if (first_arg != NULL)
+    while (count > 0)
     {
-        gen(first_arg->child);
-        pop(0);
+        count--;
+        pop(count);
     }
     if (depth % 2 == 0)
     {
