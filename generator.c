@@ -202,6 +202,7 @@ static void gen_global_var_def(Node *node)
     }
     else
     {
+        println2(".globl %.*s", node->length, node->name);
         println2("%.*s:", node->length, node->name);
     }
     if (node->gvar_init)
