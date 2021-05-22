@@ -147,6 +147,7 @@ selfhost() {
     make
     compile generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c
     find *.s | xargs cc -static -o bin/hcc_2nd
+    clean
 }
 
 VALUE_D=true
