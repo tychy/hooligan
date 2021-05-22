@@ -3,3 +3,6 @@ fugafugahogehoge
 hfugafugaogehoge
 hofugafugagehoge
 hogehogefugafuga
+hogehoge/
+fugafuga/hogehoge/
+
