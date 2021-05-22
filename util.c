@@ -61,3 +61,14 @@ char *read_file(char *path)
     fclose(fp);
     return buf;
 }
+
+char *extract_dir(char *p)
+{
+    int preLength = strrchr(p, '/') - p + 1;
+    int postLength = strlen(p) - preLength;
+    char *p1 = calloc(1, preLength);
+    memcpy(p1, p, preLength);
+    char *p2 = calloc(1, postLength);
+    memcpy(p2, p + preLength, postLength);
+    return p1;
+}
