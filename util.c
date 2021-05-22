@@ -64,6 +64,8 @@ char *read_file(char *path)
 
 char *extract_dir(char *p)
 {
+    if (strrchr(p, '/') == NULL)
+        return "";
     int preLength = strrchr(p, '/') - p + 1;
     int postLength = strlen(p) - preLength;
     char *p1 = calloc(1, preLength);
