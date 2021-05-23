@@ -1035,6 +1035,7 @@ static Node *func(Token *ident, Type *ty, bool is_static)
         arg_ty_ls[arg_idx] = arg_ty;
         arg_idx++;
     }
+    def_func(ident, ty, arg_idx, arg_ty_ls, is_static);
     if (consume(";"))
     {
         exit_scope();
@@ -1044,7 +1045,6 @@ static Node *func(Token *ident, Type *ty, bool is_static)
     node->rhs = block();
     node->args_region_size = ctx->offset;
     node->is_static = is_static;
-    def_func(ident, ty, arg_idx, arg_ty_ls, is_static);
     exit_scope();
     return node;
 }

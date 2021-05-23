@@ -38,7 +38,7 @@ static char *operator_list[33] = {
     ":",
 };
 
-static int operator_list_count = sizeof(operator_list) / sizeof(operator_list[0]);
+static int operator_list_count = 33;
 
 static char *reserved_word_list[19] = {
     "return",
@@ -62,7 +62,7 @@ static char *reserved_word_list[19] = {
     "enum",
 };
 
-static int reserved_word_list_count = sizeof(reserved_word_list) / sizeof(reserved_word_list[0]);
+static int reserved_word_list_count = 19;
 
 static Token *new_token(TokenKind kind, Token *cur, char *str)
 {

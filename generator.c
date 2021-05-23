@@ -202,6 +202,7 @@ static void gen_global_var_def(Node *node)
     }
     else
     {
+        println2(".globl %.*s", node->length, node->name);
         println2("%.*s:", node->length, node->name);
     }
     if (node->gvar_init)
@@ -307,7 +308,7 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
     // プロローグ
     push(RG_RBP);
     println("  mov rbp, rsp");
-    println1("  sub rsp, %d", node->args_region_size);
+    println1("  sub rsp, %d", 16 * (node->args_region_size / 16 + 1));
 
     // 第1〜6引数をローカル変数の領域に書き出す
     int count = 0;
@@ -409,7 +410,7 @@ void gen_block(Node *node)
     }
 }
 
-void gen(Node *node)
+static void gen(Node *node)
 {
     switch (node->kind)
     {

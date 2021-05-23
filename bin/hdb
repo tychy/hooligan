@@ -107,6 +107,24 @@ runtest() {
     done
 }
 
+runtest2() {
+    for dn in $(find tests/* -type d); do
+        printf $dn
+        cfiles=$(find $dn/*.c)
+        ./bin/hcc_2nd $cfiles
+        assembly
+        expectedout=$(cat $dn/out)
+        stdout=$(./a.out)
+        if [ "$stdout" == "$expectedout" ]; then
+            echo ...passed
+        else
+            echo ...failed
+            exit 1
+        fi
+        clean
+    done
+}
+
 gentest() {
     mkdir tests/$1
     touch tests/$1/main.c
@@ -147,6 +165,7 @@ selfhost() {
     make
     compile generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c
     find *.s | xargs cc -static -o bin/hcc_2nd
+    clean
 }
 
 VALUE_D=true
@@ -181,6 +200,8 @@ elif [ $1 = "test" ]; then
     else
         runtest
     fi
+elif [ $1 = "runtest2" ]; then
+    runtest2
 elif [ $1 = "gentest" ]; then
     gentest $2
 elif [ $1 = "unittest" ]; then
