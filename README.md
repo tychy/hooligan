@@ -1,10 +1,10 @@
 # hooligan
 
-hooligan is yet another tiny pre-self-hosted C compiler.
+hooligan is yet another tiny self-hosted C compiler.
 
 ### todo
-- [ ] self-host
-
+- [x] self-host
+- [ ] run test using 2nd gen compiler
 
 ## How to use
 ### 前提
@@ -29,6 +29,11 @@ hdb src a.c
 
 // a.cに対してアセンブリを出力し実行する
 hdb exec a.c
+
+// セルフホストする
+hdb selfhost
+// + 第二世代コンパイラでテストを走らせる
+hdb runtest2
 
 ```
 
