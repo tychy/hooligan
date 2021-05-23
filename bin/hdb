@@ -183,7 +183,9 @@ if "${VALUE_D}"; then
     fi
 fi
 
-if [ $1 = "src" ]; then
+if [ $1 = "clean" ]; then
+    clean
+elif [ $1 = "src" ]; then
     src ${@:2}
 elif [ $1 = "exec" ]; then
     exec ${@:2}

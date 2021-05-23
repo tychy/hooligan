@@ -231,6 +231,55 @@ int testGlobalInitString()
     }
     return 0;
 }
+
+extern int subx;
+extern int subarr[5];
+extern int *subptr;
+int zz;
+
+static void mod_gvar()
+{
+    subx = 121;
+    subarr[0] = 5;
+    *subptr = 150;
+    return 0;
+}
+
+int testGlobalSubFile()
+{
+    if (subx != 11)
+    {
+        return 1;
+    }
+    subarr[0] = 1;
+    if (subarr[0] != 1)
+    {
+        return 1;
+    }
+    zz = 20;
+    subptr = &zz;
+    if (*subptr != 20)
+    {
+        return 1;
+    }
+    mod_gvar();
+    if (subx != 121)
+    {
+        return 1;
+    }
+
+    if (subarr[0] != 5)
+    {
+        return 1;
+    }
+
+    if (zz != 150)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testGvar() != 0)
@@ -268,6 +317,11 @@ int main()
     }
 
     if (testGlobalInitString() != 0)
+    {
+        return 1;
+    }
+
+    if (testGlobalSubFile() != 0)
     {
         return 1;
     }
