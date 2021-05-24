@@ -1,27 +1,6 @@
-#include "../../hooligan.h"
+#include "../../tokenizer2.c"
+#include "../../util.c"
 
-typedef enum
-{
-    PPTK_HN, // header-name
-    PPTK_IDENT,
-    PPTK_NUMBER,
-    PPTK_CHAR, // character-constant
-    PPTK_STRING,
-    PPTK_PUNC, // punctuators
-} PPTokenKind;
-
-typedef struct PPToken PPToken;
-
-struct PPToken
-{
-    PPTokenKind kind;
-    PPToken *next;
-    int val;
-    int len;
-    char *str;
-};
-
-PPToken *decompose_to_pp_token(char *p);
 void dump_pp_token(PPToken *tok);
 
 int main()
