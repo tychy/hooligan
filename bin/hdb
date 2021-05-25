@@ -132,7 +132,7 @@ gentest() {
 }
 
 unittest() {
-    for dn in $(find unittest/* -type d); do
+    for dn in $(find unittest/* -maxdepth 0 -type d); do
         printf $dn
         gcc $dn/test.c
         expectedout=$(cat $dn/stdout.txt)
