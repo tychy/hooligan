@@ -281,7 +281,7 @@ void dump_pp_token(PPToken *tok)
             printf("%.*s ", cur->len, cur->str);
             break;
         case PPTK_STRING:
-            printf("\"%.*s\" ", cur->len, cur->str);
+            printf("\\\"%.*s\\\" ", cur->len, cur->str);
             break;
         }
         cur = cur->next;
