@@ -1,2 +1,3 @@
 int main ( ) { char * hoge = \"hogehoge\" ; printf ( hoge ) ; return 0 ; } 
 typedef struct Hoge Hoge ; struct Hoge { int x ; int y ; } ; int main ( ) { char a = 104 ; char b = 98 ; char c = b + 1 ; return 0 ; } 
+# include <stdlib.h> # include "../test.c" int main ( ) { return 0 ; } 
