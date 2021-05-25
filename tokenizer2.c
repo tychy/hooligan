@@ -89,6 +89,7 @@ static bool isnondigit(char p)
     return false;
 }
 
+// punctuator...区切り文字
 static bool ispunctuator(char *p)
 {
     for (int i = 0; i < punctuator_list_count; i++)
@@ -171,6 +172,7 @@ PPToken *decompose_to_pp_token(char *p)
             continue;
         }
 
+        // プリプロセッシング命令文の処理、暴力的な長さなので切り出しを検討すべき
         if (strncmp(p, "#", 1) == 0)
         {
             cur = new_token(PPTK_PUNC, cur, p);
