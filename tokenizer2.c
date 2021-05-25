@@ -263,13 +263,13 @@ PPToken *decompose_to_pp_token(char *p)
             continue;
         }
 
-        if (*p == 39) // 39 = '
-        {             // ' バックスラッシュによるエスケープを使いたくなかった
+        if (*p == '\'')
+        {
             p++;
-            if (*p == 92)
+            if (*p == '\\')
             {
                 p++;
-                if (*p == 92)
+                if (*p == '\\')
                 {
                     cur = new_token(PPTK_CHAR, cur, p);
                     cur->val = '\\';
@@ -284,7 +284,7 @@ PPToken *decompose_to_pp_token(char *p)
                     cur = new_token(PPTK_CHAR, cur, p);
                     cur->val = '\n';
                 }
-                else if (*p == 34)
+                else if (*p == '"')
                 {
                     cur = new_token(PPTK_CHAR, cur, p);
                     cur->val = '\"';
