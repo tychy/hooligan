@@ -115,6 +115,31 @@ static bool isdirective(char *p)
     }
 }
 
+static int from_escape_char_to_int(char p)
+{
+    if (p == '\\')
+    {
+        return '\\';
+    }
+    else if (p == '0')
+    {
+        return '\0';
+    }
+    else if (p == 'n')
+    {
+        return '\n';
+    }
+    else if (p == '\'')
+    {
+        return '\'';
+    }
+    else
+    {
+        printf("%c ", p);
+        error("未定義のエスケープ文字です");
+    }
+}
+
 PPToken *decompose_to_pp_token(char *p)
 {
     PPToken head;
@@ -266,42 +291,20 @@ PPToken *decompose_to_pp_token(char *p)
         if (*p == '\'')
         {
             p++;
+            int val;
             if (*p == '\\')
             {
                 p++;
-                if (*p == '\\')
-                {
-                    cur = new_token(PPTK_CHAR, cur, p);
-                    cur->val = '\\';
-                }
-                else if (*p == '0')
-                {
-                    cur = new_token(PPTK_CHAR, cur, p);
-                    cur->val = '\0';
-                }
-                else if (*p == 'n')
-                {
-                    cur = new_token(PPTK_CHAR, cur, p);
-                    cur->val = '\n';
-                }
-                else if (*p == '"')
-                {
-                    cur = new_token(PPTK_CHAR, cur, p);
-                    cur->val = '\"';
-                }
-                else
-                {
-                    error("未定義のエスケープ文字です");
-                }
+                val = from_escape_char_to_int(*p);
             }
             else
             {
-                cur = new_token(PPTK_CHAR, cur, p);
-                cur->val = *p;
+                val = *p;
             }
-            cur->len = 1;
+            cur = new_token(PPTK_CHAR, cur, p);
+            cur->val = val;
             p++;
-            if (*p != 39)
+            if (*p != '\'')
             {
                 error("シングルクォーテーションが閉じていません");
             }
