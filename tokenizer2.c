@@ -279,10 +279,6 @@ PPToken *decompose_to_pp_token(char *p)
                 {
                     p++;
                 }
-                if (*p == '\n')
-                {
-                    p++;
-                }
             }
             else
             {
