@@ -112,8 +112,8 @@ static bool isdirective(char *p)
         {
             return true;
         }
-        return false;
     }
+    return false;
 }
 
 static int from_escape_char_to_int(char p)
@@ -242,6 +242,46 @@ PPToken *decompose_to_pp_token(char *p)
                 else
                 {
                     error("不正なinclude文です");
+                }
+            }
+            else if (directive_index == 1)
+            {
+                // define文
+                // #define ident identを想定
+                while (isspace(*p))
+                {
+                    p++;
+                }
+                int i = 0;
+                char *p_top = p;
+                while (isnondigit(*p) || isdigit(*p))
+                {
+                    i++;
+                    p++;
+                }
+                cur = new_token(PPTK_IDENT, cur, p_top);
+                cur->len = i;
+
+                while (isspace(*p))
+                {
+                    p++;
+                }
+                i = 0;
+                p_top = p;
+                while (isnondigit(*p) || isdigit(*p))
+                {
+                    i++;
+                    p++;
+                }
+                cur = new_token(PPTK_IDENT, cur, p_top);
+                cur->len = i;
+                while (isspace(*p))
+                {
+                    p++;
+                }
+                if (*p == '\n')
+                {
+                    p++;
                 }
             }
             else
