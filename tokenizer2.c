@@ -443,6 +443,19 @@ PPToken *preprocess_macro(PPToken *tok)
             }
             continue;
         }
+        // マクロの検索
+        if (cur->kind == PPTK_IDENT)
+        {
+            for (Macro *mac = pp_ctx->macros; mac; mac = mac->next)
+            {
+                if (mac->target->len == cur->len && strncmp(mac->target->str, cur->str, cur->len) == 0)
+                {
+                    cur->str = mac->replace->str;
+                    cur->len = mac->replace->len;
+                }
+            }
+        }
+
         prev = cur;
         cur = cur->next;
     }
