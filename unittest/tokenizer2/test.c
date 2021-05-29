@@ -11,6 +11,7 @@ void testPPToken()
     dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/3.c")));
     dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/4.c")));
     dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/5.c")));
+    dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/6.c")));
 
     return;
 }
