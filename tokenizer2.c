@@ -11,6 +11,8 @@ typedef enum
 } PPTokenKind;
 
 typedef struct PPToken PPToken;
+typedef struct Macro Macro;
+typedef struct PPContext PPContext;
 
 struct PPToken
 {
@@ -20,6 +22,19 @@ struct PPToken
     int len;
     char *str;
 };
+
+struct Macro
+{
+    PPToken *target;
+    PPToken *replace;
+    Macro *next;
+};
+struct PPContext
+{
+    Macro *macros;
+};
+
+extern PPContext *pp_ctx;
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
@@ -388,6 +403,50 @@ PPToken *decompose_to_pp_token(char *p)
         exit(1);
     }
     return head.next;
+}
+
+PPToken *preprocess_macro(PPToken *tok)
+{
+    PPToken *prev = tok;
+    PPToken *cur = tok;
+
+    while (cur)
+    {
+        // マクロの登録
+        if (cur->kind == PPTK_PUNC && *cur->str == '#')
+        {
+            PPToken *target = cur->next->next;
+            PPToken *replace = cur->next->next->next;
+
+            if (target->kind == PPTK_IDENT && replace->kind == PPTK_IDENT)
+            {
+                Macro *mac = calloc(1, sizeof(Macro));
+                mac->target = target;
+                mac->replace = replace;
+                mac->next = pp_ctx->macros;
+                pp_ctx->macros = mac;
+            }
+            else
+            {
+                error("#define ident ident　である必要があります");
+            }
+            if (prev == cur)
+            {
+                prev = replace->next;
+                cur = replace->next;
+                tok = prev;
+            }
+            else
+            {
+                prev->next = replace->next;
+                cur = replace->next;
+            }
+            continue;
+        }
+        prev = cur;
+        cur = cur->next;
+    }
+    return tok;
 }
 
 void dump_pp_token(PPToken *tok)

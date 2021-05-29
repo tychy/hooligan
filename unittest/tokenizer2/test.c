@@ -1,5 +1,6 @@
 #include "../../tokenizer2.c"
 #include "../../util.c"
+PPContext *pp_ctx;
 
 void dump_pp_token(PPToken *tok);
 
@@ -14,11 +15,16 @@ void testPPToken()
     return;
 }
 
-void testInclude()
+void testMacro()
 {
+    pp_ctx = calloc(1, sizeof(PPContext));
+    dump_pp_token(preprocess_macro(decompose_to_pp_token(read_file("unittest/tokenizer2/include/5.c"))));
+    return;
 }
 int main()
 {
+
     testPPToken();
+    testMacro();
     return 0;
 }
