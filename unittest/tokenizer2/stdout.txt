@@ -2,4 +2,6 @@ int main ( ) { char * hoge = \"hogehoge\" ; printf ( hoge ) ; return 0 ; }
 typedef struct Hoge Hoge ; struct Hoge { int x ; int y ; } ; int main ( ) { char a = 104 ; char b = 98 ; char c = b + 1 ; return 0 ; } 
 # include <stdlib.h> # include "../test.c" int main ( ) { return 0 ; } 
 int main ( ) { char a = 92 ; char b = 10 ; char c = 0 ; char d = 39 ; return 0 ; } 
-# define bool int { int x = 10 ; bool flag = 1 ; return 0 ; } 
+# define bool int int main ( ) { int x = 10 ; bool flag = 1 ; return 0 ; } 
+
+

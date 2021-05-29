@@ -248,10 +248,12 @@ PPToken *decompose_to_pp_token(char *p)
             {
                 // define文
                 // #define ident identを想定
+
                 while (isspace(*p))
                 {
                     p++;
                 }
+
                 int i = 0;
                 char *p_top = p;
                 while (isnondigit(*p) || isdigit(*p))
@@ -275,10 +277,6 @@ PPToken *decompose_to_pp_token(char *p)
                 }
                 cur = new_token(PPTK_IDENT, cur, p_top);
                 cur->len = i;
-                while (isspace(*p))
-                {
-                    p++;
-                }
             }
             else
             {
