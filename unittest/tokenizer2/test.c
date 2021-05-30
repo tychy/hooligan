@@ -14,6 +14,10 @@ void testPPToken()
     dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/6.c")));
     dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/7.c")));
     dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/8.c")));
+    dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/9.c")));
+    dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/10.c")));
+    dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/11.c")));
+
     return;
 }
 
@@ -27,10 +31,15 @@ void run_preprocess(char *str)
 }
 void testMacro()
 {
+
+    //run_preprocess("unittest/tokenizer2/include/3.c"); <-ユニットテストかけない　出力が長すぎることとhooligan.hのifndef endifが読めない
     run_preprocess("unittest/tokenizer2/include/5.c");
     run_preprocess("unittest/tokenizer2/include/6.c");
     run_preprocess("unittest/tokenizer2/include/7.c");
     run_preprocess("unittest/tokenizer2/include/8.c");
+
+    run_preprocess("unittest/tokenizer2/include/10.c");
+    run_preprocess("unittest/tokenizer2/include/11.c");
     return;
 }
 int main()

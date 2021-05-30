@@ -6,7 +6,13 @@ int main ( ) { char a = 92 ; char b = 10 ; char c = 0 ; char d = 39 ; return 0 ;
 # define bool int int main ( ) { int x = 10 ; bool flag = 1 ; return 0 ; } 
 # define bool int # define size_t int int main ( ) { size_t size ; size = 10 ; bool isSize = 0 ; if ( isSize ) { size = 11 ; } return 0 ; } 
 # define bb bbb # define b bb int main ( ) { int b = 0 ; bb = 110 ; return 0 ; } 
+# define gump hoo # define xx yy int twenty ( ) { int xx = 10 ; int ok = 11 ; return 20 ; } 
+# define ok ng # include "9.c" int main ( ) { return 0 ; } 
+# include "9.c" # define ok ng int main ( ) { return 0 ; } 
 int main ( ) { int x = 10 ; return 0 ; } 
 int main ( ) { int x = 10 ; int flag = 1 ; return 0 ; } 
 int main ( ) { int size ; size = 10 ; int isSize = 0 ; if ( isSize ) { size = 11 ; } return 0 ; } 
 int main ( ) { int bbb = 0 ; bbb = 110 ; return 0 ; } 
+int twenty ( ) { int yy = 10 ; int ng = 11 ; return 20 ; } int main ( ) { return 0 ; } 
+int twenty ( ) { int yy = 10 ; int ok = 11 ; return 20 ; } int main ( ) { return 0 ; } 
+
