@@ -405,6 +405,18 @@ PPToken *decompose_to_pp_token(char *p)
     return head.next;
 }
 
+Macro *find_macro(char *str, int len)
+{
+    for (Macro *mac = pp_ctx->macros; mac; mac = mac->next)
+    {
+        if (mac->target->len == len && strncmp(mac->target->str, str, len) == 0)
+        {
+            return mac;
+        }
+    }
+    return NULL;
+}
+
 PPToken *preprocess_macro(PPToken *tok)
 {
     PPToken *prev = tok;
@@ -420,6 +432,14 @@ PPToken *preprocess_macro(PPToken *tok)
 
             if (target->kind == PPTK_IDENT && replace->kind == PPTK_IDENT)
             {
+                if (target->len == replace->len && strncmp(target->str, replace->str, target->len) == 0)
+                {
+                    error("target == replace　のマクロは定義できません");
+                }
+                if (find_macro(target->str, target->len) != NULL)
+                {
+                    error("マクロの二重定義です");
+                }
                 Macro *mac = calloc(1, sizeof(Macro));
                 mac->target = target;
                 mac->replace = replace;
@@ -446,12 +466,17 @@ PPToken *preprocess_macro(PPToken *tok)
         // マクロの検索
         if (cur->kind == PPTK_IDENT)
         {
-            for (Macro *mac = pp_ctx->macros; mac; mac = mac->next)
+            for (;;)
             {
-                if (mac->target->len == cur->len && strncmp(mac->target->str, cur->str, cur->len) == 0)
+                Macro *mac = find_macro(cur->str, cur->len);
+                if (mac)
                 {
                     cur->str = mac->replace->str;
                     cur->len = mac->replace->len;
+                }
+                else
+                {
+                    break;
                 }
             }
         }
