@@ -1,6 +1,5 @@
 #include "../../tokenizer2.c"
 #include "../../util.c"
-PPContext *pp_ctx;
 
 void dump_pp_token(PPToken *tok);
 

@@ -34,7 +34,7 @@ struct PPContext
     Macro *macros;
 };
 
-extern PPContext *pp_ctx;
+PPContext *pp_ctx;
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
