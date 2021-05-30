@@ -11,6 +11,8 @@ typedef enum
 } PPTokenKind;
 
 typedef struct PPToken PPToken;
+typedef struct Macro Macro;
+typedef struct PPContext PPContext;
 
 struct PPToken
 {
@@ -20,6 +22,19 @@ struct PPToken
     int len;
     char *str;
 };
+
+struct Macro
+{
+    PPToken *target;
+    PPToken *replace;
+    Macro *next;
+};
+struct PPContext
+{
+    Macro *macros;
+};
+
+PPContext *pp_ctx;
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
@@ -62,12 +77,14 @@ static char *punctuator_list[34] = {
 
 static int punctuator_list_count = 34;
 
-static char *preprocessing_directive_list[2] = {
+static char *preprocessing_directive_list[4] = {
     "include",
     "define",
+    "ifndef",
+    "endif",
 };
 
-static int preprocessing_directive_list_count = 2;
+static int preprocessing_directive_list_count = 4;
 
 static PPToken *new_token(PPTokenKind kind, PPToken *cur, char *str)
 {
@@ -112,8 +129,8 @@ static bool isdirective(char *p)
         {
             return true;
         }
-        return false;
     }
+    return false;
 }
 
 static int from_escape_char_to_int(char p)
@@ -179,7 +196,9 @@ PPToken *decompose_to_pp_token(char *p)
             cur->len = 1;
             p++;
             if (!isdirective(p))
+            {
                 error("未定義のプリプロセッシング命令文です");
+            }
             int directive_index;
             for (int i = 0; i < preprocessing_directive_list_count; i++)
             {
@@ -243,6 +262,57 @@ PPToken *decompose_to_pp_token(char *p)
                 {
                     error("不正なinclude文です");
                 }
+            }
+            else if (directive_index == 1)
+            {
+                // define文
+                // #define ident identを想定
+
+                while (isspace(*p))
+                {
+                    p++;
+                }
+
+                int i = 0;
+                char *p_top = p;
+                while (isnondigit(*p) || isdigit(*p))
+                {
+                    i++;
+                    p++;
+                }
+                cur = new_token(PPTK_IDENT, cur, p_top);
+                cur->len = i;
+
+                while (isspace(*p))
+                {
+                    p++;
+                }
+                i = 0;
+                p_top = p;
+                while (isnondigit(*p) || isdigit(*p))
+                {
+                    i++;
+                    p++;
+                }
+                cur = new_token(PPTK_IDENT, cur, p_top);
+                cur->len = i;
+            }
+            else if (directive_index == 2 || directive_index == 3)
+            {
+                // hoolign.hを読むための実装
+                while (isspace(*p))
+                {
+                    p++;
+                }
+
+                int i = 0;
+                char *p_top = p;
+                while (isnondigit(*p) || isdigit(*p))
+                {
+                    i++;
+                    p++;
+                }
+                cur = new_token(PPTK_IDENT, cur, p_top);
             }
             else
             {
@@ -354,6 +424,167 @@ PPToken *decompose_to_pp_token(char *p)
         exit(1);
     }
     return head.next;
+}
+
+Macro *find_macro(char *str, int len)
+{
+    for (Macro *mac = pp_ctx->macros; mac; mac = mac->next)
+    {
+        if (mac->target->len == len && strncmp(mac->target->str, str, len) == 0)
+        {
+            return mac;
+        }
+    }
+    return NULL;
+}
+
+PPToken *preprocess_directives(char *base_dir, PPToken *tok)
+{
+    if (tok == NULL)
+    {
+        return tok;
+    }
+    PPToken *prev = tok;
+    PPToken *cur = tok;
+
+    while (cur)
+    {
+        if (cur->kind == PPTK_PUNC && *cur->str == '#')
+        {
+            // include
+            if (cur->next->kind == PPTK_IDENT &&
+                strncmp(cur->next->str, preprocessing_directive_list[0], cur->next->len) == 0)
+            {
+                PPToken *hn_tok = cur->next->next;
+                if (hn_tok->kind != PPTK_HN)
+                {
+                    error("不正なinclude文です");
+                }
+                char *p = hn_tok->str;             // < or "
+                char *p_end = p + hn_tok->len - 1; // > or "
+                char *file_name = calloc(1, hn_tok->len - 2);
+                memcpy(file_name, p + 1, hn_tok->len - 2);
+                PPToken *include_tok = NULL;
+                if (*p == '"' && *p_end == '"')
+                {
+                    // とりあえず
+                    if (strncmp("hooligan.h", file_name, strlen(file_name)))
+                    {
+
+                        char *full_path = join_str(base_dir, file_name);
+                        char *dir = extract_dir(full_path);
+
+                        include_tok = preprocess_directives(dir, decompose_to_pp_token(read_file(full_path)));
+                    }
+                }
+                else
+                {
+                    char *full_path = join_str("include/", file_name);
+
+                    PPToken *mid = decompose_to_pp_token(read_file(full_path));
+                    include_tok = preprocess_directives("include/", mid);
+                }
+                if (include_tok == NULL)
+                {
+                    if (prev == cur)
+                    {
+                        prev = hn_tok->next;
+                        cur = hn_tok->next;
+                        tok = prev;
+                    }
+                    else
+                    {
+                        prev->next = hn_tok->next;
+                        cur = hn_tok->next;
+                    }
+                    continue;
+                }
+                PPToken *include_tok_end = include_tok;
+                while (include_tok_end->next)
+                {
+                    include_tok_end = include_tok_end->next;
+                }
+
+                include_tok_end->next = hn_tok->next;
+
+                if (prev == cur)
+                {
+                    prev = include_tok_end;
+                    cur = include_tok_end->next;
+                    tok = include_tok;
+                }
+                else
+                {
+                    prev->next = include_tok;
+                    prev = include_tok_end;
+                    cur = include_tok_end->next;
+                }
+                continue;
+            }
+
+            // マクロの登録
+            if (cur->next->kind == PPTK_IDENT &&
+                strncmp(cur->next->str, preprocessing_directive_list[1], cur->next->len) == 0)
+            {
+                PPToken *target = cur->next->next;
+                PPToken *replace = cur->next->next->next;
+
+                if (target->kind == PPTK_IDENT && replace->kind == PPTK_IDENT)
+                {
+                    if (target->len == replace->len && strncmp(target->str, replace->str, target->len) == 0)
+                    {
+                        error("target == replace　のマクロは定義できません");
+                    }
+                    if (find_macro(target->str, target->len) != NULL)
+                    {
+                        error("マクロの二重定義です");
+                    }
+                    Macro *mac = calloc(1, sizeof(Macro));
+                    mac->target = target;
+                    mac->replace = replace;
+                    mac->next = pp_ctx->macros;
+                    pp_ctx->macros = mac;
+                }
+                else
+                {
+                    error("#define ident ident　である必要があります");
+                }
+                if (prev == cur)
+                {
+                    prev = replace->next;
+                    cur = replace->next;
+                    tok = prev;
+                }
+                else
+                {
+                    prev->next = replace->next;
+                    cur = replace->next;
+                }
+                continue;
+            }
+        }
+        // マクロの検索
+        if (cur->kind == PPTK_IDENT)
+        {
+            for (;;)
+            {
+                Macro *mac = find_macro(cur->str, cur->len);
+                if (mac)
+                {
+                    cur->str = mac->replace->str;
+                    cur->len = mac->replace->len;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        prev = cur;
+        cur = cur->next;
+    }
+    return tok;
 }
 
 void dump_pp_token(PPToken *tok)

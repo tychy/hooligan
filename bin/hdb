@@ -131,6 +131,16 @@ gentest() {
     touch tests/$1/out
 }
 
+unittest_raw() {
+    for dn in $(find unittest/* -maxdepth 0 -type d); do
+        printf $dn
+        gcc $dn/test.c
+        expectedout=$(cat $dn/stdout.txt)
+        ./a.out
+        printf "\n"
+    done
+}
+
 unittest() {
     for dn in $(find unittest/* -maxdepth 0 -type d); do
         printf $dn
@@ -211,7 +221,9 @@ elif [ $1 = "gentest" ]; then
     gentest $2
 elif [ $1 = "unittest" ]; then
     unittest
-elif [ $1 = "unittesthoo" ]; then
+elif [ $1 = "unittest_raw" ]; then
+    unittest_raw
+elif [ $1 = "unittest_hoo" ]; then
     unittest_hooligan
 elif [ $1 = "selfhost" ]; then
     selfhost
