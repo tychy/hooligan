@@ -417,7 +417,7 @@ Macro *find_macro(char *str, int len)
     return NULL;
 }
 
-PPToken *preprocess_directives(PPToken *tok)
+PPToken *preprocess_directives(char *base_dir, PPToken *tok)
 {
     PPToken *prev = tok;
     PPToken *cur = tok;
@@ -427,41 +427,45 @@ PPToken *preprocess_directives(PPToken *tok)
         // マクロの登録
         if (cur->kind == PPTK_PUNC && *cur->str == '#')
         {
-            PPToken *target = cur->next->next;
-            PPToken *replace = cur->next->next->next;
+            if (cur->next->kind == PPTK_IDENT &&
+                strncmp(cur->next->str, preprocessing_directive_list[1], cur->next->len) == 0)
+            {
+                PPToken *target = cur->next->next;
+                PPToken *replace = cur->next->next->next;
 
-            if (target->kind == PPTK_IDENT && replace->kind == PPTK_IDENT)
-            {
-                if (target->len == replace->len && strncmp(target->str, replace->str, target->len) == 0)
+                if (target->kind == PPTK_IDENT && replace->kind == PPTK_IDENT)
                 {
-                    error("target == replace　のマクロは定義できません");
+                    if (target->len == replace->len && strncmp(target->str, replace->str, target->len) == 0)
+                    {
+                        error("target == replace　のマクロは定義できません");
+                    }
+                    if (find_macro(target->str, target->len) != NULL)
+                    {
+                        error("マクロの二重定義です");
+                    }
+                    Macro *mac = calloc(1, sizeof(Macro));
+                    mac->target = target;
+                    mac->replace = replace;
+                    mac->next = pp_ctx->macros;
+                    pp_ctx->macros = mac;
                 }
-                if (find_macro(target->str, target->len) != NULL)
+                else
                 {
-                    error("マクロの二重定義です");
+                    error("#define ident ident　である必要があります");
                 }
-                Macro *mac = calloc(1, sizeof(Macro));
-                mac->target = target;
-                mac->replace = replace;
-                mac->next = pp_ctx->macros;
-                pp_ctx->macros = mac;
+                if (prev == cur)
+                {
+                    prev = replace->next;
+                    cur = replace->next;
+                    tok = prev;
+                }
+                else
+                {
+                    prev->next = replace->next;
+                    cur = replace->next;
+                }
+                continue;
             }
-            else
-            {
-                error("#define ident ident　である必要があります");
-            }
-            if (prev == cur)
-            {
-                prev = replace->next;
-                cur = replace->next;
-                tok = prev;
-            }
-            else
-            {
-                prev->next = replace->next;
-                cur = replace->next;
-            }
-            continue;
         }
         // マクロの検索
         if (cur->kind == PPTK_IDENT)
