@@ -32,7 +32,6 @@ void run_preprocess(char *str)
 void testMacro()
 {
 
-    //run_preprocess("unittest/tokenizer2/include/3.c"); <-ユニットテストかけない　出力が長すぎることとhooligan.hのifndef endifが読めない
     run_preprocess("unittest/tokenizer2/include/5.c");
     run_preprocess("unittest/tokenizer2/include/6.c");
     run_preprocess("unittest/tokenizer2/include/7.c");
