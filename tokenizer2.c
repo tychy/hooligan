@@ -417,7 +417,7 @@ Macro *find_macro(char *str, int len)
     return NULL;
 }
 
-PPToken *preprocess_macro(PPToken *tok)
+PPToken *preprocess_directives(PPToken *tok)
 {
     PPToken *prev = tok;
     PPToken *cur = tok;
