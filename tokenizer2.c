@@ -77,14 +77,16 @@ static char *punctuator_list[34] = {
 
 static int punctuator_list_count = 34;
 
-static char *preprocessing_directive_list[4] = {
+// indexに依存したコードを書いているので後方に追加していくこと
+static char *preprocessing_directive_list[5] = {
     "include",
     "define",
+    "ifdef",
     "ifndef",
     "endif",
 };
 
-static int preprocessing_directive_list_count = 4;
+static int preprocessing_directive_list_count = 5;
 
 static PPToken *new_token(PPTokenKind kind, PPToken *cur, char *str)
 {
@@ -297,9 +299,8 @@ PPToken *decompose_to_pp_token(char *p)
                 cur = new_token(PPTK_IDENT, cur, p_top);
                 cur->len = i;
             }
-            else if (directive_index == 2 || directive_index == 3)
+            else if (directive_index == 2 || directive_index == 3 || directive_index == 4)
             {
-                // hoolign.hを読むための実装
                 while (isspace(*p))
                 {
                     p++;
@@ -453,7 +454,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
         {
             // include
             if (cur->next->kind == PPTK_IDENT &&
-                strncmp(cur->next->str, preprocessing_directive_list[0], cur->next->len) == 0)
+                strncmp(cur->next->str, preprocessing_directive_list[0], strlen(preprocessing_directive_list[0])) == 0)
             {
                 PPToken *hn_tok = cur->next->next;
                 if (hn_tok->kind != PPTK_HN)
@@ -524,7 +525,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
 
             // マクロの登録
             if (cur->next->kind == PPTK_IDENT &&
-                strncmp(cur->next->str, preprocessing_directive_list[1], cur->next->len) == 0)
+                strncmp(cur->next->str, preprocessing_directive_list[1], strlen(preprocessing_directive_list[1])) == 0)
             {
                 PPToken *target = cur->next->next;
                 PPToken *replace = cur->next->next->next;
@@ -562,7 +563,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 }
                 continue;
             }
-        }
+                }
         // マクロの検索
         if (cur->kind == PPTK_IDENT)
         {
