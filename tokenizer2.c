@@ -135,6 +135,16 @@ static bool isdirective(char *p)
     return false;
 }
 
+static bool isdirective_idx(PPToken *tok, int idx)
+{
+    if (tok == NULL)
+    {
+        return false;
+    }
+    return (tok->kind == PPTK_IDENT &&
+            strncmp(tok->str, preprocessing_directive_list[idx], strlen(preprocessing_directive_list[idx])) == 0);
+}
+
 static int from_escape_char_to_int(char p)
 {
     if (p == '\\')
@@ -299,7 +309,7 @@ PPToken *decompose_to_pp_token(char *p)
                 cur = new_token(PPTK_IDENT, cur, p_top);
                 cur->len = i;
             }
-            else if (directive_index == 2 || directive_index == 3 || directive_index == 4)
+            else if (directive_index == 2 || directive_index == 3)
             {
                 while (isspace(*p))
                 {
@@ -314,6 +324,11 @@ PPToken *decompose_to_pp_token(char *p)
                     p++;
                 }
                 cur = new_token(PPTK_IDENT, cur, p_top);
+                cur->len = i;
+            }
+            else if (directive_index == 4)
+            {
+                int i; // dummy
             }
             else
             {
@@ -439,6 +454,23 @@ Macro *find_macro(char *str, int len)
     return NULL;
 }
 
+PPToken *fetch_before_endif(PPToken *tok)
+{
+    if (tok == NULL)
+    {
+        return NULL;
+    }
+    while (tok)
+    {
+        if (tok->next->kind == PPTK_PUNC && *tok->next->str == '#' && isdirective_idx(tok->next->next, 4))
+        {
+            return tok;
+        }
+        tok = tok->next;
+    }
+    return NULL;
+}
+
 PPToken *preprocess_directives(char *base_dir, PPToken *tok)
 {
     if (tok == NULL)
@@ -554,7 +586,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 {
                     prev = replace->next;
                     cur = replace->next;
-                    tok = prev;
+                    tok = cur;
                 }
                 else
                 {
@@ -563,7 +595,56 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 }
                 continue;
             }
+            // ifdef
+            // strlen(preprocessing_directive_list[])を使わないと#ifの時にバグが出る
+            if (cur->next->kind == PPTK_IDENT &&
+                strncmp(cur->next->str, preprocessing_directive_list[2], strlen(preprocessing_directive_list[2])) == 0)
+            {
+                PPToken *target = cur->next->next;
+                if (find_macro(target->str, target->len))
+                {
+                    PPToken *before_endif = fetch_before_endif(target);
+                    if (before_endif == NULL)
+                    {
+                        error("ifdefの後にはendifが必要です");
+                    }
+                    PPToken *after_endif = before_endif->next->next->next;
+                    before_endif->next = after_endif;
+                    if (prev == cur)
+                    {
+                        prev = target->next;
+                        cur = target->next;
+                        tok = cur;
+                    }
+                    else
+                    {
+                        prev->next = target->next;
+                        cur = target->next;
+                    }
                 }
+                else
+                {
+                    PPToken *before_endif = fetch_before_endif(target);
+                    if (before_endif == NULL)
+                    {
+                        error("ifdefの後にはendifが必要です");
+                    }
+                    PPToken *after_endif = before_endif->next->next->next;
+                    if (prev == cur)
+                    {
+                        prev = after_endif;
+                        cur = after_endif;
+                        tok = cur;
+                    }
+                    else
+                    {
+                        prev->next = after_endif;
+                        cur = after_endif;
+                    }
+                }
+                continue;
+            }
+        }
         // マクロの検索
         if (cur->kind == PPTK_IDENT)
         {
