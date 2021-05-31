@@ -499,15 +499,11 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 PPToken *include_tok = NULL;
                 if (*p == '"' && *p_end == '"')
                 {
-                    // とりあえず
-                    if (strncmp("hooligan.h", file_name, strlen(file_name)))
-                    {
 
-                        char *full_path = join_str(base_dir, file_name);
-                        char *dir = extract_dir(full_path);
+                    char *full_path = join_str(base_dir, file_name);
+                    char *dir = extract_dir(full_path);
 
-                        include_tok = preprocess_directives(dir, decompose_to_pp_token(read_file(full_path)));
-                    }
+                    include_tok = preprocess_directives(dir, decompose_to_pp_token(read_file(full_path)));
                 }
                 else
                 {
