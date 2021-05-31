@@ -77,14 +77,16 @@ static char *punctuator_list[34] = {
 
 static int punctuator_list_count = 34;
 
-static char *preprocessing_directive_list[4] = {
+// indexに依存したコードを書いているので後方に追加していくこと
+static char *preprocessing_directive_list[5] = {
     "include",
     "define",
+    "ifdef",
     "ifndef",
     "endif",
 };
 
-static int preprocessing_directive_list_count = 4;
+static int preprocessing_directive_list_count = 5;
 
 static PPToken *new_token(PPTokenKind kind, PPToken *cur, char *str)
 {
@@ -131,6 +133,16 @@ static bool isdirective(char *p)
         }
     }
     return false;
+}
+
+static bool isdirective_idx(PPToken *tok, int idx)
+{
+    if (tok == NULL)
+    {
+        return false;
+    }
+    return (tok->kind == PPTK_IDENT &&
+            strncmp(tok->str, preprocessing_directive_list[idx], strlen(preprocessing_directive_list[idx])) == 0);
 }
 
 static int from_escape_char_to_int(char p)
@@ -299,7 +311,6 @@ PPToken *decompose_to_pp_token(char *p)
             }
             else if (directive_index == 2 || directive_index == 3)
             {
-                // hoolign.hを読むための実装
                 while (isspace(*p))
                 {
                     p++;
@@ -313,6 +324,11 @@ PPToken *decompose_to_pp_token(char *p)
                     p++;
                 }
                 cur = new_token(PPTK_IDENT, cur, p_top);
+                cur->len = i;
+            }
+            else if (directive_index == 4)
+            {
+                int i; // dummy
             }
             else
             {
@@ -438,6 +454,23 @@ Macro *find_macro(char *str, int len)
     return NULL;
 }
 
+PPToken *fetch_before_endif(PPToken *tok)
+{
+    if (tok == NULL)
+    {
+        return NULL;
+    }
+    while (tok)
+    {
+        if (tok->next->kind == PPTK_PUNC && *tok->next->str == '#' && isdirective_idx(tok->next->next, 4))
+        {
+            return tok;
+        }
+        tok = tok->next;
+    }
+    return NULL;
+}
+
 PPToken *preprocess_directives(char *base_dir, PPToken *tok)
 {
     if (tok == NULL)
@@ -452,8 +485,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
         if (cur->kind == PPTK_PUNC && *cur->str == '#')
         {
             // include
-            if (cur->next->kind == PPTK_IDENT &&
-                strncmp(cur->next->str, preprocessing_directive_list[0], cur->next->len) == 0)
+            if (isdirective_idx(cur->next, 0))
             {
                 PPToken *hn_tok = cur->next->next;
                 if (hn_tok->kind != PPTK_HN)
@@ -467,15 +499,11 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 PPToken *include_tok = NULL;
                 if (*p == '"' && *p_end == '"')
                 {
-                    // とりあえず
-                    if (strncmp("hooligan.h", file_name, strlen(file_name)))
-                    {
 
-                        char *full_path = join_str(base_dir, file_name);
-                        char *dir = extract_dir(full_path);
+                    char *full_path = join_str(base_dir, file_name);
+                    char *dir = extract_dir(full_path);
 
-                        include_tok = preprocess_directives(dir, decompose_to_pp_token(read_file(full_path)));
-                    }
+                    include_tok = preprocess_directives(dir, decompose_to_pp_token(read_file(full_path)));
                 }
                 else
                 {
@@ -523,8 +551,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
             }
 
             // マクロの登録
-            if (cur->next->kind == PPTK_IDENT &&
-                strncmp(cur->next->str, preprocessing_directive_list[1], cur->next->len) == 0)
+            if (isdirective_idx(cur->next, 1))
             {
                 PPToken *target = cur->next->next;
                 PPToken *replace = cur->next->next->next;
@@ -553,12 +580,106 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 {
                     prev = replace->next;
                     cur = replace->next;
-                    tok = prev;
+                    tok = cur;
                 }
                 else
                 {
                     prev->next = replace->next;
                     cur = replace->next;
+                }
+                continue;
+            }
+            // ifdef
+            if (isdirective_idx(cur->next, 2))
+            {
+                PPToken *target = cur->next->next;
+                if (find_macro(target->str, target->len))
+                {
+                    PPToken *before_endif = fetch_before_endif(target);
+                    if (before_endif == NULL)
+                    {
+                        error("ifdefの後にはendifが必要です");
+                    }
+                    PPToken *after_endif = before_endif->next->next->next;
+                    before_endif->next = after_endif;
+                    if (prev == cur)
+                    {
+                        prev = target->next;
+                        cur = target->next;
+                        tok = cur;
+                    }
+                    else
+                    {
+                        prev->next = target->next;
+                        cur = target->next;
+                    }
+                }
+                else
+                {
+                    PPToken *before_endif = fetch_before_endif(target);
+                    if (before_endif == NULL)
+                    {
+                        error("ifdefの後にはendifが必要です");
+                    }
+                    PPToken *after_endif = before_endif->next->next->next;
+                    if (prev == cur)
+                    {
+                        prev = after_endif;
+                        cur = after_endif;
+                        tok = cur;
+                    }
+                    else
+                    {
+                        prev->next = after_endif;
+                        cur = after_endif;
+                    }
+                }
+                continue;
+            }
+            // ifndef
+            if (isdirective_idx(cur->next, 3))
+            {
+                PPToken *target = cur->next->next;
+                if (!find_macro(target->str, target->len))
+                {
+                    PPToken *before_endif = fetch_before_endif(target);
+                    if (before_endif == NULL)
+                    {
+                        error("ifndefの後にはendifが必要です");
+                    }
+                    PPToken *after_endif = before_endif->next->next->next;
+                    before_endif->next = after_endif;
+                    if (prev == cur)
+                    {
+                        prev = target->next;
+                        cur = target->next;
+                        tok = cur;
+                    }
+                    else
+                    {
+                        prev->next = target->next;
+                        cur = target->next;
+                    }
+                }
+                else
+                {
+                    PPToken *before_endif = fetch_before_endif(target);
+                    if (before_endif == NULL)
+                    {
+                        error("iffdefの後にはendifが必要です");
+                    }
+                    PPToken *after_endif = before_endif->next->next->next;
+                    if (prev == cur)
+                    {
+                        prev = after_endif;
+                        cur = after_endif;
+                        tok = cur;
+                    }
+                    else
+                    {
+                        prev->next = after_endif;
+                        cur = after_endif;
+                    }
                 }
                 continue;
             }

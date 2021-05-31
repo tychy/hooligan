@@ -18,6 +18,10 @@ void testPPToken()
     dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/11.c")));
     dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/12.c")));
     dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/13.c")));
+    dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/14.c")));
+    dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/15.c")));
+    dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/16.c")));
+    dump_pp_token(decompose_to_pp_token(read_file("unittest/tokenizer2/include/17.c")));
     return;
 }
 
@@ -41,6 +45,11 @@ void testMacro()
     run_preprocess("unittest/tokenizer2/include/11.c");
 
     run_preprocess("unittest/tokenizer2/include/13.c");
+    run_preprocess("unittest/tokenizer2/include/14.c");
+    run_preprocess("unittest/tokenizer2/include/15.c");
+    run_preprocess("unittest/tokenizer2/include/16.c");
+    run_preprocess("unittest/tokenizer2/include/17.c");
+
     return;
 }
 int main()
