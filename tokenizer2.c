@@ -485,8 +485,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
         if (cur->kind == PPTK_PUNC && *cur->str == '#')
         {
             // include
-            if (cur->next->kind == PPTK_IDENT &&
-                strncmp(cur->next->str, preprocessing_directive_list[0], strlen(preprocessing_directive_list[0])) == 0)
+            if (isdirective_idx(cur->next, 0))
             {
                 PPToken *hn_tok = cur->next->next;
                 if (hn_tok->kind != PPTK_HN)
@@ -556,8 +555,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
             }
 
             // マクロの登録
-            if (cur->next->kind == PPTK_IDENT &&
-                strncmp(cur->next->str, preprocessing_directive_list[1], strlen(preprocessing_directive_list[1])) == 0)
+            if (isdirective_idx(cur->next, 1))
             {
                 PPToken *target = cur->next->next;
                 PPToken *replace = cur->next->next->next;
@@ -597,8 +595,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
             }
             // ifdef
             // strlen(preprocessing_directive_list[])を使わないと#ifの時にバグが出る
-            if (cur->next->kind == PPTK_IDENT &&
-                strncmp(cur->next->str, preprocessing_directive_list[2], strlen(preprocessing_directive_list[2])) == 0)
+            if (isdirective_idx(cur->next, 2))
             {
                 PPToken *target = cur->next->next;
                 if (find_macro(target->str, target->len))
