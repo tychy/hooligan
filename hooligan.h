@@ -301,6 +301,7 @@ struct Context
 };
 
 // Declaration of global variables
+extern PPContext *pp_ctx;
 extern Token *token;
 extern Node *nodes[500];
 extern Context *ctx;
@@ -323,6 +324,11 @@ Token *expect_ident();
 
 // tokenizer.c
 Token *tokenize();
+Token *tokenize2(PPToken *pp_tok);
+
+// tokenizer2.c
+PPToken *decompose_to_pp_token(char *p);
+PPToken *preprocess_directives(char *base_dir, PPToken *tok);
 
 // parser.c
 void program();

@@ -16,6 +16,11 @@ int main(int argc, char **argv)
     {
         token = NULL;
         char *p = read_file(argv[i]);
+
+        pp_ctx = calloc(1, sizeof(PPContext));
+        pp_ctx->macros = NULL;
+        PPToken *pp_token = preprocess_directives(extract_dir(argv[i]), decompose_to_pp_token(read_file(argv[i])));
+
         char *p2 = calloc(1, 2 * strlen(p));
         memcpy(p2, p, strlen(p));
 
@@ -23,6 +28,8 @@ int main(int argc, char **argv)
         //printf("%s", p2);
 
         token = tokenize(p2);
+        // token = tokenize2(pp_token);
+        printf("hoge\n");
         char filename[4] = {'a' + i - 1, '.', 's', 0}; // a.s -> b.s -> c.s -> d.s
 
         output = fopen(filename, "w");
