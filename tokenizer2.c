@@ -594,7 +594,6 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 continue;
             }
             // ifdef
-            // strlen(preprocessing_directive_list[])を使わないと#ifの時にバグが出る
             if (isdirective_idx(cur->next, 2))
             {
                 PPToken *target = cur->next->next;
@@ -625,6 +624,53 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                     if (before_endif == NULL)
                     {
                         error("ifdefの後にはendifが必要です");
+                    }
+                    PPToken *after_endif = before_endif->next->next->next;
+                    if (prev == cur)
+                    {
+                        prev = after_endif;
+                        cur = after_endif;
+                        tok = cur;
+                    }
+                    else
+                    {
+                        prev->next = after_endif;
+                        cur = after_endif;
+                    }
+                }
+                continue;
+            }
+            // ifndef
+            if (isdirective_idx(cur->next, 3))
+            {
+                PPToken *target = cur->next->next;
+                if (!find_macro(target->str, target->len))
+                {
+                    PPToken *before_endif = fetch_before_endif(target);
+                    if (before_endif == NULL)
+                    {
+                        error("ifndefの後にはendifが必要です");
+                    }
+                    PPToken *after_endif = before_endif->next->next->next;
+                    before_endif->next = after_endif;
+                    if (prev == cur)
+                    {
+                        prev = target->next;
+                        cur = target->next;
+                        tok = cur;
+                    }
+                    else
+                    {
+                        prev->next = target->next;
+                        cur = target->next;
+                    }
+                }
+                else
+                {
+                    PPToken *before_endif = fetch_before_endif(target);
+                    if (before_endif == NULL)
+                    {
+                        error("iffdefの後にはendifが必要です");
                     }
                     PPToken *after_endif = before_endif->next->next->next;
                     if (prev == cur)
