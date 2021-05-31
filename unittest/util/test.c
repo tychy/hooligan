@@ -22,8 +22,9 @@ int testExtractDir()
 {
     char *s1 = "hogehoge/hoge";
     char *s2 = "fugafuga/hogehoge/fuga.c";
-    char *s3 = "hoge.c";
-    char *s4 = "";
+    char *s3 = "unittest/preprocessing_tokenize/include/10.c";
+    char *s4 = "hoge.c";
+    char *s5 = "";
     char *s;
     s = extract_dir(s1);
     printf("%s\n", s);
@@ -32,6 +33,8 @@ int testExtractDir()
     s = extract_dir(s3);
     printf("%s\n", s);
     s = extract_dir(s4);
+    printf("%s\n", s);
+    s = extract_dir(s5);
     printf("%s\n", s);
     return 0;
 }
