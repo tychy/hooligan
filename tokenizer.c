@@ -94,6 +94,17 @@ static bool isreservedword(char *p)
     return false;
 }
 
+static bool isreservedword2(char *p, int len)
+{
+    for (TokenKind tk = 0; tk < reserved_word_list_count; tk++)
+    {
+        char *word = reserved_word_list[tk];
+        if (strncmp(p, word, len) == 0 && len == strlen(word))
+            return true;
+    }
+    return false;
+}
+
 static TokenKind find_reserved_word(char *p)
 {
     for (TokenKind tk = 0; tk < reserved_word_list_count; tk++)
@@ -290,5 +301,66 @@ Token *tokenize(char *p)
         error1("%sトークナイズできません", p);
     }
     new_token(TK_EOF, cur, p);
+    return head.next;
+}
+
+Token *tokenize2(PPToken *pptok)
+{
+    Token head;
+    head.next = NULL;
+    Token *cur = &head;
+    while (pptok != NULL)
+    {
+        switch (pptok->kind)
+        {
+        case PPTK_CHAR:
+            cur = new_token(TK_CHARACTER, cur, pptok->str);
+            cur->value = pptok->val;
+            break;
+        case PPTK_HN:
+            error("未処理のプリプロセッシングトークン列です");
+            break;
+        case PPTK_IDENT:
+            if (isreservedword2(pptok->str, pptok->len))
+            {
+                int tk = find_reserved_word(pptok->str);
+                int len = strlen(reserved_word_list[tk]);
+                cur = new_token(tk, cur, pptok->str);
+                cur->length = len;
+            }
+            else
+            {
+                cur = new_token(TK_IDENT, cur, pptok->str);
+                cur->length = pptok->len;
+            }
+            break;
+        case PPTK_NUMBER:
+            cur = new_token(TK_NUMBER, cur, pptok->str);
+            cur->value = pptok->val;
+            break;
+        case PPTK_PUNC:
+            if (!isoperator(pptok->str))
+            {
+                error("不正なトークンです");
+            }
+            for (int i = 0; i < operator_list_count; i++)
+            {
+                char *op = operator_list[i];
+                if (strncmp(pptok->str, op, strlen(op)) == 0)
+                {
+                    cur = new_token(TK_OPERATOR, cur, pptok->str);
+                    cur->length = strlen(op);
+                    break;
+                }
+            }
+            break;
+        case PPTK_STRING:
+            cur = new_token(TK_STRING, cur, pptok->str);
+            cur->length = pptok->len;
+            break;
+        }
+        pptok = pptok->next;
+    }
+    new_token(TK_EOF, cur, "");
     return head.next;
 }

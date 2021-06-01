@@ -1,39 +1,5 @@
 #include "hooligan.h"
 
-typedef enum
-{
-    PPTK_HN, // header-name
-    PPTK_IDENT,
-    PPTK_NUMBER,
-    PPTK_CHAR, // character-constant
-    PPTK_STRING,
-    PPTK_PUNC, // punctuators
-} PPTokenKind;
-
-typedef struct PPToken PPToken;
-typedef struct Macro Macro;
-typedef struct PPContext PPContext;
-
-struct PPToken
-{
-    PPTokenKind kind;
-    PPToken *next;
-    int val;
-    int len;
-    char *str;
-};
-
-struct Macro
-{
-    PPToken *target;
-    PPToken *replace;
-    Macro *next;
-};
-struct PPContext
-{
-    Macro *macros;
-};
-
 PPContext *pp_ctx;
 
 // note: 文字数の多いものを先に登録する
@@ -162,6 +128,10 @@ static int from_escape_char_to_int(char p)
     else if (p == '\'')
     {
         return '\'';
+    }
+    else if (p == '\"')
+    {
+        return '\"';
     }
     else
     {
@@ -299,15 +269,23 @@ PPToken *decompose_to_pp_token(char *p)
                 {
                     p++;
                 }
-                i = 0;
-                p_top = p;
-                while (isnondigit(*p) || isdigit(*p))
+                if (isnondigit(*p))
                 {
-                    i++;
-                    p++;
+                    i = 0;
+                    p_top = p;
+                    while (isnondigit(*p) || isdigit(*p))
+                    {
+                        i++;
+                        p++;
+                    }
+                    cur = new_token(PPTK_IDENT, cur, p_top);
+                    cur->len = i;
                 }
-                cur = new_token(PPTK_IDENT, cur, p_top);
-                cur->len = i;
+                else if (isdigit(*p))
+                {
+                    cur = new_token(PPTK_NUMBER, cur, p);
+                    cur->val = strtol(p, &p, 10);
+                }
             }
             else if (directive_index == 2 || directive_index == 3)
             {
@@ -556,7 +534,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 PPToken *target = cur->next->next;
                 PPToken *replace = cur->next->next->next;
 
-                if (target->kind == PPTK_IDENT && replace->kind == PPTK_IDENT)
+                if (target->kind == PPTK_IDENT && (replace->kind == PPTK_IDENT || replace->kind == PPTK_NUMBER))
                 {
                     if (target->len == replace->len && strncmp(target->str, replace->str, target->len) == 0)
                     {
@@ -574,7 +552,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 }
                 else
                 {
-                    error("#define ident ident　である必要があります");
+                    error("不正なdefine文です");
                 }
                 if (prev == cur)
                 {
@@ -692,8 +670,10 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 Macro *mac = find_macro(cur->str, cur->len);
                 if (mac)
                 {
+                    cur->kind = mac->replace->kind;
                     cur->str = mac->replace->str;
                     cur->len = mac->replace->len;
+                    cur->val = mac->replace->val;
                 }
                 else
                 {

@@ -8,6 +8,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+typedef enum
+{
+    PPTK_HN, // header-name
+    PPTK_IDENT,
+    PPTK_NUMBER,
+    PPTK_CHAR, // character-constant
+    PPTK_STRING,
+    PPTK_PUNC, // punctuators
+} PPTokenKind;
 
 // NOTE: 予約語を先頭に持ってくる
 typedef enum
@@ -107,6 +116,9 @@ typedef enum
 } RegisterName;
 
 // type definition
+typedef struct PPToken PPToken;
+typedef struct Macro Macro;
+typedef struct PPContext PPContext;
 typedef struct Token Token;
 typedef struct Type Type;
 typedef struct Node Node;
@@ -115,6 +127,27 @@ typedef struct String String;
 typedef struct Member Member;
 typedef struct Scope Scope;
 typedef struct Context Context;
+
+
+struct PPToken
+{
+    PPTokenKind kind;
+    PPToken *next;
+    int val;
+    int len;
+    char *str;
+};
+
+struct Macro
+{
+    PPToken *target;
+    PPToken *replace;
+    Macro *next;
+};
+struct PPContext
+{
+    Macro *macros;
+};
 
 struct Token
 {
@@ -268,6 +301,7 @@ struct Context
 };
 
 // Declaration of global variables
+extern PPContext *pp_ctx;
 extern Token *token;
 extern Node *nodes[500];
 extern Context *ctx;
@@ -290,6 +324,11 @@ Token *expect_ident();
 
 // tokenizer.c
 Token *tokenize();
+Token *tokenize2(PPToken *pp_tok);
+
+// tokenizer2.c
+PPToken *decompose_to_pp_token(char *p);
+PPToken *preprocess_directives(char *base_dir, PPToken *tok);
 
 // parser.c
 void program();
