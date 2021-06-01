@@ -4,6 +4,7 @@ Token *token;
 Node *nodes[500];
 Context *ctx;
 FILE *output;
+PPContext *pp_ctx;
 
 int main(int argc, char **argv)
 {
