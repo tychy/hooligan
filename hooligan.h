@@ -10,7 +10,8 @@
 #include <errno.h>
 typedef enum
 {
-    PPTK_HN, // header-name
+    PPTK_DUMMY, // #define identで使う
+    PPTK_HN,    // header-name
     PPTK_IDENT,
     PPTK_NUMBER,
     PPTK_CHAR, // character-constant
@@ -127,7 +128,6 @@ typedef struct String String;
 typedef struct Member Member;
 typedef struct Scope Scope;
 typedef struct Context Context;
-
 
 struct PPToken
 {
