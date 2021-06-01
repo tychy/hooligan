@@ -129,6 +129,10 @@ static int from_escape_char_to_int(char p)
     {
         return '\'';
     }
+    else if (p == '\"')
+    {
+        return '\"';
+    }
     else
     {
         printf("%c ", p);
