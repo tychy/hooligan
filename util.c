@@ -68,9 +68,9 @@ char *extract_dir(char *p)
         return "";
     int preLength = strrchr(p, '/') - p + 1;
     int postLength = strlen(p) - preLength;
-    char *p1 = calloc(1, preLength);
+    char *p1 = calloc(1, preLength + 1);
     memcpy(p1, p, preLength);
-    char *p2 = calloc(1, postLength);
+    char *p2 = calloc(1, postLength + 1);
     memcpy(p2, p + preLength, postLength);
     return p1;
 }
