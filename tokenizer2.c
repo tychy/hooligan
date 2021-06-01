@@ -274,14 +274,18 @@ PPToken *decompose_to_pp_token(char *p)
                 while (isspace(*p))
                 {
                     p++;
+                    if (*p == '\n')
+                    {
+                        // #define identの場合
+                        cur = new_token(PPTK_DUMMY, cur, "");
+                        break;
+                    }
                 }
-
-                if (*p == '\n')
+                if (cur->kind == PPTK_DUMMY)
                 {
-                    // #define identの場合
-                    cur = new_token(PPTK_DUMMY, cur, "");
                     continue;
                 }
+
                 if (isnondigit(*p))
                 {
                     i = 0;

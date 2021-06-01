@@ -1,5 +1,7 @@
 #ifndef HOGE
 #define HOGE
+#define FUFUFU   
+
 int hogege()
 {
     return 10;

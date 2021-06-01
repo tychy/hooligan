@@ -16,7 +16,7 @@ int main ( ) { char a = 92 ; char b = 10 ; char c = 0 ; char d = 39 ; return 0 ;
 # define hoge hogege # ifdef hoge # endif # define twitter facebook # ifdef twitter int hundred ( ) { return 100 ; } int main ( ) { return 0 ; } # endif 
 # define hoge hogege # ifndef foo int hundred ( ) { return 100 ; } # endif # ifndef hogehoge # endif # ifndef hoge int xxxray ( ) { return 1000 ; } # endif int main ( ) { return 0 ; } # ifndef hoge # endif 
 # define hoge 100 int main ( ) { int x = hoge ; return 0 ; } 
-# ifndef HOGE # define HOGE int hogege ( ) { return 10 ; } # endif # ifndef HOGE int mmmm ( ) { return 0 ; } # endif # ifdef HOGE int main ( ) { return 0 ; } # endif 
+# ifndef HOGE # define HOGE # define FUFUFU int hogege ( ) { return 10 ; } # endif # ifndef HOGE int mmmm ( ) { return 0 ; } # endif # ifdef HOGE int main ( ) { return 0 ; } # endif 
 int main ( ) { int x = 10 ; return 0 ; } 
 int main ( ) { int x = 10 ; int flag = 1 ; return 0 ; } 
 int main ( ) { int size ; size = 10 ; int isSize = 0 ; if ( isSize ) { size = 11 ; } return 0 ; } 
