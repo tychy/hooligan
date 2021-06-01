@@ -176,7 +176,7 @@ unittest_hooligan() {
 
 selfhost() {
     make
-    compile generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c
+    compile generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c tokenizer2.c
     find *.s | xargs cc -static -o bin/hcc_2nd
     clean
 }
