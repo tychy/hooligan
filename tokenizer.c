@@ -350,6 +350,7 @@ Token *tokenize2(PPToken *pptok)
                 {
                     cur = new_token(TK_OPERATOR, cur, pptok->str);
                     cur->length = strlen(op);
+                    break;
                 }
             }
             break;
