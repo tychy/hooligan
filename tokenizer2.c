@@ -264,11 +264,28 @@ PPToken *decompose_to_pp_token(char *p)
                 }
                 cur = new_token(PPTK_IDENT, cur, p_top);
                 cur->len = i;
+                if (*p == '\n')
+                {
+                    // #define identの場合
+                    cur = new_token(PPTK_DUMMY, cur, "");
+                    continue;
+                }
 
                 while (isspace(*p))
                 {
                     p++;
+                    if (*p == '\n')
+                    {
+                        // #define identの場合
+                        cur = new_token(PPTK_DUMMY, cur, "");
+                        break;
+                    }
                 }
+                if (cur->kind == PPTK_DUMMY)
+                {
+                    continue;
+                }
+
                 if (isnondigit(*p))
                 {
                     i = 0;
@@ -544,16 +561,25 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                     {
                         error("マクロの二重定義です");
                     }
-                    Macro *mac = calloc(1, sizeof(Macro));
-                    mac->target = target;
-                    mac->replace = replace;
-                    mac->next = pp_ctx->macros;
-                    pp_ctx->macros = mac;
+                }
+                else if (target->kind == PPTK_IDENT && replace->kind == PPTK_DUMMY)
+                {
+                    // #define identに対応
+                    if (find_macro(target->str, target->len) != NULL)
+                    {
+                        error("マクロの二重定義です");
+                    }
                 }
                 else
                 {
                     error("不正なdefine文です");
                 }
+                Macro *mac = calloc(1, sizeof(Macro));
+                mac->target = target;
+                mac->replace = replace;
+                mac->next = pp_ctx->macros;
+                pp_ctx->macros = mac;
+
                 if (prev == cur)
                 {
                     prev = replace->next;
