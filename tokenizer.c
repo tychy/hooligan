@@ -315,7 +315,7 @@ Token *tokenize2(PPToken *pptok)
         {
         case PPTK_CHAR:
             cur = new_token(TK_CHARACTER, cur, pptok->str);
-            cur->value = *pptok->str;
+            cur->value = pptok->val;
             break;
         case PPTK_HN:
             error("未処理のプリプロセッシングトークン列です");
