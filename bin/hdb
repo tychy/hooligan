@@ -12,6 +12,7 @@ clean() {
     for fn in $(find . -name 'a.out'); do
         rm $fn
     done
+    rm core.*
 }
 
 compile() {
