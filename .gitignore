@@ -3,5 +3,6 @@ tmp
 *.out
 *.s
 .envrc
-bin/hcc
+!bin/hdb
+bin/*
 sandbox
