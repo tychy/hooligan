@@ -159,18 +159,21 @@ unittest() {
 }
 
 unittest_hooligan() {
-    make
-    compile unittest/utiltest.c
-    assembly
-    expectedout=$(cat unittest/utiltest.txt)
-    stdout=$(./a.out)
-    if [ "$stdout" == "$expectedout" ]; then
-        printf ...passed
-    else
-        printf ...failed
-        exit 1
-    fi
-    printf "\n"
+    for dn in $(find unittest/* -maxdepth 0 -type d); do
+        printf $dn
+        compile $dn/test.c
+        ls -d *.s | xargs cc -static
+        expectedout=$(cat $dn/stdout.txt)
+        stdout=$(./a.out)
+        if [[ "$stdout" == "$expectedout" ]]; then
+            printf ...passed
+        else
+            printf ...failed
+            printf "\n"
+            exit 1
+        fi
+        printf "\n"
+    done
     clean
 }
 
