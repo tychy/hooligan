@@ -203,7 +203,7 @@ done
 
 shift $((OPTIND - 1))
 if "${VALUE_D}"; then
-    if [ $1 != "unittest" ] && [ $1 != "gentest" ]; then
+    if [ $1 != "unittest" ] && [ $1 != "gentest" ] && [ $1 != "clean" ]; then
         docker-compose run hooligan ./bin/hdb -d false -c $COMPILER_FILE_NAME ${@:1}
         exit
     fi
