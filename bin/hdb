@@ -20,7 +20,7 @@ compile() {
 }
 
 assembly() {
-    find *.s | xargs cc -static
+    find *.s | xargs cc -static -g -O0
 }
 
 src() {
@@ -163,7 +163,7 @@ unittest_hooligan() {
     for dn in $(find unittest/* -maxdepth 0 -type d); do
         printf $dn
         compile $dn/test.c
-        ls -d *.s | xargs cc -static
+        ls -d *.s | assembly
         expectedout=$(cat $dn/stdout.txt)
         stdout=$(./a.out)
         if [[ "$stdout" == "$expectedout" ]]; then
