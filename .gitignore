@@ -9,3 +9,4 @@ bin/*
 !bin/compile_by_hcc
 sandbox
 oldsrc
+core*
