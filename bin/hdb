@@ -15,7 +15,7 @@ clean() {
 }
 
 compile() {
-    ./bin/hcc "$@"
+    ./bin/$COMPILER_FILE_NAME "$@"
 }
 
 assembly() {
@@ -181,17 +181,19 @@ selfhost() {
     clean
 }
 
+COMPILER_FILE_NAME=hcc
 VALUE_D=true
-while getopts d: OPT; do
+while getopts c:d: OPT; do
     case $OPT in
-    'd') VALUE_D=$OPTARG ;;
+    c) COMPILER_FILE_NAME="$OPTARG" ;;
+    d) VALUE_D=$OPTARG ;;
     esac
 done
 
 shift $((OPTIND - 1))
 if "${VALUE_D}"; then
     if [ $1 != "unittest" ] && [ $1 != "gentest" ]; then
-        docker-compose run hooligan ./bin/hdb -d false ${@:1}
+        docker-compose run hooligan ./bin/hdb -d false -c $COMPILER_FILE_NAME ${@:1}
         exit
     fi
 fi
