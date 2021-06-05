@@ -3,6 +3,8 @@ tmp
 *.out
 *.s
 .envrc
-!bin/hdb
 bin/*
+!bin/hdb
+!bin/fetch_old_src
 sandbox
+oldsrc
