@@ -6,5 +6,6 @@ tmp
 bin/*
 !bin/hdb
 !bin/fetch_old_src
+!bin/compile_by_hcc
 sandbox
 oldsrc
