@@ -181,6 +181,13 @@ selfhost() {
     clean
 }
 
+selfhost2() {
+    make
+    ls -d oldsrc/*.c | xargs ./bin/hcc
+    find *.s | xargs cc -static -o bin/hcc_2nd
+    clean
+}
+
 COMPILER_FILE_NAME=hcc
 VALUE_D=true
 while getopts c:d: OPT; do
@@ -229,6 +236,8 @@ elif [ $1 = "unittest_hoo" ]; then
     unittest_hooligan
 elif [ $1 = "selfhost" ]; then
     selfhost
+elif [ $1 = "selfhost2" ]; then
+    selfhost2
 else
     echo "存在しないサブコマンドです"
     exit 1
