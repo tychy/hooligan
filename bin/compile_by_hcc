@@ -1,0 +1,7 @@
+#!/bin/bash
+
+
+ls -d oldsrc/* | xargs ./bin/hcc  
+find *.s | xargs cc -o bin/hcc2
+find *.s | xargs rm
+

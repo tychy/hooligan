@@ -12,6 +12,9 @@ clean() {
     for fn in $(find . -name 'a.out'); do
         rm $fn
     done
+    for fn in $(find . -name 'core.*'); do
+        rm $fn
+    done
 }
 
 compile() {
@@ -19,7 +22,7 @@ compile() {
 }
 
 assembly() {
-    find *.s | xargs cc -static
+    find *.s | xargs cc -static -g -O0
 }
 
 src() {
@@ -159,24 +162,34 @@ unittest() {
 }
 
 unittest_hooligan() {
-    make
-    compile unittest/utiltest.c
-    assembly
-    expectedout=$(cat unittest/utiltest.txt)
-    stdout=$(./a.out)
-    if [ "$stdout" == "$expectedout" ]; then
-        printf ...passed
-    else
-        printf ...failed
-        exit 1
-    fi
-    printf "\n"
+    for dn in $(find unittest/* -maxdepth 0 -type d); do
+        printf $dn
+        compile $dn/test.c
+        ls -d *.s | assembly
+        expectedout=$(cat $dn/stdout.txt)
+        stdout=$(./a.out)
+        if [[ "$stdout" == "$expectedout" ]]; then
+            printf ...passed
+        else
+            printf ...failed
+            printf "\n"
+            exit 1
+        fi
+        printf "\n"
+    done
     clean
 }
 
 selfhost() {
     make
     compile generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c tokenizer2.c
+    find *.s | xargs cc -static -o bin/hcc_2nd
+    clean
+}
+
+selfhost2() {
+    make
+    ls -d oldsrc/*.c | xargs ./bin/hcc
     find *.s | xargs cc -static -o bin/hcc_2nd
     clean
 }
@@ -192,7 +205,7 @@ done
 
 shift $((OPTIND - 1))
 if "${VALUE_D}"; then
-    if [ $1 != "unittest" ] && [ $1 != "gentest" ]; then
+    if [ $1 != "unittest" ] && [ $1 != "gentest" ] && [ $1 != "clean" ]; then
         docker-compose run hooligan ./bin/hdb -d false -c $COMPILER_FILE_NAME ${@:1}
         exit
     fi
@@ -229,6 +242,8 @@ elif [ $1 = "unittest_hoo" ]; then
     unittest_hooligan
 elif [ $1 = "selfhost" ]; then
     selfhost
+elif [ $1 = "selfhost2" ]; then
+    selfhost2
 else
     echo "存在しないサブコマンドです"
     exit 1
