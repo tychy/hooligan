@@ -1,0 +1,137 @@
+#!/bin/bash
+
+set -eo pipefail
+VERSION=1.0
+
+display_help() {
+    echo "ヘルプだよ"
+    echo "Usage: hooligan_cli [options] [command] file..."
+    printf "\n"
+    echo "Options"
+    echo "  -h, --help          ヘルプを表示する"
+    echo "  -v, --version       バージョンを表示する"
+    echo "  -g, --generation    使用するコンパイラの世代を指定する。0はgcc。"
+    printf "\n"
+    echo "Commands"
+    echo "  compile file...     指定ファイルをアセンブリファイルにコンパイルする"
+    echo "  src file...         指定ファイルをアセンブリファイルにコンパイルして内容を標準出力へ出力する"
+    echo "  exec file...        指定ファイルを実行ファイルにコンパイルして実行する"
+}
+
+display_version() {
+    echo $VERSION
+}
+
+clean() {
+    for fn in $(find . -name '*.s'); do
+        rm $fn
+    done
+    for fn in $(find . -name 'a.out'); do
+        rm $fn
+    done
+    for fn in $(find . -name 'core.*'); do
+        rm $fn
+    done
+}
+
+compile() {
+    if [[ COMPILER_GENERATION -eq 0 ]]; then
+        gcc  -masm=intel -S ${param[@]:1}
+    else
+        ./bin/hcc ${param[@]:1}
+    fi
+}
+
+
+param=()
+COMPILER_GENERATION=1
+for OPT in "$@"; do
+    case $OPT in
+    -h | --help)
+        display_help
+        exit 1
+        ;;
+    -v | --version)
+        display_version
+        exit 1
+        ;;
+    -g | --generation)
+        if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+            echo "コンパイラの世代を指定してください"
+            echo "  0   gcc"
+            echo "  1   hcc"
+            echo "  2   hcc2"
+            echo "  3   coming soon..."
+        fi
+        COMPILER_GENERATION=$2
+        shift 2
+        ;;
+    -*)
+        echo "不正なオプションです"
+        exit 1
+        ;;
+    *)
+        if [[ ! -z "$1" ]] && [[ ! "$1" =~ ^-+ ]]; then
+            param+=("$1")
+            shift 1
+        fi
+        ;;
+    esac
+done
+
+if [ ${param[0]} = "clean" ]; then
+    printf "不要な一時ファイルを消去します..."
+    for fn in $(find . -name '*.s'); do
+        rm $fn
+    done
+    for fn in $(find . -name 'a.out'); do
+        rm $fn
+    done
+    for fn in $(find . -name 'core.*'); do
+        rm $fn
+    done
+    printf "done\n"
+    exit 0
+elif [ ${param[0]} = "compile" ]; then
+    make
+    compile
+elif [ ${param[0]} = "src" ]; then
+    make
+    compile
+    for fn in $(find . -name '*.s'); do
+        printf "\n$(basename $fn)\n"
+        cat $fn
+    done
+elif [ ${param[0]} = "exec" ]; then
+    exec ${@:2}
+elif [ ${param[0]} = "debug" ]; then
+    debug ${@:2}
+elif [ ${param[0]} = "asm" ]; then
+    asm $2
+elif [ ${param[0]} = "test" ]; then
+    make
+    if [ $# = 2 ] && [ $2 = "all" ]; then
+        runtest
+        runtestold
+        unittest
+    else
+        runtest
+    fi
+elif [ ${param[0]} = "runtest2" ]; then
+    runtest2
+elif [ ${param[0]} = "gentest" ]; then
+    gentest $2
+elif [ ${param[0]} = "unittest" ]; then
+    unittest
+elif [ ${param[0]} = "unittest_raw" ]; then
+    unittest_raw
+elif [ ${param[0]} = "unittest_hoo" ]; then
+    unittest_hooligan
+elif [ ${param[0]} = "selfhost" ]; then
+    selfhost
+elif [ ${param[0]} = "selfhost2" ]; then
+    selfhost2
+else
+    echo "存在しないサブコマンドです"
+    exit 1
+fi
