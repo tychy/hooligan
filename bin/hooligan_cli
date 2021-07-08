@@ -20,6 +20,7 @@ display_help() {
     echo "  test                -gオプションで指定されたコンパイラでテストを実行する"
     echo "  test all            全てのテストを実行する"
     echo "  unittest            -gオプションで指定されたコンパイラでユニットテストを実行する"
+    echo "  selfhost            -gオプションで指定されたコンパイラで次の世代のコンパイラを生成する"
 }
 
 display_version() {
@@ -42,7 +43,7 @@ compile() {
     if [[ COMPILER_GENERATION -eq 0 ]]; then
         gcc -masm=intel -S "$@"
     else
-        ./bin/hcc "$@"
+        ./bin/hcc$COMPILER_GENERATION "$@"
     fi
 }
 

@@ -36,6 +36,13 @@ hdb selfhost
 hdb runtest2
 
 ```
+
+### コンパイラの世代
+```
+gcc => 第0世代コンパイラ
+$PROJECT_ROOT/bin/hcc1 => 第1世代コンパイラ
+$PROJECT_ROOT/bin/hcc2 => 第2世代コンパイラ
+```
 ## 参考図書(refディレクトリ)
 [C11の最終ドラフト](ref/N1570.pdf)
 
