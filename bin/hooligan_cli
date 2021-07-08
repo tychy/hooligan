@@ -117,8 +117,6 @@ elif [ ${param[0]} = "debug" ]; then
     find *.s | xargs cc -static -g -O0
     gdb a.out
     clean
-elif [ ${param[0]} = "asm" ]; then
-    asm $2
 elif [ ${param[0]} = "test" ]; then
     make
     if [ $# = 2 ] && [ $2 = "all" ]; then
