@@ -36,12 +36,11 @@ clean() {
 
 compile() {
     if [[ COMPILER_GENERATION -eq 0 ]]; then
-        gcc  -masm=intel -S ${param[@]:1}
+        gcc -masm=intel -S ${param[@]:1}
     else
         ./bin/hcc ${param[@]:1}
     fi
 }
-
 
 param=()
 COMPILER_GENERATION=1
@@ -103,7 +102,14 @@ elif [ ${param[0]} = "src" ]; then
         cat $fn
     done
 elif [ ${param[0]} = "exec" ]; then
-    exec ${@:2}
+    make
+    compile
+    find *.s | xargs cc -static -g -O0
+    set +e
+    ./a.out
+    echo "結果: $?"
+    clean
+    set -e
 elif [ ${param[0]} = "debug" ]; then
     debug ${@:2}
 elif [ ${param[0]} = "asm" ]; then
