@@ -18,6 +18,9 @@ hooligan is yet another tiny self-hosted C compiler.
 `PATH_add bin`
 ### Command
 ```
+// ヘルプ表示
+hcli -h
+
 // テストをすべて走らせる
 hcli test all
 
