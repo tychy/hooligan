@@ -108,6 +108,14 @@ unittest() {
     done
 }
 
+selfhost() {
+    make
+    compile generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c tokenizer2.c
+    OUTPUT_NAME=hcc$(($COMPILER_GENERATION+1))
+    find *.s | xargs cc -static -o bin/$OUTPUT_NAME
+    clean
+}
+
 param=()
 COMPILER_GENERATION=1
 for OPT in "$@"; do
@@ -196,8 +204,6 @@ elif [ ${param[0]} = "unittest" ]; then
     unittest
 elif [ ${param[0]} = "selfhost" ]; then
     selfhost
-elif [ ${param[0]} = "selfhost2" ]; then
-    selfhost2
 else
     echo "存在しないサブコマンドです"
     exit 1
