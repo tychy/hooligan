@@ -7,7 +7,7 @@ main: $(OBJS)
 $(OBJS): hooligan.h
 
 test:
-	./bin/hdb -d false test all
+	./bin/hcli test all
 clean:
 	rm -f bin/hcc* *.o *~ tmp*
 .PHONY: test clean
