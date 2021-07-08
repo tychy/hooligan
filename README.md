@@ -19,21 +19,18 @@ hooligan is yet another tiny self-hosted C compiler.
 ### Command
 ```
 // テストをすべて走らせる
-hdb test
-
-// selfhostを走らせる
-hdb selfhost
+hcli test all
 
 // a.cに対してアセンブリの出力
-hdb src a.c
+hcli src a.c
 
 // a.cに対してアセンブリを出力し実行する
-hdb exec a.c
+hcli exec a.c
 
 // セルフホストする
-hdb selfhost
-// + 第二世代コンパイラでテストを走らせる
-hdb runtest2
+hcli selfhost
+// 第二世代コンパイラでテストを走らせる
+hcli test -g 2
 
 ```
 

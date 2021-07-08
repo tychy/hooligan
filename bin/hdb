@@ -5,6 +5,17 @@
 # set -o pipefail -> |の前がfailしたらそこでストップする
 set -euo pipefail
 
+echo_red() {
+    ESC=$(printf '\033') # \e や \x1b または $'\e' は使用しない
+    printf "${ESC}[31m$1${ESC}[m\n"
+}
+
+
+echo_red "このコマンドは廃止されます"
+echo_red "hcliを代わりに使ってください"
+echo_red "run: cp bin/hcc1 bin/hcc"
+cp bin/hcc1 bin/hcc
+
 clean() {
     for fn in $(find . -name '*.s'); do
         rm $fn
