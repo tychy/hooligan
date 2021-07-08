@@ -16,6 +16,7 @@ display_help() {
     echo "  compile file...     指定ファイルをアセンブリファイルにコンパイルする"
     echo "  src file...         指定ファイルをアセンブリファイルにコンパイルして内容を標準出力へ出力する"
     echo "  exec file...        指定ファイルを実行ファイルにコンパイルして実行する"
+    echo "  debug file...        指定ファイルを実行ファイルにコンパイルしてgdbで実行する"
 }
 
 display_version() {
@@ -111,7 +112,11 @@ elif [ ${param[0]} = "exec" ]; then
     clean
     set -e
 elif [ ${param[0]} = "debug" ]; then
-    debug ${@:2}
+    make
+    compile ${@:1}
+    find *.s | xargs cc -static -g -O0
+    gdb a.out
+    clean
 elif [ ${param[0]} = "asm" ]; then
     asm $2
 elif [ ${param[0]} = "test" ]; then
