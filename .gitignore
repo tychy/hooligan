@@ -7,7 +7,7 @@ bin/*
 !bin/hdb
 !bin/fetch_old_src
 !bin/compile_by_hcc
-!bin/hooligan_cli
+!bin/hcli
 sandbox
 oldsrc
 core*
