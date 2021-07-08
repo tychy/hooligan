@@ -21,6 +21,13 @@ display_help() {
     echo "  test all            全てのテストを実行する"
     echo "  unittest            -gオプションで指定されたコンパイラでユニットテストを実行する"
     echo "  selfhost            -gオプションで指定されたコンパイラで次の世代のコンパイラを生成する"
+        printf "\n"
+    echo "Alias"
+    echo "  c = compile"
+    echo "  s = src"
+    echo "  e = exec"
+    echo "  t = test"
+
 }
 
 display_version() {
@@ -166,17 +173,17 @@ if [ ${param[0]} = "clean" ]; then
     done
     printf "done\n"
     exit 0
-elif [ ${param[0]} = "compile" ]; then
+elif [ ${param[0]} = "compile" ] || [ ${param[0]} = "c" ]; then
     make
     compile ${param[@]:1}
-elif [ ${param[0]} = "src" ]; then
+elif [ ${param[0]} = "src" ] || [ ${param[0]} = "s" ]; then
     make
     compile ${param[@]:1}
     for fn in $(find . -name '*.s'); do
         printf "\n$(basename $fn)\n"
         cat $fn
     done
-elif [ ${param[0]} = "exec" ]; then
+elif [ ${param[0]} = "exec" ] || [ ${param[0]} = "e" ]; then
     make
     compile ${param[@]:1}
     find *.s | xargs cc -static -g -O0
@@ -191,7 +198,7 @@ elif [ ${param[0]} = "debug" ]; then
     find *.s | xargs cc -static -g -O0
     gdb a.out
     clean
-elif [ ${param[0]} = "test" ]; then
+elif [ ${param[0]} = "test" ] || [ ${param[0]} = "t" ]; then
     make
     if [ ${#param[@]} -eq 2 ] && [ ${param[1]} = "all" ]; then
         runtest
