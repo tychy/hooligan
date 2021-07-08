@@ -16,7 +16,10 @@ display_help() {
     echo "  compile file...     指定ファイルをアセンブリファイルにコンパイルする"
     echo "  src file...         指定ファイルをアセンブリファイルにコンパイルして内容を標準出力へ出力する"
     echo "  exec file...        指定ファイルを実行ファイルにコンパイルして実行する"
-    echo "  debug file...        指定ファイルを実行ファイルにコンパイルしてgdbで実行する"
+    echo "  debug file...       指定ファイルを実行ファイルにコンパイルしてgdbで実行する"
+    echo "  test                -gオプションで指定されたコンパイラでテストを実行する"
+    echo "  test all            全てのテストを実行する"
+    echo "  unittest            -gオプションで指定されたコンパイラでユニットテストを実行する"
 }
 
 display_version() {
@@ -37,10 +40,72 @@ clean() {
 
 compile() {
     if [[ COMPILER_GENERATION -eq 0 ]]; then
-        gcc -masm=intel -S ${param[@]:1}
+        gcc -masm=intel -S "$@"
     else
-        ./bin/hcc ${param[@]:1}
+        ./bin/hcc "$@"
     fi
+}
+
+runtestold() {
+    set +e
+    for fn in testold/question/*; do
+        i=$(basename $fn)
+        qfile=testold/question/$i
+        afile=testold/answer/$i
+        expected="$(cat $afile)"
+
+        compile $qfile
+        find *.s | xargs cc # シンプルなテストなのでstaticをつけなくてもよい
+        printf $qfile
+        ./a.out
+        actual="$?"
+        if [ "$actual" = "$expected" ]; then
+            printf "...passed\n"
+        else
+            printf "...failed\n"
+            exit 1
+        fi
+    done
+    set -e
+    clean
+}
+
+runtest() {
+    for dn in $(find tests/* -type d); do
+        printf $dn
+        cfiles=$(find $dn/*.c)
+        compile $cfiles
+        find *.s | xargs cc -static -g -O0
+        expectedout=$(cat $dn/out)
+        stdout=$(./a.out)
+        if [ "$stdout" == "$expectedout" ]; then
+            echo ...passed
+        else
+            echo ...failed
+            exit 1
+        fi
+        clean
+    done
+}
+
+unittest() {
+    clean
+    for dn in $(find unittest/* -maxdepth 0 -type d); do
+        printf $dn
+        compile $dn/test.c
+        find *.s | xargs cc -static -g -O0
+        expectedout=$(cat $dn/stdout.txt)
+        stdout=$(./a.out)
+        if [[ "$stdout" == "$expectedout" ]]; then
+            printf ...passed
+        else
+            printf ...failed
+            printf "\n"
+            exit 1
+        fi
+        printf "\n"
+        clean
+    done
 }
 
 param=()
@@ -94,17 +159,17 @@ if [ ${param[0]} = "clean" ]; then
     exit 0
 elif [ ${param[0]} = "compile" ]; then
     make
-    compile
+    compile ${param[@]:1}
 elif [ ${param[0]} = "src" ]; then
     make
-    compile
+    compile ${param[@]:1}
     for fn in $(find . -name '*.s'); do
         printf "\n$(basename $fn)\n"
         cat $fn
     done
 elif [ ${param[0]} = "exec" ]; then
     make
-    compile
+    compile ${param[@]:1}
     find *.s | xargs cc -static -g -O0
     set +e
     ./a.out
@@ -119,23 +184,16 @@ elif [ ${param[0]} = "debug" ]; then
     clean
 elif [ ${param[0]} = "test" ]; then
     make
-    if [ $# = 2 ] && [ $2 = "all" ]; then
+    if [ ${#param[@]} -eq 2 ] && [ ${param[1]} = "all" ]; then
         runtest
         runtestold
+        COMPILER_GENERATION=0 # 暫定的にunittestはgccで行うことを強制する
         unittest
     else
         runtest
     fi
-elif [ ${param[0]} = "runtest2" ]; then
-    runtest2
-elif [ ${param[0]} = "gentest" ]; then
-    gentest $2
 elif [ ${param[0]} = "unittest" ]; then
     unittest
-elif [ ${param[0]} = "unittest_raw" ]; then
-    unittest_raw
-elif [ ${param[0]} = "unittest_hoo" ]; then
-    unittest_hooligan
 elif [ ${param[0]} = "selfhost" ]; then
     selfhost
 elif [ ${param[0]} = "selfhost2" ]; then
