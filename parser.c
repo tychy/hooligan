@@ -94,6 +94,7 @@ static Node *new_node_assign(Node *lhs, Node *rhs)
         error("void型の値は無視しなくてはいけません");
     }
     node->ty = lhs->ty;
+    return node;
 }
 
 static Node *new_node_num(int val)
