@@ -31,6 +31,19 @@ void end_loop()
     ctx->continue_to = ctx->scope->loop_label;
 }
 
+void start_switch()
+{
+    new_scope();
+    ctx->scope->loop_label = ctx->scope->label;
+    ctx->break_to = ctx->scope->loop_label;
+}
+
+void end_switch()
+{
+    exit_scope();
+    ctx->break_to = ctx->scope->loop_label;
+}
+
 int get_unique_num()
 {
     return ctx->scope_serial_num++;
