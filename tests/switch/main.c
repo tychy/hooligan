@@ -233,6 +233,22 @@ int testSwitchCaseEnum()
     }
     return 0;
 }
+int testSwitchAndLoop()
+{
+    int s = 1;
+    switch (s)
+    {
+    case 1:
+        for (int i = 0; i < 10; i++)
+        {
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+    return 0;
+}
 int main()
 {
     if (testSwitchCaseEasyA() != 0)
@@ -281,6 +297,10 @@ int main()
     }
 
     if (testSwitchCaseEnum() != 0)
+    {
+        return 1;
+    }
+    if (testSwitchAndLoop() != 0)
     {
         return 1;
     }

@@ -370,6 +370,8 @@ void new_scope();
 void exit_scope();
 void start_loop();
 void end_loop();
+void start_switch();
+void end_switch();
 int get_unique_num();
 
 // util.c
