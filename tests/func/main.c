@@ -79,6 +79,10 @@ void setz()
     z = 20;
     return;
 }
+void funcHasCharArgument(char p)
+{
+    return;
+}
 int testFuncVoid()
 {
     setz();
@@ -177,6 +181,11 @@ int testFuncStructArrayGlobal()
     }
     return 0;
 }
+int testFuncHasCharArgument()
+{
+    funcHasCharArgument('a');
+    return 0;
+}
 
 int main()
 {
@@ -208,6 +217,10 @@ int main()
     }
 
     if (testFuncStructArrayGlobal() != 0)
+    {
+        return 1;
+    }
+    if (testFuncHasCharArgument() != 0)
     {
         return 1;
     }
