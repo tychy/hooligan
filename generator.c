@@ -24,6 +24,18 @@ static char *reg64[9] = {
     "rsp",
 };
 
+static char *reg8[9] = {
+    "dil",
+    "sil",
+    "dl",
+    "cl",
+    "r8b",
+    "r9b",
+    "al",
+    "epl",
+    "spl",
+};
+
 void println(char *fmt)
 {
     fprintf(output, fmt);
@@ -320,8 +332,10 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
         if (count < 6)
         {
             char *reg;
-            if (is_int_or_char(arg->ty))
+            if (is_int(arg->ty))
                 reg = reg32[count];
+            else if (is_char(arg->ty))
+                reg = reg8[count];
             else
                 reg = reg64[count];
 
