@@ -203,7 +203,6 @@ elif [ ${param[0]} = "debug" ]; then
     find *.s | xargs cc -static -g -O0
     gdb a.out
 elif [ ${param[0]} = "test" ] || [ ${param[0]} = "t" ]; then
-
     make
     if [ ${#param[@]} -eq 2 ] && [ ${param[1]} = "all" ]; then
         runtest
@@ -213,6 +212,8 @@ elif [ ${param[0]} = "test" ] || [ ${param[0]} = "t" ]; then
     else
         runtest
     fi
+elif [ ${param[0]} = "testold" ]; then
+    runtestold
 elif [ ${param[0]} = "unittest" ]|| [ ${param[0]} = "ut" ]; then
     unittest
 elif [ ${param[0]} = "selfhost" ]|| [ ${param[0]} = "sh" ]; then
