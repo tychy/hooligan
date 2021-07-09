@@ -1,0 +1,218 @@
+#!/bin/bash
+
+set -eo pipefail
+VERSION=1.0
+
+display_help() {
+    echo "ヘルプだよ"
+    echo "Usage: hooligan_cli [options] [command] file..."
+    printf "\n"
+    echo "Options"
+    echo "  -h, --help          ヘルプを表示する"
+    echo "  -v, --version       バージョンを表示する"
+    echo "  -g, --generation    使用するコンパイラの世代を指定する。0はgcc。"
+    printf "\n"
+    echo "Commands"
+    echo "  compile file...     指定ファイルをアセンブリファイルにコンパイルする"
+    echo "  src file...         指定ファイルをアセンブリファイルにコンパイルして内容を標準出力へ出力する"
+    echo "  exec file...        指定ファイルを実行ファイルにコンパイルして実行する"
+    echo "  debug file...       指定ファイルを実行ファイルにコンパイルしてgdbで実行する"
+    echo "  test                -gオプションで指定されたコンパイラでテストを実行する"
+    echo "  test all            全てのテストを実行する"
+    echo "  unittest            -gオプションで指定されたコンパイラでユニットテストを実行する"
+    echo "  selfhost            -gオプションで指定されたコンパイラで次の世代のコンパイラを生成する"
+        printf "\n"
+    echo "Alias"
+    echo "  c = compile"
+    echo "  s = src"
+    echo "  e = exec"
+    echo "  t = test"
+
+}
+
+display_version() {
+    echo $VERSION
+}
+
+clean() {
+    for fn in $(find . -name '*.s'); do
+        rm $fn
+    done
+    for fn in $(find . -name 'a.out'); do
+        rm $fn
+    done
+    for fn in $(find . -name 'core.*'); do
+        rm $fn
+    done
+}
+
+compile() {
+    if [[ COMPILER_GENERATION -eq 0 ]]; then
+        gcc -masm=intel -S "$@"
+    else
+        ./bin/hcc$COMPILER_GENERATION "$@"
+    fi
+}
+
+runtestold() {
+    set +e
+    for fn in testold/question/*; do
+        i=$(basename $fn)
+        qfile=testold/question/$i
+        afile=testold/answer/$i
+        expected="$(cat $afile)"
+
+        compile $qfile
+        find *.s | xargs cc # シンプルなテストなのでstaticをつけなくてもよい
+        printf $qfile
+        ./a.out
+        actual="$?"
+        if [ "$actual" = "$expected" ]; then
+            printf "...passed\n"
+        else
+            printf "...failed\n"
+            exit 1
+        fi
+    done
+    set -e
+    clean
+}
+
+runtest() {
+    for dn in $(find tests/* -type d); do
+        printf $dn
+        cfiles=$(find $dn/*.c)
+        compile $cfiles
+        find *.s | xargs cc -static -g -O0
+        expectedout=$(cat $dn/out)
+        stdout=$(./a.out)
+        if [ "$stdout" == "$expectedout" ]; then
+            echo ...passed
+        else
+            echo ...failed
+            exit 1
+        fi
+        clean
+    done
+}
+
+unittest() {
+    clean
+    for dn in $(find unittest/* -maxdepth 0 -type d); do
+        printf $dn
+        compile $dn/test.c
+        find *.s | xargs cc -static -g -O0
+        expectedout=$(cat $dn/stdout.txt)
+        stdout=$(./a.out)
+        if [[ "$stdout" == "$expectedout" ]]; then
+            printf ...passed
+        else
+            printf ...failed
+            printf "\n"
+            exit 1
+        fi
+        printf "\n"
+        clean
+    done
+}
+
+selfhost() {
+    make
+    compile generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c tokenizer2.c
+    OUTPUT_NAME=hcc$(($COMPILER_GENERATION+1))
+    find *.s | xargs cc -static -o bin/$OUTPUT_NAME
+    clean
+}
+
+param=()
+COMPILER_GENERATION=1
+for OPT in "$@"; do
+    case $OPT in
+    -h | --help)
+        display_help
+        exit 1
+        ;;
+    -v | --version)
+        display_version
+        exit 1
+        ;;
+    -g | --generation)
+        if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+            echo "コンパイラの世代を指定してください"
+            echo "  0   gcc"
+            echo "  1   hcc"
+            echo "  2   hcc2"
+            echo "  3   coming soon..."
+        fi
+        COMPILER_GENERATION=$2
+        shift 2
+        ;;
+    -*)
+        echo "不正なオプションです"
+        exit 1
+        ;;
+    *)
+        if [[ ! -z "$1" ]] && [[ ! "$1" =~ ^-+ ]]; then
+            param+=("$1")
+            shift 1
+        fi
+        ;;
+    esac
+done
+
+if [ ${param[0]} = "clean" ]; then
+    printf "不要な一時ファイルを消去します..."
+    for fn in $(find . -name '*.s'); do
+        rm $fn
+    done
+    for fn in $(find . -name 'a.out'); do
+        rm $fn
+    done
+    for fn in $(find . -name 'core.*'); do
+        rm $fn
+    done
+    printf "done\n"
+    exit 0
+elif [ ${param[0]} = "compile" ] || [ ${param[0]} = "c" ]; then
+    make
+    compile ${param[@]:1}
+elif [ ${param[0]} = "src" ] || [ ${param[0]} = "s" ]; then
+    make
+    compile ${param[@]:1}
+    for fn in $(find . -name '*.s'); do
+        printf "\n$(basename $fn)\n"
+        cat $fn
+    done
+elif [ ${param[0]} = "exec" ] || [ ${param[0]} = "e" ]; then
+    make
+    compile ${param[@]:1}
+    find *.s | xargs cc -static -g -O0
+    set +e
+    ./a.out
+    echo "結果: $?"
+    clean
+    set -e
+elif [ ${param[0]} = "debug" ]; then
+    make
+    compile ${@:1}
+    find *.s | xargs cc -static -g -O0
+    gdb a.out
+    clean
+elif [ ${param[0]} = "test" ] || [ ${param[0]} = "t" ]; then
+    make
+    if [ ${#param[@]} -eq 2 ] && [ ${param[1]} = "all" ]; then
+        runtest
+        runtestold
+        COMPILER_GENERATION=0 # 暫定的にunittestはgccで行うことを強制する
+        unittest
+    else
+        runtest
+    fi
+elif [ ${param[0]} = "unittest" ]; then
+    unittest
+elif [ ${param[0]} = "selfhost" ]; then
+    selfhost
+else
+    echo "存在しないサブコマンドです"
+    exit 1
+fi
