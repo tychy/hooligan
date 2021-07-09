@@ -21,7 +21,7 @@ display_help() {
     echo "  test all            全てのテストを実行する"
     echo "  unittest            -gオプションで指定されたコンパイラでユニットテストを実行する"
     echo "  selfhost            -gオプションで指定されたコンパイラで次の世代のコンパイラを生成する"
-        printf "\n"
+    printf "\n"
     echo "Alias"
     echo "  c = compile"
     echo "  s = src"
@@ -46,7 +46,14 @@ clean() {
     done
 }
 
+clean_assembly() {
+    for fn in $(find . -name '*.s'); do
+        rm $fn
+    done
+}
+
 compile() {
+    clean_assembly
     if [[ COMPILER_GENERATION -eq 0 ]]; then
         gcc -masm=intel -S "$@"
     else
@@ -62,7 +69,6 @@ runtestold() {
         qfile=testold/question/$i
         afile=testold/answer/$i
         expected="$(cat $afile)"
-
         compile $qfile
         find *.s | xargs cc # シンプルなテストなのでstaticをつけなくてもよい
         printf $qfile
@@ -76,7 +82,6 @@ runtestold() {
         fi
     done
     set -e
-    clean
 }
 
 runtest() {
@@ -94,13 +99,11 @@ runtest() {
             echo ...failed
             exit 1
         fi
-        clean
     done
 }
 
 unittest() {
     make
-    clean
     for dn in $(find unittest/* -maxdepth 0 -type d); do
         printf $dn
         compile $dn/test.c
@@ -115,16 +118,14 @@ unittest() {
             exit 1
         fi
         printf "\n"
-        clean
     done
 }
 
 selfhost() {
     make
     compile generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c tokenizer2.c
-    OUTPUT_NAME=hcc$(($COMPILER_GENERATION+1))
+    OUTPUT_NAME=hcc$(($COMPILER_GENERATION + 1))
     find *.s | xargs cc -static -o bin/$OUTPUT_NAME
-    clean
 }
 
 param=()
@@ -193,15 +194,14 @@ elif [ ${param[0]} = "exec" ] || [ ${param[0]} = "e" ]; then
     set +e
     ./a.out
     echo "結果: $?"
-    clean
     set -e
 elif [ ${param[0]} = "debug" ]; then
     make
     compile ${@:1}
     find *.s | xargs cc -static -g -O0
     gdb a.out
-    clean
 elif [ ${param[0]} = "test" ] || [ ${param[0]} = "t" ]; then
+
     make
     if [ ${#param[@]} -eq 2 ] && [ ${param[1]} = "all" ]; then
         runtest
