@@ -55,6 +55,7 @@ compile() {
 }
 
 runtestold() {
+    make
     set +e
     for fn in testold/question/*; do
         i=$(basename $fn)
@@ -79,6 +80,7 @@ runtestold() {
 }
 
 runtest() {
+    make
     for dn in $(find tests/* -type d); do
         printf $dn
         cfiles=$(find $dn/*.c)
@@ -97,6 +99,7 @@ runtest() {
 }
 
 unittest() {
+    make
     clean
     for dn in $(find unittest/* -maxdepth 0 -type d); do
         printf $dn
