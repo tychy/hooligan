@@ -27,7 +27,9 @@ display_help() {
     echo "  s = src"
     echo "  e = exec"
     echo "  t = test"
-
+    echo "  ut = unittest"
+    echo "  sh = selfhost"
+    echo "  cl = clean"
 }
 
 display_version() {
@@ -164,7 +166,7 @@ for OPT in "$@"; do
     esac
 done
 
-if [ ${param[0]} = "clean" ]; then
+if [ ${param[0]} = "clean" ]|| [ ${param[0]} = "cl" ]; then
     printf "不要な一時ファイルを消去します..."
     for fn in $(find . -name '*.s'); do
         rm $fn
@@ -211,9 +213,9 @@ elif [ ${param[0]} = "test" ] || [ ${param[0]} = "t" ]; then
     else
         runtest
     fi
-elif [ ${param[0]} = "unittest" ]; then
+elif [ ${param[0]} = "unittest" ]|| [ ${param[0]} = "ut" ]; then
     unittest
-elif [ ${param[0]} = "selfhost" ]; then
+elif [ ${param[0]} = "selfhost" ]|| [ ${param[0]} = "sh" ]; then
     selfhost
 else
     echo "存在しないサブコマンドです"
