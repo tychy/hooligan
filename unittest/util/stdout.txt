@@ -12,3 +12,8 @@ hoge
 fuga.c
 10.c
 hoge.c
+
+hoge
+fuga
+hogehoge
+header

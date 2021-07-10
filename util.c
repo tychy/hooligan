@@ -62,6 +62,18 @@ char *read_file(char *path)
     return buf;
 }
 
+// 文字列をファイル名と解釈し拡張子を取り除く
+char *remove_extension(char *p){
+    if(strchr(p, '.') == NULL){
+        return p;
+    }
+    int preLength = strchr(p, '.') - p + 1;
+    char *res = calloc(1, preLength + 1);
+    memcpy(res, p, preLength - 1); // .を含まないので-1する
+    return res;
+}
+
+// 文字列をパスと解釈しファイル名を取り出す
 char *extract_filename(char *p)
 {
     if (strrchr(p, '/') == NULL)
@@ -75,6 +87,7 @@ char *extract_filename(char *p)
     return p2;
 }
 
+// 文字列をパスと解釈しディレクトリ名を取り出す
 char *extract_dir(char *p)
 {
     if (strrchr(p, '/') == NULL)

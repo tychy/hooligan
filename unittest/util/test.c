@@ -60,9 +60,31 @@ int testExtractFilename()
     return 0;
 }
 
+int testRemoveExtension()
+{
+    char *s1 = "hoge.c";
+    char *s2 = "fuga.txt";
+    char *s3 = "hogehoge.html.erb";
+    char *s4 = "header.h";
+    char *s5 = "";
+    char *s;
+    s = remove_extension(s1);
+    printf("%s\n", s);
+    s = remove_extension(s2);
+    printf("%s\n", s);
+    s = remove_extension(s3);
+    printf("%s\n", s);
+    s = remove_extension(s4);
+    printf("%s\n", s);
+    s = remove_extension(s5);
+    printf("%s\n", s);
+    return 0;
+}
+
 int main()
 {
     testJoinStr();
     testExtractDir();
     testExtractFilename();
+    testRemoveExtension();
 }
