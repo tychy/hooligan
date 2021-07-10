@@ -326,7 +326,7 @@ Token *expect_ident();
 Token *tokenize();
 Token *tokenize2(PPToken *pp_tok);
 
-// tokenizer2.c
+// preprcessor.c
 PPToken *decompose_to_pp_token(char *p);
 PPToken *preprocess_directives(char *base_dir, PPToken *tok);
 

@@ -125,7 +125,7 @@ unittest() {
 
 selfhost() {
     make
-    compile generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c tokenizer2.c
+    compile generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c
     OUTPUT_NAME=hcc$(($COMPILER_GENERATION + 1))
     find *.s | xargs cc -static -o bin/$OUTPUT_NAME
 }

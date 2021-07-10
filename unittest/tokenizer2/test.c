@@ -1,4 +1,4 @@
-#include "../../tokenizer2.c"
+#include "../../preprocessor.c"
 #include "../../util.c"
 
 void dump_pp_token(PPToken *tok);
