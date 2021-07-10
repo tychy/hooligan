@@ -21,12 +21,6 @@ int main(int argc, char **argv)
         pp_ctx->macros = NULL;
         PPToken *pp_token = preprocess_directives(extract_dir(argv[i]), decompose_to_pp_token(read_file(argv[i])));
 
-        // char *p2 = calloc(1, 2 * strlen(p));
-        // memcpy(p2, p, strlen(p));
-
-        // p2 = preprocess(extract_dir(argv[i]), p2);
-
-        // token = tokenize(p2);
         token = tokenize(pp_token);
         char filename[4] = {'a' + i - 1, '.', 's', 0}; // a.s -> b.s -> c.s -> d.s
 
