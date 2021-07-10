@@ -15,16 +15,18 @@ int main(int argc, char **argv)
     for (int i = 1; i < argc; i++)
     {
         token = NULL;
-        char *p = read_file(argv[i]);
+        char *path = argv[i];
+        char *dirname = extract_dir(path);
+        char *filename = extract_filename(path);
+        char *p = read_file(path);
 
         pp_ctx = calloc(1, sizeof(PPContext));
         pp_ctx->macros = NULL;
-        PPToken *pp_token = preprocess_directives(extract_dir(argv[i]), decompose_to_pp_token(read_file(argv[i])));
+        PPToken *pp_token = preprocess_directives(dirname, decompose_to_pp_token(p));
 
         token = tokenize(pp_token);
-        char filename[4] = {'a' + i - 1, '.', 's', 0}; // a.s -> b.s -> c.s -> d.s
-
-        output = fopen(filename, "w");
+        char *output_filename = join_str(remove_extension(filename), ".s");
+        output = fopen(output_filename, "w");
 
         if (output == NULL)
         {
