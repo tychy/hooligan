@@ -39,8 +39,30 @@ int testExtractDir()
     return 0;
 }
 
+int testExtractFilename()
+{
+    char *s1 = "hogehoge/hoge";
+    char *s2 = "fugafuga/hogehoge/fuga.c";
+    char *s3 = "unittest/preprocessing_tokenize/include/10.c";
+    char *s4 = "hoge.c";
+    char *s5 = "";
+    char *s;
+    s = extract_filename(s1);
+    printf("%s\n", s);
+    s = extract_filename(s2);
+    printf("%s\n", s);
+    s = extract_filename(s3);
+    printf("%s\n", s);
+    s = extract_filename(s4);
+    printf("%s\n", s);
+    s = extract_filename(s5);
+    printf("%s\n", s);
+    return 0;
+}
+
 int main()
 {
     testJoinStr();
     testExtractDir();
+    testExtractFilename();
 }
