@@ -27,7 +27,7 @@ int main(int argc, char **argv)
         // p2 = preprocess(extract_dir(argv[i]), p2);
 
         // token = tokenize(p2);
-        token = tokenize2(pp_token);
+        token = tokenize(pp_token);
         char filename[4] = {'a' + i - 1, '.', 's', 0}; // a.s -> b.s -> c.s -> d.s
 
         output = fopen(filename, "w");

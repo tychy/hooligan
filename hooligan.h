@@ -308,9 +308,6 @@ extern Context *ctx;
 extern FILE *output;
 
 // Declaration of functions
-// preprocessor.c
-char *preprocess(char *base_dir, char *target);
-
 // read_token.c
 bool consume(char *op);
 bool consume_rw(TokenKind tk);
@@ -323,8 +320,7 @@ Token *consume_ident();
 Token *expect_ident();
 
 // tokenizer.c
-Token *tokenize();
-Token *tokenize2(PPToken *pp_tok);
+Token *tokenize(PPToken *pp_tok);
 
 // preprcessor.c
 PPToken *decompose_to_pp_token(char *p);
