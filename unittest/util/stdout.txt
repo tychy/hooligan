@@ -6,3 +6,14 @@ hogehogefugafuga
 hogehoge/
 fugafuga/hogehoge/
 unittest/preprocessing_tokenize/include/
+
+
+hoge
+fuga.c
+10.c
+hoge.c
+
+hoge
+fuga
+hogehoge
+header

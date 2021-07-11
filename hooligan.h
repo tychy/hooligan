@@ -377,5 +377,7 @@ void error2(char *fmt, char *v1, char *v2);
 char *insert_str(char *src, int pos, char *target);
 char *join_str(char *pre, char *post);
 char *read_file(char *path);
+char *extract_filename(char *path);
 char *extract_dir(char *path);
+char *remove_extension(char *filename);
 #endif

@@ -62,11 +62,43 @@ char *read_file(char *path)
     return buf;
 }
 
+// 文字列をファイル名と解釈し拡張子を取り除く
+char *remove_extension(char *p)
+{
+    int preLength = strlen(p);
+    if (strchr(p, '.') != NULL)
+    {
+        preLength = strchr(p, '.') - p;
+    }
+    char *res = calloc(1, preLength + 1);
+    memcpy(res, p, preLength); 
+    return res;
+}
+
+// 文字列をパスと解釈しファイル名を取り出す
+char *extract_filename(char *p)
+{
+    int preLength = 0;
+    if (strrchr(p, '/') != NULL)
+    {
+        preLength = strrchr(p, '/') - p + 1;
+    }
+    int postLength = strlen(p) - preLength;
+    char *p1 = calloc(1, preLength + 1);
+    memcpy(p1, p, preLength);
+    char *p2 = calloc(1, postLength + 1);
+    memcpy(p2, p + preLength, postLength);
+    return p2;
+}
+
+// 文字列をパスと解釈しディレクトリ名を取り出す
 char *extract_dir(char *p)
 {
-    if (strrchr(p, '/') == NULL)
-        return "";
-    int preLength = strrchr(p, '/') - p + 1;
+    int preLength = 0;
+    if (strrchr(p, '/') != NULL)
+    {
+        preLength = strrchr(p, '/') - p + 1;
+    }
     int postLength = strlen(p) - preLength;
     char *p1 = calloc(1, preLength + 1);
     memcpy(p1, p, preLength);
