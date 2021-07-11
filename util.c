@@ -63,22 +63,26 @@ char *read_file(char *path)
 }
 
 // 文字列をファイル名と解釈し拡張子を取り除く
-char *remove_extension(char *p){
-    if(strchr(p, '.') == NULL){
-        return p;
+char *remove_extension(char *p)
+{
+    int preLength = strlen(p);
+    if (strchr(p, '.') != NULL)
+    {
+        preLength = strchr(p, '.') - p;
     }
-    int preLength = strchr(p, '.') - p + 1;
     char *res = calloc(1, preLength + 1);
-    memcpy(res, p, preLength - 1); // .を含まないので-1する
+    memcpy(res, p, preLength); 
     return res;
 }
 
 // 文字列をパスと解釈しファイル名を取り出す
 char *extract_filename(char *p)
 {
-    if (strrchr(p, '/') == NULL)
-        return p;
-    int preLength = strrchr(p, '/') - p + 1;
+    int preLength = 0;
+    if (strrchr(p, '/') != NULL)
+    {
+        preLength = strrchr(p, '/') - p + 1;
+    }
     int postLength = strlen(p) - preLength;
     char *p1 = calloc(1, preLength + 1);
     memcpy(p1, p, preLength);
@@ -90,9 +94,11 @@ char *extract_filename(char *p)
 // 文字列をパスと解釈しディレクトリ名を取り出す
 char *extract_dir(char *p)
 {
-    if (strrchr(p, '/') == NULL)
-        return "";
-    int preLength = strrchr(p, '/') - p + 1;
+    int preLength = 0;
+    if (strrchr(p, '/') != NULL)
+    {
+        preLength = strrchr(p, '/') - p + 1;
+    }
     int postLength = strlen(p) - preLength;
     char *p1 = calloc(1, preLength + 1);
     memcpy(p1, p, preLength);
