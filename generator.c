@@ -705,12 +705,44 @@ static void gen(Node *node)
         push(RG_RAX);
         break;
     case ND_AND:
+        // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
+        pop(RG_RDI); // 左辺値をrdiに格納
+        push_val(0); // とりあえず0と比較したい
+        pop(RG_RAX);
+        println("  cmp rax, rdi");
+        println("  setne al");
+        println("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
+        pop(RG_RDI);                // 比較結果をpushする前に右辺値をrdiに格納する
+        push(RG_RAX);               // (左辺値)==0の結果がスタックトップに積まれる
+        push_val(0);
+        pop(RG_RAX);
+        println("  cmp rax, rdi");
+        println("  setne al");
+        println("  movzb rax, al"); // ここで(右辺値)を0と比較した結果がraxに入る
+        push(RG_RAX);               // (左辺値)==0の結果がスタックトップに積まれる
+
         pop(RG_RDI);
         pop(RG_RAX);
         println("  and rax, rdi");
         push(RG_RAX);
         break;
     case ND_OR:
+        // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
+        pop(RG_RDI); // 左辺値をrdiに格納
+        push_val(0); // とりあえず0と比較したい
+        pop(RG_RAX);
+        println("  cmp rax, rdi");
+        println("  setne al");
+        println("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
+        pop(RG_RDI);                // 比較結果をpushする前に右辺値をrdiに格納する
+        push(RG_RAX);               // (左辺値)==0の結果がスタックトップに積まれる
+        push_val(0);
+        pop(RG_RAX);
+        println("  cmp rax, rdi");
+        println("  setne al");
+        println("  movzb rax, al"); // ここで(右辺値)を0と比較した結果がraxに入る
+        push(RG_RAX);               // (左辺値)==0の結果がスタックトップに積まれる
+        
         pop(RG_RDI);
         pop(RG_RAX);
         println("  or rax, rdi");
