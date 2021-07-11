@@ -59,7 +59,7 @@ compile() {
     if [[ COMPILER_GENERATION -eq 0 ]]; then
         gcc -masm=intel -S "$@"
     else
-        ./bin/hcc$COMPILER_GENERATION "$@"
+        LOGGING_PARSING=1 ./bin/hcc$COMPILER_GENERATION "$@"
     fi
 }
 

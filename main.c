@@ -1,5 +1,6 @@
 #include "hooligan.h"
 
+bool logging_parsing;
 Token *token;
 Node *nodes[500];
 Context *ctx;
@@ -11,6 +12,15 @@ int main(int argc, char **argv)
     {
         fprintf(stderr, "ファイル名を指定してください\n");
         exit(1);
+    }
+    if (getenv("LOGGING_PARSING") != NULL)
+    {
+        logging_parsing = true;
+        printf("パーサーのログを取ります\n");
+    }
+    else
+    {
+        logging_parsing = false;
     }
     for (int i = 1; i < argc; i++)
     {
