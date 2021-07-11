@@ -1,7 +1,10 @@
 #include "hooligan.h"
 static void logging(Node *node)
 {
-    // printf("Kind: %d\n", node->kind);
+    if (is_verbose)
+    {
+        printf("Kind: %d\n", node->kind);
+    }
 }
 
 static Node *new_node_raw(NodeKind kind)
@@ -1191,6 +1194,11 @@ static Node *def()
 
 void program()
 {
+    if (is_verbose)
+    {
+        printf("\x1b[33mSTART PARSING\x1b[0m\n");
+    }
+
     ctx = calloc(1, sizeof(Context));
     ctx->scope = calloc(1, sizeof(Scope));
     int i = 0;
@@ -1202,4 +1210,8 @@ void program()
         ctx->offset = 0;
     }
     nodes[i + 1] = NULL;
+    if (is_verbose)
+    {
+        printf("\x1b[33mEND PARSING\x1b[0m\n");
+    }
 }

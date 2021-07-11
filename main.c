@@ -1,6 +1,6 @@
 #include "hooligan.h"
 
-bool logging_parsing;
+bool is_verbose;
 Token *token;
 Node *nodes[500];
 Context *ctx;
@@ -13,14 +13,13 @@ int main(int argc, char **argv)
         fprintf(stderr, "ファイル名を指定してください\n");
         exit(1);
     }
-    if (getenv("LOGGING_PARSING") != NULL)
+    if (getenv("IS_VERBOSE") != NULL)
     {
-        logging_parsing = true;
-        printf("パーサーのログを取ります\n");
+        is_verbose = true;
     }
     else
     {
-        logging_parsing = false;
+        is_verbose = false;
     }
     for (int i = 1; i < argc; i++)
     {
@@ -29,6 +28,10 @@ int main(int argc, char **argv)
         char *dirname = extract_dir(path);
         char *filename = extract_filename(path);
         char *p = read_file(path);
+        if (is_verbose)
+        {
+            printf("%sのコンパイルを開始します\n", path);
+        }
 
         pp_ctx = calloc(1, sizeof(PPContext));
         pp_ctx->macros = NULL;
