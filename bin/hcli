@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -eo pipefail
-VERSION=1.0
 
 display_help() {
     echo "ヘルプだよ"
@@ -9,7 +8,7 @@ display_help() {
     printf "\n"
     echo "Options"
     echo "  -h, --help          ヘルプを表示する"
-    echo "  -v, --version       バージョンを表示する"
+    echo "  -v, --verbose       コンパイル時のログを出力する"
     echo "  -g, --generation    使用するコンパイラの世代を指定する。0はgcc。"
     printf "\n"
     echo "Commands"
@@ -30,10 +29,6 @@ display_help() {
     echo "  ut = unittest"
     echo "  sh = selfhost"
     echo "  cl = clean"
-}
-
-display_version() {
-    echo $VERSION
 }
 
 clean() {
@@ -59,7 +54,11 @@ compile() {
     if [[ COMPILER_GENERATION -eq 0 ]]; then
         gcc -masm=intel -S "$@"
     else
-        LOGGING_PARSING=1 ./bin/hcc$COMPILER_GENERATION "$@"
+        if [[ VERBOSE -eq 1 ]]; then
+            LOGGING_PARSING=1 ./bin/hcc$COMPILER_GENERATION "$@"
+        else
+            ./bin/hcc$COMPILER_GENERATION "$@"
+        fi
     fi
 }
 
@@ -132,15 +131,16 @@ selfhost() {
 
 param=()
 COMPILER_GENERATION=1
+VERBOSE=0
 for OPT in "$@"; do
     case $OPT in
     -h | --help)
         display_help
         exit 1
         ;;
-    -v | --version)
-        display_version
-        exit 1
+    -v | --verbose)
+        VERBOSE=1
+        shift 1
         ;;
     -g | --generation)
         if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
@@ -166,7 +166,7 @@ for OPT in "$@"; do
     esac
 done
 
-if [ ${param[0]} = "clean" ]|| [ ${param[0]} = "cl" ]; then
+if [ ${param[0]} = "clean" ] || [ ${param[0]} = "cl" ]; then
     printf "不要な一時ファイルを消去します..."
     for fn in $(find . -name '*.s'); do
         rm $fn
@@ -214,9 +214,9 @@ elif [ ${param[0]} = "test" ] || [ ${param[0]} = "t" ]; then
     fi
 elif [ ${param[0]} = "testold" ]; then
     runtestold
-elif [ ${param[0]} = "unittest" ]|| [ ${param[0]} = "ut" ]; then
+elif [ ${param[0]} = "unittest" ] || [ ${param[0]} = "ut" ]; then
     unittest
-elif [ ${param[0]} = "selfhost" ]|| [ ${param[0]} = "sh" ]; then
+elif [ ${param[0]} = "selfhost" ] || [ ${param[0]} = "sh" ]; then
     selfhost
 else
     echo "存在しないサブコマンドです"
