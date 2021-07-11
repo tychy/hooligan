@@ -1,4 +1,17 @@
 #include "hooligan.h"
+static void logging(Node *node)
+{
+    // printf("Kind: %d\n", node->kind);
+}
+
+static Node *new_node_raw(NodeKind kind)
+{
+    Node *node = calloc(1, sizeof(Node));
+    node->kind = kind;
+    logging(node);
+    return node;
+}
+
 static String *new_string(char *p, int length)
 {
     int strlabel;
@@ -25,8 +38,7 @@ static Node *block();
 
 static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = kind;
+    Node *node = new_node_raw(kind);
     node->lhs = lhs;
     node->rhs = rhs;
     node->ty = determine_expr_type(lhs->ty, rhs->ty);
@@ -42,8 +54,7 @@ static Node *new_node_inc(Node *lhs, Node *rhs)
         error("lhsとrhsの型は同一である必要があります\n");
     }
 
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_POSTINC;
+    Node *node = new_node_raw(ND_POSTINC);
     node->lhs = lhs;
     node->rhs = rhs;
     node->ty = lhs->ty;
@@ -56,9 +67,7 @@ static Node *new_node_dec(Node *lhs, Node *rhs)
     {
         error("lhsとrhsの型は同一である必要があります\n");
     }
-
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_POSTDEC;
+    Node *node = new_node_raw(ND_POSTDEC);
     node->lhs = lhs;
     node->rhs = rhs;
     node->ty = lhs->ty;
@@ -67,8 +76,7 @@ static Node *new_node_dec(Node *lhs, Node *rhs)
 
 static Node *new_node_single(NodeKind kind, Node *child)
 {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = kind;
+    Node *node = new_node_raw(kind);
     node->child = child;
     if (kind == ND_DEREF)
     {
@@ -85,8 +93,7 @@ static Node *new_node_single(NodeKind kind, Node *child)
 
 static Node *new_node_assign(Node *lhs, Node *rhs)
 {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_ASSIGN;
+    Node *node = new_node_raw(ND_ASSIGN);
     node->lhs = lhs;
     node->rhs = rhs;
     if (node->rhs->ty->ty == VOID)
@@ -99,8 +106,7 @@ static Node *new_node_assign(Node *lhs, Node *rhs)
 
 static Node *new_node_num(int val)
 {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_NUM;
+    Node *node = new_node_raw(ND_NUM);
     node->val = val;
     node->ty = new_type_int();
     return node;
@@ -108,15 +114,13 @@ static Node *new_node_num(int val)
 
 static Node *new_node_nop()
 {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_NOP;
+    Node *node = new_node_raw(ND_NOP);
     return node;
 }
 
 static Node *new_node_var(Var *var)
 {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_VAR;
+    Node *node = new_node_raw(ND_VAR);
     if (var->is_local)
     {
         node->offset = var->offset;
@@ -135,8 +139,7 @@ static Node *new_node_var(Var *var)
 
 static Node *new_node_string(String *s)
 {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_STRING;
+    Node *node = new_node_raw(ND_STRING);
     node->strlabel = s->label;
     node->ty = new_type_string();
     return node;
