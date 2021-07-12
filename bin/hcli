@@ -49,6 +49,7 @@ clean_assembly() {
     done
 }
 
+COMPILER_GENERATED=0
 compile() {
     clean_assembly
     generate_compiler $COMPILER_GENERATION
@@ -64,7 +65,7 @@ compile() {
 }
 
 runtestold() {
-    make
+        generate_compiler $(($COMPILER_GENERATION + 1))
     set +e
     for fn in testold/question/*; do
         i=$(basename $fn)
@@ -87,7 +88,7 @@ runtestold() {
 }
 
 runtest() {
-    make
+    generate_compiler $(($COMPILER_GENERATION + 1))
     for dn in $(find tests/* -type d); do
         printf $dn
         cfiles=$(find $dn/*.c)
@@ -105,7 +106,7 @@ runtest() {
 }
 
 unittest() {
-    make
+    generate_compiler $(($COMPILER_GENERATION + 1))
     for dn in $(find unittest/* -maxdepth 0 -type d); do
         printf $dn
         compile $dn/test.c
@@ -125,6 +126,9 @@ unittest() {
 
 # 第一引数に指定した世代のコンパイラを作成する。例：generate_compiler 2 => hcc2を吐き出す
 generate_compiler() {
+    if [[ COMPILER_GENERATED -eq 0 ]]; then
+        return
+    fi
     target_generation=$1
     for ((i = 0; i < $target_generation; i++)); do
         if [[ i -eq 0 ]]; then
@@ -135,6 +139,7 @@ generate_compiler() {
             find *.s | xargs cc -static -o bin/$OUTPUT_NAME
         fi
     done
+    COMPILER_GENERATED=1
     clean_assembly
 }
 
@@ -193,17 +198,14 @@ if [ ${param[0]} = "clean" ] || [ ${param[0]} = "cl" ]; then
     printf "done\n"
     exit 0
 elif [ ${param[0]} = "compile" ] || [ ${param[0]} = "c" ]; then
-    make
     compile ${param[@]:1}
 elif [ ${param[0]} = "src" ] || [ ${param[0]} = "s" ]; then
-    make
     compile ${param[@]:1}
     for fn in $(find . -name '*.s'); do
         printf "\n$(basename $fn)\n"
         cat $fn
     done
 elif [ ${param[0]} = "exec" ] || [ ${param[0]} = "e" ]; then
-    make
     compile ${param[@]:1}
     find *.s | xargs cc -static -g -O0
     set +e
@@ -211,12 +213,10 @@ elif [ ${param[0]} = "exec" ] || [ ${param[0]} = "e" ]; then
     echo "結果: $?"
     set -e
 elif [ ${param[0]} = "debug" ]; then
-    make
     compile ${@:1}
     find *.s | xargs cc -static -g -O0
     gdb a.out
 elif [ ${param[0]} = "test" ] || [ ${param[0]} = "t" ]; then
-    make
     if [ ${#param[@]} -eq 2 ] && [ ${param[1]} = "all" ]; then
         runtest
         runtestold
