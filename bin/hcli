@@ -41,6 +41,7 @@ clean() {
     for fn in $(find . -name 'core.*'); do
         rm $fn
     done
+    rm bin/hcc*
 }
 
 clean_assembly() {
@@ -191,15 +192,7 @@ done
 
 if [ ${param[0]} = "clean" ] || [ ${param[0]} = "cl" ]; then
     printf "不要な一時ファイルを消去します..."
-    for fn in $(find . -name '*.s'); do
-        rm $fn
-    done
-    for fn in $(find . -name 'a.out'); do
-        rm $fn
-    done
-    for fn in $(find . -name 'core.*'); do
-        rm $fn
-    done
+    clean
     printf "done\n"
     exit 0
 elif [ ${param[0]} = "compile" ] || [ ${param[0]} = "c" ]; then
