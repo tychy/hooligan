@@ -298,6 +298,7 @@ struct Context
     int offset; // for local variable
     int break_to;
     int continue_to;
+    int logical_operator_label;
 };
 
 // Declaration of global variables
