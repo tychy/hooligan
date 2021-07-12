@@ -50,6 +50,10 @@ int main(int argc, char **argv)
         gen_asm_intel();
 
         fclose(output);
+        if (is_verbose)
+        {
+            printf("\x1b[32mCompilation Succeded! output: %s\x1b[0m\n", output_filename);
+        }
     }
     return 0;
 }
