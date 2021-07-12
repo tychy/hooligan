@@ -126,7 +126,7 @@ unittest() {
 
 # 第一引数に指定した世代のコンパイラを作成する。例：generate_compiler 2 => hcc2を吐き出す
 generate_compiler() {
-    if [[ COMPILER_GENERATED -eq 0 ]]; then
+    if [[ COMPILER_GENERATED -eq 1 ]]; then
         return
     fi
     target_generation=$1
