@@ -633,7 +633,7 @@ static void gen(Node *node)
         gen(node->lhs);
         pop(RG_RAX);
         println("  cmp rax, 0");
-        println1("  je .L.ANDOPERATOR%d", ctx->logical_operator_label); // raxが0ならそれ以上評価しない
+        println1("  je .L.ANDOPERATOR%d", node->logical_operator_label); // raxが0ならそれ以上評価しない
         push(RG_RAX);
         gen(node->rhs);
         // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
@@ -655,12 +655,18 @@ static void gen(Node *node)
         pop(RG_RDI);
         pop(RG_RAX);
         println("  and rax, rdi");
-        println1("  .L.ANDOPERATOR%d:", ctx->logical_operator_label);
+        println1("  .L.ANDOPERATOR%d:", node->logical_operator_label);
         push(RG_RAX);
-        ctx->logical_operator_label += 1;
         return;
     case ND_OR:
         gen(node->lhs);
+        pop(RG_RAX);
+        println("  cmp rax, 0");
+        println("  setne al");
+        println("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
+        println("  cmp rax, 1");
+        println1("  je .L.OROPERATOR%d", node->logical_operator_label); // raxが1ならそれ以上評価しない
+        push(RG_RAX);
         gen(node->rhs);
         // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
         pop(RG_RDI); // 左辺値をrdiに格納
@@ -681,6 +687,7 @@ static void gen(Node *node)
         pop(RG_RDI);
         pop(RG_RAX);
         println("  or rax, rdi");
+        println1("  .L.OROPERATOR%d:", node->logical_operator_label);
         push(RG_RAX);
         return;
     }

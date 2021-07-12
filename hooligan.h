@@ -232,6 +232,7 @@ struct Node
     int loop_label; // for, while
     int cond_label; // if, else
     int case_label; // switch-case
+    int logical_operator_label; // &&, ||
 
     Node *statements; // for block
     Node *next_stmt;  // for block children
