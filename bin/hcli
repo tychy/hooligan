@@ -51,6 +51,7 @@ clean_assembly() {
 
 compile() {
     clean_assembly
+    generate_compiler $COMPILER_GENERATION
     if [[ COMPILER_GENERATION -eq 0 ]]; then
         gcc -masm=intel -S "$@"
     else
@@ -122,11 +123,23 @@ unittest() {
     done
 }
 
+# 第一引数に指定した世代のコンパイラを作成する。例：generate_compiler 2 => hcc2を吐き出す
+generate_compiler() {
+    target_generation=$1
+    for ((i = 0; i < $target_generation; i++)); do
+        if [[ i -eq 0 ]]; then
+            make
+        else
+            ./bin/hcc$i generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c
+            OUTPUT_NAME=hcc$(($i + 1))
+            find *.s | xargs cc -static -o bin/$OUTPUT_NAME
+        fi
+    done
+    clean_assembly
+}
+
 selfhost() {
-    make
-    compile generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c
-    OUTPUT_NAME=hcc$(($COMPILER_GENERATION + 1))
-    find *.s | xargs cc -static -o bin/$OUTPUT_NAME
+    generate_compiler $(($COMPILER_GENERATION + 1))
 }
 
 param=()
