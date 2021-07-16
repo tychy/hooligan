@@ -41,6 +41,7 @@ clean() {
     for fn in $(find . -name 'core.*'); do
         rm $fn
     done
+    rm bin/hcc*
 }
 
 clean_assembly() {
@@ -139,6 +140,9 @@ generate_compiler() {
             ./bin/hcc$i generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c
             OUTPUT_NAME=hcc$(($i + 1))
             find *.s | xargs cc -static -o bin/$OUTPUT_NAME
+            ESC=$(printf '\033')
+            printf "${ESC}[32m✔${ESC}[m"
+            printf " 第$(($i + 1))世代のコンパイラが完成しました\n"
         fi
     done
     COMPILER_GENERATED=1
@@ -188,15 +192,7 @@ done
 
 if [ ${param[0]} = "clean" ] || [ ${param[0]} = "cl" ]; then
     printf "不要な一時ファイルを消去します..."
-    for fn in $(find . -name '*.s'); do
-        rm $fn
-    done
-    for fn in $(find . -name 'a.out'); do
-        rm $fn
-    done
-    for fn in $(find . -name 'core.*'); do
-        rm $fn
-    done
+    clean
     printf "done\n"
     exit 0
 elif [ ${param[0]} = "compile" ] || [ ${param[0]} = "c" ]; then
