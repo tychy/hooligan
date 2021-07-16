@@ -424,8 +424,31 @@ void gen_block(Node *node)
     }
 }
 
+static void logging(Node *node)
+{
+    if (!is_verbose)
+        return;
+    int lhs = -1;
+    int rhs = -1;
+    int body = -1;
+    if (node->lhs != NULL)
+    {
+        lhs = node->lhs->kind;
+    }
+    if (node->rhs != NULL)
+    {
+        rhs = node->rhs->kind;
+    }
+    if (node->body != NULL)
+    {
+        body = node->body->kind;
+    }
+    printf("Kind: %d, Left: %d, Right: %d, Body: %d\n", node->kind, lhs, rhs, body);
+}
+
 static void gen(Node *node)
 {
+    logging(node);
     switch (node->kind)
     {
     case ND_NUM:
@@ -702,6 +725,10 @@ void gen_asm_intel()
     println(".intel_syntax noprefix");
     println(".data");
     program();
+    if (is_verbose)
+    {
+        printf("\x1b[33mSTART GENERATING\x1b[0m\n");
+    }
     int i = 0;
     int func_count = 0;
     while (nodes[i] != NULL)
@@ -755,8 +782,12 @@ void gen_asm_intel()
     {
         gen(funcs[j]);
     }
+    if (is_verbose)
+    {
+        printf("\x1b[33mEND GENERATING\x1b[0m\n");
+    }
 
-    for (int i = 0; i < 200; i++)
+    for (int i = 0; i < 200; i++) // 後処理
     {
         nodes[i] = NULL;
     }
