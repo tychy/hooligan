@@ -137,6 +137,7 @@ generate_compiler() {
         if [[ i -eq 0 ]]; then
             make
         else
+            clean_assembly
             ./bin/hcc$i generator.c main.c parser.c preprocessor.c read_token.c scope.c tokenizer.c type.c util.c variable.c
             OUTPUT_NAME=hcc$(($i + 1))
             find *.s | xargs cc -static -o bin/$OUTPUT_NAME
