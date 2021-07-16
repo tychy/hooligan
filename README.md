@@ -4,7 +4,7 @@ hooligan is yet another tiny self-hosted C compiler.
 
 ### todo
 - [x] self-host
-- [ ] run test using 2nd gen compiler
+- [x] run test using 2nd gen compiler
 
 ## How to use
 ### 前提
