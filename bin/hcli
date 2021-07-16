@@ -89,6 +89,7 @@ runtestold() {
 
 runtest() {
     generate_compiler $(($COMPILER_GENERATION + 1))
+    set +e
     for dn in $(find tests/* -type d); do
         printf $dn
         cfiles=$(find $dn/*.c)
@@ -96,13 +97,14 @@ runtest() {
         find *.s | xargs cc -static -g -O0
         expectedout=$(cat $dn/out)
         stdout=$(./a.out)
-        if [ "$stdout" == "$expectedout" ]; then
+        if [[ $? -eq 0 ]] && [ "$stdout" == "$expectedout" ]; then
             echo ...passed
         else
             echo ...failed
             exit 1
         fi
     done
+    set -e
 }
 
 unittest() {
