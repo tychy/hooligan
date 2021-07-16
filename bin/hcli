@@ -65,7 +65,7 @@ compile() {
 }
 
 runtestold() {
-        generate_compiler $(($COMPILER_GENERATION + 1))
+    generate_compiler $COMPILER_GENERATION
     set +e
     for fn in testold/question/*; do
         i=$(basename $fn)
@@ -88,7 +88,7 @@ runtestold() {
 }
 
 runtest() {
-    generate_compiler $(($COMPILER_GENERATION + 1))
+    generate_compiler $COMPILER_GENERATION
     set +e
     for dn in $(find tests/* -type d); do
         printf $dn
@@ -108,7 +108,7 @@ runtest() {
 }
 
 unittest() {
-    generate_compiler $(($COMPILER_GENERATION + 1))
+    generate_compiler $COMPILER_GENERATION
     for dn in $(find unittest/* -maxdepth 0 -type d); do
         printf $dn
         compile $dn/test.c

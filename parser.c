@@ -163,8 +163,7 @@ static Node *ident()
     Token *ident = expect_ident();
     if (consume("("))
     {
-        Node *node = calloc(1, sizeof(Node));
-        node->kind = ND_FUNC;
+        Node *node = new_node_raw(ND_FUNC);
         Var *func = find_func(ident);
         Node *arg_top = node;
         int count = 0;
@@ -497,10 +496,14 @@ static Node *logical()
         if (consume("&&"))
         {
             node = new_node(ND_AND, node, equality());
+            node->logical_operator_label = ctx->logical_operator_label;
+            ctx->logical_operator_label += 1;
         }
         else if (consume("||"))
         {
             node = new_node(ND_OR, node, equality());
+            node->logical_operator_label = ctx->logical_operator_label;
+            ctx->logical_operator_label += 1;
         }
         else
         {
@@ -807,8 +810,7 @@ static Node *stmt()
         Node *condition = expr();
         expect(")");
         Node *body = block();
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_IF;
+        node = new_node_raw(ND_IF);
         node->condition = condition;
         node->body = body;
         if (consume_rw(TK_ELSE))
@@ -853,8 +855,7 @@ static Node *stmt()
             expect(")");
         }
         Node *body = block();
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_FOR;
+        node = new_node_raw(ND_FOR);
         node->init = init;
         node->condition = condition;
         node->on_end = on_end;
@@ -869,8 +870,7 @@ static Node *stmt()
         Node *condition = expr();
         expect(")");
         Node *body = block();
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_WHILE;
+        node = new_node_raw(ND_WHILE);
         node->condition = condition;
         node->body = body;
         node->loop_label = ctx->scope->loop_label;
@@ -882,8 +882,7 @@ static Node *stmt()
         expect("(");
         Node *condition = expr();
         expect(")");
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_SWITCH;
+        node = new_node_raw(ND_SWITCH);
         node->condition = condition;
         node->break_to = ctx->break_to;
         ctx->scope->current_switch = node;
@@ -939,14 +938,13 @@ static Node *stmt()
     }
     else if (consume_rw(TK_BREAK))
     {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_BREAK;
+        node = new_node_raw(ND_BREAK);
+
         node->loop_label = ctx->break_to;
     }
     else if (consume_rw(TK_CONTINUE))
     {
-        node = calloc(1, sizeof(Node));
-        node->kind = ND_CONTINUE;
+        node = new_node_raw(ND_CONTINUE);
         node->loop_label = ctx->continue_to;
     }
     else if (consume("{"))
@@ -956,8 +954,7 @@ static Node *stmt()
         {
             return new_node_nop();
         }
-        Node *node = calloc(1, sizeof(Node));
-        node->kind = ND_BLOCK;
+        Node *node = new_node_raw(ND_BLOCK);
         node->statements = stmt();
         Node *cur = node->statements;
         while (!consume("}"))
@@ -984,8 +981,7 @@ static Node *block()
             return new_node_nop();
         }
         new_scope();
-        Node *node = calloc(1, sizeof(Node));
-        node->kind = ND_BLOCK;
+        Node *node = new_node_raw(ND_BLOCK);
         node->statements = block();
         Node *cur = node->statements;
         while (!consume("}"))
@@ -1002,8 +998,7 @@ static Node *block()
 static Node *func(Token *ident, Type *ty, bool is_static)
 {
     new_scope();
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_FUNCDEF;
+    Node *node = new_node_raw(ND_FUNCDEF);
     node->name = ident->string;
     node->length = ident->length;
     Node *arg_top = node;
@@ -1056,8 +1051,7 @@ static Node *func(Token *ident, Type *ty, bool is_static)
 
 static Node *glob_var(Token *ident, Type *ty, bool is_static)
 {
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_GVARDEF;
+    Node *node = new_node_raw(ND_GVARDEF);
     node->name = ident->string;
     node->length = ident->length;
     node->ty = ty;

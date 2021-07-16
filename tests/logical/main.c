@@ -15,6 +15,22 @@ int testAndOperator()
         return 1;
     }
 
+    // 短絡評価のテスト
+    typedef struct hoge hoge;
+    struct hoge
+    {
+        int a;
+        int b;
+    };
+    hoge *h = 0;
+    if (h && h->a)
+    {
+        return 1;
+    }
+    if (!(1 || h->b))
+    {
+        return 1;
+    }
     return 0;
 }
 
