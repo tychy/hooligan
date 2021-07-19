@@ -266,8 +266,18 @@ static Node *primary()
     Node *node;
     if (consume("("))
     {
-        node = expr();
-        expect(")");
+        Type *ty = consume_type();
+        if (ty)
+        {
+            expect(")");
+            node = expr();
+            node->ty = ty;
+        }
+        else
+        {
+            node = expr();
+            expect(")");
+        }
     }
     else if (token->kind == TK_NUMBER)
     {
@@ -382,7 +392,9 @@ static Node *unary()
     }
     else if (consume_rw(TK_SIZEOF))
     {
-        Node *node = unary();
+        consume("(");
+        Node *node = expr();
+        expect(")");
         return new_node_num(calc_bytes(node->ty));
     }
     else if (token->kind == TK_STRING)
