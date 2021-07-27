@@ -18,4 +18,26 @@ jobs:
         env:
           CC: cc
         run: |
-          make test
+          ./bin/hcli test all
+  selfhost:
+    name: selfhost
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: selfhost
+        env:
+          CC: cc
+        run: |
+          ./bin/hcli selfhost
+  generation:
+    name: generation
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: generation
+        env:
+          CC: cc
+        run: |
+          ./bin/hcli test -g 100
