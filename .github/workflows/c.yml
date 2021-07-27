@@ -8,36 +8,29 @@ on:
     branches:
       - main
 jobs:
-  test:
-    name: test compiler
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
         uses: actions/checkout@v2
+  test:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
       - name: test main
-        env:
-          CC: cc
         run: |
           ./bin/hcli test all
   selfhost:
-    name: selfhost
+    needs: setup
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v2
       - name: selfhost
-        env:
-          CC: cc
         run: |
           ./bin/hcli selfhost
   generation:
-    name: generation
+    needs: setup
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v2
       - name: generation
-        env:
-          CC: cc
         run: |
           ./bin/hcli test -g 100
