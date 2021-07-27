@@ -17,6 +17,7 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: test main
         run: |
           ./bin/hcli test all
@@ -24,6 +25,7 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: selfhost
         run: |
           ./bin/hcli selfhost
@@ -31,6 +33,7 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: generation
         run: |
           ./bin/hcli test -g 100
