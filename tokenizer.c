@@ -40,7 +40,7 @@ static char *operator_list[33] = {
 
 static int operator_list_count = 33;
 
-static char *reserved_word_list[19] = {
+static char *reserved_word_list[20] = {
     "return",
     "if",
     "else",
@@ -60,9 +60,10 @@ static char *reserved_word_list[19] = {
     "static",
     "extern",
     "enum",
+    "const",
 };
 
-static int reserved_word_list_count = 19;
+static int reserved_word_list_count = 20;
 
 static Token *new_token(TokenKind kind, Token *cur, char *str)
 {

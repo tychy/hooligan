@@ -41,6 +41,7 @@ typedef enum
     TK_STATIC,
     TK_EXTERN,
     TK_ENUM,
+    TK_CONST,
     // add reserved word above
     TK_OPERATOR,
     TK_NUMBER,
@@ -229,9 +230,9 @@ struct Node
     int break_to;
 
     // labels
-    int loop_label; // for, while
-    int cond_label; // if, else
-    int case_label; // switch-case
+    int loop_label;             // for, while
+    int cond_label;             // if, else
+    int case_label;             // switch-case
     int logical_operator_label; // &&, ||
 
     Node *statements; // for block
@@ -254,8 +255,10 @@ struct Var
     bool is_function;
     int num_args;
     Type *arg_ty_ls[6];
-    // for const
+    // for constant expression
     int value;
+    // for const variable
+    bool is_const;
 };
 
 struct String
