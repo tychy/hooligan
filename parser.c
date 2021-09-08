@@ -586,6 +586,10 @@ static Node *decl_type()
     {
         error("定義式に型がありません");
     }
+    if (ty->ty == VOID){
+        error("VOID型の変数は定義できません");
+    }
+
 
     if (ty->ty == STRUCT)
     {
