@@ -318,6 +318,7 @@ extern bool is_verbose;
 bool consume(char *op);
 bool consume_rw(TokenKind tk);
 Type *consume_type();
+Type *consume_ptr(Type *ty);
 void expect(char *op);
 int expect_number();
 int expect_char();

@@ -116,6 +116,16 @@ Type *consume_type()
         }
     }
 
+    return ty;
+}
+
+Type *consume_ptr(Type *ty)
+{
+    if (!ty)
+    {
+        return ty;
+    }
+
     while (consume("*"))
     {
         ty = new_type_ptr(ty);

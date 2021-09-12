@@ -190,6 +190,8 @@ void set_struct_member(Type *ty)
 
         Member *mem = calloc(1, sizeof(Member));
         Type *mem_ty = consume_type();
+        mem_ty = consume_ptr(mem_ty);
+
         Token *mem_tok = consume_ident();
         if (consume("["))
         {
