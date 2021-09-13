@@ -18,6 +18,12 @@ bool consume_rw(TokenKind tk)
 
 Type *consume_type()
 {
+    bool is_const = false;
+    if (consume_rw(TK_CONST))
+    {
+        is_const = true;
+    }
+
     Type *ty = find_defined_type(token);
     if (ty)
     {
@@ -115,20 +121,18 @@ Type *consume_type()
             }
         }
     }
-
-    return ty;
-}
-
-Type *consume_ptr(Type *ty)
-{
-    if (!ty)
+    if (consume_rw(TK_CONST))
     {
-        return ty;
+        ty->is_const = true || is_const;
     }
-
     while (consume("*"))
     {
         ty = new_type_ptr(ty);
+    }
+
+    if (consume_rw(TK_CONST))
+    {
+        ty->is_const = true;
     }
     return ty;
 }

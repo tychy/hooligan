@@ -176,6 +176,9 @@ struct Type
     char *tag_name;
     int tag_length;
     Type *next_tagged;
+
+    // for const variable
+    bool is_const;
 };
 
 struct Node
