@@ -548,7 +548,13 @@ static Node *assign()
     }
     else if (consume("="))
     {
-        node = new_node_assign(node, assign());
+        Node *rhs = assign();
+
+        if (node->ty->ty == INT && node->ty->is_const)
+        {
+            error("constな変数には代入できません");
+        }
+        node = new_node_assign(node, rhs);
     }
     return node;
 }

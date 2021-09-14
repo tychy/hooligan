@@ -123,8 +123,10 @@ Type *consume_type()
     }
     if (consume_rw(TK_CONST))
     {
-        ty->is_const = true || is_const;
+        is_const = is_const || true;
     }
+    ty->is_const = is_const;
+
     while (consume("*"))
     {
         ty = new_type_ptr(ty);
