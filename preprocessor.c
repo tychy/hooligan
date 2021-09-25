@@ -343,13 +343,12 @@ PPToken *decompose_to_pp_token(char *p)
             {
                 if (*p == '\\')
                 {
-                    p++;
-                    i++;
-                    if (*p == '"')
+                    if (!*(p + 1))
                     {
-                        p++;
-                        i++;
+                        error("エスケープ文字のあとに文字がありません");
                     }
+                    p += 2;
+                    i += 2;
                 }
                 else if (*p == '"')
                 {
