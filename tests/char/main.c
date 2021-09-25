@@ -168,6 +168,8 @@ int testCharEscape()
     char b = '\0';
     char c = '\\';
     char d = '\"';
+    char e = '"';
+
     if (a != 10 || a != '\n')
     {
         return 1;
@@ -187,6 +189,16 @@ int testCharEscape()
     {
         return 1;
     }
+
+    if (e != 34 || e != '\"')
+    {
+        return 1;
+    }
+    if (e != 34 || e != '"')
+    {
+        return 1;
+    }
+
     return 0;
 }
 
@@ -196,10 +208,12 @@ int testStringWithEscape()
     char *y;
     char *z;
     char *v;
+    char *w;
     x = "abc\nd";
     y = "abc\"d";
     z = "abc\"\"d";
     v = "abc\"\"\\d";
+    w = "abc\\\\d";
     if (strlen(x) != 5)
     {
         return 1;
@@ -213,6 +227,11 @@ int testStringWithEscape()
         return 1;
     }
     if (strlen(v) != 7)
+    {
+        return 1;
+    }
+
+    if (strlen(w) != 6)
     {
         return 1;
     }
@@ -237,6 +256,7 @@ int main()
     {
         return 1;
     }
+
     if (testCharLiteral() != 0)
     {
         return 1;
