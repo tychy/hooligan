@@ -548,7 +548,13 @@ static Node *assign()
     }
     else if (consume("="))
     {
-        node = new_node_assign(node, assign());
+        Node *rhs = assign();
+
+        if (node->ty->ty == INT && node->ty->is_const)
+        {
+            error("constな変数には代入できません");
+        }
+        node = new_node_assign(node, rhs);
     }
     return node;
 }
@@ -582,14 +588,15 @@ static Node *expr()
 static Node *decl_type()
 {
     Type *ty = consume_type();
+
     if (!ty)
     {
         error("定義式に型がありません");
     }
-    if (ty->ty == VOID){
+    if (ty->ty == VOID)
+    {
         error("VOID型の変数は定義できません");
     }
-
 
     if (ty->ty == STRUCT)
     {
@@ -621,6 +628,7 @@ static Node *defl()
     {
         bool is_extern = consume_rw(TK_EXTERN);
         Type *ty = consume_type();
+
         if (!ty)
         {
             error("定義式に型がありません");
@@ -638,6 +646,7 @@ static Node *defl()
     else if (consume_rw(TK_STATIC))
     {
         Type *ty = consume_type();
+
         if (!ty)
         {
             error("定義式に型がありません");
@@ -664,6 +673,7 @@ static Node *defl()
     else
     {
         Type *ty = consume_type();
+
         if (!ty)
         {
             return expr();
@@ -1027,6 +1037,7 @@ static Node *func(Token *ident, Type *ty, bool is_static)
         if (arg_idx != 0)
             expect(",");
         Type *arg_ty = consume_type();
+
         if (!arg_ty)
         {
 
@@ -1147,6 +1158,7 @@ static Node *def()
     }
 
     Type *ty = consume_type();
+
     if (!ty)
     {
         error("定義式に型がありません");

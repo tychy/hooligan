@@ -5,6 +5,7 @@ Type *new_type_int()
     Type *ty;
     ty = calloc(1, sizeof(Type));
     ty->ty = INT;
+    ty->is_const = false;
     return ty;
 }
 
@@ -13,6 +14,7 @@ Type *new_type_char()
     Type *ty;
     ty = calloc(1, sizeof(Type));
     ty->ty = CHAR;
+    ty->is_const = false;
     return ty;
 }
 
@@ -25,6 +27,7 @@ Type *new_type_string()
     ty = calloc(1, sizeof(Type));
     ty->ty = PTR;
     ty->ptr_to = c;
+    ty->is_const = false;
     return ty;
 }
 
@@ -33,6 +36,7 @@ Type *new_type_ptr(Type *ptr_to)
     Type *ty = calloc(1, sizeof(Type));
     ty->ty = PTR;
     ty->ptr_to = ptr_to;
+    ty->is_const = false;
     return ty;
 }
 
@@ -42,7 +46,7 @@ Type *new_type_array(Type *ptr_to, size_t size)
     ty->ty = ARRAY;
     ty->ptr_to = ptr_to;
     ty->array_size = size;
-
+    ty->is_const = false;
     return ty;
 }
 
@@ -52,6 +56,7 @@ Type *new_type_struct()
     ty = calloc(1, sizeof(Type));
     ty->ty = STRUCT;
     ty->size = -1;
+    ty->is_const = false;
     return ty;
 }
 
@@ -59,6 +64,7 @@ Type *new_type_enum()
 {
     Type *ty = calloc(1, sizeof(Type));
     ty->ty = ENUM;
+    ty->is_const = false;
     return ty;
 }
 
@@ -190,6 +196,7 @@ void set_struct_member(Type *ty)
 
         Member *mem = calloc(1, sizeof(Member));
         Type *mem_ty = consume_type();
+
         Token *mem_tok = consume_ident();
         if (consume("["))
         {

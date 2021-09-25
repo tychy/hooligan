@@ -41,6 +41,7 @@ typedef enum
     TK_STATIC,
     TK_EXTERN,
     TK_ENUM,
+    TK_CONST,
     // add reserved word above
     TK_OPERATOR,
     TK_NUMBER,
@@ -175,6 +176,9 @@ struct Type
     char *tag_name;
     int tag_length;
     Type *next_tagged;
+
+    // for const variable
+    bool is_const;
 };
 
 struct Node
@@ -229,9 +233,9 @@ struct Node
     int break_to;
 
     // labels
-    int loop_label; // for, while
-    int cond_label; // if, else
-    int case_label; // switch-case
+    int loop_label;             // for, while
+    int cond_label;             // if, else
+    int case_label;             // switch-case
     int logical_operator_label; // &&, ||
 
     Node *statements; // for block
@@ -254,8 +258,10 @@ struct Var
     bool is_function;
     int num_args;
     Type *arg_ty_ls[6];
-    // for const
+    // for constant expression
     int value;
+    // for const variable
+    bool is_const;
 };
 
 struct String
@@ -315,6 +321,7 @@ extern bool is_verbose;
 bool consume(char *op);
 bool consume_rw(TokenKind tk);
 Type *consume_type();
+Type *consume_ptr(Type *ty);
 void expect(char *op);
 int expect_number();
 int expect_char();
