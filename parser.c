@@ -190,7 +190,7 @@ static Node *ident()
                 if (count > 0)
                     expect(",");
 
-                if (count < node->num_args)
+                if (count < node->num_args || node->has_variable_length_arguments)
                 {
                     if (node->is_void)
                     {

@@ -109,11 +109,11 @@ static void gen_va_arg(Node *node)
     }
     Node *first_arg = node->next->child;
     println("  mov rax, rbp");
-    // println1("  sub rax, %d", first_arg->offset);
-    // println("  mov eax, [rax]");
-    // println("  push rax");
-    println("  add rax, 16");
-    println("  mov eax, [rax]");
+    println1("  sub rax, %d", first_arg->offset);
+    println("  mov rdi, [rax]");
+    println("  add rdi, 8");
+    println("  mov [rax], rdi");
+    println("  mov eax, [rdi]");
     push(RG_RAX);
 }
 
@@ -150,7 +150,6 @@ void gen_builtin_function(Node *node)
         error("存在しないビルトイン関数です");
     }
 }
-
 
 static void gen_for(Node *node)
 {
@@ -282,7 +281,8 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     if (node->has_variable_length_arguments)
     {
         // 可変長引数でない場合は引数分スタックポインタをずらしてもとに戻す
-        println1("  add rsp, %d", 8 * node->num_args);
+        println1("  add rsp, %d", 8 * arg_count);
+        depth -= arg_count;
     }
     push(RG_RAX);
 }
