@@ -2,7 +2,8 @@
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
-static char *operator_list[33] = {
+static char *operator_list[34] = {
+    "...",
     "++",
     "--",
     "+=",
@@ -38,7 +39,7 @@ static char *operator_list[33] = {
     ":",
 };
 
-static int operator_list_count = 33;
+static int operator_list_count = 34;
 
 static char *reserved_word_list[20] = {
     "return",
