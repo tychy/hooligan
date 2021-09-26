@@ -157,9 +157,9 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     {
         error("関数ではありません");
     }
-    if (strncmp(node->name, "__builtin_va_start", strlen("__builtin_va_start")) == 0)
+    if (strncmp(node->name, "__builtin", strlen("__builtin")) == 0)
     {
-        gen_va_start(node);
+        gen_builtin_function(node);
         return;
     }
     Node *arg = node->next;

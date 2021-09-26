@@ -344,9 +344,7 @@ void program();
 void gen_asm_intel();
 
 // builtin.c
-void gen_va_start(Node *node);
-void gen_va_arg(Node *node);
-void gen_va_end(Node *node);
+void gen_builtin_function(Node *node);
 
 // variable.c
 Var *find_var(Token *tok);
