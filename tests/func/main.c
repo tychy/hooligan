@@ -193,18 +193,19 @@ int sum(int count, ...)
 {
     va_list ap;
     va_start(ap, count);
-    int sum = 10;
-    // for (int i = 0; i < count; i++)
-    // {
-    //     sum += va_arg(ap, int);
-    // }
-    // va_end(ap);
-    return sum;
+    int res = 0;
+    for (int i = 0; i < count; i++)
+    {
+        res += va_arg(ap, int);
+    }
+    va_end(ap);
+    return res;
 }
 
 int testFuncHasVariableLengthArguments()
 {
-    if (sum(1, 1) != 10)
+    // printf("%d\n", sum(1, 13));
+    if (sum(1, 13) != 13)
     {
         return 1;
     }
