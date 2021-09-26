@@ -187,6 +187,20 @@ int testFuncHasCharArgument()
     return 0;
 }
 
+int sum(int count, ...)
+{
+    return 10;
+}
+
+int testFuncHasVariableLengthArguments()
+{
+    if (sum(1, 1) != 10)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testFunc() != 0)
@@ -221,6 +235,10 @@ int main()
         return 1;
     }
     if (testFuncHasCharArgument() != 0)
+    {
+        return 1;
+    }
+    if (testFuncHasVariableLengthArguments() != 0)
     {
         return 1;
     }
