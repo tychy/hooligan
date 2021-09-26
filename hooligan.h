@@ -344,9 +344,6 @@ void program();
 // generator.c
 void gen_asm_intel();
 
-// builtin.c
-void gen_builtin_function(Node *node);
-
 // variable.c
 Var *find_var(Token *tok);
 Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static);

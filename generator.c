@@ -85,6 +85,73 @@ static void pop(RegisterName r)
     depth--;
 }
 
+static void gen_va_start(Node *node)
+{
+    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_start", strlen("__builtin_va_start")) != 0)
+    {
+        error("va_startではありません");
+    }
+    // rbpの16上のアドレスを第一引数に格納する
+    // TODO 本当は第二引数から計算しないといけない（16固定ではない）
+    Node *first_arg = node->next->child;
+    println("  mov rdi, rbp");
+    println("  add rdi, 16");
+    println("  mov rax, rbp");
+    println1("  sub rax, %d", first_arg->offset);
+    println("  mov [rax], rdi");
+}
+
+static void gen_va_arg(Node *node)
+{
+    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_arg", strlen("__builtin_va_arg")) != 0)
+    {
+        error("va_argではありません");
+    }
+    Node *first_arg = node->next->child;
+    println("  mov rax, rbp");
+    // println1("  sub rax, %d", first_arg->offset);
+    // println("  mov eax, [rax]");
+    // println("  push rax");
+    println("  add rax, 16");
+    println("  mov eax, [rax]");
+    push(RG_RAX);
+}
+
+static void gen_va_end(Node *node)
+{
+    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_end", strlen("__builtin_va_end")) != 0)
+    {
+        error("va_endではありません");
+    }
+    // TODO va_end実装
+}
+
+void gen_builtin_function(Node *node)
+{
+    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin", strlen("__builtin")) != 0)
+    {
+        error("ビルトイン関数ではありません");
+    }
+
+    if (strncmp(node->name, "__builtin_va_start", strlen("__builtin_va_start")) == 0)
+    {
+        gen_va_start(node);
+    }
+    else if (strncmp(node->name, "__builtin_va_arg", strlen("__builtin_va_arg")) == 0)
+    {
+        gen_va_arg(node);
+    }
+    else if (strncmp(node->name, "__builtin_va_end", strlen("__builtin_va_end")) == 0)
+    {
+        gen_va_end(node);
+    }
+    else
+    {
+        error("存在しないビルトイン関数です");
+    }
+}
+
+
 static void gen_for(Node *node)
 {
     if (node->kind != ND_FOR)
