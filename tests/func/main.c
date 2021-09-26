@@ -204,8 +204,19 @@ int sum(int count, ...)
 
 int testFuncHasVariableLengthArguments()
 {
-    // printf("%d\n", sum(1, 13));
     if (sum(1, 13) != 13)
+    {
+        return 1;
+    }
+    if (sum(2, 3, 4) != 7)
+    {
+        return 1;
+    }
+    if (sum(3, 134, 765, 35) != 934)
+    {
+        return 1;
+    }
+    if (sum(4, 33, 44, 55, 66) != 198)
     {
         return 1;
     }
