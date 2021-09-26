@@ -151,15 +151,6 @@ static void gen_if(Node *node)
     println1(".Lend%d:", lab);
 }
 
-static void gen_va_start(Node *node)
-{
-    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_start", strlen("__builtin_va_start")) != 0)
-    {
-        error("va_startではありません");
-    }
-    // TODO va_startの実装
-}
-
 static void gen_function(Node *node) // gen_function_callとかのほうがいい気がする
 {
     if (node->kind != ND_FUNC)
