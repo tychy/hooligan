@@ -1036,11 +1036,21 @@ static Node *func(Token *ident, Type *ty, bool is_static)
             error("引数の数が多すぎます");
         if (arg_idx != 0)
             expect(",");
+
+        if (consume("..."))
+        {
+            if (arg_idx == 0)
+            {
+                error("最低一つの仮引数が必要です");
+            }
+            node->has_variable_length_arguments = true;
+            expect(")");
+            break;
+        }
         Type *arg_ty = consume_type();
 
         if (!arg_ty)
         {
-
             printf("%s\n", token->string);
             error("引数に型がありません");
         }

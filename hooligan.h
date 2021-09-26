@@ -222,6 +222,7 @@ struct Node
     Node *args;
     int num_args;
     bool is_void;
+    bool has_variable_length_arguments;
 
     // for string
     int strlabel;
