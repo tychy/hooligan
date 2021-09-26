@@ -419,6 +419,7 @@ PPToken *decompose_to_pp_token(char *p)
                     cur = new_token(PPTK_PUNC, cur, op);
                     cur->len = strlen(op);
                     p += strlen(op);
+                    break;
                 }
             }
             continue;
