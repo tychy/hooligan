@@ -7,6 +7,11 @@ static void gen_va_start(Node *node)
         error("va_startではありません");
     }
     // TODO va_startの実装
+    Node *first = node->next;
+    // printf("%.*s\n", first->child->length, first->child->name);
+    // スタックへのポインタがほしい
+    Node *second = first->next;
+    // printf("%.*s\n", second->child->length, second->child->name);
 }
 
 static void gen_va_arg(Node *node)

@@ -175,6 +175,7 @@ static Node *ident()
             node->ty = func->ty;
             node->num_args = func->num_args;
             node->is_static = func->is_static;
+            node->has_variable_length_arguments = func->has_variable_length_arguments;
             if (node->num_args != 0 && func->arg_ty_ls[0]->ty == VOID)
             {
                 node->is_void = true;
@@ -1072,7 +1073,7 @@ static Node *func(Token *ident, Type *ty, bool is_static)
         arg_ty_ls[arg_idx] = arg_ty;
         arg_idx++;
     }
-    def_func(ident, ty, arg_idx, arg_ty_ls, is_static);
+    def_func(ident, ty, arg_idx, arg_ty_ls, is_static, node->has_variable_length_arguments);
     if (consume(";"))
     {
         exit_scope();

@@ -184,7 +184,11 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     while (count > 0)
     {
         count--;
-        pop(count);
+        if (!node->has_variable_length_arguments)
+        {
+            // 可変長引数でない場合のみレジスタに格納する（可変長引数の場合はスタック渡し）
+            pop(count);
+        }
     }
     if (depth % 2 == 0)
     {
@@ -202,6 +206,11 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     if (depth % 2 == 0)
     {
         println("  add rsp, 8");
+    }
+    if (node->has_variable_length_arguments)
+    {
+        // 可変長引数でない場合は引数分スタックポインタをずらしてもとに戻す
+        println1("  add rsp, %d", 8 * node->num_args);
     }
     push(RG_RAX);
 }
