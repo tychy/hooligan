@@ -181,13 +181,18 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         arg = arg->next;
         count++;
     }
+    int arg_count = count;
     while (count > 0)
     {
         count--;
-        if (!node->has_variable_length_arguments)
+        pop(count);
+    }
+    if (node->has_variable_length_arguments)
+    {
+        // 可変長引数の場合は第一引数がトップに来るように逆順にスタックに積む
+        for (int i = 0; i < arg_count; i++)
         {
-            // 可変長引数でない場合のみレジスタに格納する（可変長引数の場合はスタック渡し）
-            pop(count);
+            push(arg_count - i - 1);
         }
     }
     if (depth % 2 == 0)
