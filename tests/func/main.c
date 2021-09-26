@@ -1,3 +1,5 @@
+#include <stdarg.h>
+
 int testFunc()
 {
     int x = 10;
@@ -189,7 +191,15 @@ int testFuncHasCharArgument()
 
 int sum(int count, ...)
 {
-    return 10;
+    va_list ap;
+    va_start(ap, count);
+    int sum = 10;
+    // for (int i = 0; i < count; i++)
+    // {
+    //     sum += va_arg(ap, int);
+    // }
+    // va_end(ap);
+    return sum;
 }
 
 int testFuncHasVariableLengthArguments()
