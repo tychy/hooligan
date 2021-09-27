@@ -113,7 +113,21 @@ static void gen_va_arg(Node *node)
     println("  mov rdi, [rax]");
     println("  add rdi, 8");
     println("  mov [rax], rdi");
-    println("  mov eax, [rdi]");
+    Node *second_arg = node->next->next->child;
+    // TODO ここでkindをチェックしたい
+    // 今はND_TYPEを追加するとテストがコケる
+    // if (second_arg->kind != ND_TYPE)
+    // {
+    //     error("va_argの第2引数には型を指定してください");
+    // }
+    if (is_int(second_arg->ty))
+        println("  mov eax, [rdi]");
+    else if (is_char(second_arg->ty))
+    {
+        println("  movsx eax, BYTE PTR [rdi]");
+    }
+    else
+        println("  mov rax, [rdi]");
     push(RG_RAX);
 }
 
