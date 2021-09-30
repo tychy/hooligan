@@ -45,11 +45,6 @@ void println(char *fmt, ...)
     va_end(ap);
 }
 
-void println2(char *fmt, char *v1, char *v2)
-{
-    fprintf(output, fmt, v1, v2);
-    fprintf(output, "\n");
-}
 
 void println3(char *fmt, char *v1, char *v2, char *v3)
 {
@@ -279,11 +274,11 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     println("  mov al, 0");
     if (node->is_static)
     {
-        println2("  call L%.*s", node->length, node->name);
+        println("  call L%.*s", node->length, node->name);
     }
     else
     {
-        println2("  call %.*s", node->length, node->name);
+        println("  call %.*s", node->length, node->name);
     }
 
     if (depth % 2 == 0)
@@ -302,12 +297,12 @@ static void gen_global_var_def(Node *node)
     if (node->is_static)
     {
 
-        println2("L%.*s:", node->length, node->name);
+        println("L%.*s:", node->length, node->name);
     }
     else
     {
-        println2(".globl %.*s", node->length, node->name);
-        println2("%.*s:", node->length, node->name);
+        println(".globl %.*s", node->length, node->name);
+        println("%.*s:", node->length, node->name);
     }
     if (node->gvar_init)
     {
@@ -372,12 +367,12 @@ static void gen_addr(Node *node)
         }
         else if (node->is_static)
         {
-            println2("  lea rax, L%.*s", node->length, node->name);
+            println("  lea rax, L%.*s", node->length, node->name);
             push(RG_RAX);
         }
         else
         {
-            println2("  lea rax, %.*s", node->length, node->name);
+            println("  lea rax, %.*s", node->length, node->name);
             push(RG_RAX);
         }
         return;
@@ -402,12 +397,12 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
 
     if (node->is_static)
     {
-        println2("L%.*s:", node->length, node->name);
+        println("L%.*s:", node->length, node->name);
     }
     else
     {
-        println2(".globl %.*s", node->length, node->name);
-        println2("%.*s:", node->length, node->name);
+        println(".globl %.*s", node->length, node->name);
+        println("%.*s:", node->length, node->name);
     }
     // プロローグ
     push(RG_RBP);
@@ -930,7 +925,7 @@ void gen_asm_intel()
     while (s)
     {
         println(".LC%d:", s->label);
-        println2("  .string \"%.*s\"", s->length, s->p);
+        println("  .string \"%.*s\"", s->length, s->p);
         s = s->next;
     }
 
