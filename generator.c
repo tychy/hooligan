@@ -36,10 +36,13 @@ static char *reg8[9] = {
     "spl",
 };
 
-void println(char *fmt)
+void println(char *fmt, ...)
 {
-    fprintf(output, fmt);
+    va_list ap;
+    va_start(ap, fmt);
+    vfprintf(output, fmt, ap);
     fprintf(output, "\n");
+    va_end(ap);
 }
 
 void println1(char *fmt, char *v1)
