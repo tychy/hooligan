@@ -275,24 +275,9 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         count--;
         pop(count);
     }
-    if (node->has_variable_length_arguments)
+    if (depth % 2 == 0)
     {
-        if ((depth + arg_count) % 2 == 0)
-        {
-            println("  sub rsp, 8");
-        }
-        // 可変長引数の場合は第一引数がトップに来るように逆順にスタックに積む
-        for (int i = 0; i < arg_count; i++)
-        {
-            println1("  push %s", reg64[arg_count - i - 1]);
-        }
-    }
-    else
-    {
-        if (depth % 2 == 0)
-        {
-            println("  sub rsp, 8");
-        }
+        println("  sub rsp, 8");
     }
     println("  mov al, 0");
     if (node->is_static)
@@ -303,25 +288,10 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     {
         println2("  call %.*s", node->length, node->name);
     }
-    if (node->has_variable_length_arguments)
+
+    if (depth % 2 == 0)
     {
-        if ((depth + arg_count) % 2 == 0)
-        {
-            println("  add rsp, 8");
-        }
-    }
-    else
-    {
-        if (depth % 2 == 0)
-        {
-            println("  add rsp, 8");
-        }
-    }
-    if (node->has_variable_length_arguments)
-    {
-        // 可変長引数でない場合は引数分スタックポインタをずらしてもとに戻す
-        println1("  add rsp, %d", 8 * arg_count);
-        depth -= arg_count;
+        println("  add rsp, 8");
     }
     push(RG_RAX);
 }
