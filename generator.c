@@ -45,13 +45,6 @@ void println(char *fmt, ...)
     va_end(ap);
 }
 
-
-void println3(char *fmt, char *v1, char *v2, char *v3)
-{
-    fprintf(output, fmt, v1, v2, v3);
-    fprintf(output, "\n");
-}
-
 int depth;
 static void push(RegisterName r)
 {
@@ -356,7 +349,7 @@ static void gen_addr(Node *node)
     case ND_VAR:
         if (node->is_local && node->is_static)
         {
-            println3("  lea rax, L%.*s.%d", node->length, node->name, node->scope_label);
+            println("  lea rax, L%.*s.%d", node->length, node->name, node->scope_label);
             push(RG_RAX);
         }
         else if (node->is_local)
@@ -899,7 +892,7 @@ void gen_asm_intel()
     Var *sv = ctx->statics;
     while (sv)
     {
-        println3("L%.*s.%d:", sv->length, sv->name, sv->label);
+        println("L%.*s.%d:", sv->length, sv->name, sv->label);
         switch (sv->ty->ty)
         {
         case CHAR:
