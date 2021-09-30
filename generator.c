@@ -91,11 +91,14 @@ static void gen_va_start(Node *node)
     {
         error("va_startではありません");
     }
-    // rbpの16上のアドレスを第一引数に格納する
-    // TODO 本当は第二引数から計算しないといけない（16固定ではない）
     Node *first_arg = node->next->child;
-    println("  mov rdi, rbp");
-    println("  add rdi, 16");
+    println("  mov DWORD PTR -72[rbp], 8");  // TODO 本当は第二引数から計算しないといけない
+    println("  mov DWORD PTR -68[rbp], 48"); // va_list->fp_offset
+    println("  lea rax, 16[rbp]");
+    println("  mov QWORD PTR -64[rbp], rax"); // va_list->overflow_arg_area
+    println("  lea rax, -48[rbp]");
+    println("  mov QWORD PTR -56[rbp], rax"); // va_list->reg_arg_area
+    println("  lea rdi, -72[rbp]");
     println("  mov rax, rbp");
     println1("  sub rax, %d", first_arg->offset);
     println("  mov [rax], rdi");
@@ -108,11 +111,6 @@ static void gen_va_arg(Node *node)
         error("va_argではありません");
     }
     Node *first_arg = node->next->child;
-    println("  mov rax, rbp");
-    println1("  sub rax, %d", first_arg->offset);
-    println("  mov rdi, [rax]");
-    println("  add rdi, 8");
-    println("  mov [rax], rdi");
     Node *second_arg = node->next->next->child;
     // TODO ここでkindをチェックしたい
     // 今はND_TYPEを追加するとテストがコケる
@@ -120,14 +118,24 @@ static void gen_va_arg(Node *node)
     // {
     //     error("va_argの第2引数には型を指定してください");
     // }
+    println("  mov rax, rbp");
+    println1("  sub rax, %d", first_arg->offset);
+    println("  mov rdi, 0");
+    println("  mov rax, [rax]");
+    println("  mov edi, DWORD PTR [rax]");
+    println("  add rax, 16");
+    println("  mov rax, [rax]");
+    println("  add rax, rdi");
+    println("  add edi, 8");
+    println("  mov DWORD PTR -72[rbp], edi");
     if (is_int(second_arg->ty))
-        println("  mov eax, [rdi]");
+        println("  mov eax, [rax]");
     else if (is_char(second_arg->ty))
     {
-        println("  movsx eax, BYTE PTR [rdi]");
+        println("  movsx eax, BYTE PTR [rax]");
     }
     else
-        println("  mov rax, [rdi]");
+        println("  mov rax, [rax]");
     push(RG_RAX);
 }
 
@@ -440,7 +448,7 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
     int variable_region_size = 16 * (node->args_region_size / 16 + 1);
     if (node->has_variable_length_arguments)
     {
-        variable_region_size += 48;
+        variable_region_size += 72;
     }
     println1("  sub rsp, %d", variable_region_size);
 
