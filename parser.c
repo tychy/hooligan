@@ -1045,6 +1045,8 @@ static Node *func(Token *ident, Type *ty, bool is_static)
                 error("最低一つの仮引数が必要です");
             }
             node->has_variable_length_arguments = true;
+            // 可変長引数の場合、rdi~r9の6つのレジスタの中身をrbpの下に並べる必要があるのでその領域(8×6)を確保する
+            ctx->offset = 48;
             expect(")");
             break;
         }

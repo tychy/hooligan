@@ -437,7 +437,23 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
     // プロローグ
     push(RG_RBP);
     println("  mov rbp, rsp");
-    println1("  sub rsp, %d", 16 * (node->args_region_size / 16 + 1));
+    int variable_region_size = 16 * (node->args_region_size / 16 + 1);
+    if (node->has_variable_length_arguments)
+    {
+        variable_region_size += 48;
+    }
+    println1("  sub rsp, %d", variable_region_size);
+
+    if (node->has_variable_length_arguments)
+    {
+        // レジスタの中身を所定の位置に書き出す
+        println("  mov QWORD PTR -48[rbp], rdi");
+        println("  mov QWORD PTR -40[rbp], rsi");
+        println("  mov QWORD PTR -32[rbp], rdx");
+        println("  mov QWORD PTR -24[rbp], rcx");
+        println("  mov QWORD PTR -16[rbp], r8");
+        println("  mov QWORD PTR -8[rbp], r9");
+    }
 
     // 第1〜6引数をローカル変数の領域に書き出す
     int count = 0;
