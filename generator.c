@@ -85,6 +85,94 @@ static void pop(RegisterName r)
     depth--;
 }
 
+static void gen_va_start(Node *node)
+{
+    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_start", strlen("__builtin_va_start")) != 0)
+    {
+        error("va_startではありません");
+    }
+    Node *first_arg = node->next->child;
+    println("  mov DWORD PTR -72[rbp], 8");  // TODO 本当は第二引数から計算しないといけない
+    println("  mov DWORD PTR -68[rbp], 48"); // va_list->fp_offset
+    println("  lea rax, 16[rbp]");
+    println("  mov QWORD PTR -64[rbp], rax"); // va_list->overflow_arg_area
+    println("  lea rax, -48[rbp]");
+    println("  mov QWORD PTR -56[rbp], rax"); // va_list->reg_arg_area
+    println("  lea rdi, -72[rbp]");
+    println("  mov rax, rbp");
+    println1("  sub rax, %d", first_arg->offset);
+    println("  mov [rax], rdi");
+}
+
+static void gen_va_arg(Node *node)
+{
+    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_arg", strlen("__builtin_va_arg")) != 0)
+    {
+        error("va_argではありません");
+    }
+    Node *first_arg = node->next->child;
+    Node *second_arg = node->next->next->child;
+    // TODO ここでkindをチェックしたい
+    // 今はND_TYPEを追加するとテストがコケる
+    // if (second_arg->kind != ND_TYPE)
+    // {
+    //     error("va_argの第2引数には型を指定してください");
+    // }
+    println("  mov rax, rbp");
+    println1("  sub rax, %d", first_arg->offset);
+    println("  mov rdi, 0");
+    println("  mov rax, [rax]");
+    println("  mov edi, DWORD PTR [rax]");
+    println("  add rax, 16");
+    println("  mov rax, [rax]");
+    println("  add rax, rdi");
+    println("  add edi, 8");
+    println("  mov DWORD PTR -72[rbp], edi");
+    if (is_int(second_arg->ty))
+        println("  mov eax, [rax]");
+    else if (is_char(second_arg->ty))
+    {
+        println("  movsx eax, BYTE PTR [rax]");
+    }
+    else
+        println("  mov rax, [rax]");
+    push(RG_RAX);
+}
+
+static void gen_va_end(Node *node)
+{
+    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_end", strlen("__builtin_va_end")) != 0)
+    {
+        error("va_endではありません");
+    }
+    // TODO va_end実装
+}
+
+void gen_builtin_function(Node *node)
+{
+    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin", strlen("__builtin")) != 0)
+    {
+        error("ビルトイン関数ではありません");
+    }
+
+    if (strncmp(node->name, "__builtin_va_start", strlen("__builtin_va_start")) == 0)
+    {
+        gen_va_start(node);
+    }
+    else if (strncmp(node->name, "__builtin_va_arg", strlen("__builtin_va_arg")) == 0)
+    {
+        gen_va_arg(node);
+    }
+    else if (strncmp(node->name, "__builtin_va_end", strlen("__builtin_va_end")) == 0)
+    {
+        gen_va_end(node);
+    }
+    else
+    {
+        error("存在しないビルトイン関数です");
+    }
+}
+
 static void gen_for(Node *node)
 {
     if (node->kind != ND_FOR)
@@ -157,6 +245,11 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     {
         error("関数ではありません");
     }
+    if (strncmp(node->name, "__builtin", strlen("__builtin")) == 0)
+    {
+        gen_builtin_function(node);
+        return;
+    }
     Node *arg = node->next;
     Node *first_arg = NULL;
     int count = 0;
@@ -176,6 +269,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         arg = arg->next;
         count++;
     }
+    int arg_count = count;
     while (count > 0)
     {
         count--;
@@ -194,6 +288,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     {
         println2("  call %.*s", node->length, node->name);
     }
+
     if (depth % 2 == 0)
     {
         println("  add rsp, 8");
@@ -320,7 +415,23 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
     // プロローグ
     push(RG_RBP);
     println("  mov rbp, rsp");
-    println1("  sub rsp, %d", 16 * (node->args_region_size / 16 + 1));
+    int variable_region_size = 16 * (node->args_region_size / 16 + 1);
+    if (node->has_variable_length_arguments)
+    {
+        variable_region_size += 72;
+    }
+    println1("  sub rsp, %d", variable_region_size);
+
+    if (node->has_variable_length_arguments)
+    {
+        // レジスタの中身を所定の位置に書き出す
+        println("  mov QWORD PTR -48[rbp], rdi");
+        println("  mov QWORD PTR -40[rbp], rsi");
+        println("  mov QWORD PTR -32[rbp], rdx");
+        println("  mov QWORD PTR -24[rbp], rcx");
+        println("  mov QWORD PTR -16[rbp], r8");
+        println("  mov QWORD PTR -8[rbp], r9");
+    }
 
     // 第1〜6引数をローカル変数の領域に書き出す
     int count = 0;

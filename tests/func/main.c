@@ -1,3 +1,5 @@
+#include <stdarg.h>
+
 int testFunc()
 {
     int x = 10;
@@ -187,6 +189,40 @@ int testFuncHasCharArgument()
     return 0;
 }
 
+int sum(int count, ...)
+{
+    va_list ap;
+    va_start(ap, count);
+    int res = 0;
+    for (int i = 0; i < count; i++)
+    {
+        res += va_arg(ap, int);
+    }
+    va_end(ap);
+    return res;
+}
+
+int testFuncHasVariableLengthArguments()
+{
+    if (sum(1, 13) != 13)
+    {
+        return 1;
+    }
+    if (sum(2, 3, 4) != 7)
+    {
+        return 1;
+    }
+    if (sum(3, 134, 765, 35) != 934)
+    {
+        return 1;
+    }
+    if (sum(4, 33, 44, 55, 66) != 198)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testFunc() != 0)
@@ -221,6 +257,10 @@ int main()
         return 1;
     }
     if (testFuncHasCharArgument() != 0)
+    {
+        return 1;
+    }
+    if (testFuncHasVariableLengthArguments() != 0)
     {
         return 1;
     }

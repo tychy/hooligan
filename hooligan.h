@@ -222,6 +222,7 @@ struct Node
     Node *args;
     int num_args;
     bool is_void;
+    bool has_variable_length_arguments;
 
     // for string
     int strlabel;
@@ -258,6 +259,7 @@ struct Var
     bool is_function;
     int num_args;
     Type *arg_ty_ls[6];
+    bool has_variable_length_arguments;
     // for constant expression
     int value;
     // for const variable
@@ -347,7 +349,7 @@ Var *find_var(Token *tok);
 Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static);
 Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val);
 Var *find_func(Token *tok);
-Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[6], bool is_static);
+Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[6], bool is_static, bool has_variable_length_arguments);
 Var *find_const(Token *tok);
 Var *def_const(Token *tok, int val);
 

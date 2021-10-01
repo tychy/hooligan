@@ -175,6 +175,7 @@ static Node *ident()
             node->ty = func->ty;
             node->num_args = func->num_args;
             node->is_static = func->is_static;
+            node->has_variable_length_arguments = func->has_variable_length_arguments;
             if (node->num_args != 0 && func->arg_ty_ls[0]->ty == VOID)
             {
                 node->is_void = true;
@@ -189,7 +190,7 @@ static Node *ident()
                 if (count > 0)
                     expect(",");
 
-                if (count < node->num_args)
+                if (count < node->num_args || node->has_variable_length_arguments)
                 {
                     if (node->is_void)
                     {
@@ -1036,11 +1037,23 @@ static Node *func(Token *ident, Type *ty, bool is_static)
             error("引数の数が多すぎます");
         if (arg_idx != 0)
             expect(",");
+
+        if (consume("..."))
+        {
+            if (arg_idx == 0)
+            {
+                error("最低一つの仮引数が必要です");
+            }
+            node->has_variable_length_arguments = true;
+            // 可変長引数の場合、rdi~r9の6つのレジスタの中身とメタ情報をrbpの下に並べる必要があるのでその領域(8×6+8+8+4+4)を確保する
+            ctx->offset = 72;
+            expect(")");
+            break;
+        }
         Type *arg_ty = consume_type();
 
         if (!arg_ty)
         {
-
             printf("%s\n", token->string);
             error("引数に型がありません");
         }
@@ -1062,7 +1075,7 @@ static Node *func(Token *ident, Type *ty, bool is_static)
         arg_ty_ls[arg_idx] = arg_ty;
         arg_idx++;
     }
-    def_func(ident, ty, arg_idx, arg_ty_ls, is_static);
+    def_func(ident, ty, arg_idx, arg_ty_ls, is_static, node->has_variable_length_arguments);
     if (consume(";"))
     {
         exit_scope();

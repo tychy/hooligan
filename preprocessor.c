@@ -4,7 +4,8 @@ PPContext *pp_ctx;
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
-static char *punctuator_list[34] = {
+static char *punctuator_list[35] = {
+    "...",
     "++",
     "--",
     "+=",
@@ -41,7 +42,7 @@ static char *punctuator_list[34] = {
     "#",
 };
 
-static int punctuator_list_count = 34;
+static int punctuator_list_count = 35;
 
 // indexに依存したコードを書いているので後方に追加していくこと
 static char *preprocessing_directive_list[5] = {
@@ -419,6 +420,7 @@ PPToken *decompose_to_pp_token(char *p)
                     cur = new_token(PPTK_PUNC, cur, op);
                     cur->len = strlen(op);
                     p += strlen(op);
+                    break;
                 }
             }
             continue;
