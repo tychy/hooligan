@@ -103,6 +103,7 @@ static void gen_va_arg(Node *node)
     // {
     //     error("va_argの第2引数には型を指定してください");
     // }
+    
     println("  mov rax, rbp");
     println("  sub rax, %d", first_arg->offset);
     println("  mov rdi, 0");
