@@ -1,7 +1,7 @@
 #include "hooligan.h"
 static void logging(Node *node)
 {
-    if (is_verbose)
+    if (opts->is_verbose)
     {
         printf("Kind: %d\n", node->kind);
     }
@@ -1229,7 +1229,7 @@ static Node *def()
 
 void program()
 {
-    if (is_verbose)
+    if (opts->is_verbose)
     {
         printf("\x1b[33mSTART PARSING\x1b[0m\n");
     }
@@ -1245,7 +1245,7 @@ void program()
         ctx->offset = 0;
     }
     nodes[i + 1] = NULL;
-    if (is_verbose)
+    if (opts->is_verbose)
     {
         printf("\x1b[33mEND PARSING\x1b[0m\n");
     }

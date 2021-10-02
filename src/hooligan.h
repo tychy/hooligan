@@ -317,12 +317,12 @@ struct Context
 };
 
 // Declaration of global variables
+extern Option *opts;
 extern PPContext *pp_ctx;
 extern Token *token;
 extern Node *nodes[500];
 extern Context *ctx;
 extern FILE *output;
-extern bool is_verbose;
 
 // Declaration of functions
 // read_token.c

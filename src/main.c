@@ -1,6 +1,5 @@
 #include "hooligan.h"
 
-bool is_verbose;
 Token *token;
 Node *nodes[500];
 Context *ctx;
@@ -21,7 +20,6 @@ void analyze_arguments(int argc, char **argv)
             if (*(arg + 1) == 'v')
             {
                 opts->is_verbose = true;
-                is_verbose = true;
             }
             else
             {
@@ -53,7 +51,7 @@ int main(int argc, char **argv)
         char *dirname = extract_dir(path);
         char *filename = extract_filename(path);
         char *p = read_file(path);
-        if (is_verbose)
+        if (opts->is_verbose)
         {
             printf("%sのコンパイルを開始します\n", path);
         }
@@ -75,7 +73,7 @@ int main(int argc, char **argv)
         gen_asm_intel();
 
         fclose(output);
-        if (is_verbose)
+        if (opts->is_verbose)
         {
             printf("\x1b[32mCompilation Succeded! output: %s\x1b[0m\n", output_filename);
         }
