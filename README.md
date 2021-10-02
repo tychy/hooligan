@@ -43,10 +43,6 @@ gcc => 第0世代コンパイラ
 $PROJECT_ROOT/bin/hcc1 => 第1世代コンパイラ
 $PROJECT_ROOT/bin/hcc2 => 第2世代コンパイラ
 ```
-## 参考図書(refディレクトリ)
-[C11の最終ドラフト](ref/N1570.pdf)
-
-[x86-64のABI](ref/x86-64-psABI-1.0.pdf)
 
 ## 参考リンク
 [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook)
@@ -64,3 +60,7 @@ $PROJECT_ROOT/bin/hcc2 => 第2世代コンパイラ
 [Intel Instruction Set pages](https://web.itu.edu.tr/kesgin/mul06/intel/index.html)
 
 [さくっとアセンブリ入門 hello,world編](https://rabbitfoot141.hatenablog.com/entry/2016/05/01/124410)
+
+[C11の最終ドラフト](https://drive.google.com/drive/u/0/folders/1_JbdYg11sAQIpDWm1wYloAoMofjHx53y)
+
+[x86-64のABI](https://drive.google.com/drive/u/0/folders/1_JbdYg11sAQIpDWm1wYloAoMofjHx53y)
