@@ -4,7 +4,7 @@ OBJS:=$(SOURCE:.c=.o)
 
 # 第一世代コンパイラの作成
 first: $(OBJS)
-	cc $(CFLAGS) -o bin/hcc1 $(OBJS)
+	@cc $(CFLAGS) -o bin/hcc1 $(OBJS)
 $(OBJS): src/hooligan.h
 
 # 第二世代以降のコンパイラの作成
@@ -23,5 +23,5 @@ selfhost: first
 	rm *.s
 
 clean:
-	rm -f bin/hcc* *.o *~ tmp*
+	@rm -f bin/hcc* *.o *~ tmp* *.s
 .PHONY: test clean selfhost
