@@ -797,7 +797,7 @@ static void gen(Node *node)
     case ND_MUL:
         pop(RG_RDI);
         pop(RG_RAX);
-        println("  imul rax, rdi");
+        println("  imul eax, edi");
         push(RG_RAX);
         break;
     case ND_DIV:

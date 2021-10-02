@@ -430,16 +430,14 @@ int main()
     {
         return 1;
     }
-    // TODO 何故か通らない
-    // if (test21() != 20)
-    // {
-    //     return 1;
-    // }
-    // TODO 何故か通らない
-    // if (test22() != 5)
-    // {
-    //     return 1;
-    // }
+    if (test21() != 20)
+    {
+        return 1;
+    }
+    if (test22() != 5)
+    {
+        return 1;
+    }
     if (test23() != 1)
     {
         return 1;
