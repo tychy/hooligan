@@ -1,1 +1,0 @@
-int main(){int d; for(d=0;d<100;d=d+1) if(d*d==401) return d; return 1; }

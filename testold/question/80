@@ -1,2 +1,0 @@
-int main(){ add_pen(-100,200,57,-117,-23); }
-           int add_pen(int i,int j,int k,int l,int m) i+j+k+l+m;

@@ -1,2 +1,0 @@
-int main(){ add_hex(23,19,-9,-15,5,0); } 
-           int add_hex(int one,int two,int three,int four,int five,int six) one+two+three+four+five+six;
