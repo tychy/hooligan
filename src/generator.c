@@ -103,7 +103,7 @@ static void gen_va_arg(Node *node)
     // {
     //     error("va_argの第2引数には型を指定してください");
     // }
-    
+
     println("  mov rax, rbp");
     println("  sub rax, %d", first_arg->offset);
     println("  mov rdi, 0");
@@ -867,7 +867,7 @@ static void gen(Node *node)
 
 void gen_asm_intel()
 {
-    Node *funcs[100];
+    Node *funcs[200];
     println(".intel_syntax noprefix");
     println(".data");
     program();
@@ -881,6 +881,10 @@ void gen_asm_intel()
     {
         if (nodes[i]->kind == ND_FUNCDEF)
         {
+            if (func_count >= 200)
+            {
+                error("関数が多すぎます");
+            }
             funcs[func_count] = nodes[i];
             func_count++;
             i++;
