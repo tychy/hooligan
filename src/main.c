@@ -5,26 +5,51 @@ Token *token;
 Node *nodes[500];
 Context *ctx;
 FILE *output;
+Option *opts;
+int file_count;
+char *files[20];
+
+void analyze_arguments(int argc, char **argv)
+{
+    opts = calloc(1, sizeof(Option));
+    file_count = 0;
+    for (int i = 1; i < argc; i++)
+    {
+        char *arg = argv[i];
+        if (*arg == '-')
+        {
+            if (*(arg + 1) == 'v')
+            {
+                opts->is_verbose = true;
+                is_verbose = true;
+            }
+            else
+            {
+                printf("%c\n", *(arg + 1));
+                error("不正なオプションです");
+            }
+        }
+        else
+        {
+            files[file_count] = arg;
+            file_count++;
+        }
+    }
+
+    if (file_count == 0)
+    {
+        error("ファイル名を指定してください");
+    }
+}
 
 int main(int argc, char **argv)
 {
-    if (argc == 1)
-    {
-        fprintf(stderr, "ファイル名を指定してください\n");
-        exit(1);
-    }
-    if (getenv("IS_VERBOSE") != NULL)
-    {
-        is_verbose = true;
-    }
-    else
-    {
-        is_verbose = false;
-    }
-    for (int i = 1; i < argc; i++)
+    analyze_arguments(argc, argv);
+
+    for (int i = 0; i < file_count; i++)
     {
         token = NULL;
-        char *path = argv[i];
+        char *path = files[i];
         char *dirname = extract_dir(path);
         char *filename = extract_filename(path);
         char *p = read_file(path);

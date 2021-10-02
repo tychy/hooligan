@@ -56,7 +56,7 @@ compile() {
         gcc -masm=intel -S "$@"
     else
         if [[ VERBOSE -eq 1 ]]; then
-            IS_VERBOSE=1 ./bin/hcc$COMPILER_GENERATION "$@"
+            ./bin/hcc$COMPILER_GENERATION -v "$@"
         else
             ./bin/hcc$COMPILER_GENERATION "$@"
         fi
