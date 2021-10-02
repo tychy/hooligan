@@ -1,5 +1,5 @@
-#include "../../preprocessor.c"
-#include "../../util.c"
+#include "../../src/preprocessor.c"
+#include "../../src/util.c"
 
 void dump_pp_token(PPToken *tok);
 
