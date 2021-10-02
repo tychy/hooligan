@@ -1239,6 +1239,10 @@ void program()
     int i = 0;
     while (!at_eof())
     {
+        if (i >= 500)
+        {
+            error("ノードが多すぎます");
+        }
         Node *node = def();
         nodes[i] = node;
         i++;
