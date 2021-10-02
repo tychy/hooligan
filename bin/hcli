@@ -19,7 +19,6 @@ display_help() {
     echo "  test                -gオプションで指定されたコンパイラでテストを実行する"
     echo "  test all            全てのテストを実行する"
     echo "  unittest            -gオプションで指定されたコンパイラでユニットテストを実行する"
-    echo "  selfhost            -gオプションで指定されたコンパイラで次の世代のコンパイラを生成する"
     printf "\n"
     echo "Alias"
     echo "  c = compile"
@@ -27,7 +26,6 @@ display_help() {
     echo "  e = exec"
     echo "  t = test"
     echo "  ut = unittest"
-    echo "  sh = selfhost"
     echo "  cl = clean"
 }
 
@@ -151,10 +149,6 @@ generate_compiler() {
     clean_assembly
 }
 
-selfhost() {
-    generate_compiler $(($COMPILER_GENERATION + 1))
-}
-
 param=()
 COMPILER_GENERATION=1
 VERBOSE=0
@@ -229,8 +223,6 @@ elif [ ${param[0]} = "testold" ]; then
     runtestold
 elif [ ${param[0]} = "unittest" ] || [ ${param[0]} = "ut" ]; then
     unittest
-elif [ ${param[0]} = "selfhost" ] || [ ${param[0]} = "sh" ]; then
-    selfhost
 else
     echo "存在しないサブコマンドです"
     exit 1

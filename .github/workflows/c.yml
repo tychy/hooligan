@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: selfhost
         run: |
-          ./bin/hcli selfhost
+          make selfhost
   generation:
     needs: setup
     runs-on: ubuntu-latest
