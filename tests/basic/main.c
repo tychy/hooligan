@@ -121,6 +121,10 @@ int testPtr()
     int *p;
     int *q;
     p = &a;
+    *(p - 1) = b;
+    *(p - 2) = c;
+    *(p - 3) = d;
+    *(p - 4) = e;
     if (*p != 10001)
         return 1;
     q = p - 2;

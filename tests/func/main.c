@@ -21,11 +21,6 @@ int testFuncTooMany()
     {
         return 1;
     }
-
-    if (sums(x, y, y) != 32)
-    {
-        return 1;
-    }
     return 0;
 }
 int a;

@@ -207,10 +207,10 @@ int testArrayInitString()
 {
     char c_a[] = "java";
     char c_b[7] = "kotlin";
-    char c_over[3] = "csharp"; // 現状の実装では配列のサイズを上書きしてしまう
+    // char c_over[3] = "csharp"; // 現状の実装では配列のサイズを上書きしてしまう
     printf(c_a);
     printf(c_b);
-    printf(c_over);
+    // printf(c_over);
     return 0;
 }
 
