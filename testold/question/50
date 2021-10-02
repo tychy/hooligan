@@ -1,1 +1,0 @@
-int main(){int foo; int bar;int hogefuga; foo=2;bar=3;hogefuga=9;hogefuga*bar; }
