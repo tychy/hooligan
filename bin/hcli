@@ -136,9 +136,6 @@ generate_compiler() {
             make
         else
             clean_assembly
-            # ./bin/hcc$i src/generator.c src/main.c src/parser.c src/preprocessor.c src/read_token.c src/scope.c src/tokenizer.c src/type.c src/util.c src/variable.c
-            # OUTPUT_NAME=hcc$(($i + 1))
-            # find *.s | xargs cc -static -o bin/$OUTPUT_NAME
             make selfhost COMPILER=bin/hcc$i OUTPUT=bin/hcc$(($i + 1))
             ESC=$(printf '\033')
             printf "${ESC}[32m✔${ESC}[m"
