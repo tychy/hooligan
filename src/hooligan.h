@@ -118,6 +118,7 @@ typedef enum
 } RegisterName;
 
 // type definition
+typedef struct Option Option;
 typedef struct PPToken PPToken;
 typedef struct Macro Macro;
 typedef struct PPContext PPContext;
@@ -129,6 +130,11 @@ typedef struct String String;
 typedef struct Member Member;
 typedef struct Scope Scope;
 typedef struct Context Context;
+
+struct Option
+{
+    bool is_verbose;
+};
 
 struct PPToken
 {
@@ -311,12 +317,12 @@ struct Context
 };
 
 // Declaration of global variables
+extern Option *opts;
 extern PPContext *pp_ctx;
 extern Token *token;
 extern Node *nodes[500];
 extern Context *ctx;
 extern FILE *output;
-extern bool is_verbose;
 
 // Declaration of functions
 // read_token.c

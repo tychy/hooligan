@@ -523,7 +523,7 @@ void gen_block(Node *node)
 
 static void logging(Node *node)
 {
-    if (!is_verbose)
+    if (!opts->is_verbose)
         return;
     int lhs = -1;
     int rhs = -1;
@@ -871,7 +871,7 @@ void gen_asm_intel()
     println(".intel_syntax noprefix");
     println(".data");
     program();
-    if (is_verbose)
+    if (opts->is_verbose)
     {
         printf("\x1b[33mSTART GENERATING\x1b[0m\n");
     }
@@ -928,7 +928,7 @@ void gen_asm_intel()
     {
         gen(funcs[j]);
     }
-    if (is_verbose)
+    if (opts->is_verbose)
     {
         printf("\x1b[33mEND GENERATING\x1b[0m\n");
     }
