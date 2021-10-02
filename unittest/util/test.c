@@ -1,4 +1,4 @@
-#include "../../util.c"
+#include "../../src/util.c"
 
 int testJoinStr()
 {
