@@ -19,7 +19,6 @@ display_help() {
     echo "  test                -gオプションで指定されたコンパイラでテストを実行する"
     echo "  test all            全てのテストを実行する"
     echo "  unittest            -gオプションで指定されたコンパイラでユニットテストを実行する"
-    echo "  selfhost            -gオプションで指定されたコンパイラで次の世代のコンパイラを生成する"
     printf "\n"
     echo "Alias"
     echo "  c = compile"
@@ -27,7 +26,6 @@ display_help() {
     echo "  e = exec"
     echo "  t = test"
     echo "  ut = unittest"
-    echo "  sh = selfhost"
     echo "  cl = clean"
 }
 
@@ -138,9 +136,7 @@ generate_compiler() {
             make
         else
             clean_assembly
-            ./bin/hcc$i src/generator.c src/main.c src/parser.c src/preprocessor.c src/read_token.c src/scope.c src/tokenizer.c src/type.c src/util.c src/variable.c
-            OUTPUT_NAME=hcc$(($i + 1))
-            find *.s | xargs cc -static -o bin/$OUTPUT_NAME
+            make selfhost COMPILER=bin/hcc$i OUTPUT=bin/hcc$(($i + 1))
             ESC=$(printf '\033')
             printf "${ESC}[32m✔${ESC}[m"
             printf " 第$(($i + 1))世代のコンパイラが完成しました\n"
@@ -148,10 +144,6 @@ generate_compiler() {
     done
     COMPILER_GENERATED=1
     clean_assembly
-}
-
-selfhost() {
-    generate_compiler $(($COMPILER_GENERATION + 1))
 }
 
 param=()
@@ -228,8 +220,6 @@ elif [ ${param[0]} = "testold" ]; then
     runtestold
 elif [ ${param[0]} = "unittest" ] || [ ${param[0]} = "ut" ]; then
     unittest
-elif [ ${param[0]} = "selfhost" ] || [ ${param[0]} = "sh" ]; then
-    selfhost
 else
     echo "存在しないサブコマンドです"
     exit 1

@@ -31,7 +31,7 @@ hcli src a.c
 hcli exec a.c
 
 // セルフホストする
-hcli selfhost
+make selfhost
 // 第二世代コンパイラでテストを走らせる
 hcli test -g 2
 
