@@ -1,1 +1,0 @@
-int main(){ foo(); } int foo(){return 10;}

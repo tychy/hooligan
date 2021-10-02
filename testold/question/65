@@ -1,1 +1,0 @@
-int main(){int i; i=0;for(;;) if(i==10)return i;else i=i+1;i; }

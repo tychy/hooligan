@@ -63,29 +63,6 @@ compile() {
     fi
 }
 
-runtestold() {
-    generate_compiler $COMPILER_GENERATION
-    set +e
-    for fn in testold/question/*; do
-        i=$(basename $fn)
-        qfile=testold/question/$i
-        afile=testold/answer/$i
-        expected="$(cat $afile)"
-        compile $qfile
-        find *.s | xargs cc # シンプルなテストなのでstaticをつけなくてもよい
-        printf $qfile
-        ./a.out
-        actual="$?"
-        if [ "$actual" = "$expected" ]; then
-            printf "...passed\n"
-        else
-            printf "...failed\n"
-            exit 1
-        fi
-    done
-    set -e
-}
-
 runtest() {
     generate_compiler $COMPILER_GENERATION
     set +e
@@ -210,14 +187,11 @@ elif [ ${param[0]} = "debug" ]; then
 elif [ ${param[0]} = "test" ] || [ ${param[0]} = "t" ]; then
     if [ ${#param[@]} -eq 2 ] && [ ${param[1]} = "all" ]; then
         runtest
-        runtestold
         COMPILER_GENERATION=0 # 暫定的にunittestはgccで行うことを強制する
         unittest
     else
         runtest
     fi
-elif [ ${param[0]} = "testold" ]; then
-    runtestold
 elif [ ${param[0]} = "unittest" ] || [ ${param[0]} = "ut" ]; then
     unittest
 else
