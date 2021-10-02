@@ -65,13 +65,13 @@ compile() {
 
 runtest() {
     generate_compiler $COMPILER_GENERATION
-    set +e
     for dn in $(find tests/* -type d); do
         printf $dn
         cfiles=$(find $dn/*.c)
         compile $cfiles
         find *.s | xargs cc -static -g -O0
         expectedout=$(cat $dn/out)
+        set +e
         stdout=$(./a.out)
         if [[ $? -eq 0 ]] && [ "$stdout" == "$expectedout" ]; then
             echo ...passed
@@ -79,8 +79,8 @@ runtest() {
             echo ...failed
             exit 1
         fi
+        set -e
     done
-    set -e
 }
 
 unittest() {
