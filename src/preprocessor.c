@@ -490,7 +490,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 }
                 char *p = hn_tok->str;             // < or "
                 char *p_end = p + hn_tok->len - 1; // > or "
-                char *file_name = calloc(1, hn_tok->len - 2);
+                char *file_name = calloc(1, hn_tok->len - 1);
                 memcpy(file_name, p + 1, hn_tok->len - 2);
                 PPToken *include_tok = NULL;
                 if (*p == '"' && *p_end == '"')

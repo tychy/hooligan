@@ -13,31 +13,7 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-  test:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: test main
-        run: |
-          ./bin/hcli test all
-  selfhost:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: selfhost
-        run: |
-          make selfhost
-  generation:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: generation
-        run: |
-          ./bin/hcli test -g 100
-  gen0:
+  test0:
     needs: setup
     runs-on: ubuntu-latest
     steps:
@@ -45,3 +21,19 @@ jobs:
       - name: generation
         run: |
           ./bin/hcli test -g 0
+  test1:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: test main
+        run: |
+          ./bin/hcli test
+  test100:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: generation
+        run: |
+          ./bin/hcli test -g 100
