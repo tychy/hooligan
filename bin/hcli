@@ -17,15 +17,12 @@ display_help() {
     echo "  exec file...        指定ファイルを実行ファイルにコンパイルして実行する"
     echo "  debug file...       指定ファイルを実行ファイルにコンパイルしてgdbで実行する"
     echo "  test                -gオプションで指定されたコンパイラでテストを実行する"
-    echo "  test all            全てのテストを実行する"
-    echo "  unittest            -gオプションで指定されたコンパイラでユニットテストを実行する"
     printf "\n"
     echo "Alias"
     echo "  c = compile"
     echo "  s = src"
     echo "  e = exec"
     echo "  t = test"
-    echo "  ut = unittest"
     echo "  cl = clean"
 }
 
@@ -80,25 +77,6 @@ runtest() {
             exit 1
         fi
         set -e
-    done
-}
-
-unittest() {
-    generate_compiler $COMPILER_GENERATION
-    for dn in $(find unittest/* -maxdepth 0 -type d); do
-        printf $dn
-        compile $dn/test.c
-        find *.s | xargs cc -static -g -O0
-        expectedout=$(cat $dn/stdout.txt)
-        stdout=$(./a.out)
-        if [[ "$stdout" == "$expectedout" ]]; then
-            printf ...passed
-        else
-            printf ...failed
-            printf "\n"
-            exit 1
-        fi
-        printf "\n"
     done
 }
 
@@ -185,15 +163,7 @@ elif [ ${param[0]} = "debug" ]; then
     find *.s | xargs cc -static -g -O0
     gdb a.out
 elif [ ${param[0]} = "test" ] || [ ${param[0]} = "t" ]; then
-    if [ ${#param[@]} -eq 2 ] && [ ${param[1]} = "all" ]; then
-        runtest
-        COMPILER_GENERATION=0 # 暫定的にunittestはgccで行うことを強制する
-        unittest
-    else
-        runtest
-    fi
-elif [ ${param[0]} = "unittest" ] || [ ${param[0]} = "ut" ]; then
-    unittest
+    runtest
 else
     echo "存在しないサブコマンドです"
     exit 1
