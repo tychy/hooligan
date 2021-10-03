@@ -65,7 +65,7 @@ compile() {
 
 runtest() {
     generate_compiler $COMPILER_GENERATION
-    for dn in $(find tests/* -type d); do
+    for dn in $(find tests/* -maxdepth 0 -type d); do
         printf $dn
         cfiles=$(find $dn/*.c)
         compile $cfiles
