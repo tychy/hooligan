@@ -37,3 +37,11 @@ jobs:
       - name: generation
         run: |
           ./bin/hcli test -g 100
+  gen0:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: generation
+        run: |
+          ./bin/hcli test -g 0
