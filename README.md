@@ -1,6 +1,6 @@
 # hooligan
 
-hooligan is yet another tiny self-hosted C compiler.
+hooligan is yet another tiny self-hosted C compiler by @tychy and @yokonao.
 
 ## Get Started
 
