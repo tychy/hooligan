@@ -25,15 +25,6 @@ static char *reserved_word_list[20] = {
 
 static int reserved_word_list_count = 20;
 
-static Token *new_token(TokenKind kind, Token *cur, char *str)
-{
-    Token *tok = calloc(1, sizeof(Token));
-    tok->kind = kind;
-    tok->string = str;
-    cur->next = tok;
-    return tok;
-}
-
 static bool isreservedword(char *p, int len)
 {
     for (TokenKind tk = 0; tk < reserved_word_list_count; tk++)
@@ -57,7 +48,51 @@ static TokenKind find_reserved_word(char *p, int len)
     return -1; // Not Found
 }
 
-// PPTokenをTokenへと変換する
+
+static Token *new_token(TokenKind kind, int val, char *str, int len)
+{
+    Token *tok = calloc(1, sizeof(Token));
+    tok->kind = kind;
+    tok->value = val;
+    tok->string = str;
+    tok->length = len;
+    return tok;
+}
+
+static Token *convertPPTokenToToken(PPToken *pptok)
+{
+    TokenKind tk;
+    switch (pptok->kind)
+    {
+    case PPTK_CHAR:
+        tk = TK_CHARACTER;
+        break;
+    case PPTK_HN:
+        error_at(pptok->str, "未処理のプリプロセッシングトークン列です");
+        break;
+    case PPTK_IDENT:
+        if (isreservedword(pptok->str, pptok->len))
+        {
+            tk = find_reserved_word(pptok->str, pptok->len);
+        }
+        else
+        {
+            tk = TK_IDENT;
+        }
+        break;
+    case PPTK_NUMBER:
+        tk = TK_NUMBER;
+        break;
+    case PPTK_PUNC:
+        tk = TK_OPERATOR;
+        break;
+    case PPTK_STRING:
+        tk = TK_STRING;
+        break;
+    }
+    return new_token(tk, pptok->val, pptok->str, pptok->len);
+}
+
 Token *tokenize(PPToken *pptok)
 {
     Token head;
@@ -65,44 +100,10 @@ Token *tokenize(PPToken *pptok)
     Token *cur = &head;
     while (pptok != NULL)
     {
-        switch (pptok->kind)
-        {
-        case PPTK_CHAR:
-            cur = new_token(TK_CHARACTER, cur, pptok->str);
-            cur->value = pptok->val;
-            break;
-        case PPTK_HN:
-            error_at(pptok->str, "未処理のプリプロセッシングトークン列です");
-            break;
-        case PPTK_IDENT:
-            if (isreservedword(pptok->str, pptok->len))
-            {
-                int tk = find_reserved_word(pptok->str, pptok->len);
-                int len = strlen(reserved_word_list[tk]);
-                cur = new_token(tk, cur, pptok->str);
-                cur->length = len;
-            }
-            else
-            {
-                cur = new_token(TK_IDENT, cur, pptok->str);
-                cur->length = pptok->len;
-            }
-            break;
-        case PPTK_NUMBER:
-            cur = new_token(TK_NUMBER, cur, pptok->str);
-            cur->value = pptok->val;
-            break;
-        case PPTK_PUNC:
-            cur = new_token(TK_OPERATOR, cur, pptok->str);
-            cur->length = pptok->len;
-            break;
-        case PPTK_STRING:
-            cur = new_token(TK_STRING, cur, pptok->str);
-            cur->length = pptok->len;
-            break;
-        }
+        cur->next = convertPPTokenToToken(pptok);
+        cur = cur->next;
         pptok = pptok->next;
     }
-    new_token(TK_EOF, cur, "");
+    cur->next = new_token(TK_EOF, 0, "", 0);
     return head.next;
 }
