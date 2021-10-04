@@ -45,15 +45,16 @@ static char *punctuator_list[35] = {
 static int punctuator_list_count = 35;
 
 // indexに依存したコードを書いているので後方に追加していくこと
-static char *preprocessing_directive_list[5] = {
+static char *preprocessing_directive_list[6] = {
     "include",
     "define",
     "ifdef",
     "ifndef",
     "endif",
+    "line",
 };
 
-static int preprocessing_directive_list_count = 5;
+static int preprocessing_directive_list_count = 6;
 
 static PPToken *new_token(PPTokenKind kind, PPToken *cur, char *str)
 {
@@ -146,9 +147,17 @@ PPToken *decompose_to_pp_token(char *p)
     PPToken head;
     head.next = NULL;
     PPToken *cur = &head;
+    int line = 1;
 
     while (*p)
     {
+        if (*p == '\n')
+        {
+            p++;
+            line++;
+            continue;
+        }
+
         if (isspace(*p))
         {
             p++;
@@ -182,7 +191,7 @@ PPToken *decompose_to_pp_token(char *p)
             {
                 error("未定義のプリプロセッシング命令文です");
             }
-            int directive_index;
+            int directive_index = -1;
             for (int i = 0; i < preprocessing_directive_list_count; i++)
             {
                 char *directive = preprocessing_directive_list[i];
@@ -269,6 +278,7 @@ PPToken *decompose_to_pp_token(char *p)
                 {
                     // #define identの場合
                     cur = new_token(PPTK_DUMMY, cur, "");
+                    line++;
                     continue;
                 }
 
@@ -279,6 +289,7 @@ PPToken *decompose_to_pp_token(char *p)
                     {
                         // #define identの場合
                         cur = new_token(PPTK_DUMMY, cur, "");
+                        line++;
                         break;
                     }
                 }
@@ -325,6 +336,24 @@ PPToken *decompose_to_pp_token(char *p)
             else if (directive_index == 4)
             {
                 int i; // dummy
+            }
+            else if (directive_index == 5)
+            {
+                // #line 10
+                while (isspace(*p))
+                {
+                    p++;
+                }
+                if (isdigit(*p))
+                {
+                    cur = new_token(PPTK_NUMBER, cur, p);
+                    cur->val = strtol(p, &p, 10);
+                    line = cur->val - 1;
+                }
+                else
+                {
+                    error("不正なline文です");
+                }
             }
             else
             {
@@ -397,6 +426,14 @@ PPToken *decompose_to_pp_token(char *p)
 
         if (isnondigit(*p))
         {
+            if (strncmp(p, "__LINE__", 8) == 0)
+            {
+                cur = new_token(PPTK_NUMBER, cur, p);
+                cur->val = line;
+                p += 8;
+                continue;
+            }
+
             int i = 0;
             char *p_top = p;
             while (isnondigit(*p) || isdigit(*p))
@@ -687,6 +724,11 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                     }
                 }
                 continue;
+            }
+            if (isdirective_idx(cur->next, 5))
+            {
+                cur = cur->next->next->next;
+                prev->next = cur;
             }
         }
         // マクロの検索
