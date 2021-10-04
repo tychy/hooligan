@@ -34,15 +34,6 @@ static Token *new_token(TokenKind kind, Token *cur, char *str)
     return tok;
 }
 
-static bool isident(char p)
-{
-    if ((p >= 'a' && p <= 'z') || (p >= 'A' && p <= 'Z') || p == '_')
-    {
-        return true;
-    }
-    return false;
-}
-
 static bool isreservedword(char *p, int len)
 {
     for (TokenKind tk = 0; tk < reserved_word_list_count; tk++)
@@ -54,13 +45,12 @@ static bool isreservedword(char *p, int len)
     return false;
 }
 
-static TokenKind find_reserved_word(char *p)
+static TokenKind find_reserved_word(char *p, int len)
 {
     for (TokenKind tk = 0; tk < reserved_word_list_count; tk++)
     {
         char *word = reserved_word_list[tk];
-        int len = strlen(word);
-        if (strncmp(p, word, len) == 0 && !(isident(*(p + len))))
+        if (strncmp(p, word, len) == 0 && len == strlen(word))
             return tk;
     }
     error_at(p, "予約語ではありません");
@@ -87,7 +77,7 @@ Token *tokenize(PPToken *pptok)
         case PPTK_IDENT:
             if (isreservedword(pptok->str, pptok->len))
             {
-                int tk = find_reserved_word(pptok->str);
+                int tk = find_reserved_word(pptok->str, pptok->len);
                 int len = strlen(reserved_word_list[tk]);
                 cur = new_token(tk, cur, pptok->str);
                 cur->length = len;
