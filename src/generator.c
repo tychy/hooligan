@@ -97,12 +97,10 @@ static void gen_va_arg(Node *node)
     }
     Node *first_arg = node->next->child;
     Node *second_arg = node->next->next->child;
-    // TODO ここでkindをチェックしたい
-    // 今はND_TYPEを追加するとテストがコケる
-    // if (second_arg->kind != ND_TYPE)
-    // {
-    //     error("va_argの第2引数には型を指定してください");
-    // }
+    if (second_arg->kind != ND_TYPE)
+    {
+        error("va_argの第2引数には型を指定してください");
+    }
 
     println("  mov rax, rbp");
     println("  sub rax, %d", first_arg->offset);
@@ -786,6 +784,8 @@ static void gen(Node *node)
         println("  or rax, rdi");
         println("  .L.OROPERATOR%d:", node->logical_operator_label);
         push(RG_RAX);
+        return;
+    case ND_TYPE:
         return;
     }
 

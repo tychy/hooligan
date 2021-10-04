@@ -91,6 +91,7 @@ typedef enum
     ND_POSTINC,
     ND_POSTDEC,
     ND_NOP,
+    ND_TYPE,
 } NodeKind;
 
 typedef enum

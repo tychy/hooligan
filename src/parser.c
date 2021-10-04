@@ -250,6 +250,7 @@ static Node *ident()
             error("識別子が解決できませんでした");
         }
         Node *node = calloc(1, sizeof(Node));
+        node->kind = ND_TYPE;
         node->ty = ty;
         return node;
     }
@@ -295,6 +296,7 @@ static Node *primary()
     else
     {
         node = calloc(1, sizeof(Node));
+        node->kind = ND_TYPE;
         node->ty = consume_type();
     }
     for (;;)
