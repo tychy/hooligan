@@ -96,7 +96,6 @@ static Token *convertPPTokenToToken(PPToken *pptok)
 Token *tokenize(PPToken *pptok)
 {
     Token head;
-    head.next = NULL;
     Token *cur = &head;
     while (pptok != NULL)
     {
