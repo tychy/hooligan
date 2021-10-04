@@ -191,7 +191,7 @@ PPToken *decompose_to_pp_token(char *p)
             {
                 error("未定義のプリプロセッシング命令文です");
             }
-            int directive_index;
+            int directive_index = -1;
             for (int i = 0; i < preprocessing_directive_list_count; i++)
             {
                 char *directive = preprocessing_directive_list[i];
@@ -336,6 +336,24 @@ PPToken *decompose_to_pp_token(char *p)
             else if (directive_index == 4)
             {
                 int i; // dummy
+            }
+            else if (directive_index == 5)
+            {
+                // #line 10
+                while (isspace(*p))
+                {
+                    p++;
+                }
+                if (isdigit(*p))
+                {
+                    cur = new_token(PPTK_NUMBER, cur, p);
+                    cur->val = strtol(p, &p, 10);
+                    line = cur->val - 1;
+                }
+                else
+                {
+                    error("不正なline文です");
+                }
             }
             else
             {
@@ -706,6 +724,11 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                     }
                 }
                 continue;
+            }
+            if (isdirective_idx(cur->next, 5))
+            {
+                cur = cur->next->next->next;
+                prev->next = cur;
             }
         }
         // マクロの検索
