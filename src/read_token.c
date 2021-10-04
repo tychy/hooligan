@@ -70,12 +70,12 @@ Type *consume_type()
             }
             if (i == 0)
             {
-                error("識別子が必要です");
+                error_at(token->string, "識別子が必要です");
             }
         }
         else
         {
-            error("識別子が必要です");
+            error_at(token->string, "識別子が必要です");
         }
     }
     else
@@ -151,7 +151,7 @@ void expect(char *op)
 int expect_number()
 {
     if (token->kind != TK_NUMBER)
-        error("数字ではありません");
+        error_at(token->string, "数字ではありません");
     int value = token->value;
     token = token->next;
     return value;
@@ -161,7 +161,7 @@ int expect_char()
 {
     if (token->kind != TK_CHARACTER)
     {
-        error("文字ではありません");
+        error_at(token->string, "文字ではありません");
     }
     int value = token->value;
     token = token->next;

@@ -176,7 +176,7 @@ PPToken *decompose_to_pp_token(char *p)
         {
             char *q = strstr(p + 2, "*/");
             if (!q)
-                error("コメントが閉じられていません");
+                error_at(p, "コメントが閉じられていません");
             p = q + 2;
             continue;
         }
@@ -189,7 +189,7 @@ PPToken *decompose_to_pp_token(char *p)
             p++;
             if (!isdirective(p))
             {
-                error("未定義のプリプロセッシング命令文です");
+                error_at(p, "未定義のプリプロセッシング命令文です");
             }
             int directive_index = -1;
             for (int i = 0; i < preprocessing_directive_list_count; i++)
@@ -227,7 +227,7 @@ PPToken *decompose_to_pp_token(char *p)
                     }
                     if (cur->kind != PPTK_HN)
                     {
-                        error("不正なinclude文です");
+                        error_at(p, "不正なinclude文です");
                     }
                 }
                 else if (*p == '"')
@@ -247,12 +247,12 @@ PPToken *decompose_to_pp_token(char *p)
                     }
                     if (cur->kind != PPTK_HN)
                     {
-                        error("不正なinclude文です");
+                        error_at(p, "不正なinclude文です");
                     }
                 }
                 else
                 {
-                    error("不正なinclude文です");
+                    error_at(p, "不正なinclude文です");
                 }
             }
             else if (directive_index == 1)
@@ -357,7 +357,7 @@ PPToken *decompose_to_pp_token(char *p)
             }
             else
             {
-                error("未定義のプリプロセッシング命令文です");
+                error_at(p, "未定義のプリプロセッシング命令文です");
             }
             while (*p != '\n')
                 p++;
@@ -375,7 +375,7 @@ PPToken *decompose_to_pp_token(char *p)
                 {
                     if (!*(p + 1))
                     {
-                        error("エスケープ文字のあとに文字がありません");
+                        error_at(p, "エスケープ文字のあとに文字がありません");
                     }
                     p += 2;
                     i += 2;
@@ -391,7 +391,7 @@ PPToken *decompose_to_pp_token(char *p)
                 }
             }
             if (*p != '"')
-                error("ダブルクォテーションが閉じていません");
+                error_at(p, "ダブルクォテーションが閉じていません");
 
             p++;
             cur = new_token(PPTK_STRING, cur, p_top);
@@ -418,7 +418,7 @@ PPToken *decompose_to_pp_token(char *p)
             p++;
             if (*p != '\'')
             {
-                error("シングルクォーテーションが閉じていません");
+                error_at(p, "シングルクォーテーションが閉じていません");
             }
             p++;
             continue;
@@ -523,7 +523,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 PPToken *hn_tok = cur->next->next;
                 if (hn_tok->kind != PPTK_HN)
                 {
-                    error("不正なinclude文です");
+                    error_at(cur->str, "不正なinclude文です");
                 }
                 char *p = hn_tok->str;             // < or "
                 char *p_end = p + hn_tok->len - 1; // > or "
@@ -593,11 +593,11 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 {
                     if (target->len == replace->len && strncmp(target->str, replace->str, target->len) == 0)
                     {
-                        error("target == replace　のマクロは定義できません");
+                        error_at(cur->str, "target == replace　のマクロは定義できません");
                     }
                     if (find_macro(target->str, target->len) != NULL)
                     {
-                        error("マクロの二重定義です");
+                        error_at(cur->str, "マクロの二重定義です");
                     }
                 }
                 else if (target->kind == PPTK_IDENT && replace->kind == PPTK_DUMMY)
@@ -605,12 +605,12 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                     // #define identに対応
                     if (find_macro(target->str, target->len) != NULL)
                     {
-                        error("マクロの二重定義です");
+                        error_at(cur->str, "マクロの二重定義です");
                     }
                 }
                 else
                 {
-                    error("不正なdefine文です");
+                    error_at(cur->str, "不正なdefine文です");
                 }
                 Macro *mac = calloc(1, sizeof(Macro));
                 mac->target = target;
@@ -640,7 +640,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                     PPToken *before_endif = fetch_before_endif(target);
                     if (before_endif == NULL)
                     {
-                        error("ifdefの後にはendifが必要です");
+                        error_at(cur->str, "ifdefの後にはendifが必要です");
                     }
                     PPToken *after_endif = before_endif->next->next->next;
                     before_endif->next = after_endif;
@@ -661,7 +661,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                     PPToken *before_endif = fetch_before_endif(target);
                     if (before_endif == NULL)
                     {
-                        error("ifdefの後にはendifが必要です");
+                        error_at(cur->str, "ifdefの後にはendifが必要です");
                     }
                     PPToken *after_endif = before_endif->next->next->next;
                     if (prev == cur)
@@ -687,7 +687,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                     PPToken *before_endif = fetch_before_endif(target);
                     if (before_endif == NULL)
                     {
-                        error("ifndefの後にはendifが必要です");
+                        error_at(cur->str, "ifndefの後にはendifが必要です");
                     }
                     PPToken *after_endif = before_endif->next->next->next;
                     before_endif->next = after_endif;
@@ -708,7 +708,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                     PPToken *before_endif = fetch_before_endif(target);
                     if (before_endif == NULL)
                     {
-                        error("iffdefの後にはendifが必要です");
+                        error_at(cur->str, "iffdefの後にはendifが必要です");
                     }
                     PPToken *after_endif = before_endif->next->next->next;
                     if (prev == cur)
