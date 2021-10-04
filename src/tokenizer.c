@@ -1,46 +1,5 @@
 #include "hooligan.h"
 
-// note: 文字数の多いものを先に登録する
-// note: 要素数を更新する
-static char *operator_list[34] = {
-    "...",
-    "++",
-    "--",
-    "+=",
-    "-=",
-    "*=",
-    "%=",
-    "==",
-    "!=",
-    ">=",
-    "<=",
-    "->",
-    "&&",
-    "||",
-    ">",
-    "<",
-    "+",
-    "-",
-    "*",
-    "/",
-    "%",
-    "(",
-    ")",
-    "=",
-    ";",
-    "{",
-    "}",
-    ",",
-    "&",
-    "[",
-    "]",
-    ".",
-    "!",
-    ":",
-};
-
-static int operator_list_count = 34;
-
 static char *reserved_word_list[20] = {
     "return",
     "if",
@@ -108,19 +67,6 @@ static TokenKind find_reserved_word(char *p)
     return -1; // Not Found
 }
 
-static bool isoperator(char *p)
-{
-    for (int i = 0; i < operator_list_count; i++)
-    {
-        char *str = operator_list[i];
-        if (strncmp(p, str, strlen(str)) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 // PPTokenをTokenへと変換する
 Token *tokenize(PPToken *pptok)
 {
@@ -157,20 +103,8 @@ Token *tokenize(PPToken *pptok)
             cur->value = pptok->val;
             break;
         case PPTK_PUNC:
-            if (!isoperator(pptok->str))
-            {
-                error_at(pptok->str, "不正なトークンです");
-            }
-            for (int i = 0; i < operator_list_count; i++)
-            {
-                char *op = operator_list[i];
-                if (strncmp(pptok->str, op, strlen(op)) == 0)
-                {
-                    cur = new_token(TK_OPERATOR, cur, pptok->str);
-                    cur->length = strlen(op);
-                    break;
-                }
-            }
+            cur = new_token(TK_OPERATOR, cur, pptok->str);
+            cur->length = pptok->len;
             break;
         case PPTK_STRING:
             cur = new_token(TK_STRING, cur, pptok->str);
