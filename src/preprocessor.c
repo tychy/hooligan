@@ -45,15 +45,16 @@ static char *punctuator_list[35] = {
 static int punctuator_list_count = 35;
 
 // indexに依存したコードを書いているので後方に追加していくこと
-static char *preprocessing_directive_list[5] = {
+static char *preprocessing_directive_list[6] = {
     "include",
     "define",
     "ifdef",
     "ifndef",
     "endif",
+    "line",
 };
 
-static int preprocessing_directive_list_count = 5;
+static int preprocessing_directive_list_count = 6;
 
 static PPToken *new_token(PPTokenKind kind, PPToken *cur, char *str)
 {
@@ -146,6 +147,7 @@ PPToken *decompose_to_pp_token(char *p)
     PPToken head;
     head.next = NULL;
     PPToken *cur = &head;
+    int line = 0;
 
     while (*p)
     {
