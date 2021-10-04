@@ -392,6 +392,7 @@ int get_unique_num();
 void error(char *fmt);
 void error1(char *fmt, char *v1);
 void error2(char *fmt, char *v1, char *v2);
+void error_at(char *loc, char *msg);
 char *insert_str(char *src, int pos, char *target);
 char *join_str(char *pre, char *post);
 char *read_file(char *path);

@@ -116,7 +116,7 @@ static TokenKind find_reserved_word(char *p)
         if (strncmp(p, word, len) == 0 && !(isident(*(p + len))))
             return tk;
     }
-    error("予約語ではありません");
+    error_at(p, "予約語ではありません");
     return -1; // Not Found
 }
 
@@ -148,7 +148,7 @@ Token *tokenize(PPToken *pptok)
             cur->value = pptok->val;
             break;
         case PPTK_HN:
-            error("未処理のプリプロセッシングトークン列です");
+            error_at(pptok->str, "未処理のプリプロセッシングトークン列です");
             break;
         case PPTK_IDENT:
             if (isreservedword2(pptok->str, pptok->len))
@@ -171,7 +171,7 @@ Token *tokenize(PPToken *pptok)
         case PPTK_PUNC:
             if (!isoperator(pptok->str))
             {
-                error("不正なトークンです");
+                error_at(pptok->str, "不正なトークンです");
             }
             for (int i = 0; i < operator_list_count; i++)
             {

@@ -21,6 +21,30 @@ void error2(char *fmt, char *v1, char *v2)
     exit(1);
 }
 
+void error_at(char *loc, char *msg)
+{
+    fprintf(stderr, "エラーが発生しました");
+    // 前と後ろの改行コードを調べてエラーになった行を抜き出せるようにする
+    char *start = loc;
+    while (*start != '\n')
+    {
+        start -= 1;
+    }
+    char *end = loc;
+    while (*end != '\n')
+    {
+        end += 1;
+    }
+    int countOfLine = end - start;
+    int countToLoc = loc - start;
+    fprintf(stderr, "%.*s\n", countOfLine, start);
+    fprintf(stderr, "%*s", countToLoc, " "); // pos個の空白を出力
+    fprintf(stderr, "^ ");
+    fprintf(stderr, "%s", msg);
+    fprintf(stderr, "%s", end);
+    exit(1);
+}
+
 char *insert_str(char *src, int pos, char *target)
 {
     char *res = calloc(1, strlen(src) + strlen(target) + 1);
@@ -71,7 +95,7 @@ char *remove_extension(char *p)
         preLength = strchr(p, '.') - p;
     }
     char *res = calloc(1, preLength + 1);
-    memcpy(res, p, preLength); 
+    memcpy(res, p, preLength);
     return res;
 }
 

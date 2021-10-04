@@ -247,7 +247,7 @@ static Node *ident()
         Type *ty = find_defined_type(ident);
         if (!ty)
         {
-            error("識別子が解決できませんでした");
+            error_at(ident->string, "識別子が解決できませんでした");
         }
         Node *node = calloc(1, sizeof(Node));
         node->ty = ty;
