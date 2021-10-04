@@ -2,49 +2,32 @@
 
 hooligan is yet another tiny self-hosted C compiler.
 
-### todo
-- [x] self-host
-- [x] run test using 2nd gen compiler
+## Get Started
 
-## How to use
-### 前提
+run `export PATH=bin:$PATH` to use `hcli`
 
-プロジェクトルートで以下のコマンドを走らせる
+if you use direnv, add `PATH_add bin` to .envrc
 
-`export PATH=bin:$PATH`
-
-もしくは.envrcに以下のコマンドを記述
-
-`PATH_add bin`
-### Command
+## Command
 ```
-// ヘルプ表示
+// display help
 hcli -h
 
-// テストをすべて走らせる
-hcli test all
-
-// a.cに対してアセンブリの出力
+// compile specified files and output assembly code
 hcli src a.c
 
-// a.cに対してアセンブリを出力し実行する
+// compile and assembly specified files and execute
 hcli exec a.c
 
-// セルフホストする
+// generate 2nd gen compiler
 make selfhost
-// 第二世代コンパイラでテストを走らせる
+
+// run tests using 2nd gen compiler
 hcli test -g 2
 
 ```
 
-### コンパイラの世代
-```
-gcc => 第0世代コンパイラ
-$PROJECT_ROOT/bin/hcc1 => 第1世代コンパイラ
-$PROJECT_ROOT/bin/hcc2 => 第2世代コンパイラ
-```
-
-## 参考リンク
+## References
 [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook)
 
 [アセンブリ命令](https://www.mztn.org/lxasm64/amd00.html)
