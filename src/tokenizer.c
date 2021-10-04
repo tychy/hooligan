@@ -84,19 +84,7 @@ static bool isident(char p)
     return false;
 }
 
-static bool isreservedword(char *p)
-{
-    for (TokenKind tk = 0; tk < reserved_word_list_count; tk++)
-    {
-        char *word = reserved_word_list[tk];
-        int len = strlen(word);
-        if (strncmp(p, word, len) == 0 && !(isident(*(p + len))))
-            return true;
-    }
-    return false;
-}
-
-static bool isreservedword2(char *p, int len)
+static bool isreservedword(char *p, int len)
 {
     for (TokenKind tk = 0; tk < reserved_word_list_count; tk++)
     {
@@ -151,7 +139,7 @@ Token *tokenize(PPToken *pptok)
             error_at(pptok->str, "未処理のプリプロセッシングトークン列です");
             break;
         case PPTK_IDENT:
-            if (isreservedword2(pptok->str, pptok->len))
+            if (isreservedword(pptok->str, pptok->len))
             {
                 int tk = find_reserved_word(pptok->str);
                 int len = strlen(reserved_word_list[tk]);
