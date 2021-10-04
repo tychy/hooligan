@@ -147,10 +147,17 @@ PPToken *decompose_to_pp_token(char *p)
     PPToken head;
     head.next = NULL;
     PPToken *cur = &head;
-    int line = 0;
+    int line = 1;
 
     while (*p)
     {
+        if (*p == '\n')
+        {
+            p++;
+            line++;
+            continue;
+        }
+
         if (isspace(*p))
         {
             p++;
@@ -271,6 +278,7 @@ PPToken *decompose_to_pp_token(char *p)
                 {
                     // #define identの場合
                     cur = new_token(PPTK_DUMMY, cur, "");
+                    line++;
                     continue;
                 }
 
@@ -281,6 +289,7 @@ PPToken *decompose_to_pp_token(char *p)
                     {
                         // #define identの場合
                         cur = new_token(PPTK_DUMMY, cur, "");
+                        line++;
                         break;
                     }
                 }
@@ -399,6 +408,14 @@ PPToken *decompose_to_pp_token(char *p)
 
         if (isnondigit(*p))
         {
+            if (strncmp(p, "__LINE__", 8) == 0)
+            {
+                cur = new_token(PPTK_NUMBER, cur, p);
+                cur->val = line;
+                p += 8;
+                continue;
+            }
+
             int i = 0;
             char *p_top = p;
             while (isnondigit(*p) || isdigit(*p))
