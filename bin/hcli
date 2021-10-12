@@ -27,22 +27,14 @@ display_help() {
 }
 
 clean() {
-    for fn in $(find . -name '*.s'); do
-        rm "$fn"
-    done
-    for fn in $(find . -name 'a.out'); do
-        rm "$fn"
-    done
-    for fn in $(find . -name 'core.*'); do
-        rm "$fn"
-    done
+    find . -name '*.s' -exec rm {} +
+    find . -name 'a.out' -exec rm {} +
+    find . -name 'core.*' -exec rm {} +
     rm bin/hcc*
 }
 
 clean_assembly() {
-    for fn in $(find . -name '*.s'); do
-        rm "$fn"
-    done
+    find . -name '*.s' -exec rm {} +
 }
 
 COMPILER_GENERATED=0
@@ -65,7 +57,7 @@ runtest() {
     for dn in $(find tests/* -maxdepth 0 -type d); do
         printf "%s" "$dn"
         cfiles=$(find "$dn"/*.c)
-        compile $cfiles
+        compile $cfiles # 引数を一文にジョインしたいのでQuoteしない
         find *.s | xargs cc -static -g -O0
         expectedout=$(cat "$dn"/out)
         set +e
