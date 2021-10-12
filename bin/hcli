@@ -57,7 +57,7 @@ runtest() {
     for dn in $(find tests/* -maxdepth 0 -type d); do
         printf "%s" "$dn"
         cfiles=$(find "$dn"/*.c)
-        compile $cfiles # 引数を一文にジョインしたいのでQuoteしない
+        compile $cfiles # Quoteすると複数ファイルが一つの引数として扱われてしまう
         find ./*.s | xargs cc -static -g -O0
         expectedout=$(cat "$dn"/out)
         set +e
