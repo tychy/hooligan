@@ -58,7 +58,7 @@ runtest() {
         printf "%s" "$dn"
         cfiles=$(find "$dn"/*.c)
         compile $cfiles # 引数を一文にジョインしたいのでQuoteしない
-        find *.s | xargs cc -static -g -O0
+        find ./*.s | xargs cc -static -g -O0
         expectedout=$(cat "$dn"/out)
         set +e
         stdout=$(./a.out)
@@ -145,14 +145,14 @@ elif [ "${param[0]}" = "src" ] || [ "${param[0]}" = "s" ]; then
     done
 elif [ "${param[0]}" = "exec" ] || [ "${param[0]}" = "e" ]; then
     compile "${param[@]:1}"
-    find *.s | xargs cc -static -g -O0
+    find ./*.s | xargs cc -static -g -O0
     set +e
     ./a.out
     echo "結果: $?"
     set -e
 elif [ "${param[0]}" = "debug" ]; then
     compile "${@:1}"
-    find *.s | xargs cc -static -g -O0
+    find ./*.s | xargs cc -static -g -O0
     gdb a.out
 elif [ "${param[0]}" = "test" ] || [ "${param[0]}" = "t" ]; then
     runtest
