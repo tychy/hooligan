@@ -65,7 +65,7 @@ runtest() {
     for dn in $(find tests/* -maxdepth 0 -type d); do
         printf "%s" "$dn"
         cfiles=$(find "$dn"/*.c)
-        compile "$cfiles"
+        compile $cfiles
         find *.s | xargs cc -static -g -O0
         expectedout=$(cat "$dn"/out)
         set +e
