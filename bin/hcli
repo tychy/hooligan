@@ -27,47 +27,39 @@ display_help() {
 }
 
 clean() {
-    for fn in $(find . -name '*.s'); do
-        rm $fn
-    done
-    for fn in $(find . -name 'a.out'); do
-        rm $fn
-    done
-    for fn in $(find . -name 'core.*'); do
-        rm $fn
-    done
+    find . -name '*.s' -exec rm {} +
+    find . -name 'a.out' -exec rm {} +
+    find . -name 'core.*' -exec rm {} +
     rm bin/hcc*
 }
 
 clean_assembly() {
-    for fn in $(find . -name '*.s'); do
-        rm $fn
-    done
+    find . -name '*.s' -exec rm {} +
 }
 
 COMPILER_GENERATED=0
 compile() {
     clean_assembly
-    generate_compiler $COMPILER_GENERATION
+    generate_compiler "$COMPILER_GENERATION"
     if [[ COMPILER_GENERATION -eq 0 ]]; then
         gcc -masm=intel -S "$@"
     else
         if [[ VERBOSE -eq 1 ]]; then
-            ./bin/hcc$COMPILER_GENERATION -v "$@"
+            ./bin/hcc"$COMPILER_GENERATION" -v "$@"
         else
-            ./bin/hcc$COMPILER_GENERATION "$@"
+            ./bin/hcc"$COMPILER_GENERATION" "$@"
         fi
     fi
 }
 
 runtest() {
-    generate_compiler $COMPILER_GENERATION
+    generate_compiler "$COMPILER_GENERATION"
     for dn in $(find tests/* -maxdepth 0 -type d); do
-        printf $dn
-        cfiles=$(find $dn/*.c)
-        compile $cfiles
-        find *.s | xargs cc -static -g -O0
-        expectedout=$(cat $dn/out)
+        printf "%s" "$dn"
+        cfiles=$(find "$dn"/*.c)
+        compile $cfiles # Quoteすると複数ファイルが一つの引数として扱われてしまう
+        find ./*.s | xargs cc -static -g -O0
+        expectedout=$(cat "$dn"/out)
         set +e
         stdout=$(./a.out)
         if [[ $? -eq 0 ]] && [ "$stdout" == "$expectedout" ]; then
@@ -86,15 +78,15 @@ generate_compiler() {
         return
     fi
     target_generation=$1
-    for ((i = 0; i < $target_generation; i++)); do
+    for ((i = 0; i < "$target_generation"; i++)); do
         if [[ i -eq 0 ]]; then
             make
         else
             clean_assembly
-            make selfhost COMPILER=bin/hcc$i OUTPUT=bin/hcc$(($i + 1))
+            make selfhost COMPILER=bin/hcc$i OUTPUT=bin/hcc$((i + 1))
             ESC=$(printf '\033')
-            printf "${ESC}[32m✔${ESC}[m"
-            printf " 第$(($i + 1))世代のコンパイラが完成しました\n"
+            printf "%s[32m✔%s[m" "${ESC}" "${ESC}"
+            printf " 第%s世代のコンパイラが完成しました\n" "$((i + 1))"
         fi
     done
     COMPILER_GENERATED=1
@@ -138,31 +130,31 @@ for OPT in "$@"; do
     esac
 done
 
-if [ ${param[0]} = "clean" ] || [ ${param[0]} = "cl" ]; then
+if [ "${param[0]}" = "clean" ] || [ "${param[0]}" = "cl" ]; then
     printf "不要な一時ファイルを消去します..."
     clean
     printf "done\n"
     exit 0
-elif [ ${param[0]} = "compile" ] || [ ${param[0]} = "c" ]; then
-    compile ${param[@]:1}
-elif [ ${param[0]} = "src" ] || [ ${param[0]} = "s" ]; then
-    compile ${param[@]:1}
+elif [ "${param[0]}" = "compile" ] || [ "${param[0]}" = "c" ]; then
+    compile "${param[@]:1}"
+elif [ "${param[0]}" = "src" ] || [ "${param[0]}" = "s" ]; then
+    compile "${param[@]:1}"
     for fn in $(find . -name '*.s'); do
-        printf "\n$(basename $fn)\n"
-        cat $fn
+        printf "\n%s\n" "$(basename "$fn")"
+        cat "$fn"
     done
-elif [ ${param[0]} = "exec" ] || [ ${param[0]} = "e" ]; then
-    compile ${param[@]:1}
-    find *.s | xargs cc -static -g -O0
+elif [ "${param[0]}" = "exec" ] || [ "${param[0]}" = "e" ]; then
+    compile "${param[@]:1}"
+    find ./*.s | xargs cc -static -g -O0
     set +e
     ./a.out
     echo "結果: $?"
     set -e
-elif [ ${param[0]} = "debug" ]; then
-    compile ${@:1}
-    find *.s | xargs cc -static -g -O0
+elif [ "${param[0]}" = "debug" ]; then
+    compile "${@:1}"
+    find ./*.s | xargs cc -static -g -O0
     gdb a.out
-elif [ ${param[0]} = "test" ] || [ ${param[0]} = "t" ]; then
+elif [ "${param[0]}" = "test" ] || [ "${param[0]}" = "t" ]; then
     runtest
 else
     echo "存在しないサブコマンドです"
