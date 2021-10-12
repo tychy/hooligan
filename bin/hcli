@@ -63,7 +63,7 @@ compile() {
 runtest() {
     generate_compiler "$COMPILER_GENERATION"
     for dn in $(find tests/* -maxdepth 0 -type d); do
-        printf "$dn"
+        printf "%s" "$dn"
         cfiles=$(find "$dn"/*.c)
         compile "$cfiles"
         find *.s | xargs cc -static -g -O0
@@ -93,8 +93,8 @@ generate_compiler() {
             clean_assembly
             make selfhost COMPILER=bin/hcc$i OUTPUT=bin/hcc$(($i + 1))
             ESC=$(printf '\033')
-            printf "${ESC}[32m✔${ESC}[m"
-            printf " 第$(($i + 1))世代のコンパイラが完成しました\n"
+            printf "%s[32m✔%s[m" "${ESC}" "${ESC}"
+            printf " 第%s世代のコンパイラが完成しました\n" "$(($i + 1))"
         fi
     done
     COMPILER_GENERATED=1
@@ -148,7 +148,7 @@ elif [ "${param[0]}" = "compile" ] || [ "${param[0]}" = "c" ]; then
 elif [ "${param[0]}" = "src" ] || [ "${param[0]}" = "s" ]; then
     compile "${param[@]:1}"
     for fn in $(find . -name '*.s'); do
-        printf "\n$(basename "$fn")\n"
+        printf "\n%s\n" "$(basename "$fn")"
         cat "$fn"
     done
 elif [ "${param[0]}" = "exec" ] || [ "${param[0]}" = "e" ]; then
