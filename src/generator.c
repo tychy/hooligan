@@ -494,29 +494,23 @@ static void gen_assign(Node *node)
 
     gen_addr(node->lhs);
     gen(node->rhs);
+    pop(RG_RDI);
+    pop(RG_RAX);
+
     if (is_int(node->ty))
     {
-        pop(RG_RDI);
-        pop(RG_RAX);
-
         println("  mov [rax], edi");
     }
     else if (is_float(node->ty))
     {
-        pop(RG_RDI);
-        pop(RG_RAX);
         println("  mov [rax], edi");
     }
     else if (is_char(node->ty))
     {
-        pop(RG_RDI);
-        pop(RG_RAX);
         println("  mov [rax], dil");
     }
     else
     {
-        pop(RG_RDI);
-        pop(RG_RAX);
         println("  mov [rax], rdi");
     }
     push(RG_RDI);
@@ -896,8 +890,6 @@ static void gen(Node *node)
             depth -= 2;
             println("  ucomiss xmm0, xmm1");
             println("  sete al");
-            println("  movzb rax, al");
-            push(RG_RAX);
         }
         else
         {
@@ -905,9 +897,9 @@ static void gen(Node *node)
             pop(RG_RAX);
             println("  cmp rax, rdi");
             println("  sete al");
-            println("  movzb rax, al");
-            push(RG_RAX);
         }
+        println("  movzb rax, al");
+        push(RG_RAX);
         break;
 
     case ND_NEQUAL:
@@ -917,11 +909,8 @@ static void gen(Node *node)
             println("  movss xmm1, [rsp]");
             println("  add rsp, 16");
             depth -= 2;
-
             println("  ucomiss xmm0, xmm1");
             println("  setne al");
-            println("  movzb rax, al");
-            push(RG_RAX);
         }
         else
         {
@@ -929,9 +918,10 @@ static void gen(Node *node)
             pop(RG_RAX);
             println("  cmp rax, rdi");
             println("  setne al");
-            println("  movzb rax, al");
-            push(RG_RAX);
         }
+        println("  movzb rax, al");
+        push(RG_RAX);
+
         break;
     case ND_GEQ:
         if (node->lhs->ty->ty == FLOAT)
@@ -940,7 +930,6 @@ static void gen(Node *node)
             println("  movss xmm1, [rsp]");
             println("  add rsp, 16");
             depth -= 2;
-
             println("  comiss xmm0, xmm1");
             println("  setnb al");
         }
