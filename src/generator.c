@@ -874,7 +874,7 @@ static void gen(Node *node)
             println("  movss xmm0, [rax]");
             println("  movss xmm1,  [rdi]");
             println("  ucomiss xmm0, xmm1");
-            println("  setge al");
+            println("  setnb al");
         }
         else
         {
@@ -891,13 +891,14 @@ static void gen(Node *node)
         {
             println("  movss xmm0, [rax]");
             println("  movss xmm1,  [rdi]");
-            println("  ucomiss xmm0, xmm1");
+            println("  ucomiss xmm1, xmm0");
+            println("  setnb al");
         }
         else
         {
             println("  cmp rax, rdi");
+            println("  setle al");
         }
-        println("  setle al");
         println("  movzb rax, al");
         push(RG_RAX);
         break;
