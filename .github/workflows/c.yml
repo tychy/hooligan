@@ -56,4 +56,4 @@ jobs:
         run: echo "~/.local/bin" >> $GITHUB_PATH
       - name: run shellspec
         run: |
-          shellspec --format documentation
+          ~/.local/bin/shellspec --format documentation
