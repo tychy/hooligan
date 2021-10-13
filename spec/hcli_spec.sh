@@ -1,0 +1,127 @@
+Describe 'bin/hcli'
+  Describe '-h option'
+    It 'outputs help text'
+      When run ./bin/hcli -h
+      The status should eq 1
+      The output should include "ヘルプだよ"
+      The error should be blank
+    End
+
+    It 'works in --help'
+      When run ./bin/hcli -h
+      The status should eq 1
+      The output should include "ヘルプだよ"
+      The error should be blank
+    End
+  End
+
+  Describe 'clear command'
+    add_assembly_file() { touch a.s; }
+    BeforeEach 'add_assembly_file'
+    
+    It 'deletes all .s files'
+      When run ./bin/hcli clean && [ ! -e "./*.s" ]
+      The status should eq 0
+      The output should eq "不要な一時ファイルを消去します...done"
+      The error should be blank
+    End
+
+    It 'works in short hand'
+      When run ./bin/hcli cl && [ ! -e "./*.s" ]
+      The status should eq 0
+      The output should eq "不要な一時ファイルを消去します...done"
+      The error should be blank
+    End
+  End
+
+  Describe 'compile command'
+    clean() { ./bin/hcli clean > /dev/null; }
+    BeforeEach 'clean'
+
+    It 'performs compilation'
+      When run ./bin/hcli compile tests/spec/main.c
+      The status should eq 0
+      The path ./main.s should be exist
+      The output should include "" # Warningを抑制するために標準出力をテストする必要がある
+      The error should be blank
+    End
+
+    It 'works in short hand'
+      When run ./bin/hcli compile tests/spec/main.c
+      The status should eq 0
+      The path ./main.s should be exist
+      The output should include "" # Warningを抑制するために標準出力をテストする必要がある
+      The error should be blank
+    End
+  End
+
+  Describe 'src command'
+    clean() { ./bin/hcli clean > /dev/null; }
+    BeforeEach 'clean'
+
+    It 'output the content of assembly file'
+      When run ./bin/hcli src tests/spec/main.c
+      The status should eq 0
+      The output should include ".intel_syntax noprefix"
+      The error should be blank
+    End
+
+    It 'works in short hand'
+      When run ./bin/hcli s tests/spec/main.c
+      The status should eq 0
+      The output should include ".intel_syntax noprefix"
+      The error should be blank
+    End
+  End
+
+  Describe 'exec command'
+    clean() { ./bin/hcli clean > /dev/null; }
+    BeforeEach 'clean'
+
+    It 'compiles and executes .c file'
+      When run ./bin/hcli exec tests/spec/main.c
+      The status should eq 0
+      The output should include "結果: 0"
+      The output should include "Hello, World"
+      The error should be blank
+    End
+
+    It 'works in short hand'
+      When run ./bin/hcli exec tests/spec/main.c
+      The status should eq 0
+      The output should include "結果: 0"
+      The output should include "Hello, World"
+      The error should be blank
+    End
+  End
+
+  Describe 'test command'
+    It 'run tests successfully in 1st generation compiler'
+      When run ./bin/hcli test
+      The status should eq 0
+      The output should include passed
+      The error should be blank
+    End
+
+    It 'works in shorthand'
+      When run ./bin/hcli t
+      The status should eq 0
+      The output should include passed
+      The error should be blank
+    End
+
+    It 'run tests successfully using gcc'
+      When run ./bin/hcli test -g 0 2>/dev/null
+      The status should eq 0
+      The output should include passed
+      The error should include "" # Warningを抑制するために標準エラーをテストする必要がある
+    End
+
+    It 'run tests successfully in 100th generation compiler'
+      When run ./bin/hcli test -g 100
+      The status should eq 0
+      The output should include passed
+      The error should be blank
+    End
+  End
+End

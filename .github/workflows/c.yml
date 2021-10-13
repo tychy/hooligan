@@ -37,3 +37,20 @@ jobs:
       - name: generation
         run: |
           ./bin/hcli test -g 100
+  shellspec:
+    needs: setup
+    runs-on: ubuntu-latest
+    env:
+      SHELLSPEC_VERSION: 0.28.1
+    steps:
+      - uses: actions/checkout@v2
+      - name: install shellspec
+        run: |
+          cd $HOME && \
+          wget https://github.com/shellspec/shellspec/archive/${SHELLSPEC_VERSION}.tar.gz && \
+          tar xzvf ${SHELLSPEC_VERSION}.tar.gz
+      - name: add path
+        run: echo "$HOME/shellspec-${SHELLSPEC_VERSION}/bin" >> $GITHUB_PATH
+      - name: run shellspec
+        run: |
+          shellspec --format documentation
