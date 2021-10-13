@@ -50,4 +50,4 @@ jobs:
           tar xzvf 0.28.1.tar.gz
       - name: run shellspec
         run: |
-          ~/.local/bin/shellspec --format documentation
+          ~/.local/bin/shellspec-0.28.1/shellspec --format documentation
