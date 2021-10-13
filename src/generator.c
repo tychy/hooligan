@@ -494,21 +494,31 @@ static void gen_assign(Node *node)
 
     gen_addr(node->lhs);
     gen(node->rhs);
-    pop(RG_RDI);
-    pop(RG_RAX);
     if (is_int(node->ty))
+    {
+        pop(RG_RDI);
+        pop(RG_RAX);
+
         println("  mov [rax], edi");
+    }
     else if (is_float(node->ty))
     {
-        println("  movss xmm0, [rdi]");
-        println("  movss [rax], xmm0");
+        pop(RG_RDI);
+        pop(RG_RAX);
+        println("  mov [rax], rdi");
     }
     else if (is_char(node->ty))
     {
+        pop(RG_RDI);
+        pop(RG_RAX);
         println("  mov [rax], dil");
     }
     else
+    {
+        pop(RG_RDI);
+        pop(RG_RAX);
         println("  mov [rax], rdi");
+    }
     push(RG_RDI);
 }
 
@@ -558,7 +568,9 @@ static void gen(Node *node)
         return;
     case ND_FLOAT:
         push_str_addr(node->data_label); // 流用しているので関数名を変えるべき
-
+        pop(RG_RAX);
+        println("  mov rax, [rax]");
+        push(RG_RAX);
         return;
     case ND_NOT:
         gen(node->child);
@@ -579,9 +591,7 @@ static void gen(Node *node)
             println("  mov eax, [rax]");
         else if (is_float(node->ty))
         {
-            // floatは後段の処理で movss xmm0, [src]のように、アドレスが使用される
-            push(RG_RAX);
-            return;
+            println("  mov rax, [rax]");
         }
         else if (is_char(node->ty))
         {
@@ -709,15 +719,16 @@ static void gen(Node *node)
         }
         else if (is_float(node->ty))
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
-            println("  movss xmm0, [rax]");
-            println("  movss xmm1,  [rdi]");
+            println("  movss xmm0, 8[rsp]");
+            println("  movss xmm1, [rsp]");
             if (node->kind == ND_ADD)
                 println("  addss xmm0, xmm1");
             else
                 println("  subss xmm0, xmm1");
-            println("  movss [rax], xmm0");
+            println("  movss 8[rsp], xmm0");
+            println("  add rsp, 8");
+            depth--;
+            return;
         }
         else
         {
@@ -824,45 +835,50 @@ static void gen(Node *node)
     switch (node->kind)
     {
     case ND_MUL:
-        pop(RG_RDI);
-        pop(RG_RAX);
         if (is_int(node->ty))
         {
+            pop(RG_RDI);
+            pop(RG_RAX);
+
             println("  imul eax, edi");
+            push(RG_RAX);
         }
         else if (is_float(node->ty))
         {
-            println("  movss xmm0, [rax]");
-            println("  movss xmm1,  [rdi]");
+            println("  movss xmm0, 8[rsp]");
+            println("  movss xmm1, [rsp]");
             println("  mulss xmm0, xmm1");
-            println("  movss [rax], xmm0");
+            println("  movss 8[rsp], xmm0");
+            println("  add rsp, 8");
+            depth--;
         }
         else
         {
             error("unexpected type for MUL");
         }
-        push(RG_RAX);
         break;
     case ND_DIV:
-        pop(RG_RDI);
-        pop(RG_RAX);
         if (is_int(node->ty))
         {
+            pop(RG_RDI);
+            pop(RG_RAX);
             println("  cdq");
             println("  idiv edi");
+            push(RG_RAX);
         }
         else if (is_float(node->ty))
         {
-            println("  movss xmm0, [rax]");
-            println("  movss xmm1,  [rdi]");
+            println("  movss xmm0, 8[rsp]");
+            println("  movss xmm1, [rsp]");
             println("  divss xmm0, xmm1");
-            println("  movss [rax], xmm0");
+            println("  movss 8[rsp], xmm0");
+            println("  add rsp, 8");
+            depth--;
         }
         else
         {
             error("unexpected type for DIV");
         }
-        push(RG_RAX);
         break;
     case ND_MOD:
         pop(RG_RDI);
@@ -872,52 +888,66 @@ static void gen(Node *node)
         push(RG_RDX);
         break;
     case ND_EQUAL:
-        pop(RG_RDI);
-        pop(RG_RAX);
         if (node->lhs->ty->ty == FLOAT)
         {
-            println("  movss xmm0, [rax]");
-            println("  movss xmm1,  [rdi]");
+            println("  movss xmm0, 8[rsp]");
+            println("  movss xmm1, [rsp]");
+            println("  add rsp, 16");
+            depth -= 2;
             println("  ucomiss xmm0, xmm1");
+            println("  sete al");
+            println("  movzb rax, al");
+            push(RG_RAX);
         }
         else
         {
+            pop(RG_RDI);
+            pop(RG_RAX);
             println("  cmp rax, rdi");
+            println("  sete al");
+            println("  movzb rax, al");
+            push(RG_RAX);
         }
-        println("  sete al");
-        println("  movzb rax, al");
-        push(RG_RAX);
         break;
 
     case ND_NEQUAL:
-        pop(RG_RDI);
-        pop(RG_RAX);
         if (node->lhs->ty->ty == FLOAT)
         {
-            println("  movss xmm0, [rax]");
-            println("  movss xmm1,  [rdi]");
+            println("  movss xmm0, 8[rsp]");
+            println("  movss xmm1, [rsp]");
+            println("  add rsp, 16");
+            depth -= 2;
+
             println("  ucomiss xmm0, xmm1");
+            println("  setne al");
+            println("  movzb rax, al");
+            push(RG_RAX);
         }
         else
         {
+            pop(RG_RDI);
+            pop(RG_RAX);
             println("  cmp rax, rdi");
+            println("  setne al");
+            println("  movzb rax, al");
+            push(RG_RAX);
         }
-        println("  setne al");
-        println("  movzb rax, al");
-        push(RG_RAX);
         break;
     case ND_GEQ:
-        pop(RG_RDI);
-        pop(RG_RAX);
         if (node->lhs->ty->ty == FLOAT)
         {
-            println("  movss xmm0, [rax]");
-            println("  movss xmm1,  [rdi]");
+            println("  movss xmm0, 8[rsp]");
+            println("  movss xmm1, [rsp]");
+            println("  add rsp, 16");
+            depth -= 2;
+
             println("  comiss xmm0, xmm1");
             println("  setnb al");
         }
         else
         {
+            pop(RG_RDI);
+            pop(RG_RAX);
             println("  cmp rax, rdi");
             println("  setge al");
         }
@@ -925,17 +955,20 @@ static void gen(Node *node)
         push(RG_RAX);
         break;
     case ND_LEQ:
-        pop(RG_RDI);
-        pop(RG_RAX);
         if (node->lhs->ty->ty == FLOAT)
         {
-            println("  movss xmm0, [rax]");
-            println("  movss xmm1,  [rdi]");
+            println("  movss xmm0, 8[rsp]");
+            println("  movss xmm1, [rsp]");
+            println("  add rsp, 16");
+            depth -= 2;
+
             println("  comiss xmm1, xmm0");
             println("  setnb al");
         }
         else
         {
+            pop(RG_RDI);
+            pop(RG_RAX);
             println("  cmp rax, rdi");
             println("  setle al");
         }
@@ -943,17 +976,20 @@ static void gen(Node *node)
         push(RG_RAX);
         break;
     case ND_GTH:
-        pop(RG_RDI);
-        pop(RG_RAX);
         if (node->lhs->ty->ty == FLOAT)
         {
-            println("  movss xmm0, [rax]");
-            println("  movss xmm1,  [rdi]");
+            println("  movss xmm0, 8[rsp]");
+            println("  movss xmm1, [rsp]");
+            println("  add rsp, 16");
+            depth -= 2;
+
             println("  comiss xmm0, xmm1");
             println("  seta al");
         }
         else
         {
+            pop(RG_RDI);
+            pop(RG_RAX);
             println("  cmp rax, rdi");
             println("  setg al");
         }
@@ -961,17 +997,21 @@ static void gen(Node *node)
         push(RG_RAX);
         break;
     case ND_LTH:
-        pop(RG_RDI);
-        pop(RG_RAX);
+
         if (node->lhs->ty->ty == FLOAT)
         {
-            println("  movss xmm0, [rax]");
-            println("  movss xmm1,  [rdi]");
+            println("  movss xmm0, 8[rsp]");
+            println("  movss xmm1, [rsp]");
+            println("  add rsp, 16");
+            depth -= 2;
+
             println("  comiss xmm1, xmm0");
             println("  seta al");
         }
         else
         {
+            pop(RG_RDI);
+            pop(RG_RAX);
             println("  cmp rax, rdi");
             println("  setl al");
         }
