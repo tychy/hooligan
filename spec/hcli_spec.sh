@@ -1,4 +1,18 @@
 Describe 'bin/hcli'
+  Describe '-h option'
+    It 'outputs help text'
+      When run ./bin/hcli -h
+      The status should eq 1
+      The output should include "ヘルプだよ"
+    End
+
+    It 'works in --help'
+      When run ./bin/hcli -h
+      The status should eq 1
+      The output should include "ヘルプだよ"
+    End
+  End
+  
   Describe 'clear command'
     add_assembly_file() { touch a.s; }
     BeforeEach 'add_assembly_file'
