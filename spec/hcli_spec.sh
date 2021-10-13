@@ -12,19 +12,19 @@ Describe 'bin/hcli'
       The output should include "ヘルプだよ"
     End
   End
-  
+
   Describe 'clear command'
     add_assembly_file() { touch a.s; }
     BeforeEach 'add_assembly_file'
     
     It 'deletes all .s files'
-      When run ./bin/hcli clean && [ ! -e ./*.s ]
+      When run ./bin/hcli clean && [ ! -e "./*.s" ]
       The status should eq 0
       The output should eq "不要な一時ファイルを消去します...done"
     End
 
     It 'works in short hand'
-      When run ./bin/hcli cl && [ ! -e ./*.s ]
+      When run ./bin/hcli cl && [ ! -e "./*.s" ]
       The status should eq 0
       The output should eq "不要な一時ファイルを消去します...done"
     End
