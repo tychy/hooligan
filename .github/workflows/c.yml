@@ -45,7 +45,7 @@ jobs:
       - name: install shellspec
         run: |
           mkdir -p ~/.local/bin && \
-          cd ~/.local/bin/shellspec && \
+          cd ~/.local/bin && \
           wget https://github.com/shellspec/shellspec/archive/0.28.1.tar.gz && \
           tar xzvf shellspec-0.28.1.tar.gz
       - name: run shellspec
