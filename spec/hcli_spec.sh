@@ -38,12 +38,14 @@ Describe 'bin/hcli'
       When run ./bin/hcli compile tests/spec/main.c
       The status should eq 0
       The path ./main.s should be exist
+      The output should include "" # Warningを抑制するために標準出力をテストする必要がある
     End
 
     It 'works in short hand'
       When run ./bin/hcli compile tests/spec/main.c
       The status should eq 0
       The path ./main.s should be exist
+      The output should include "" # Warningを抑制するために標準出力をテストする必要がある
     End
   End
 
