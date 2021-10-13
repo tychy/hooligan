@@ -44,7 +44,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: install shellspec
         run: |
-          curl -fsSL https://git.io/shellspec | sh
+          mkdir -p ~/.local/bin && \
+          cd ~/.local/bin/shellspec && \
+          wget https://github.com/shellspec/shellspec/archive/0.28.1.tar.gz && \
+          tar xzvf shellspec-0.28.1.tar.gz
       - name: run shellspec
         run: |
           ~/.local/bin/shellspec --format documentation
