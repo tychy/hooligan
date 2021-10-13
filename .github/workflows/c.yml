@@ -49,7 +49,9 @@ jobs:
           mkdir -p ~/.local/bin && \
           cd ~/.local/bin && \
           wget https://github.com/shellspec/shellspec/archive/${SHELLSPEC_VERSION}.tar.gz && \
-          tar xzvf ${SHELLSPEC_VERSION}.tar.gz
+          tar xzvf ${SHELLSPEC_VERSION}.tar.gz && \
+          cd shellspec-${SHELLSPEC_VERSION} && \
+          make install
       - name: run shellspec
         run: |
           ~/.local/bin/shellspec-${SHELLSPEC_VERSION}/shellspec --format documentation
