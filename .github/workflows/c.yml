@@ -52,6 +52,8 @@ jobs:
           tar xzvf ${SHELLSPEC_VERSION}.tar.gz && \
           cd shellspec-${SHELLSPEC_VERSION} && \
           make install PREFIX="~/.local"
+      - name: add path
+        run: echo "~/.local/bin" >> $GITHUB_PATH
       - name: run shellspec
         run: |
-          ~/.local/bin/shellspec-${SHELLSPEC_VERSION}/shellspec --format documentation
+          shellspec --format documentation
