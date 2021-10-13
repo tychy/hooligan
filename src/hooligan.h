@@ -150,6 +150,10 @@ struct PPToken
     float float_val;
     int len;
     char *str;
+
+    int integer; // delete this
+    int decimal; // delete this
+    int numzero;
 };
 
 struct Macro
@@ -172,6 +176,10 @@ struct Token
     float float_val;
     int length;
     char *string;
+
+    int integer; // delete this
+    int decimal; // delete this
+    int numzero;
 };
 
 struct Type
@@ -297,6 +305,11 @@ struct Float
     float val;
     int label;
     Float *next;
+
+    // delete this
+    int integer;
+    int decimal;
+    int numzero;
 };
 
 struct Member

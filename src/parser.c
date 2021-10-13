@@ -108,10 +108,12 @@ static Node *new_node_num(int val)
     return node;
 }
 
-static Node *new_node_float(float val)
+static Node *new_node_float(int integer, int decimal, int numzero)
 {
     Float *new_float = calloc(1, sizeof(Float));
-    new_float->val = val;
+    new_float->integer = integer;
+    new_float->decimal = decimal;
+    new_float->numzero = numzero;
     new_float->label = ctx->data_label++;
     new_float->next = ctx->floats;
     ctx->floats = new_float;
@@ -159,7 +161,17 @@ static Node *num()
 {
     if (token->is_float)
     {
-        return new_node_float(expect_float());
+        // return new_node_float(expect_float());
+        if (token->kind != TK_NUMBER)
+            error_at(token->string, "数字ではありません");
+        if (!token->is_float)
+            error_at(token->string, "floatではありません");
+
+        int integer = token->integer;
+        int decimal = token->decimal;
+        int numzero = token->numzero;
+        token = token->next;
+        return new_node_float(integer, decimal, numzero);
     }
     return new_node_num(expect_number());
 }

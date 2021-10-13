@@ -1080,8 +1080,14 @@ void gen_asm_intel()
 
     while (f)
     {
+        char *z = calloc(f->numzero, sizeof(char));
+        for (int j = 0; j < f->numzero; j++)
+        {
+            z[j] = '0';
+        }
+
         println(".LC%d:", f->label);
-        println("  .float %f", f->val);
+        println("  .float %d.%.*s%d", f->integer, f->numzero, z, f->decimal);
         f = f->next;
     }
 

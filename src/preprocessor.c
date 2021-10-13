@@ -477,11 +477,12 @@ PPToken *decompose_to_pp_token(char *p)
             }
             cur = new_token(PPTK_NUMBER, cur, p);
             cur->val = val;
-
             if (*p == '.')
             {
                 p++;
 
+                char *decimal_head; // delete this
+                decimal_head = p;   // delete this
                 while (isdigit(*p))
                 {
                     float_val = 10.0 * float_val + (*p - '0');
@@ -490,11 +491,29 @@ PPToken *decompose_to_pp_token(char *p)
                 }
                 cur->is_float = true;
                 cur->float_val = float_val / power;
+                // ここからあとはアドホックな実装
+                int decimal = 0;
+                int numzero = 0;
+                while (*decimal_head == '0')
+                {
+                    numzero++;
+                    decimal_head++;
+                }
+
+                while (isdigit(*decimal_head))
+                {
+                    decimal = 10 * decimal + (*decimal_head - '0');
+                    decimal_head++;
+                }
+                cur->integer = val;
+                cur->decimal = decimal;
+                cur->numzero = numzero;
             }
             else
             {
                 cur->is_float = false;
             }
+
             continue;
         }
         printf("%sトークナイズできません", p);

@@ -93,6 +93,9 @@ static Token *convertPPTokenToToken(PPToken *pptok)
     Token *tok = new_token(tk, pptok->val, pptok->str, pptok->len);
     tok->is_float = pptok->is_float;
     tok->float_val = pptok->float_val;
+    tok->integer = pptok->integer;
+    tok->decimal = pptok->decimal;
+    tok->numzero = pptok->numzero;
     return tok;
 }
 
