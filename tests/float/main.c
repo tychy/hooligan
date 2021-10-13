@@ -226,6 +226,43 @@ int testFloatL()
     return 0;
 }
 
+int testFloatCalc()
+{
+    float eps = 0.0001;
+    float a = 1.11;
+    float b = 1.113;
+    float c;
+    c = a + b;
+
+    if (!(a + b - 2.223 < eps))
+    {
+        return 1;
+    }
+
+    if (!(c - 2.223 < eps))
+    {
+        return 1;
+    }
+
+    if (!(c - 2.223 + 0.0000001 < eps))
+    {
+        return 1;
+    }
+    if (!(c * 1.0 - c < eps))
+    {
+        return 1;
+    }
+    if (!(c * 2.0 - c - c < eps))
+    {
+        return 1;
+    }
+    if (!(b / a - 1.0027 < eps))
+    {
+        return 2;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testFloatDefine())

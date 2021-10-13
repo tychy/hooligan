@@ -130,7 +130,7 @@ char *extract_dir(char *p)
     memcpy(p2, p + preLength, postLength);
     return p1;
 }
-
+/*
 int f2bin(float x)
 {
     if (x == 0.0)
@@ -244,6 +244,7 @@ int f2bin(float x)
         // bin[9]は必ず0
         bin[j] = mid[j - 8];
     }
+    */
     /*
     for (int j = 0; j < 32; j++)
     {
@@ -273,6 +274,7 @@ int f2bin(float x)
     }
     printf("\n");
     */
+   /*
     // 10進数への変換
     int res = 0;
     power = 1;
@@ -284,3 +286,4 @@ int f2bin(float x)
     //printf("%d\n", res);
     return res;
 }
+*/

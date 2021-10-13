@@ -500,8 +500,8 @@ static void gen_assign(Node *node)
         println("  mov [rax], edi");
     else if (is_float(node->ty))
     {
-        println("  mov edi, [rdi]");
-        println("  mov [rax], edi");
+        println("  movss xmm0, [rdi]");
+        println("  movss [rax], xmm0");
     }
     else if (is_char(node->ty))
     {
@@ -707,6 +707,18 @@ static void gen(Node *node)
             else
                 println("  sub eax, edi");
         }
+        else if (is_float(node->ty))
+        {
+            pop(RG_RDI);
+            pop(RG_RAX);
+            println("  movss xmm0, [rax]");
+            println("  movss xmm1,  [rdi]");
+            if (node->kind == ND_ADD)
+                println("  addss xmm0, xmm1");
+            else
+                println("  subss xmm0, xmm1");
+            println("  movss [rax], xmm0");
+        }
         else
         {
             pop(RG_RDI);
@@ -814,14 +826,42 @@ static void gen(Node *node)
     case ND_MUL:
         pop(RG_RDI);
         pop(RG_RAX);
-        println("  imul eax, edi");
+        if (is_int(node->ty))
+        {
+            println("  imul eax, edi");
+        }
+        else if (is_float(node->ty))
+        {
+            println("  movss xmm0, [rax]");
+            println("  movss xmm1,  [rdi]");
+            println("  mulss xmm0, xmm1");
+            println("  movss [rax], xmm0");
+        }
+        else
+        {
+            error("unexpected type for MUL");
+        }
         push(RG_RAX);
         break;
     case ND_DIV:
         pop(RG_RDI);
         pop(RG_RAX);
-        println("  cdq");
-        println("  idiv edi");
+        if (is_int(node->ty))
+        {
+            println("  cdq");
+            println("  idiv edi");
+        }
+        else if (is_float(node->ty))
+        {
+            println("  movss xmm0, [rax]");
+            println("  movss xmm1,  [rdi]");
+            println("  divss xmm0, xmm1");
+            println("  movss [rax], xmm0");
+        }
+        else
+        {
+            error("unexpected type for DIV");
+        }
         push(RG_RAX);
         break;
     case ND_MOD:
@@ -1001,7 +1041,7 @@ void gen_asm_intel()
     while (f)
     {
         println(".LC%d:", f->label);
-        println("  .long %d", f2bin(f->val));
+        println("  .float %f", f->val);
         f = f->next;
     }
 
