@@ -500,7 +500,8 @@ static void gen_assign(Node *node)
         println("  mov [rax], edi");
     else if (is_float(node->ty))
     {
-        println(" mov [rax], edi");
+        println("  mov edi, [rdi]");
+        println("  mov [rax], edi");
     }
     else if (is_char(node->ty))
     {
@@ -557,9 +558,7 @@ static void gen(Node *node)
         return;
     case ND_FLOAT:
         push_str_addr(node->data_label); // 流用しているので関数名を変えるべき
-        pop(RG_RAX);
-        println("  mov rax, [rax]");
-        push(RG_RAX);
+
         return;
     case ND_NOT:
         gen(node->child);
@@ -580,10 +579,7 @@ static void gen(Node *node)
             println("  mov eax, [rax]");
         else if (is_float(node->ty))
         {
-            //println("  movss xmm0, [rax]");
-            //println("  sub rsp, 8");
-            //println("  movss [rsp], xmm0");
-            //depth++;
+            // floatは後段の処理で movss xmm0, [src]のように、アドレスが使用される
             push(RG_RAX);
             return;
         }
@@ -836,80 +832,108 @@ static void gen(Node *node)
         push(RG_RDX);
         break;
     case ND_EQUAL:
+        pop(RG_RDI);
+        pop(RG_RAX);
         if (node->lhs->ty->ty == FLOAT)
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
-            println("  movss xmm0, DWORD PTR [rax]");
-            println("  movss xmm1,  DWORD PTR [rdi]");
-            println("  comiss xmm0, xmm1");
-            println("  sete al");
-            println("  movzb rax, al");
-            push(RG_RAX);
-        }
-        else
-        {
-            pop(RG_RDI);
-            pop(RG_RAX);
-            println("  cmp rax, rdi");
-            println("  sete al");
-            println("  movzb rax, al");
-            push(RG_RAX);
-        }
-        break;
-
-    case ND_NEQUAL:
-        if (node->lhs->ty->ty == FLOAT)
-        {
-            pop(RG_RDI);
-            pop(RG_RAX);
             println("  movss xmm0, [rax]");
             println("  movss xmm1,  [rdi]");
             println("  ucomiss xmm0, xmm1");
-            println("  setne al");
-            println("  movzb rax, al");
-            push(RG_RAX);
         }
         else
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
             println("  cmp rax, rdi");
-            println("  setne al");
-            println("  movzb rax, al");
-            push(RG_RAX);
         }
+        println("  sete al");
+        println("  movzb rax, al");
+        push(RG_RAX);
+        break;
+
+    case ND_NEQUAL:
+        pop(RG_RDI);
+        pop(RG_RAX);
+        if (node->lhs->ty->ty == FLOAT)
+        {
+            println("  movss xmm0, [rax]");
+            println("  movss xmm1,  [rdi]");
+            println("  ucomiss xmm0, xmm1");
+        }
+        else
+        {
+            println("  cmp rax, rdi");
+        }
+        println("  setne al");
+        println("  movzb rax, al");
+        push(RG_RAX);
         break;
     case ND_GEQ:
         pop(RG_RDI);
         pop(RG_RAX);
-        println("  cmp rax, rdi");
-        println("  setge al");
+        if (node->lhs->ty->ty == FLOAT)
+        {
+            println("  movss xmm0, [rax]");
+            println("  movss xmm1,  [rdi]");
+            println("  ucomiss xmm0, xmm1");
+            println("  setge al");
+        }
+        else
+        {
+            println("  cmp rax, rdi");
+            println("  setge al");
+        }
         println("  movzb rax, al");
         push(RG_RAX);
         break;
     case ND_LEQ:
         pop(RG_RDI);
         pop(RG_RAX);
-        println("  cmp rax, rdi");
+        if (node->lhs->ty->ty == FLOAT)
+        {
+            println("  movss xmm0, [rax]");
+            println("  movss xmm1,  [rdi]");
+            println("  ucomiss xmm0, xmm1");
+        }
+        else
+        {
+            println("  cmp rax, rdi");
+        }
         println("  setle al");
         println("  movzb rax, al");
         push(RG_RAX);
         break;
-
     case ND_GTH:
         pop(RG_RDI);
         pop(RG_RAX);
-        println("  cmp rax, rdi");
-        println("  setg al");
+        if (node->lhs->ty->ty == FLOAT)
+        {
+            println("  movss xmm0, [rax]");
+            println("  movss xmm1,  [rdi]");
+            println("  ucomiss xmm0, xmm1");
+            println("  seta al");
+        }
+        else
+        {
+            println("  cmp rax, rdi");
+            println("  setg al");
+        }
         println("  movzb rax, al");
         push(RG_RAX);
         break;
     case ND_LTH:
         pop(RG_RDI);
         pop(RG_RAX);
-        println("  cmp rax, rdi");
-        println("  setl al");
+        if (node->lhs->ty->ty == FLOAT)
+        {
+            println("  movss xmm0, [rax]");
+            println("  movss xmm1,  [rdi]");
+            println("  ucomiss xmm1, xmm0");
+            println("  seta al");
+        }
+        else
+        {
+            println("  cmp rax, rdi");
+            println("  setl al");
+        }
         println("  movzb rax, al");
         push(RG_RAX);
         break;

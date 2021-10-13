@@ -133,6 +133,10 @@ char *extract_dir(char *p)
 
 int f2bin(float x)
 {
+    if (x == 0.0)
+    {
+        return 0;
+    }
     int bin[32]; // IEEE754の表現
     int mid[24]; // 中間表現では2進数だがIEEE754ではない
 
