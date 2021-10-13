@@ -40,14 +40,16 @@ jobs:
   shellspec:
     needs: setup
     runs-on: ubuntu-latest
+    env:
+      SHELLSPEC_VERSION: 0.28.1
     steps:
       - uses: actions/checkout@v2
       - name: install shellspec
         run: |
           mkdir -p ~/.local/bin && \
           cd ~/.local/bin && \
-          wget https://github.com/shellspec/shellspec/archive/0.28.1.tar.gz && \
-          tar xzvf 0.28.1.tar.gz
+          wget https://github.com/shellspec/shellspec/archive/${SHELLSPEC_VERSION}.tar.gz && \
+          tar xzvf ${SHELLSPEC_VERSION}.tar.gz
       - name: run shellspec
         run: |
-          ~/.local/bin/shellspec-0.28.1/shellspec --format documentation
+          ~/.local/bin/shellspec-${SHELLSPEC_VERSION}/shellspec --format documentation
