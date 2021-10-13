@@ -46,14 +46,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: install shellspec
         run: |
-          mkdir -p ~/.local/bin && \
           cd $HOME && \
           wget https://github.com/shellspec/shellspec/archive/${SHELLSPEC_VERSION}.tar.gz && \
           tar xzvf ${SHELLSPEC_VERSION}.tar.gz && \
-          cd shellspec-${SHELLSPEC_VERSION} && \
-          make install PREFIX="~/.local"
       - name: add path
-        run: echo "~/.local/bin" >> $GITHUB_PATH
+        run: echo "$HOME/shellspec-${SHELLSPEC_VERSION}/bin" >> $GITHUB_PATH
       - name: run shellspec
         run: |
-          ~/.local/bin/shellspec --format documentation
+          shellspec --format documentation
