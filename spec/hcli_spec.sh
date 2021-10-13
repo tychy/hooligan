@@ -16,6 +16,59 @@ Describe 'bin/hcli'
     End
   End
 
+  Describe 'compile command'
+    clean() { ./bin/hcli clean > /dev/null; }
+    BeforeEach 'clean'
+
+    It 'performs compilation'
+      When run ./bin/hcli compile tests/spec/main.c
+      The status should eq 0
+      The path ./main.s should be exist
+    End
+
+    It 'works in short hand'
+      When run ./bin/hcli compile tests/spec/main.c
+      The status should eq 0
+      The path ./main.s should be exist
+    End
+  End
+
+  Describe 'src command'
+    clean() { ./bin/hcli clean > /dev/null; }
+    BeforeEach 'clean'
+
+    It 'output the content of assembly file'
+      When run ./bin/hcli src tests/spec/main.c
+      The status should eq 0
+      The output should include ".intel_syntax noprefix"
+    End
+
+    It 'works in short hand'
+      When run ./bin/hcli s tests/spec/main.c
+      The status should eq 0
+      The output should include ".intel_syntax noprefix"
+    End
+  End
+
+  Describe 'exec command'
+    clean() { ./bin/hcli clean > /dev/null; }
+    BeforeEach 'clean'
+
+    It 'compiles and executes .c file'
+      When run ./bin/hcli exec tests/spec/main.c
+      The status should eq 0
+      The output should include "結果: 0"
+      The output should include "Hello, World"
+    End
+
+    It 'works in short hand'
+      When run ./bin/hcli exec tests/spec/main.c
+      The status should eq 0
+      The output should include "結果: 0"
+      The output should include "Hello, World"
+    End
+  End
+
   Describe 'test command'
     It 'run tests successfully in 1st generation compiler'
       When run ./bin/hcli test
