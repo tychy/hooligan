@@ -37,3 +37,14 @@ jobs:
       - name: generation
         run: |
           ./bin/hcli test -g 100
+  shellspec:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: install shellspec
+        run: |
+          curl -fsSL https://git.io/shellspec | sh
+      - name: run shellspec
+        run: |
+          ~/.local/bin/shellspec --format documentation
