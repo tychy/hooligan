@@ -1,6 +1,6 @@
 #include "hooligan.h"
 
-static char *reserved_word_list[20] = {
+static char *reserved_word_list[21] = {
     "return",
     "if",
     "else",
@@ -12,6 +12,7 @@ static char *reserved_word_list[20] = {
     "sizeof",
     "void",
     "int",
+    "float",
     "char",
     "struct",
     "typedef",
@@ -23,7 +24,7 @@ static char *reserved_word_list[20] = {
     "const",
 };
 
-static int reserved_word_list_count = 20;
+static int reserved_word_list_count = 21;
 
 static bool isreservedword(char *p, int len)
 {
@@ -47,7 +48,6 @@ static TokenKind find_reserved_word(char *p, int len)
     error_at(p, "予約語ではありません");
     return -1; // Not Found
 }
-
 
 static Token *new_token(TokenKind kind, int val, char *str, int len)
 {
@@ -90,7 +90,10 @@ static Token *convertPPTokenToToken(PPToken *pptok)
         tk = TK_STRING;
         break;
     }
-    return new_token(tk, pptok->val, pptok->str, pptok->len);
+    Token *tok = new_token(tk, pptok->val, pptok->str, pptok->len);
+    tok->is_float = pptok->is_float;
+    tok->float_val = pptok->float_val;
+    return tok;
 }
 
 Token *tokenize(PPToken *pptok)
@@ -104,5 +107,6 @@ Token *tokenize(PPToken *pptok)
         pptok = pptok->next;
     }
     cur->next = new_token(TK_EOF, 0, "", 0);
+    cur->next->is_float = false;
     return head.next;
 }

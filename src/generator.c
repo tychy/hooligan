@@ -461,6 +461,8 @@ static void gen_assign(Node *node)
     {
         error("代入式ではありません");
     }
+
+    // 初期化式
     if (node->rhs && node->rhs->kind == ND_INIT)
     {
         if (is_int_or_char(node->lhs->ty))
@@ -496,6 +498,10 @@ static void gen_assign(Node *node)
     pop(RG_RAX);
     if (is_int(node->ty))
         println("  mov [rax], edi");
+    else if (is_float(node->ty))
+    {
+        println(" mov [rax], edi");
+    }
     else if (is_char(node->ty))
     {
         println("  mov [rax], dil");
@@ -549,6 +555,12 @@ static void gen(Node *node)
     case ND_NUM:
         push_val(node->val);
         return;
+    case ND_FLOAT:
+        push_str_addr(node->data_label); // 流用しているので関数名を変えるべき
+        pop(RG_RAX);
+        println("  mov rax, [rax]");
+        push(RG_RAX);
+        return;
     case ND_NOT:
         gen(node->child);
         pop(RG_RAX);
@@ -566,6 +578,15 @@ static void gen(Node *node)
         pop(RG_RAX);
         if (is_int(node->ty))
             println("  mov eax, [rax]");
+        else if (is_float(node->ty))
+        {
+            //println("  movss xmm0, [rax]");
+            //println("  sub rsp, 8");
+            //println("  movss [rsp], xmm0");
+            //depth++;
+            push(RG_RAX);
+            return;
+        }
         else if (is_char(node->ty))
         {
             println("  movsx eax, BYTE PTR [rax]");
@@ -815,20 +836,49 @@ static void gen(Node *node)
         push(RG_RDX);
         break;
     case ND_EQUAL:
-        pop(RG_RDI);
-        pop(RG_RAX);
-        println("  cmp rax, rdi");
-        println("  sete al");
-        println("  movzb rax, al");
-        push(RG_RAX);
+        if (node->lhs->ty->ty == FLOAT)
+        {
+            pop(RG_RDI);
+            pop(RG_RAX);
+            println("  movss xmm0, DWORD PTR [rax]");
+            println("  movss xmm1,  DWORD PTR [rdi]");
+            println("  comiss xmm0, xmm1");
+            println("  sete al");
+            println("  movzb rax, al");
+            push(RG_RAX);
+        }
+        else
+        {
+            pop(RG_RDI);
+            pop(RG_RAX);
+            println("  cmp rax, rdi");
+            println("  sete al");
+            println("  movzb rax, al");
+            push(RG_RAX);
+        }
         break;
+
     case ND_NEQUAL:
-        pop(RG_RDI);
-        pop(RG_RAX);
-        println("  cmp rax, rdi");
-        println("  setne al");
-        println("  movzb rax, al");
-        push(RG_RAX);
+        if (node->lhs->ty->ty == FLOAT)
+        {
+            pop(RG_RDI);
+            pop(RG_RAX);
+            println("  movss xmm0, [rax]");
+            println("  movss xmm1,  [rdi]");
+            println("  ucomiss xmm0, xmm1");
+            println("  setne al");
+            println("  movzb rax, al");
+            push(RG_RAX);
+        }
+        else
+        {
+            pop(RG_RDI);
+            pop(RG_RAX);
+            println("  cmp rax, rdi");
+            println("  setne al");
+            println("  movzb rax, al");
+            push(RG_RAX);
+        }
         break;
     case ND_GEQ:
         pop(RG_RDI);
@@ -846,6 +896,7 @@ static void gen(Node *node)
         println("  movzb rax, al");
         push(RG_RAX);
         break;
+
     case ND_GTH:
         pop(RG_RDI);
         pop(RG_RAX);
@@ -895,6 +946,8 @@ void gen_asm_intel()
     }
     String *s = ctx->strings;
     Var *sv = ctx->statics;
+    Float *f = ctx->floats;
+
     while (sv)
     {
         println("L%.*s.%d:", sv->length, sv->name, sv->label);
@@ -918,6 +971,13 @@ void gen_asm_intel()
         }
 
         sv = sv->next;
+    }
+
+    while (f)
+    {
+        println(".LC%d:", f->label);
+        println("  .long %d", f2bin(f->val));
+        f = f->next;
     }
 
     while (s)

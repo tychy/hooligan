@@ -59,7 +59,7 @@ int main(int argc, char **argv)
         pp_ctx = calloc(1, sizeof(PPContext));
         pp_ctx->macros = NULL;
         PPToken *pp_token = preprocess_directives(dirname, decompose_to_pp_token(p));
-
+        dump_pp_token(pp_token);
         token = tokenize(pp_token);
         char *output_filename = join_str(remove_extension(filename), ".s");
         output = fopen(output_filename, "w");

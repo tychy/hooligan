@@ -17,19 +17,10 @@ static Node *new_node_raw(NodeKind kind)
 
 static String *new_string(char *p, int length)
 {
-    int strlabel;
     String *new_string = calloc(1, sizeof(String));
     new_string->length = length;
     new_string->p = p;
-    if (ctx->strings)
-    {
-        strlabel = ctx->strings->label + 1;
-    }
-    else
-    {
-        strlabel = 0;
-    }
-    new_string->label = strlabel;
+    new_string->label = ctx->data_label++;
     new_string->next = ctx->strings;
     ctx->strings = new_string;
     return new_string;
@@ -46,7 +37,9 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     node->rhs = rhs;
     node->ty = determine_expr_type(lhs->ty, rhs->ty);
     if (!node->ty)
+    {
         error("式にはintが必要です");
+    }
     return node;
 }
 
@@ -115,6 +108,20 @@ static Node *new_node_num(int val)
     return node;
 }
 
+static Node *new_node_float(float val)
+{
+    Float *new_float = calloc(1, sizeof(Float));
+    new_float->val = val;
+    new_float->label = ctx->data_label++;
+    new_float->next = ctx->floats;
+    ctx->floats = new_float;
+
+    Node *node = new_node_raw(ND_FLOAT);
+    node->data_label = new_float->label;
+    node->ty = new_type_float();
+    return node;
+}
+
 static Node *new_node_nop()
 {
     Node *node = new_node_raw(ND_NOP);
@@ -150,6 +157,10 @@ static Node *new_node_string(String *s)
 
 static Node *num()
 {
+    if (token->is_float)
+    {
+        return new_node_float(expect_float());
+    }
     return new_node_num(expect_number());
 }
 

@@ -33,6 +33,7 @@ typedef enum
     TK_SIZEOF,
     TK_VOID,
     TK_INT,
+    TK_FLOAT,
     TK_CHAR,
     TK_STRUCT,
     TK_TYPEDEF,
@@ -54,6 +55,7 @@ typedef enum
 typedef enum
 {
     ND_NUM,
+    ND_FLOAT,
     ND_ADD,
     ND_SUB,
     ND_MUL,
@@ -98,6 +100,7 @@ typedef enum
 {
     VOID,
     INT,
+    FLOAT,
     CHAR,
     PTR,
     ARRAY,
@@ -128,6 +131,7 @@ typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
 typedef struct String String;
+typedef struct Float Float;
 typedef struct Member Member;
 typedef struct Scope Scope;
 typedef struct Context Context;
@@ -141,7 +145,9 @@ struct PPToken
 {
     PPTokenKind kind;
     PPToken *next;
+    bool is_float;
     int val;
+    float float_val;
     int len;
     char *str;
 };
@@ -161,7 +167,9 @@ struct Token
 {
     TokenKind kind;
     Token *next;
+    bool is_float;
     int value;
+    float float_val;
     int length;
     char *string;
 };
@@ -231,6 +239,9 @@ struct Node
     bool is_void;
     bool has_variable_length_arguments;
 
+    // for float
+    int data_label;
+
     // for string
     int strlabel;
 
@@ -281,6 +292,13 @@ struct String
     String *next;
 };
 
+struct Float
+{
+    float val;
+    int label;
+    Float *next;
+};
+
 struct Member
 {
     Member *next;
@@ -309,8 +327,10 @@ struct Context
     int scope_serial_num; // serial number for scope
     Scope *scope;
     String *strings;
+    Float *floats;
     Var *statics;
     Var *functions;
+    int data_label;
     int offset; // for local variable
     int break_to;
     int continue_to;
@@ -333,6 +353,7 @@ Type *consume_type();
 Type *consume_ptr(Type *ty);
 void expect(char *op);
 int expect_number();
+float expect_float();
 int expect_char();
 bool at_eof();
 Token *consume_ident();
@@ -369,6 +390,7 @@ Type *new_type_ptr(Type *ptr_to);
 Type *new_type_array(Type *ptr_to, size_t size);
 Type *new_type_struct();
 bool is_int(Type *ty);
+bool is_float(Type *ty);
 bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
 bool is_ptr(Type *ty);
@@ -399,5 +421,6 @@ char *join_str(char *pre, char *post);
 char *read_file(char *path);
 char *extract_filename(char *path);
 char *extract_dir(char *path);
+int f2bin(float x);
 char *remove_extension(char *filename);
 #endif
