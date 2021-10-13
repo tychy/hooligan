@@ -829,15 +829,7 @@ static void gen(Node *node)
     switch (node->kind)
     {
     case ND_MUL:
-        if (is_int(node->ty))
-        {
-            pop(RG_RDI);
-            pop(RG_RAX);
-
-            println("  imul eax, edi");
-            push(RG_RAX);
-        }
-        else if (is_float(node->ty))
+        if (is_float(node->ty))
         {
             println("  movss xmm0, 8[rsp]");
             println("  movss xmm1, [rsp]");
@@ -848,19 +840,15 @@ static void gen(Node *node)
         }
         else
         {
-            error("unexpected type for MUL");
+            pop(RG_RDI);
+            pop(RG_RAX);
+
+            println("  imul eax, edi");
+            push(RG_RAX);
         }
         break;
     case ND_DIV:
-        if (is_int(node->ty))
-        {
-            pop(RG_RDI);
-            pop(RG_RAX);
-            println("  cdq");
-            println("  idiv edi");
-            push(RG_RAX);
-        }
-        else if (is_float(node->ty))
+        if (is_float(node->ty))
         {
             println("  movss xmm0, 8[rsp]");
             println("  movss xmm1, [rsp]");
@@ -871,7 +859,11 @@ static void gen(Node *node)
         }
         else
         {
-            error("unexpected type for DIV");
+            pop(RG_RDI);
+            pop(RG_RAX);
+            println("  cdq");
+            println("  idiv edi");
+            push(RG_RAX);
         }
         break;
     case ND_MOD:
