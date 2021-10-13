@@ -505,7 +505,7 @@ static void gen_assign(Node *node)
     {
         pop(RG_RDI);
         pop(RG_RAX);
-        println("  mov [rax], rdi");
+        println("  mov [rax], edi");
     }
     else if (is_char(node->ty))
     {
@@ -569,7 +569,7 @@ static void gen(Node *node)
     case ND_FLOAT:
         push_str_addr(node->data_label); // 流用しているので関数名を変えるべき
         pop(RG_RAX);
-        println("  mov rax, [rax]");
+        println("  mov eax, [rax]");
         push(RG_RAX);
         return;
     case ND_NOT:
@@ -591,7 +591,7 @@ static void gen(Node *node)
             println("  mov eax, [rax]");
         else if (is_float(node->ty))
         {
-            println("  mov rax, [rax]");
+            println("  mov eax, [rax]");
         }
         else if (is_char(node->ty))
         {

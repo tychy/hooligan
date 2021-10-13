@@ -265,27 +265,32 @@ int testFloatCalc()
 
 int main()
 {
-    if (testFloatDefine())
+    if (testFloatDefine() != 0)
     {
         return 1;
     }
 
-    if (testFloatEq())
+    if (testFloatEq() != 0)
     {
         return 1;
     }
 
-    if (testFloatNEq())
+    if (testFloatNEq() != 0)
     {
         return 1;
     }
 
-    if (testFloatG())
+    if (testFloatG() != 0)
     {
         return 1;
     }
 
-    if (testFloatL())
+    if (testFloatL() != 0)
+    {
+        return 1;
+    }
+
+    if (testFloatCalc() != 0)
     {
         return 1;
     }
