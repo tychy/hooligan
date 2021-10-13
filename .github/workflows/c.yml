@@ -51,7 +51,7 @@ jobs:
           wget https://github.com/shellspec/shellspec/archive/${SHELLSPEC_VERSION}.tar.gz && \
           tar xzvf ${SHELLSPEC_VERSION}.tar.gz && \
           cd shellspec-${SHELLSPEC_VERSION} && \
-          make install
+          make install PREFIX="~/.local"
       - name: run shellspec
         run: |
           ~/.local/bin/shellspec-${SHELLSPEC_VERSION}/shellspec --format documentation
