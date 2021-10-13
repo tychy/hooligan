@@ -39,6 +39,10 @@ Type *consume_type()
     {
         ty = new_type_int();
     }
+    else if (consume_rw(TK_FLOAT))
+    {
+        ty = new_type_float();
+    }
     else if (consume_rw(TK_CHAR))
     {
         ty = new_type_char();
@@ -153,6 +157,18 @@ int expect_number()
     if (token->kind != TK_NUMBER)
         error_at(token->string, "数字ではありません");
     int value = token->value;
+    token = token->next;
+    return value;
+}
+
+float expect_float()
+{
+    if (token->kind != TK_NUMBER)
+        error_at(token->string, "数字ではありません");
+    if (!token->is_float)
+        error_at(token->string, "floatではありません");
+
+    float value = token->float_val;
     token = token->next;
     return value;
 }

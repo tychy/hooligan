@@ -465,8 +465,55 @@ PPToken *decompose_to_pp_token(char *p)
 
         if (isdigit(*p))
         {
+            int val = 0;
+            float float_val = 0.0;
+
+            float power = 1.0;
+            while (isdigit(*p))
+            {
+                val = 10 * val + (*p - '0');
+                float_val = 10.0 * float_val + (*p - '0');
+                p++;
+            }
             cur = new_token(PPTK_NUMBER, cur, p);
-            cur->val = strtol(p, &p, 10);
+            cur->val = val;
+            if (*p == '.')
+            {
+                p++;
+
+                char *decimal_head; // delete this
+                decimal_head = p;   // delete this
+                while (isdigit(*p))
+                {
+                    float_val = 10.0 * float_val + (*p - '0');
+                    power *= 10.0;
+                    p++;
+                }
+                cur->is_float = true;
+                cur->float_val = float_val / power;
+                // ここからあとはアドホックな実装
+                int decimal = 0;
+                int numzero = 0;
+                while (*decimal_head == '0')
+                {
+                    numzero++;
+                    decimal_head++;
+                }
+
+                while (isdigit(*decimal_head))
+                {
+                    decimal = 10 * decimal + (*decimal_head - '0');
+                    decimal_head++;
+                }
+                cur->integer = val;
+                cur->decimal = decimal;
+                cur->numzero = numzero;
+            }
+            else
+            {
+                cur->is_float = false;
+            }
+
             continue;
         }
         printf("%sトークナイズできません", p);
@@ -774,8 +821,16 @@ void dump_pp_token(PPToken *tok)
             printf("%.*s ", cur->len, cur->str);
             break;
         case PPTK_NUMBER:
-            printf("%d ", cur->val);
-            break;
+            if (cur->is_float)
+            {
+                printf("%f ", cur->float_val);
+                break;
+            }
+            else
+            {
+                printf("%d ", cur->val);
+                break;
+            }
         case PPTK_PUNC:
             printf("%.*s ", cur->len, cur->str);
             break;

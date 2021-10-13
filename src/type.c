@@ -9,6 +9,15 @@ Type *new_type_int()
     return ty;
 }
 
+Type *new_type_float()
+{
+    Type *ty;
+    ty = calloc(1, sizeof(Type));
+    ty->ty = FLOAT;
+    ty->is_const = false;
+    return ty;
+}
+
 Type *new_type_char()
 {
     Type *ty;
@@ -81,6 +90,11 @@ bool is_int(Type *ty)
     return ty->ty == INT;
 }
 
+bool is_float(Type *ty)
+{
+    return ty->ty == FLOAT;
+}
+
 bool is_char(Type *ty)
 {
     return ty->ty == CHAR;
@@ -107,6 +121,8 @@ int calc_bytes(Type *ty)
     {
     case INT:
         return 4;
+    case FLOAT:
+        return 4;
     case PTR:
         return 8;
     case ARRAY:
@@ -125,6 +141,10 @@ Type *determine_expr_type(Type *lhs, Type *rhs)
     if (!(is_int_or_char(lhs)) && !(is_int_or_char(rhs)))
     {
         if (is_ptr(lhs) && is_ptr(rhs))
+        {
+            return lhs;
+        }
+        if (is_float(lhs) && is_float(rhs))
         {
             return lhs;
         }
