@@ -7,6 +7,18 @@ hooligan is yet another tiny self-hosted C compiler by @tychy and @yokonao.
 run `export PATH=bin:$PATH` to use `hcli`
 
 if you use direnv, add `PATH_add bin` to .envrc
+### install shellspec
+It is require to install shellspec for testing
+```
+curl -fsSL https://git.io/shellspec | sh
+```
+Or, refer to [the link](https://github.com/shellspec/shellspec#installation)
+
+Run simply `shellspec` command for testing
+```
+shellspec
+```
+
 
 ## Command
 ```
