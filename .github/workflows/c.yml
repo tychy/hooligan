@@ -8,13 +8,7 @@ on:
     branches:
       - main
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
   shellspec:
-    needs: setup
     runs-on: ubuntu-latest
     env:
       SHELLSPEC_VERSION: 0.28.1
