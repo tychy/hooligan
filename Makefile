@@ -23,5 +23,5 @@ selfhost: first
 	rm *.s
 
 clean:
-	@rm -f bin/hcc* *.o *~ tmp* *.s
+	@rm -f bin/hcc* *.o src/*.o *~ tmp* *.s
 .PHONY: test clean selfhost
