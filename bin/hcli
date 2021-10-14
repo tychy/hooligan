@@ -27,10 +27,7 @@ display_help() {
 }
 
 clean() {
-    find . -name '*.s' -exec rm -f {} +
-    find . -name 'a.out' -exec rm -f {} +
-    find . -name 'core.*' -exec rm -f {} +
-    rm -f bin/hcc*
+    make clean
 }
 
 clean_assembly() {
