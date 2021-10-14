@@ -8,37 +8,7 @@ on:
     branches:
       - main
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-  test0:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: generation
-        run: |
-          ./bin/hcli test -g 0
-  test1:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: test main
-        run: |
-          ./bin/hcli test
-  test100:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: generation
-        run: |
-          ./bin/hcli test -g 100
   shellspec:
-    needs: setup
     runs-on: ubuntu-latest
     env:
       SHELLSPEC_VERSION: 0.28.1
