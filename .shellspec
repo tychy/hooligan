@@ -1,4 +1,6 @@
 --require spec_helper
+--tag priority:required
+--format documentation
 
 ## Default kcov (coverage) options
 # --kcov-options "--include-path=. --path-strip-level=1"
