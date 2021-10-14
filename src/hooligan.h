@@ -397,6 +397,7 @@ Var *def_const(Token *tok, int val);
 // type.c
 Type *new_type_int();
 Type *new_type_char();
+Type *new_type_float();
 Type *new_type_string();
 Type *new_type_void();
 Type *new_type_ptr(Type *ptr_to);
