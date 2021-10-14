@@ -1,13 +1,13 @@
 Describe 'bin/hcli'
   Describe '-h option'
-    It 'outputs help text'
+    It 'outputs help text' priority:required
       When run ./bin/hcli -h
       The status should eq 1
       The output should include "ヘルプだよ"
       The error should be blank
     End
 
-    It 'works in --help'
+    It 'works in --help' priority:preferably
       When run ./bin/hcli -h
       The status should eq 1
       The output should include "ヘルプだよ"
@@ -19,14 +19,14 @@ Describe 'bin/hcli'
     add_assembly_file() { touch a.s; }
     BeforeEach 'add_assembly_file'
     
-    It 'deletes all .s files'
+    It 'deletes all .s files' priority:required
       When run ./bin/hcli clean && [ ! -e "./*.s" ]
       The status should eq 0
       The output should eq "不要な一時ファイルを消去します...done"
       The error should be blank
     End
 
-    It 'works in short hand'
+    It 'works in short hand' priority:preferably
       When run ./bin/hcli cl && [ ! -e "./*.s" ]
       The status should eq 0
       The output should eq "不要な一時ファイルを消去します...done"
@@ -34,11 +34,11 @@ Describe 'bin/hcli'
     End
   End
 
-  Describe 'compile command'
+  Describe 'compile command' 
     clean() { ./bin/hcli clean > /dev/null; }
     BeforeEach 'clean'
 
-    It 'performs compilation'
+    It 'performs compilation' priority:required
       When run ./bin/hcli compile tests/spec/main.c
       The status should eq 0
       The path ./main.s should be exist
@@ -46,7 +46,7 @@ Describe 'bin/hcli'
       The error should be blank
     End
 
-    It 'works in short hand'
+    It 'works in short hand' priority:preferably
       When run ./bin/hcli compile tests/spec/main.c
       The status should eq 0
       The path ./main.s should be exist
@@ -59,14 +59,14 @@ Describe 'bin/hcli'
     clean() { ./bin/hcli clean > /dev/null; }
     BeforeEach 'clean'
 
-    It 'output the content of assembly file'
+    It 'output the content of assembly file' priority:required
       When run ./bin/hcli src tests/spec/main.c
       The status should eq 0
       The output should include ".intel_syntax noprefix"
       The error should be blank
     End
 
-    It 'works in short hand'
+    It 'works in short hand' priority:preferably
       When run ./bin/hcli s tests/spec/main.c
       The status should eq 0
       The output should include ".intel_syntax noprefix"
@@ -78,7 +78,7 @@ Describe 'bin/hcli'
     clean() { ./bin/hcli clean > /dev/null; }
     BeforeEach 'clean'
 
-    It 'compiles and executes .c file'
+    It 'compiles and executes .c file' priority:required
       When run ./bin/hcli exec tests/spec/main.c
       The status should eq 0
       The output should include "結果: 0"
@@ -86,7 +86,7 @@ Describe 'bin/hcli'
       The error should be blank
     End
 
-    It 'works in short hand'
+    It 'works in short hand' priority:preferably
       When run ./bin/hcli exec tests/spec/main.c
       The status should eq 0
       The output should include "結果: 0"
@@ -96,28 +96,28 @@ Describe 'bin/hcli'
   End
 
   Describe 'test command'
-    It 'run tests successfully in 1st generation compiler'
+    It 'run tests successfully in 1st generation compiler' priority:required
       When run ./bin/hcli test
       The status should eq 0
       The output should include passed
       The error should be blank
     End
 
-    It 'works in shorthand'
+    It 'works in shorthand' priority:preferably
       When run ./bin/hcli t
       The status should eq 0
       The output should include passed
       The error should be blank
     End
 
-    It 'run tests successfully using gcc'
+    It 'run tests successfully using gcc' priority:preferably
       When run ./bin/hcli test -g 0 2>/dev/null
       The status should eq 0
       The output should include passed
       The error should include "" # Warningを抑制するために標準エラーをテストする必要がある
     End
 
-    It 'run tests successfully in 100th generation compiler'
+    It 'run tests successfully in 100th generation compiler' priority:preferably
       When run ./bin/hcli test -g 100
       The status should eq 0
       The output should include passed
