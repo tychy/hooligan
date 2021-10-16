@@ -65,6 +65,12 @@ ILSentence *new_il_sentence_single_operand(ILSentenceType ty, ILOperand *op)
     ILSentence *st = calloc(1, sizeof(ILSentence));
     st->ty = ty;
     st->first_operand = op;
+    cur_ils->next = st;
+    cur_ils = cur_ils->next;
+    if (ty == ILST_PUSH || ty == ILST_POP)
+    {
+        ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
+    }
     return st;
 }
 

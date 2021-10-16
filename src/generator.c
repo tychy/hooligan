@@ -40,9 +40,7 @@ static char *reg8[9] = {
 
 static void push(RegisterName r)
 {
-    cur_ils->next = new_il_sentence_single_operand(ILST_PUSH, new_il_operand_reg(r));
-    cur_ils = cur_ils->next;
-    ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
+    new_il_sentence_single_operand(ILST_PUSH, new_il_operand_reg(r));
 }
 
 static void push_val(int val)
@@ -59,9 +57,7 @@ static void push_str_addr(int label)
 
 static void pop(RegisterName r)
 {
-    cur_ils->next = new_il_sentence_single_operand(ILST_POP, new_il_operand_reg(r));
-    cur_ils = cur_ils->next;
-    ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
+    new_il_sentence_single_operand(ILST_POP, new_il_operand_reg(r));
 }
 
 static void gen_va_start(Node *node)
