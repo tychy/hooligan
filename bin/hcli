@@ -41,11 +41,7 @@ compile() {
     if [[ COMPILER_GENERATION -eq 0 ]]; then
         gcc -masm=intel -S "$@"
     else
-        if [[ VERBOSE -eq 1 ]]; then
-            ./bin/hcc"$COMPILER_GENERATION" -v "$@"
-        else
-            ./bin/hcc"$COMPILER_GENERATION" "$@"
-        fi
+        ./bin/hcc"$COMPILER_GENERATION" "${opts[@]}" "$@"
     fi
 }
 
@@ -91,8 +87,8 @@ generate_compiler() {
 }
 
 param=()
+opts=()
 COMPILER_GENERATION=1
-VERBOSE=0
 for OPT in "$@"; do
     case $OPT in
     -h | --help)
@@ -100,7 +96,11 @@ for OPT in "$@"; do
         exit 1
         ;;
     -v | --verbose)
-        VERBOSE=1
+        opts+=(-v)
+        shift 1
+        ;;
+    -O)
+        opts+=(-O)
         shift 1
         ;;
     -g | --generation)
