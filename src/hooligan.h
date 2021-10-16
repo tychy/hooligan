@@ -350,6 +350,7 @@ struct Context
     int break_to;
     int continue_to;
     int logical_operator_label;
+    bool is_aligned_stack_ptr;
 };
 
 // Declaration of global variables
