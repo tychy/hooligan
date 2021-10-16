@@ -1071,7 +1071,7 @@ static Node *func(Token *ident, Type *ty, bool is_static)
             }
             node->has_variable_length_arguments = true;
             // 可変長引数の場合、rdi~r9の6つのレジスタの中身とメタ情報をrbpの下に並べる必要があるのでその領域(8×6+8+8+4+4)を確保する
-            ctx->offset = 72;
+            ctx->offset = 80;
             expect(")");
             break;
         }
