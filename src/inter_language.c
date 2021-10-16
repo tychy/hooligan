@@ -51,14 +51,6 @@ ILSentence *new_il_sentence_raw(char *raw_sentence)
     return st;
 }
 
-ILSentence *new_il_sentence_push(ILRegister reg)
-{
-    ILSentence *st = calloc(1, sizeof(ILSentence));
-    st->ty = ILST_PUSH;
-    st->first_operand = new_il_operand_reg(reg);
-    return st;
-}
-
 ILSentence *new_il_sentence_single_operand(ILSentenceType ty, ILOperand *op)
 {
     ILSentence *st = calloc(1, sizeof(ILSentence));

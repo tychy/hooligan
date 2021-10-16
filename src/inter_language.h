@@ -53,7 +53,6 @@ struct ILSentence
 
 ILOperand *new_il_operand_reg(ILRegister reg);
 ILSentence *new_il_sentence_raw(char *raw_sentence);
-ILSentence *new_il_sentence_push(ILRegister reg);
 ILSentence *new_il_sentence_single_operand(ILSentenceType ty, ILOperand *op);
 void generate_intel_syntax_assembly(ILSentence *ils);
 
