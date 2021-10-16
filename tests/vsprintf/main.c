@@ -29,11 +29,36 @@ char *prints2(char *fmt, ...)
     return raw;
 }
 
+char *inter()
+{
+    char *s = prints1("piyopiyo");
+    return s;
+}
+
+char *inter2()
+{
+    char *s = inter();
+    return s;
+}
+
+char *inter3()
+{
+    char *s = inter2();
+    return s;
+}
+
 int main()
 {
     char *s = prints1("hogehoge");
     char *s1 = prints2("fugafuga");
+    char *s2 = inter();
+    char *s3 = inter2();
+    char *s4 = inter3();
     printf("%s\n", s);
     printf("%s\n", s1);
+    printf("%s\n", s2);
+    printf("%s\n", s3);
+    printf("%s\n", s4);
+
     return 0;
 }
