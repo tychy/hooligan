@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include "inter_language.h"
+
 typedef enum
 {
     PPTK_DUMMY, // #define identで使う
@@ -383,7 +385,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok);
 void program();
 
 // generator.c
-void gen_asm_intel();
+ILSentence *gen_asm_intel();
 
 // variable.c
 Var *find_var(Token *tok);

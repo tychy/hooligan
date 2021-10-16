@@ -1,4 +1,6 @@
 #include "hooligan.h"
+#include "inter_language.h"
+
 static void gen(Node *node);
 
 static char *reg32[9] = {
@@ -36,12 +38,15 @@ static char *reg8[9] = {
     "spl",
 };
 
+ILSentence *cur;
 void println(char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vfprintf(output, fmt, ap);
-    fprintf(output, "\n");
+    char *raw = calloc(100, sizeof(char));
+    vsprintf(raw, fmt, ap);
+    cur->next = new_il_sentence_raw(raw);
+    cur = cur->next;
     va_end(ap);
 }
 
@@ -1005,8 +1010,11 @@ static void gen(Node *node)
     }
 }
 
-void gen_asm_intel()
+ILSentence *gen_asm_intel()
 {
+    ILSentence *head = calloc(1, sizeof(ILSentence));
+    cur = head;
+
     Node *funcs[200];
     println(".intel_syntax noprefix");
     println(".data");
@@ -1096,4 +1104,5 @@ void gen_asm_intel()
     {
         nodes[i] = NULL;
     }
+    return head->next;
 }

@@ -1,4 +1,5 @@
 #include "hooligan.h"
+#include "inter_language.h"
 
 Token *token;
 Node *nodes[500];
@@ -69,7 +70,8 @@ int main(int argc, char **argv)
             exit(1);
         }
 
-        gen_asm_intel();
+        ILSentence *ils = gen_asm_intel();
+        generate_intel_syntax_assembly(ils);
 
         fclose(output);
         if (opts->is_verbose)
