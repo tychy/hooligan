@@ -445,6 +445,9 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
         arg = arg->lhs;
     }
 
+    println("  and rsp, 0xfffffffffffffff0");
+    depth = 0;
+
     gen(node->rhs);
     pop(RG_RAX);
 
@@ -1083,7 +1086,6 @@ void gen_asm_intel()
     for (int j = 0; j < func_count; j++)
     {
         gen(funcs[j]);
-        depth = 0;
     }
     if (opts->is_verbose)
     {
