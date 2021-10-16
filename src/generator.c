@@ -45,24 +45,29 @@ void println(char *fmt, ...)
     va_end(ap);
 }
 
+int depth;
 static void push(RegisterName r)
 {
     println("  push %s", reg64[r]);
+    depth++;
 }
 
 static void push_val(int val)
 {
     println("  push %d", val);
+    depth++;
 }
 
 static void push_str_addr(int label)
 {
     println("  push offset .LC%d", label);
+    depth++;
 }
 
 static void pop(RegisterName r)
 {
     println("  pop %s", reg64[r]);
+    depth--;
 }
 
 static void gen_va_start(Node *node)
@@ -254,7 +259,10 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         count--;
         pop(count);
     }
-
+    if (depth % 2 != 0)
+    {
+        println("  sub rsp, 8");
+    }
     println("  mov al, 0");
     if (node->is_static)
     {
@@ -265,6 +273,10 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         println("  call %.*s", node->length, node->name);
     }
 
+    if (depth % 2 != 0)
+    {
+        println("  add rsp, 8");
+    }
     push(RG_RAX);
 }
 
@@ -709,6 +721,7 @@ static void gen(Node *node)
                 println("  subss xmm0, xmm1");
             println("  movss 8[rsp], xmm0");
             println("  add rsp, 8");
+            depth--;
             return;
         }
         else
@@ -823,6 +836,7 @@ static void gen(Node *node)
             println("  mulss xmm0, xmm1");
             println("  movss 8[rsp], xmm0");
             println("  add rsp, 8");
+            depth--;
         }
         else
         {
@@ -841,6 +855,7 @@ static void gen(Node *node)
             println("  divss xmm0, xmm1");
             println("  movss 8[rsp], xmm0");
             println("  add rsp, 8");
+            depth--;
         }
         else
         {
@@ -864,6 +879,7 @@ static void gen(Node *node)
             println("  movss xmm0, 8[rsp]");
             println("  movss xmm1, [rsp]");
             println("  add rsp, 16");
+            depth -= 2;
             println("  ucomiss xmm0, xmm1");
             println("  sete al");
         }
@@ -884,6 +900,7 @@ static void gen(Node *node)
             println("  movss xmm0, 8[rsp]");
             println("  movss xmm1, [rsp]");
             println("  add rsp, 16");
+            depth -= 2;
             println("  ucomiss xmm0, xmm1");
             println("  setne al");
         }
@@ -904,6 +921,7 @@ static void gen(Node *node)
             println("  movss xmm0, 8[rsp]");
             println("  movss xmm1, [rsp]");
             println("  add rsp, 16");
+            depth -= 2;
             println("  comiss xmm0, xmm1");
             println("  setnb al");
         }
@@ -923,6 +941,7 @@ static void gen(Node *node)
             println("  movss xmm0, 8[rsp]");
             println("  movss xmm1, [rsp]");
             println("  add rsp, 16");
+            depth -= 2;
 
             println("  comiss xmm1, xmm0");
             println("  setnb al");
@@ -943,6 +962,7 @@ static void gen(Node *node)
             println("  movss xmm0, 8[rsp]");
             println("  movss xmm1, [rsp]");
             println("  add rsp, 16");
+            depth -= 2;
 
             println("  comiss xmm0, xmm1");
             println("  seta al");
@@ -964,6 +984,7 @@ static void gen(Node *node)
             println("  movss xmm0, 8[rsp]");
             println("  movss xmm1, [rsp]");
             println("  add rsp, 16");
+            depth -= 2;
 
             println("  comiss xmm1, xmm0");
             println("  seta al");
@@ -1062,6 +1083,7 @@ void gen_asm_intel()
     for (int j = 0; j < func_count; j++)
     {
         gen(funcs[j]);
+        depth = 0;
     }
     if (opts->is_verbose)
     {
