@@ -259,7 +259,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         count--;
         pop(count);
     }
-    if (depth % 2 == 0)
+    if (depth % 2 != 0)
     {
         println("  sub rsp, 8");
     }
@@ -273,7 +273,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         println("  call %.*s", node->length, node->name);
     }
 
-    if (depth % 2 == 0)
+    if (depth % 2 != 0)
     {
         println("  add rsp, 8");
     }
@@ -1083,6 +1083,7 @@ void gen_asm_intel()
     for (int j = 0; j < func_count; j++)
     {
         gen(funcs[j]);
+        depth = 0;
     }
     if (opts->is_verbose)
     {
