@@ -255,10 +255,10 @@ struct Node
     // for string
     int strlabel;
 
-    //for struct
+    // for struct
     Member *member;
 
-    //for break in switch
+    // for break in switch
     int break_to;
 
     // labels
@@ -358,6 +358,7 @@ extern PPContext *pp_ctx;
 extern Token *token;
 extern Node *nodes[500];
 extern Context *ctx;
+extern ILSentence *cur_ils;
 extern FILE *output;
 
 // Declaration of functions
