@@ -402,7 +402,7 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
     int variable_region_size = 16 * (node->args_region_size / 16 + 1);
     if (node->has_variable_length_arguments)
     {
-        variable_region_size += 72;
+        variable_region_size += 80;
     }
     println("  sub rsp, %d", variable_region_size);
 
