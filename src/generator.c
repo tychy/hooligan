@@ -72,7 +72,9 @@ static void push_str_addr(int label)
 
 static void pop(RegisterName r)
 {
-    println("  pop %s", reg64[r]);
+    // println("  pop %s", reg64[r]);
+    cur->next = new_il_sentence_single_operand(ILST_POP, new_il_operand_reg(r));
+    cur = cur->next;
     depth--;
 }
 

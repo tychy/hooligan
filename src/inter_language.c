@@ -59,6 +59,14 @@ ILSentence *new_il_sentence_push(ILRegister reg)
     return st;
 }
 
+ILSentence *new_il_sentence_single_operand(ILSentenceType ty, ILOperand *op)
+{
+    ILSentence *st = calloc(1, sizeof(ILSentence));
+    st->ty = ty;
+    st->first_operand = op;
+    return st;
+}
+
 void generate_intel_syntax_assembly(ILSentence *ils)
 {
     while (ils)
@@ -71,6 +79,10 @@ void generate_intel_syntax_assembly(ILSentence *ils)
         else if (ils->ty == ILST_PUSH)
         {
             fprintf(output, "  push %s\n", il_operand_to_str(ils->first_operand));
+        }
+        else if (ils->ty == ILST_POP)
+        {
+            fprintf(output, "  pop %s\n", il_operand_to_str(ils->first_operand));
         }
         else
         {
