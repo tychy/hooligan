@@ -141,6 +141,7 @@ typedef struct Context Context;
 struct Option
 {
     bool is_verbose;
+    int optimize_level;
 };
 
 struct PPToken
