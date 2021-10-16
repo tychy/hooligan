@@ -28,7 +28,7 @@ typedef enum
 typedef enum
 {
     ILST_RAW,
-    ILST_Operation,
+    ILST_PUSH,
 } ILSentenceType;
 
 typedef struct ILOperand ILOperand;   // rax, [rax], DWORD PTR [rax]など
@@ -51,6 +51,7 @@ struct ILSentence
 };
 
 ILSentence *new_il_sentence_raw(char *raw_sentence);
+ILSentence *new_il_sentence_push(ILRegister reg);
 void generate_intel_syntax_assembly(ILSentence *ils);
 
 #endif

@@ -53,7 +53,8 @@ void println(char *fmt, ...)
 int depth;
 static void push(RegisterName r)
 {
-    println("  push %s", reg64[r]);
+    cur->next = new_il_sentence_push(r);
+    cur = cur->next;
     depth++;
 }
 
