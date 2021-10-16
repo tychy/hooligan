@@ -23,4 +23,4 @@ jobs:
         run: echo "$HOME/shellspec-${SHELLSPEC_VERSION}/bin" >> $GITHUB_PATH
       - name: run shellspec
         run: |
-          shellspec --format documentation
+          shellspec --tag priority:preferably,priority:required
