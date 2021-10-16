@@ -71,6 +71,7 @@ int main(int argc, char **argv)
         }
 
         ILSentence *ils = gen_asm_intel();
+        ils = optimize_inter_language(ils);
         generate_intel_syntax_assembly(ils);
 
         fclose(output);
