@@ -17,6 +17,8 @@ ILSentence *optimize_inter_language(ILSentence *head)
                 if (is_same_reg && pop->next)
                 {
                     cur->next = pop->next;
+                    cur = head;
+                    continue;
                 }
             }
         }
