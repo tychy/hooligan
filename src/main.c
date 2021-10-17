@@ -22,6 +22,10 @@ void analyze_arguments(int argc, char **argv)
             {
                 opts->is_verbose = true;
             }
+            else if (*(arg + 1) == 'O')
+            {
+                opts->optimize_level = 1;
+            }
             else
             {
                 printf("%c\n", *(arg + 1));
@@ -71,6 +75,10 @@ int main(int argc, char **argv)
         }
 
         ILSentence *ils = gen_asm_intel();
+        if (opts->optimize_level != 0)
+        {
+            ils = optimize_inter_language(ils);
+        }
         generate_intel_syntax_assembly(ils);
 
         fclose(output);

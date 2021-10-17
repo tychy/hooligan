@@ -130,6 +130,13 @@ Describe 'bin/hcli'
       The error should include "" # Warningを抑制するために標準エラーをテストする必要がある
     End
 
+    It 'run tests successfully in enabling full optimization' priority:preferably
+      When run ./bin/hcli test -g 10 -O
+      The status should eq 0
+      The output should include passed
+      The error should be blank
+    End
+
     It 'run tests successfully in 100th generation compiler' priority:preferably
       When run ./bin/hcli test -g 100
       The status should eq 0
