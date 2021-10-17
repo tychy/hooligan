@@ -96,9 +96,6 @@ Describe 'bin/hcli'
   End
 
   Describe 'debug command'
-    # ref: https://qiita.com/chimpan/items/574ad8ad0ac142c71c37
-    Pending "It occurs permission error on container because gdb require system call"
-
     clean() { ./bin/hcli clean > /dev/null; }
     BeforeEach 'clean'
     debug_and_run() { echo "run\n quit" | ./bin/hcli debug tests/spec/main.c; }
