@@ -22,14 +22,7 @@ ILSentence *optimize_inter_language(ILSentence *head)
                 }
             }
         }
-        // if (next->ty == ILST_PUSH && next->next->ty == ILST_POP)
-        // {
-        //     bool is_same_reg = next->first_operand->ty == next->next->first_operand->ty && next->first_operand->reg == next->next->first_operand->reg;
-        //     if (is_same_reg)
-        //     {
-        //         cur->next = next->next->next;
-        //     }
-        // }
+
         cur = cur->next;
     }
     return head;
