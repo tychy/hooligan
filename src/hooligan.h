@@ -255,10 +255,10 @@ struct Node
     // for string
     int strlabel;
 
-    //for struct
+    // for struct
     Member *member;
 
-    //for break in switch
+    // for break in switch
     int break_to;
 
     // labels
@@ -350,6 +350,7 @@ struct Context
     int break_to;
     int continue_to;
     int logical_operator_label;
+    bool is_aligned_stack_ptr;
 };
 
 // Declaration of global variables
@@ -358,6 +359,7 @@ extern PPContext *pp_ctx;
 extern Token *token;
 extern Node *nodes[500];
 extern Context *ctx;
+extern ILSentence *cur_ils;
 extern FILE *output;
 
 // Declaration of functions
