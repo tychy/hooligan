@@ -51,8 +51,8 @@ static void push_val(int val)
 
 static void push_str_addr(int label)
 {
-    new_il_sentence_raw("  push offset .LC%d", label);
-    ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
+    new_il_sentence_raw("  lea rax, QWORD PTR .LC%d[rip]", label);
+    push(RG_RAX);
 }
 
 static void pop(RegisterName r)
@@ -338,7 +338,7 @@ static void gen_addr(Node *node)
     case ND_VAR:
         if (node->is_local && node->is_static)
         {
-            new_il_sentence_raw("  lea rax, L%.*s.%d", node->length, node->name, node->scope_label);
+            new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->scope_label);
             push(RG_RAX);
         }
         else if (node->is_local)
@@ -349,12 +349,12 @@ static void gen_addr(Node *node)
         }
         else if (node->is_static)
         {
-            new_il_sentence_raw("  lea rax, L%.*s", node->length, node->name);
+            new_il_sentence_raw("  lea rax, L%.*s[rip]", node->length, node->name);
             push(RG_RAX);
         }
         else
         {
-            new_il_sentence_raw("  lea rax, %.*s", node->length, node->name);
+            new_il_sentence_raw("  lea rax, %.*s[rip]", node->length, node->name);
             push(RG_RAX);
         }
         return;
