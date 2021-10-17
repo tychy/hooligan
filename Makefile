@@ -1,4 +1,4 @@
-CFLAGS:=-std=c11 -static
+CFLAGS:=-std=c11 -no-pie
 SOURCE:=$(wildcard src/*.c)
 OBJS:=$(SOURCE:.c=.o)
 
@@ -19,7 +19,7 @@ else
 endif
 selfhost: first
 	@$(COMPILER) $(SOURCE) && \
-	find *.s | xargs cc -static -o $(OUTPUT) && \
+	find *.s | xargs cc -no-pie -o $(OUTPUT) && \
 	rm *.s
 
 clean:
