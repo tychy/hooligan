@@ -104,6 +104,7 @@ Describe 'bin/hcli'
       When call debug_and_run
       The status should eq 0
       The output should include gdb
+      The error should be blank
     End
   End
 
