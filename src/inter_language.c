@@ -1,6 +1,8 @@
 #include "inter_language.h"
 #include "hooligan.h"
 
+ILSentence *cur_ils;
+
 ILOperand *new_il_operand_reg(ILRegister reg)
 {
     ILOperand *op = calloc(1, sizeof(ILOT_REG));
@@ -43,11 +45,18 @@ char *il_operand_to_str(ILOperand *op)
     }
 }
 
-ILSentence *new_il_sentence_raw(char *raw_sentence)
+ILSentence *new_il_sentence_raw(char *fmt, ...)
 {
+    va_list ap;
+    va_start(ap, fmt);
+    char *raw = calloc(100, sizeof(char));
+    vsprintf(raw, fmt, ap);
     ILSentence *st = calloc(1, sizeof(ILSentence));
     st->ty = ILST_RAW;
-    st->raw_sentence = raw_sentence;
+    st->raw_sentence = raw;
+    cur_ils->next = st;
+    cur_ils = cur_ils->next;
+    va_end(ap);
     return st;
 }
 
@@ -56,6 +65,12 @@ ILSentence *new_il_sentence_single_operand(ILSentenceType ty, ILOperand *op)
     ILSentence *st = calloc(1, sizeof(ILSentence));
     st->ty = ty;
     st->first_operand = op;
+    cur_ils->next = st;
+    cur_ils = cur_ils->next;
+    if (ty == ILST_PUSH || ty == ILST_POP)
+    {
+        ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
+    }
     return st;
 }
 

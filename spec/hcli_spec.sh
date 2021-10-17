@@ -95,6 +95,19 @@ Describe 'bin/hcli'
     End
   End
 
+  Describe 'debug command'
+    clean() { ./bin/hcli clean > /dev/null; }
+    BeforeEach 'clean'
+    debug_and_run() { echo "run\n quit" | ./bin/hcli debug tests/spec/main.c; }
+
+    It 'run gdb and normally exit' priority:required
+      When call debug_and_run
+      The status should eq 0
+      The output should include gdb
+      The error should be blank
+    End
+  End
+
   Describe 'test command'
     It 'run tests successfully in 1st generation compiler' priority:required
       When run ./bin/hcli test
