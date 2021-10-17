@@ -148,7 +148,7 @@ elif [ "${param[0]}" = "exec" ] || [ "${param[0]}" = "e" ]; then
     echo "結果: $?"
     set -e
 elif [ "${param[0]}" = "debug" ]; then
-    compile "${@:1}"
+    compile "${param[@]:1}"
     find ./*.s | xargs cc -static -g -O0
     gdb a.out
 elif [ "${param[0]}" = "test" ] || [ "${param[0]}" = "t" ]; then
