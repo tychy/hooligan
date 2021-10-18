@@ -373,7 +373,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok);
 Node **parse_program(Token *start);
 
 // generator.c
-ILSentence *gen_asm_intel(Node **nodes);
+ILSentence *generate_inter_language(Node **nodes);
 
 // util.c
 void error(char *fmt);

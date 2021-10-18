@@ -75,7 +75,7 @@ int main(int argc, char **argv)
         Token *token = tokenize(pp_token);
 
         Node **nodes = parse_program(token);
-        ILSentence *ils = gen_asm_intel(nodes);
+        ILSentence *ils = generate_inter_language(nodes);
         if (opts->optimize_level != 0)
         {
             ils = optimize_inter_language(ils);
