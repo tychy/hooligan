@@ -389,4 +389,10 @@ char *extract_filename(char *path);
 char *extract_dir(char *path);
 int f2bin(float x);
 char *remove_extension(char *filename);
+bool is_int(Type *ty);
+bool is_float(Type *ty);
+bool is_char(Type *ty);
+bool is_int_or_char(Type *ty);
+bool is_ptr(Type *ty);
+int calc_bytes(Type *ty);
 #endif
