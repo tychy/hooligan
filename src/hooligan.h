@@ -357,7 +357,6 @@ struct Context
 // Declaration of global variables
 extern Option *opts;
 extern PPContext *pp_ctx;
-extern Token *token;
 extern Context *ctx;
 extern ILSentence *cur_ils;
 extern FILE *output;

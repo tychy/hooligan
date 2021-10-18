@@ -1,7 +1,6 @@
 #include "hooligan.h"
 #include "inter_language.h"
 
-Token *token;
 Context *ctx;
 FILE *output;
 Option *opts;
@@ -50,7 +49,6 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < file_count; i++)
     {
-        token = NULL;
         char *path = files[i];
         char *dirname = extract_dir(path);
         char *filename = extract_filename(path);
@@ -74,7 +72,7 @@ int main(int argc, char **argv)
         ctx->scope = calloc(1, sizeof(Scope));
 
         PPToken *pp_token = preprocess_directives(dirname, decompose_to_pp_token(p));
-        token = tokenize(pp_token);
+        Token *token = tokenize(pp_token);
 
         Node **nodes = parse_program(token);
         ILSentence *ils = gen_asm_intel(nodes);
