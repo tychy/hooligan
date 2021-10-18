@@ -1116,8 +1116,6 @@ void parse_program(Token *start)
     }
 
     cur_token = start;
-    ctx = calloc(1, sizeof(Context));
-    ctx->scope = calloc(1, sizeof(Scope));
     int i = 0;
     while (!at_eof())
     {
