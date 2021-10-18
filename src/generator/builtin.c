@@ -10,9 +10,9 @@ static void gen_va_start(Node *node)
     new_il_sentence_raw("  mov DWORD PTR -72[rbp], 8");  // TODO 本当は第二引数から計算しないといけない
     new_il_sentence_raw("  mov DWORD PTR -68[rbp], 48"); // va_list->fp_offset
     new_il_sentence_raw("  lea rax, 16[rbp]");
-    new_il_sentence_raw("  mov QWORD PTR -64[rbp], rax"); // va_list->overflow_arg_area
+    new_il_sentence_raw("  mov QWORD PTR -64[rbp], rax"); // va_list->overflow_aILrg_area
     new_il_sentence_raw("  lea rax, -48[rbp]");
-    new_il_sentence_raw("  mov QWORD PTR -56[rbp], rax"); // va_list->reg_arg_area
+    new_il_sentence_raw("  mov QWORD PTR -56[rbp], rax"); // va_list->reg_aILrg_area
     new_il_sentence_raw("  lea rdi, -72[rbp]");
     new_il_sentence_raw("  mov rax, rbp");
     new_il_sentence_raw("  sub rax, %d", first_arg->offset);
@@ -50,7 +50,7 @@ static void gen_va_arg(Node *node)
     }
     else
         new_il_sentence_raw("  mov rax, [rax]");
-    push(RG_RAX);
+    push(ILRG_RAX);
 }
 
 static void gen_va_end(Node *node)

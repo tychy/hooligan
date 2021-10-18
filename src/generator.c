@@ -26,7 +26,7 @@ static void gen_for(Node *node)
         gen(node->condition);
     else
         push_val(1); // 無条件でtrueとなるように
-    pop(RG_RAX);
+    pop(ILRG_RAX);
     new_il_sentence_raw("  cmp rax, 0");
     new_il_sentence_raw("  je .L.End%d", lab);
     new_il_sentence_raw("  jmp .L.Start%d", lab);
@@ -44,7 +44,7 @@ static void gen_while(Node *node)
     new_il_sentence_raw(".L.OnEnd%d:", lab);
     new_il_sentence_raw(".L.Cond%d:", lab);
     gen(node->condition);
-    pop(RG_RAX);
+    pop(ILRG_RAX);
     new_il_sentence_raw("  cmp rax, 0");
     new_il_sentence_raw("  je .L.End%d", lab);
     new_il_sentence_raw("  jmp .L.Start%d", lab);
@@ -58,7 +58,7 @@ static void gen_if(Node *node)
     bool else_exist = node->on_else;
     int lab = node->cond_label;
     gen(node->condition);
-    pop(RG_RAX);
+    pop(ILRG_RAX);
     new_il_sentence_raw("  cmp rax, 0");
     if (else_exist)
         new_il_sentence_raw("  je .Lelse%d", lab);
@@ -104,7 +104,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         arg = arg->next;
         count++;
     }
-    int arg_count = count;
+    int aILrg_count = count;
     while (count > 0)
     {
         count--;
@@ -128,7 +128,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     {
         new_il_sentence_raw("  add rsp, 8");
     }
-    push(RG_RAX);
+    push(ILRG_RAX);
 }
 
 static void gen_global_var_def(Node *node)
@@ -200,30 +200,30 @@ static void gen_addr(Node *node)
         if (node->is_local && node->is_static)
         {
             new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->scope_label);
-            push(RG_RAX);
+            push(ILRG_RAX);
         }
         else if (node->is_local)
         {
             new_il_sentence_raw("  mov rax, rbp");
             new_il_sentence_raw("  sub rax, %d", node->offset);
-            push(RG_RAX);
+            push(ILRG_RAX);
         }
         else if (node->is_static)
         {
             new_il_sentence_raw("  lea rax, L%.*s[rip]", node->length, node->name);
-            push(RG_RAX);
+            push(ILRG_RAX);
         }
         else
         {
             new_il_sentence_raw("  lea rax, %.*s[rip]", node->length, node->name);
-            push(RG_RAX);
+            push(ILRG_RAX);
         }
         return;
     case ND_MEMBER:
         gen_addr(node->child);
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  add rax, %d", node->member->offset);
-        push(RG_RAX);
+        push(ILRG_RAX);
         return;
 
     default:
@@ -248,7 +248,7 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
         new_il_sentence_raw("%.*s:", node->length, node->name);
     }
     // プロローグ
-    push(RG_RBP);
+    push(ILRG_RBP);
     new_il_sentence_raw("  mov rbp, rsp");
     int variable_region_size = 16 * (node->args_region_size / 16 + 1);
     if (node->has_variable_length_arguments)
@@ -274,7 +274,7 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
     while (arg != NULL)
     {
         gen_addr(arg);
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         if (count < 6)
         {
             char *reg;
@@ -300,12 +300,12 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
     ctx->is_aligned_stack_ptr = true;
 
     gen(node->rhs);
-    pop(RG_RAX);
+    pop(ILRG_RAX);
 
     // エピローグ
     // ここに書くと多分returnなしで戻り値を指定できるようになってしまう、どうすべきか
     new_il_sentence_raw("  mov rsp, rbp");
-    pop(RG_RBP);
+    pop(ILRG_RBP);
     new_il_sentence_raw("  ret");
 }
 
@@ -329,8 +329,8 @@ static void gen_assign(Node *node)
         {
             gen_addr(node->lhs);
             gen(cur->child);
-            pop(RG_RDI);
-            pop(RG_RAX);
+            pop(ILRG_RDI);
+            pop(ILRG_RAX);
             new_il_sentence_raw("  add rax, %d", calc_bytes(node->lhs->ty->ptr_to) * counter);
             if (is_int(node->lhs->ty->ptr_to))
                 new_il_sentence_raw("  mov [rax], edi");
@@ -348,8 +348,8 @@ static void gen_assign(Node *node)
 
     gen_addr(node->lhs);
     gen(node->rhs);
-    pop(RG_RDI);
-    pop(RG_RAX);
+    pop(ILRG_RDI);
+    pop(ILRG_RAX);
 
     if (is_int(node->ty))
     {
@@ -367,7 +367,7 @@ static void gen_assign(Node *node)
     {
         new_il_sentence_raw("  mov [rax], rdi");
     }
-    push(RG_RDI);
+    push(ILRG_RDI);
 }
 
 void gen_block(Node *node)
@@ -416,17 +416,17 @@ static void gen(Node *node)
         return;
     case ND_FLOAT:
         push_str_addr(node->data_label); // 流用しているので関数名を変えるべき
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  mov eax, [rax]");
-        push(RG_RAX);
+        push(ILRG_RAX);
         return;
     case ND_NOT:
         gen(node->child);
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, 0");
         new_il_sentence_raw("  sete al");
         new_il_sentence_raw("  movzb rax, al");
-        push(RG_RAX);
+        push(ILRG_RAX);
         return;
     case ND_VAR:
         gen_addr(node);
@@ -434,7 +434,7 @@ static void gen(Node *node)
         {
             return;
         }
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         if (is_int(node->ty))
             new_il_sentence_raw("  mov eax, [rax]");
         else if (is_float(node->ty))
@@ -447,16 +447,16 @@ static void gen(Node *node)
         }
         else
             new_il_sentence_raw("  mov rax, [rax]");
-        push(RG_RAX);
+        push(ILRG_RAX);
         return;
     case ND_ASSIGN:
         gen_assign(node);
         return;
     case ND_RETURN:
         gen(node->child);
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  mov rsp, rbp");
-        pop(RG_RBP);
+        pop(ILRG_RBP);
         new_il_sentence_raw("  ret");
         return;
     case ND_IF:
@@ -473,7 +473,7 @@ static void gen(Node *node)
         return;
     case ND_SWITCH:
         gen(node->condition);
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         for (Node *c = node->next_case; c; c = c->next_case)
         {
             new_il_sentence_raw("  cmp eax, %d", c->val);
@@ -515,7 +515,7 @@ static void gen(Node *node)
         {
             return;
         }
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         if (is_int(node->member->ty))
             new_il_sentence_raw("  mov eax, [rax]");
         else if (is_char(node->member->ty))
@@ -524,14 +524,14 @@ static void gen(Node *node)
         }
         else
             new_il_sentence_raw("  mov rax, [rax]");
-        push(RG_RAX);
+        push(ILRG_RAX);
         return;
     case ND_ADDR:
         gen_addr(node->child);
         return;
     case ND_DEREF:
         gen(node->child);
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         if (is_int(node->ty))
             new_il_sentence_raw("  mov eax, [rax]");
         else if (is_char(node->ty))
@@ -540,13 +540,13 @@ static void gen(Node *node)
         }
         else
             new_il_sentence_raw("  mov rax, [rax]");
-        push(RG_RAX);
+        push(ILRG_RAX);
         return;
     case ND_POSTINC:
     case ND_POSTDEC:
         gen(node->lhs); // インクリメント前の値がpushされる
         gen(node->rhs); // インクリメント後の値がpushされる
-        pop(RG_RAX);    // インクリメント後の値がpopされる
+        pop(ILRG_RAX);    // インクリメント後の値がpopされる
         // スタックトップはインクリメント前の値
         return;
     case ND_NOP:
@@ -558,8 +558,8 @@ static void gen(Node *node)
         gen(node->rhs);
         if (is_int_or_char(node->ty))
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
+            pop(ILRG_RDI);
+            pop(ILRG_RAX);
             if (node->kind == ND_ADD)
                 new_il_sentence_raw("  add eax, edi");
             else
@@ -581,8 +581,8 @@ static void gen(Node *node)
         }
         else
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
+            pop(ILRG_RDI);
+            pop(ILRG_RAX);
             int size = calc_bytes(node->ty->ptr_to);
             if (is_int_or_char(node->lhs->ty))
             {
@@ -598,7 +598,7 @@ static void gen(Node *node)
                 new_il_sentence_raw("  cqo");
                 new_il_sentence_raw("  mov rdi, %d", size);
                 new_il_sentence_raw("  idiv rdi");
-                push(RG_RAX);
+                push(ILRG_RAX);
                 return;
             }
             else
@@ -611,68 +611,68 @@ static void gen(Node *node)
             else
                 new_il_sentence_raw("  sub rax, rdi");
         }
-        push(RG_RAX);
+        push(ILRG_RAX);
         return;
     case ND_AND:
         gen(node->lhs);
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, 0");
         new_il_sentence_raw("  je .L.ANDOPERATOR%d", node->logical_operator_label); // raxが0ならそれ以上評価しない
-        push(RG_RAX);
+        push(ILRG_RAX);
         gen(node->rhs);
         // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
-        pop(RG_RDI); // 左辺値をrdiに格納
+        pop(ILRG_RDI); // 左辺値をrdiに格納
         push_val(0); // とりあえず0と比較したい
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, rdi");
         new_il_sentence_raw("  setne al");
         new_il_sentence_raw("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
-        pop(RG_RDI);                            // 比較結果をpushする前に右辺値をrdiに格納する
-        push(RG_RAX);                           // (左辺値)==0の結果がスタックトップに積まれる
+        pop(ILRG_RDI);                            // 比較結果をpushする前に右辺値をrdiに格納する
+        push(ILRG_RAX);                           // (左辺値)==0の結果がスタックトップに積まれる
         push_val(0);
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, rdi");
         new_il_sentence_raw("  setne al");
         new_il_sentence_raw("  movzb rax, al"); // ここで(右辺値)を0と比較した結果がraxに入る
-        push(RG_RAX);                           // (左辺値)==0の結果がスタックトップに積まれる
+        push(ILRG_RAX);                           // (左辺値)==0の結果がスタックトップに積まれる
 
-        pop(RG_RDI);
-        pop(RG_RAX);
+        pop(ILRG_RDI);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  and rax, rdi");
         new_il_sentence_raw("  .L.ANDOPERATOR%d:", node->logical_operator_label);
-        push(RG_RAX);
+        push(ILRG_RAX);
         return;
     case ND_OR:
         gen(node->lhs);
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, 0");
         new_il_sentence_raw("  setne al");
         new_il_sentence_raw("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
         new_il_sentence_raw("  cmp rax, 1");
         new_il_sentence_raw("  je .L.OROPERATOR%d", node->logical_operator_label); // raxが1ならそれ以上評価しない
-        push(RG_RAX);
+        push(ILRG_RAX);
         gen(node->rhs);
         // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
-        pop(RG_RDI); // 左辺値をrdiに格納
+        pop(ILRG_RDI); // 左辺値をrdiに格納
         push_val(0); // とりあえず0と比較したい
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, rdi");
         new_il_sentence_raw("  setne al");
         new_il_sentence_raw("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
-        pop(RG_RDI);                            // 比較結果をpushする前に右辺値をrdiに格納する
-        push(RG_RAX);                           // (左辺値)==0の結果がスタックトップに積まれる
+        pop(ILRG_RDI);                            // 比較結果をpushする前に右辺値をrdiに格納する
+        push(ILRG_RAX);                           // (左辺値)==0の結果がスタックトップに積まれる
         push_val(0);
-        pop(RG_RAX);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, rdi");
         new_il_sentence_raw("  setne al");
         new_il_sentence_raw("  movzb rax, al"); // ここで(右辺値)を0と比較した結果がraxに入る
-        push(RG_RAX);                           // (左辺値)==0の結果がスタックトップに積まれる
+        push(ILRG_RAX);                           // (左辺値)==0の結果がスタックトップに積まれる
 
-        pop(RG_RDI);
-        pop(RG_RAX);
+        pop(ILRG_RDI);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  or rax, rdi");
         new_il_sentence_raw("  .L.OROPERATOR%d:", node->logical_operator_label);
-        push(RG_RAX);
+        push(ILRG_RAX);
         return;
     case ND_TYPE:
         return;
@@ -696,11 +696,11 @@ static void gen(Node *node)
         }
         else
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
+            pop(ILRG_RDI);
+            pop(ILRG_RAX);
 
             new_il_sentence_raw("  imul eax, edi");
-            push(RG_RAX);
+            push(ILRG_RAX);
         }
         break;
     case ND_DIV:
@@ -716,19 +716,19 @@ static void gen(Node *node)
         }
         else
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
+            pop(ILRG_RDI);
+            pop(ILRG_RAX);
             new_il_sentence_raw("  cdq");
             new_il_sentence_raw("  idiv edi");
-            push(RG_RAX);
+            push(ILRG_RAX);
         }
         break;
     case ND_MOD:
-        pop(RG_RDI);
-        pop(RG_RAX);
+        pop(ILRG_RDI);
+        pop(ILRG_RAX);
         new_il_sentence_raw("  cdq");
         new_il_sentence_raw("  idiv edi");
-        push(RG_RDX);
+        push(ILRG_RDX);
         break;
     case ND_EQUAL:
         if (node->lhs->ty->ty == FLOAT)
@@ -741,13 +741,13 @@ static void gen(Node *node)
         }
         else
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
+            pop(ILRG_RDI);
+            pop(ILRG_RAX);
             new_il_sentence_raw("  cmp rax, rdi");
             new_il_sentence_raw("  sete al");
         }
         new_il_sentence_raw("  movzb rax, al");
-        push(RG_RAX);
+        push(ILRG_RAX);
         break;
 
     case ND_NEQUAL:
@@ -761,13 +761,13 @@ static void gen(Node *node)
         }
         else
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
+            pop(ILRG_RDI);
+            pop(ILRG_RAX);
             new_il_sentence_raw("  cmp rax, rdi");
             new_il_sentence_raw("  setne al");
         }
         new_il_sentence_raw("  movzb rax, al");
-        push(RG_RAX);
+        push(ILRG_RAX);
 
         break;
     case ND_GEQ:
@@ -781,13 +781,13 @@ static void gen(Node *node)
         }
         else
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
+            pop(ILRG_RDI);
+            pop(ILRG_RAX);
             new_il_sentence_raw("  cmp rax, rdi");
             new_il_sentence_raw("  setge al");
         }
         new_il_sentence_raw("  movzb rax, al");
-        push(RG_RAX);
+        push(ILRG_RAX);
         break;
     case ND_LEQ:
         if (node->lhs->ty->ty == FLOAT)
@@ -800,13 +800,13 @@ static void gen(Node *node)
         }
         else
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
+            pop(ILRG_RDI);
+            pop(ILRG_RAX);
             new_il_sentence_raw("  cmp rax, rdi");
             new_il_sentence_raw("  setle al");
         }
         new_il_sentence_raw("  movzb rax, al");
-        push(RG_RAX);
+        push(ILRG_RAX);
         break;
     case ND_GTH:
         if (node->lhs->ty->ty == FLOAT)
@@ -819,13 +819,13 @@ static void gen(Node *node)
         }
         else
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
+            pop(ILRG_RDI);
+            pop(ILRG_RAX);
             new_il_sentence_raw("  cmp rax, rdi");
             new_il_sentence_raw("  setg al");
         }
         new_il_sentence_raw("  movzb rax, al");
-        push(RG_RAX);
+        push(ILRG_RAX);
         break;
     case ND_LTH:
 
@@ -839,13 +839,13 @@ static void gen(Node *node)
         }
         else
         {
-            pop(RG_RDI);
-            pop(RG_RAX);
+            pop(ILRG_RDI);
+            pop(ILRG_RAX);
             new_il_sentence_raw("  cmp rax, rdi");
             new_il_sentence_raw("  setl al");
         }
         new_il_sentence_raw("  movzb rax, al");
-        push(RG_RAX);
+        push(ILRG_RAX);
         break;
     }
 }

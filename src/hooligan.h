@@ -110,19 +110,6 @@ typedef enum
     ENUM,
 } TypeKind;
 
-typedef enum
-{
-    RG_RDI,
-    RG_RSI,
-    RG_RDX,
-    RG_RCX,
-    RG_R8,
-    RG_R9,
-    RG_RAX,
-    RG_RBP,
-    RG_RSP,
-} RegisterName;
-
 // type definition
 typedef struct Option Option;
 typedef struct PPToken PPToken;
