@@ -74,6 +74,7 @@ int main(int argc, char **argv)
             exit(1);
         }
 
+        program();
         ILSentence *ils = gen_asm_intel();
         if (opts->optimize_level != 0)
         {

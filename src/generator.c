@@ -857,7 +857,6 @@ ILSentence *gen_asm_intel()
     Node *funcs[200];
     new_il_sentence_raw(".intel_syntax noprefix");
     new_il_sentence_raw(".data");
-    program();
     if (opts->is_verbose)
     {
         printf("\x1b[33mSTART GENERATING\x1b[0m\n");
