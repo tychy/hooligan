@@ -52,8 +52,6 @@ struct ILSentence
 };
 
 ILOperand *new_il_operand_reg(ILRegister reg);
-ILSentence *new_il_sentence_raw(char *fmt, ...);
-ILSentence *new_il_sentence_single_operand(ILSentenceType ty, ILOperand *op);
 void generate_intel_syntax_assembly(ILSentence *ils);
 
 // optimizer.c

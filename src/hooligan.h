@@ -358,7 +358,6 @@ struct Context
 extern Option *opts;
 extern PPContext *pp_ctx;
 extern Context *ctx;
-extern ILSentence *cur_ils;
 extern FILE *output;
 
 // Declaration of functions

@@ -1,9 +1,10 @@
 #include "hooligan.h"
-#include "inter_language.h"
 
+#include "generator/il_constructor.c"
 #include "generator/register.c"
 #include "generator/shorthand.c"
 #include "generator/builtin.c"
+
 
 static void gen(Node *node);
 
@@ -852,7 +853,7 @@ static void gen(Node *node)
 ILSentence *generate_inter_language(Node **nodes)
 {
     ILSentence *head = calloc(1, sizeof(ILSentence));
-    cur_ils = head;
+    cur = head;
 
     Node *funcs[200];
     new_il_sentence_raw(".intel_syntax noprefix");
