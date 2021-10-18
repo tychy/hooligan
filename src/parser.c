@@ -128,6 +128,10 @@ static Node *ident()
         {
             error_at(ident->string, "識別子が解決できませんでした");
         }
+        while (consume("*"))
+        {
+            ty = new_type_ptr(ty);
+        }
         Node *node = calloc(1, sizeof(Node));
         node->kind = ND_TYPE;
         node->ty = ty;
