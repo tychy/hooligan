@@ -358,7 +358,6 @@ struct Context
 extern Option *opts;
 extern PPContext *pp_ctx;
 extern Token *token;
-extern Node *nodes[500];
 extern Context *ctx;
 extern ILSentence *cur_ils;
 extern FILE *output;
@@ -372,10 +371,10 @@ PPToken *decompose_to_pp_token(char *p);
 PPToken *preprocess_directives(char *base_dir, PPToken *tok);
 
 // parser.c
-void parse_program(Token *start);
+Node **parse_program(Token *start);
 
 // generator.c
-ILSentence *gen_asm_intel();
+ILSentence *gen_asm_intel(Node **nodes);
 
 // util.c
 void error(char *fmt);

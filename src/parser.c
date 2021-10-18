@@ -1112,13 +1112,14 @@ static Node *def()
     return node;
 }
 
-void parse_program(Token *start)
+Node **parse_program(Token *start)
 {
     if (opts->is_verbose)
     {
         printf("\x1b[33mSTART PARSING\x1b[0m\n");
     }
 
+    Node **nodes = calloc(600, sizeof(Node *));
     cur_token = start;
     int i = 0;
     while (!at_eof())
@@ -1137,4 +1138,5 @@ void parse_program(Token *start)
     {
         printf("\x1b[33mEND PARSING\x1b[0m\n");
     }
+    return nodes;
 }

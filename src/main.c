@@ -2,7 +2,6 @@
 #include "inter_language.h"
 
 Token *token;
-Node *nodes[500];
 Context *ctx;
 FILE *output;
 Option *opts;
@@ -77,8 +76,8 @@ int main(int argc, char **argv)
         PPToken *pp_token = preprocess_directives(dirname, decompose_to_pp_token(p));
         token = tokenize(pp_token);
 
-        parse_program(token);
-        ILSentence *ils = gen_asm_intel();
+        Node **nodes = parse_program(token);
+        ILSentence *ils = gen_asm_intel(nodes);
         if (opts->optimize_level != 0)
         {
             ils = optimize_inter_language(ils);

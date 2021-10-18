@@ -849,7 +849,7 @@ static void gen(Node *node)
     }
 }
 
-ILSentence *gen_asm_intel()
+ILSentence *gen_asm_intel(Node **nodes)
 {
     ILSentence *head = calloc(1, sizeof(ILSentence));
     cur_ils = head;
