@@ -1,90 +1,91 @@
 #include "../hooligan.h"
 
+static Token *cur_token;
 static void set_struct_member(Type *ty);
 static Type *consume_type();
 
 static bool consume(char *op)
 {
-    if (token->kind != TK_OPERATOR || strcmp(token->string, op))
+    if (cur_token->kind != TK_OPERATOR || strcmp(cur_token->string, op))
         return false;
-    token = token->next;
+    cur_token = cur_token->next;
     return true;
 }
 
 static bool consume_rw(TokenKind tk)
 {
-    if (token->kind != tk)
+    if (cur_token->kind != tk)
         return false;
-    token = token->next;
+    cur_token = cur_token->next;
     return true;
 }
 
 static void expect(char *op)
 {
-    if (token->kind != TK_OPERATOR || token->string[0] != op[0])
+    if (cur_token->kind != TK_OPERATOR || cur_token->string[0] != op[0])
     {
-        error2("'%s'ではありません, got %s", op, token->string);
+        error2("'%s'ではありません, got %s", op, cur_token->string);
     }
-    token = token->next;
+    cur_token = cur_token->next;
 }
 
 static int expect_number()
 {
-    if (token->kind != TK_NUMBER)
-        error_at(token->string, "数字ではありません");
-    int value = token->value;
-    token = token->next;
+    if (cur_token->kind != TK_NUMBER)
+        error_at(cur_token->string, "数字ではありません");
+    int value = cur_token->value;
+    cur_token = cur_token->next;
     return value;
 }
 
 static float expect_float()
 {
-    if (token->kind != TK_NUMBER)
-        error_at(token->string, "数字ではありません");
-    if (!token->is_float)
-        error_at(token->string, "floatではありません");
+    if (cur_token->kind != TK_NUMBER)
+        error_at(cur_token->string, "数字ではありません");
+    if (!cur_token->is_float)
+        error_at(cur_token->string, "floatではありません");
 
-    float value = token->float_val;
-    token = token->next;
+    float value = cur_token->float_val;
+    cur_token = cur_token->next;
     return value;
 }
 
 static int expect_char()
 {
-    if (token->kind != TK_CHARACTER)
+    if (cur_token->kind != TK_CHARACTER)
     {
-        error_at(token->string, "文字ではありません");
+        error_at(cur_token->string, "文字ではありません");
     }
-    int value = token->value;
-    token = token->next;
+    int value = cur_token->value;
+    cur_token = cur_token->next;
     return value;
 }
 
 static Token *consume_ident()
 {
-    if (token->kind != TK_IDENT)
+    if (cur_token->kind != TK_IDENT)
     {
         return NULL;
     }
-    Token *tok = token;
-    token = token->next;
+    Token *tok = cur_token;
+    cur_token = cur_token->next;
     return tok;
 }
 
 static Token *expect_ident()
 {
-    if (token->kind != TK_IDENT)
+    if (cur_token->kind != TK_IDENT)
     {
-        error1("識別子ではありません got %s", token->string);
+        error1("識別子ではありません got %s", cur_token->string);
     }
-    Token *tok = token;
-    token = token->next;
+    Token *tok = cur_token;
+    cur_token = cur_token->next;
     return tok;
 }
 
 static bool at_eof()
 {
-    return token->kind == TK_EOF;
+    return cur_token->kind == TK_EOF;
 }
 
 static void set_struct_member(Type *ty)
@@ -127,10 +128,10 @@ static Type *consume_type()
         is_const = true;
     }
 
-    Type *ty = find_defined_type(token);
+    Type *ty = find_defined_type(cur_token);
     if (ty)
     {
-        token = token->next;
+        cur_token = cur_token->next;
 
         while (consume("*"))
         {
@@ -177,12 +178,12 @@ static Type *consume_type()
             }
             if (i == 0)
             {
-                error_at(token->string, "識別子が必要です");
+                error_at(cur_token->string, "識別子が必要です");
             }
         }
         else
         {
-            error_at(token->string, "識別子が必要です");
+            error_at(cur_token->string, "識別子が必要です");
         }
     }
     else
