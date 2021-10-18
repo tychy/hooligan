@@ -1,6 +1,9 @@
-#include "hooligan.h"
+#include "../hooligan.h"
 
-bool consume(char *op)
+static void set_struct_member(Type *ty);
+static Type *consume_type();
+
+static bool consume(char *op)
 {
     if (token->kind != TK_OPERATOR || strcmp(token->string, op))
         return false;
@@ -8,7 +11,7 @@ bool consume(char *op)
     return true;
 }
 
-bool consume_rw(TokenKind tk)
+static bool consume_rw(TokenKind tk)
 {
     if (token->kind != tk)
         return false;
@@ -16,7 +19,107 @@ bool consume_rw(TokenKind tk)
     return true;
 }
 
-Type *consume_type()
+static void expect(char *op)
+{
+    if (token->kind != TK_OPERATOR || token->string[0] != op[0])
+    {
+        error2("'%s'ではありません, got %s", op, token->string);
+    }
+    token = token->next;
+}
+
+static int expect_number()
+{
+    if (token->kind != TK_NUMBER)
+        error_at(token->string, "数字ではありません");
+    int value = token->value;
+    token = token->next;
+    return value;
+}
+
+static float expect_float()
+{
+    if (token->kind != TK_NUMBER)
+        error_at(token->string, "数字ではありません");
+    if (!token->is_float)
+        error_at(token->string, "floatではありません");
+
+    float value = token->float_val;
+    token = token->next;
+    return value;
+}
+
+static int expect_char()
+{
+    if (token->kind != TK_CHARACTER)
+    {
+        error_at(token->string, "文字ではありません");
+    }
+    int value = token->value;
+    token = token->next;
+    return value;
+}
+
+static Token *consume_ident()
+{
+    if (token->kind != TK_IDENT)
+    {
+        return NULL;
+    }
+    Token *tok = token;
+    token = token->next;
+    return tok;
+}
+
+static Token *expect_ident()
+{
+    if (token->kind != TK_IDENT)
+    {
+        error1("識別子ではありません got %s", token->string);
+    }
+    Token *tok = token;
+    token = token->next;
+    return tok;
+}
+
+static bool at_eof()
+{
+    return token->kind == TK_EOF;
+}
+
+static void set_struct_member(Type *ty)
+{
+    int offset = 0;
+    Member *head = calloc(1, sizeof(Member));
+    Member *cur = head;
+    while (!(consume("}")))
+    {
+
+        Member *mem = calloc(1, sizeof(Member));
+        Type *mem_ty = consume_type();
+
+        Token *mem_tok = consume_ident();
+        if (consume("["))
+        {
+            int arr_size = expect_number();
+            mem_ty = new_type_array(mem_ty, arr_size);
+            expect("]");
+        }
+
+        mem->name = mem_tok->string;
+        mem->length = mem_tok->length;
+        mem->offset = offset;
+        offset += calc_bytes(mem_ty);
+        mem->ty = mem_ty;
+        cur->next = mem;
+        cur = mem;
+        expect(";");
+    }
+    ty->members = head;
+    ty->size = offset;
+}
+
+static Type *consume_type()
 {
     bool is_const = false;
     if (consume_rw(TK_CONST))
@@ -141,72 +244,4 @@ Type *consume_type()
         ty->is_const = true;
     }
     return ty;
-}
-
-void expect(char *op)
-{
-    if (token->kind != TK_OPERATOR || token->string[0] != op[0])
-    {
-        error2("'%s'ではありません, got %s", op, token->string);
-    }
-    token = token->next;
-}
-
-int expect_number()
-{
-    if (token->kind != TK_NUMBER)
-        error_at(token->string, "数字ではありません");
-    int value = token->value;
-    token = token->next;
-    return value;
-}
-
-float expect_float()
-{
-    if (token->kind != TK_NUMBER)
-        error_at(token->string, "数字ではありません");
-    if (!token->is_float)
-        error_at(token->string, "floatではありません");
-
-    float value = token->float_val;
-    token = token->next;
-    return value;
-}
-
-int expect_char()
-{
-    if (token->kind != TK_CHARACTER)
-    {
-        error_at(token->string, "文字ではありません");
-    }
-    int value = token->value;
-    token = token->next;
-    return value;
-}
-
-Token *consume_ident()
-{
-    if (token->kind != TK_IDENT)
-    {
-        return NULL;
-    }
-    Token *tok = token;
-    token = token->next;
-    return tok;
-}
-
-Token *expect_ident()
-{
-    if (token->kind != TK_IDENT)
-    {
-        error1("識別子ではありません got %s", token->string);
-    }
-    Token *tok = token;
-    token = token->next;
-    return tok;
-}
-
-bool at_eof()
-{
-    return token->kind == TK_EOF;
 }

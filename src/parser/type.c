@@ -1,4 +1,4 @@
-#include "hooligan.h"
+#include "../hooligan.h"
 
 Type *new_type_int()
 {
@@ -204,36 +204,4 @@ Type *add_tagged_type(Token *tok, Type *ty, bool is_local)
     ty->next_tagged = ctx->scope->tagged_types;
     ctx->scope->tagged_types = ty;
     return ty;
-}
-
-void set_struct_member(Type *ty)
-{
-    int offset = 0;
-    Member *head = calloc(1, sizeof(Member));
-    Member *cur = head;
-    while (!(consume("}")))
-    {
-
-        Member *mem = calloc(1, sizeof(Member));
-        Type *mem_ty = consume_type();
-
-        Token *mem_tok = consume_ident();
-        if (consume("["))
-        {
-            int arr_size = expect_number();
-            mem_ty = new_type_array(mem_ty, arr_size);
-            expect("]");
-        }
-
-        mem->name = mem_tok->string;
-        mem->length = mem_tok->length;
-        mem->offset = offset;
-        offset += calc_bytes(mem_ty);
-        mem->ty = mem_ty;
-        cur->next = mem;
-        cur = mem;
-        expect(";");
-    }
-    ty->members = head;
-    ty->size = offset;
 }
