@@ -1108,14 +1108,14 @@ static Node *def()
     return node;
 }
 
-void program()
+void parse_program(Token *start)
 {
     if (opts->is_verbose)
     {
         printf("\x1b[33mSTART PARSING\x1b[0m\n");
     }
 
-    cur_token = token;
+    cur_token = start;
     ctx = calloc(1, sizeof(Context));
     ctx->scope = calloc(1, sizeof(Scope));
     int i = 0;

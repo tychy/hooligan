@@ -372,7 +372,7 @@ PPToken *decompose_to_pp_token(char *p);
 PPToken *preprocess_directives(char *base_dir, PPToken *tok);
 
 // parser.c
-void program();
+void parse_program(Token *start);
 
 // generator.c
 ILSentence *gen_asm_intel();
