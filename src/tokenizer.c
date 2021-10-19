@@ -53,13 +53,13 @@ static Token *new_token(TokenKind kind, int val, char *str, int len)
 {
     Token *tok = calloc(1, sizeof(Token));
     tok->kind = kind;
-    tok->value = val;
-    tok->string = str;
-    tok->length = len;
+    tok->val = val;
+    tok->str = str;
+    tok->len = len;
     return tok;
 }
 
-static Token *convertPPTokenToToken(PPToken *pptok)
+static Token *convertPPTokenToToken(Token *pptok)
 {
     TokenKind tk;
     switch (pptok->kind)
@@ -100,7 +100,7 @@ static Token *convertPPTokenToToken(PPToken *pptok)
     return tok;
 }
 
-Token *tokenize(PPToken *pptok)
+Token *tokenize(Token *pptok)
 {
     Token head;
     Token *cur = &head;

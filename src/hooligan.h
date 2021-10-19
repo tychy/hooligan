@@ -106,7 +106,6 @@ typedef enum
 
 // type definition
 typedef struct Option Option;
-typedef struct PPToken PPToken;
 typedef struct Macro Macro;
 typedef struct PPContext PPContext;
 typedef struct Token Token;
@@ -125,27 +124,13 @@ struct Option
     int optimize_level;
 };
 
-struct PPToken
-{
-    TokenKind kind;
-    PPToken *next;
-    bool is_float;
-    int val;
-    float float_val;
-    int len;
-    char *str;
-
-    int integer; // delete this
-    int decimal; // delete this
-    int numzero;
-};
-
 struct Macro
 {
-    PPToken *target;
-    PPToken *replace;
+    Token *target;
+    Token *replace;
     Macro *next;
 };
+
 struct PPContext
 {
     Macro *macros;
@@ -156,10 +141,10 @@ struct Token
     TokenKind kind;
     Token *next;
     bool is_float;
-    int value;
+    int val;
     float float_val;
-    int length;
-    char *string;
+    int len;
+    char *str;
 
     int integer; // delete this
     int decimal; // delete this
@@ -343,11 +328,11 @@ extern FILE *output;
 
 // Declaration of functions
 // tokenizer.c
-Token *tokenize(PPToken *pp_tok);
+Token *tokenize(Token *pp_tok);
 
 // preprcessor.c
-PPToken *decompose_to_pp_token(char *p);
-PPToken *preprocess_directives(char *base_dir, PPToken *tok);
+Token *decompose_to_pp_token(char *p);
+Token *preprocess_directives(char *base_dir, Token *tok);
 
 // parser.c
 Node **parse_program(Token *start);

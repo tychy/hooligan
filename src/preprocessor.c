@@ -56,9 +56,9 @@ static char *preprocessing_directive_list[6] = {
 
 static int preprocessing_directive_list_count = 6;
 
-static PPToken *new_token(TokenKind kind, PPToken *cur, char *str)
+static Token *new_token(TokenKind kind, Token *cur, char *str)
 {
-    PPToken *tok = calloc(1, sizeof(PPToken));
+    Token *tok = calloc(1, sizeof(Token));
     tok->kind = kind;
     tok->str = str;
     cur->next = tok;
@@ -103,7 +103,7 @@ static bool isdirective(char *p)
     return false;
 }
 
-static bool isdirective_idx(PPToken *tok, int idx)
+static bool isdirective_idx(Token *tok, int idx)
 {
     if (tok == NULL)
     {
@@ -142,11 +142,11 @@ static int from_escape_char_to_int(char p)
     }
 }
 
-PPToken *decompose_to_pp_token(char *p)
+Token *decompose_to_pp_token(char *p)
 {
-    PPToken head;
+    Token head;
     head.next = NULL;
-    PPToken *cur = &head;
+    Token *cur = &head;
     int line = 1;
 
     while (*p)
@@ -534,7 +534,7 @@ Macro *find_macro(char *str, int len)
     return NULL;
 }
 
-PPToken *fetch_before_endif(PPToken *tok)
+Token *fetch_before_endif(Token *tok)
 {
     if (tok == NULL)
     {
@@ -551,14 +551,14 @@ PPToken *fetch_before_endif(PPToken *tok)
     return NULL;
 }
 
-PPToken *preprocess_directives(char *base_dir, PPToken *tok)
+Token *preprocess_directives(char *base_dir, Token *tok)
 {
     if (tok == NULL)
     {
         return tok;
     }
-    PPToken *prev = tok;
-    PPToken *cur = tok;
+    Token *prev = tok;
+    Token *cur = tok;
 
     while (cur)
     {
@@ -567,7 +567,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
             // include
             if (isdirective_idx(cur->next, 0))
             {
-                PPToken *hn_tok = cur->next->next;
+                Token *hn_tok = cur->next->next;
                 if (hn_tok->kind != TK_HEADER_NAME)
                 {
                     error_at(cur->str, "不正なinclude文です");
@@ -576,7 +576,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 char *p_end = p + hn_tok->len - 1; // > or "
                 char *file_name = calloc(1, hn_tok->len - 1);
                 memcpy(file_name, p + 1, hn_tok->len - 2);
-                PPToken *include_tok = NULL;
+                Token *include_tok = NULL;
                 if (*p == '"' && *p_end == '"')
                 {
 
@@ -589,7 +589,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 {
                     char *full_path = join_str("include/", file_name);
 
-                    PPToken *mid = decompose_to_pp_token(read_file(full_path));
+                    Token *mid = decompose_to_pp_token(read_file(full_path));
                     include_tok = preprocess_directives("include/", mid);
                 }
                 if (include_tok == NULL)
@@ -607,7 +607,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                     }
                     continue;
                 }
-                PPToken *include_tok_end = include_tok;
+                Token *include_tok_end = include_tok;
                 while (include_tok_end->next)
                 {
                     include_tok_end = include_tok_end->next;
@@ -633,8 +633,8 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
             // マクロの登録
             if (isdirective_idx(cur->next, 1))
             {
-                PPToken *target = cur->next->next;
-                PPToken *replace = cur->next->next->next;
+                Token *target = cur->next->next;
+                Token *replace = cur->next->next->next;
 
                 if (target->kind == TK_IDENT && (replace->kind == TK_IDENT || replace->kind == TK_NUMBER))
                 {
@@ -681,15 +681,15 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
             // ifdef
             if (isdirective_idx(cur->next, 2))
             {
-                PPToken *target = cur->next->next;
+                Token *target = cur->next->next;
                 if (find_macro(target->str, target->len))
                 {
-                    PPToken *before_endif = fetch_before_endif(target);
+                    Token *before_endif = fetch_before_endif(target);
                     if (before_endif == NULL)
                     {
                         error_at(cur->str, "ifdefの後にはendifが必要です");
                     }
-                    PPToken *after_endif = before_endif->next->next->next;
+                    Token *after_endif = before_endif->next->next->next;
                     before_endif->next = after_endif;
                     if (prev == cur)
                     {
@@ -705,12 +705,12 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 }
                 else
                 {
-                    PPToken *before_endif = fetch_before_endif(target);
+                    Token *before_endif = fetch_before_endif(target);
                     if (before_endif == NULL)
                     {
                         error_at(cur->str, "ifdefの後にはendifが必要です");
                     }
-                    PPToken *after_endif = before_endif->next->next->next;
+                    Token *after_endif = before_endif->next->next->next;
                     if (prev == cur)
                     {
                         prev = after_endif;
@@ -728,15 +728,15 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
             // ifndef
             if (isdirective_idx(cur->next, 3))
             {
-                PPToken *target = cur->next->next;
+                Token *target = cur->next->next;
                 if (!find_macro(target->str, target->len))
                 {
-                    PPToken *before_endif = fetch_before_endif(target);
+                    Token *before_endif = fetch_before_endif(target);
                     if (before_endif == NULL)
                     {
                         error_at(cur->str, "ifndefの後にはendifが必要です");
                     }
-                    PPToken *after_endif = before_endif->next->next->next;
+                    Token *after_endif = before_endif->next->next->next;
                     before_endif->next = after_endif;
                     if (prev == cur)
                     {
@@ -752,12 +752,12 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 }
                 else
                 {
-                    PPToken *before_endif = fetch_before_endif(target);
+                    Token *before_endif = fetch_before_endif(target);
                     if (before_endif == NULL)
                     {
                         error_at(cur->str, "iffdefの後にはendifが必要です");
                     }
-                    PPToken *after_endif = before_endif->next->next->next;
+                    Token *after_endif = before_endif->next->next->next;
                     if (prev == cur)
                     {
                         prev = after_endif;
@@ -804,9 +804,9 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
     return tok;
 }
 
-void dump_pp_token(PPToken *tok)
+void dump_pp_token(Token *tok)
 {
-    PPToken *cur = tok;
+    Token *cur = tok;
     while (cur)
     {
         switch (cur->kind)

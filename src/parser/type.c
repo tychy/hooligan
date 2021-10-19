@@ -29,7 +29,7 @@ Type *new_type_char()
 
 Type *new_type_string()
 {
-    //new_type_ptr(new_type_char())で代用できるがキャッシュできる分はやい？
+    // new_type_ptr(new_type_char())で代用できるがキャッシュできる分はやい？
     //わかりやすさは勝っていると思う
     Type *ty;
     Type *c = new_type_char();
@@ -113,7 +113,7 @@ Type *find_defined_type(Token *tok)
     {
         for (Type *type = scope->defined_type; type; type = type->next_defined)
         {
-            if (type->length == tok->length && memcmp(type->name, tok->string, type->length) == 0)
+            if (type->length == tok->len && memcmp(type->name, tok->str, type->length) == 0)
             {
                 return type;
             }
@@ -124,8 +124,8 @@ Type *find_defined_type(Token *tok)
 
 Type *add_defined_type(Token *tok, Type *ty, bool is_local)
 {
-    ty->name = tok->string;
-    ty->length = tok->length;
+    ty->name = tok->str;
+    ty->length = tok->len;
     ty->next_defined = ctx->scope->defined_type;
     ctx->scope->defined_type = ty;
     return ty;
@@ -137,7 +137,7 @@ Type *find_tagged_type(Token *tok)
     {
         for (Type *type = scope->tagged_types; type; type = type->next_tagged)
         {
-            if (type->tag_length == tok->length && memcmp(type->tag_name, tok->string, type->tag_length) == 0)
+            if (type->tag_length == tok->len && memcmp(type->tag_name, tok->str, type->tag_length) == 0)
             {
                 return type;
             }
@@ -148,8 +148,8 @@ Type *find_tagged_type(Token *tok)
 
 Type *add_tagged_type(Token *tok, Type *ty, bool is_local)
 {
-    ty->tag_name = tok->string;
-    ty->tag_length = tok->length;
+    ty->tag_name = tok->str;
+    ty->tag_length = tok->len;
     ty->next_tagged = ctx->scope->tagged_types;
     ctx->scope->tagged_types = ty;
     return ty;

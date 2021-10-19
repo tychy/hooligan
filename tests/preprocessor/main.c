@@ -1,9 +1,9 @@
 #include "../../src/preprocessor.c"
 #include "../../src/util.c"
 
-void dump_pp_token(PPToken *tok);
+void dump_pp_token(Token *tok);
 
-void testPPToken()
+void testToken()
 {
     dump_pp_token(decompose_to_pp_token(read_file("tests/preprocessor/include/1.c")));
     dump_pp_token(decompose_to_pp_token(read_file("tests/preprocessor/include/2.c")));
@@ -58,7 +58,7 @@ void testMacro()
 int main()
 {
 
-    testPPToken();
+    testToken();
     testMacro();
     return 0;
 }

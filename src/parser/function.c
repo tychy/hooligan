@@ -4,7 +4,7 @@ static Var *find_func(Token *tok)
 {
     for (Var *func = ctx->functions; func; func = func->next)
     {
-        if (func->length == tok->length && memcmp(func->name, tok->string, func->length) == 0)
+        if (func->length == tok->len && memcmp(func->name, tok->str, func->length) == 0)
         {
             return func;
         }
@@ -15,8 +15,8 @@ static Var *find_func(Token *tok)
 static Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[6], bool is_static, bool has_variable_length_arguments)
 {
     Var *new_func = calloc(1, sizeof(Var));
-    new_func->length = tok->length;
-    new_func->name = tok->string;
+    new_func->length = tok->len;
+    new_func->name = tok->str;
     new_func->ty = ty;
     new_func->next = ctx->functions;
     new_func->label = ctx->scope->label;
