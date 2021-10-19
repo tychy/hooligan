@@ -15,18 +15,18 @@ static Node *block();
 
 static Node *num()
 {
-    if (token->is_float)
+    if (cur_token->is_float)
     {
         // return new_node_float(expect_float());
-        if (token->kind != TK_NUMBER)
-            error_at(token->string, "数字ではありません");
-        if (!token->is_float)
-            error_at(token->string, "floatではありません");
+        if (cur_token->kind != TK_NUMBER)
+            error_at(cur_token->string, "数字ではありません");
+        if (!cur_token->is_float)
+            error_at(cur_token->string, "floatではありません");
 
-        int integer = token->integer;
-        int decimal = token->decimal;
-        int numzero = token->numzero;
-        token = token->next;
+        int integer = cur_token->integer;
+        int decimal = cur_token->decimal;
+        int numzero = cur_token->numzero;
+        cur_token = cur_token->next;
         return new_node_float(integer, decimal, numzero);
     }
     return new_node_num(expect_number());
@@ -128,6 +128,10 @@ static Node *ident()
         {
             error_at(ident->string, "識別子が解決できませんでした");
         }
+        while (consume("*"))
+        {
+            ty = new_type_ptr(ty);
+        }
         Node *node = calloc(1, sizeof(Node));
         node->kind = ND_TYPE;
         node->ty = ty;
@@ -137,8 +141,8 @@ static Node *ident()
 static Member *get_struct_member(Type *ty)
 {
     for (Member *mem = ty->members; mem; mem = mem->next)
-        if (mem->length == token->length &&
-            strncmp(mem->name, token->string, token->length) == 0)
+        if (mem->length == cur_token->length &&
+            strncmp(mem->name, cur_token->string, cur_token->length) == 0)
             return mem;
     error("メンバーがありません");
 }
@@ -160,15 +164,15 @@ static Node *primary()
             expect(")");
         }
     }
-    else if (token->kind == TK_NUMBER)
+    else if (cur_token->kind == TK_NUMBER)
     {
         node = num();
     }
-    else if (token->kind == TK_CHARACTER)
+    else if (cur_token->kind == TK_CHARACTER)
     {
         node = character();
     }
-    else if (token->kind == TK_IDENT)
+    else if (cur_token->kind == TK_IDENT)
     {
         node = ident();
     }
@@ -199,7 +203,7 @@ static Node *primary()
             node = new_node_single(ND_MEMBER, node);
             node->member = mem;
             node->ty = mem->ty;
-            token = token->next;
+            cur_token = cur_token->next;
             continue;
         }
 
@@ -215,7 +219,7 @@ static Node *primary()
             node = new_node_single(ND_MEMBER, node);
             node->member = mem;
             node->ty = mem->ty;
-            token = token->next;
+            cur_token = cur_token->next;
             continue;
         }
 
@@ -279,10 +283,10 @@ static Node *unary()
         expect(")");
         return new_node_num(calc_bytes(node->ty));
     }
-    else if (token->kind == TK_STRING)
+    else if (cur_token->kind == TK_STRING)
     {
-        String *s = new_string(token->string, token->length);
-        token = token->next;
+        String *s = new_string(cur_token->string, cur_token->length);
+        cur_token = cur_token->next;
         return new_node_string(s);
     }
     return primary();
@@ -443,18 +447,18 @@ static Node *assign()
 
 static Node *const_expr()
 {
-    if (token->kind == TK_NUMBER)
+    if (cur_token->kind == TK_NUMBER)
     {
         return num();
     }
-    else if (token->kind == TK_CHARACTER)
+    else if (cur_token->kind == TK_CHARACTER)
     {
         return character();
     }
-    else if (token->kind == TK_STRING)
+    else if (cur_token->kind == TK_STRING)
     {
-        String *s = new_string(token->string, token->length);
-        token = token->next;
+        String *s = new_string(cur_token->string, cur_token->length);
+        cur_token = cur_token->next;
         return new_node_string(s);
     }
     else
@@ -661,26 +665,26 @@ static Node *defl()
                 Node *node = new_node_var(lvar);
                 return new_node_assign(node, initial);
             }
-            else if (token->kind == TK_STRING)
+            else if (cur_token->kind == TK_STRING)
             {
                 if (!(ty->ptr_to->ty == CHAR))
                 {
                     error("char型の配列が必要です");
                 }
-                ty->array_size = token->length + 1;
+                ty->array_size = cur_token->length + 1;
                 Var *lvar = def_var(ident, ty, true, false);
                 Node *node = new_node_var(lvar);
-                Node *initial = new_node_single(ND_INIT, new_node_num(token->string[0]));
+                Node *initial = new_node_single(ND_INIT, new_node_num(cur_token->string[0]));
                 Node *cur = initial;
                 int cnt = 1;
-                for (int i = 1; i < token->length; i++)
+                for (int i = 1; i < cur_token->length; i++)
                 {
-                    cur->next = new_node_single(ND_INIT, new_node_num(token->string[i]));
+                    cur->next = new_node_single(ND_INIT, new_node_num(cur_token->string[i]));
                     cur = cur->next;
                 }
                 cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
                 cur = cur->next;
-                token = token->next;
+                cur_token = cur_token->next;
                 return new_node_assign(node, initial);
             }
             else
@@ -935,7 +939,7 @@ static Node *func(Token *ident, Type *ty, bool is_static)
 
         if (!arg_ty)
         {
-            printf("%s\n", token->string);
+            printf("%s\n", cur_token->string);
             error("引数に型がありません");
         }
         else if (arg_ty->ty != VOID)
@@ -1108,15 +1112,15 @@ static Node *def()
     return node;
 }
 
-void program()
+Node **parse_program(Token *start)
 {
     if (opts->is_verbose)
     {
         printf("\x1b[33mSTART PARSING\x1b[0m\n");
     }
 
-    ctx = calloc(1, sizeof(Context));
-    ctx->scope = calloc(1, sizeof(Scope));
+    Node **nodes = calloc(600, sizeof(Node *));
+    cur_token = start;
     int i = 0;
     while (!at_eof())
     {
@@ -1134,4 +1138,5 @@ void program()
     {
         printf("\x1b[33mEND PARSING\x1b[0m\n");
     }
+    return nodes;
 }

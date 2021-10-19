@@ -50,7 +50,7 @@ static void gen_va_arg(Node *node)
     }
     else
         new_il_sentence_raw("  mov rax, [rax]");
-    push(RG_RAX);
+    push(ILRG_RAX);
 }
 
 static void gen_va_end(Node *node)

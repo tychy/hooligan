@@ -110,19 +110,6 @@ typedef enum
     ENUM,
 } TypeKind;
 
-typedef enum
-{
-    RG_RDI,
-    RG_RSI,
-    RG_RDX,
-    RG_RCX,
-    RG_R8,
-    RG_R9,
-    RG_RAX,
-    RG_RBP,
-    RG_RSP,
-} RegisterName;
-
 // type definition
 typedef struct Option Option;
 typedef struct PPToken PPToken;
@@ -357,10 +344,7 @@ struct Context
 // Declaration of global variables
 extern Option *opts;
 extern PPContext *pp_ctx;
-extern Token *token;
-extern Node *nodes[500];
 extern Context *ctx;
-extern ILSentence *cur_ils;
 extern FILE *output;
 
 // Declaration of functions
@@ -372,10 +356,10 @@ PPToken *decompose_to_pp_token(char *p);
 PPToken *preprocess_directives(char *base_dir, PPToken *tok);
 
 // parser.c
-void program();
+Node **parse_program(Token *start);
 
 // generator.c
-ILSentence *gen_asm_intel();
+ILSentence *generate_inter_language(Node **nodes);
 
 // util.c
 void error(char *fmt);

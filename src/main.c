@@ -1,8 +1,6 @@
 #include "hooligan.h"
 #include "inter_language.h"
 
-Token *token;
-Node *nodes[500];
 Context *ctx;
 FILE *output;
 Option *opts;
@@ -51,20 +49,10 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < file_count; i++)
     {
-        token = NULL;
         char *path = files[i];
         char *dirname = extract_dir(path);
         char *filename = extract_filename(path);
         char *p = read_file(path);
-        if (opts->is_verbose)
-        {
-            printf("%sのコンパイルを開始します\n", path);
-        }
-
-        pp_ctx = calloc(1, sizeof(PPContext));
-        pp_ctx->macros = NULL;
-        PPToken *pp_token = preprocess_directives(dirname, decompose_to_pp_token(p));
-        token = tokenize(pp_token);
         char *output_filename = join_str(remove_extension(filename), ".s");
         output = fopen(output_filename, "w");
 
@@ -73,8 +61,21 @@ int main(int argc, char **argv)
             printf("cannot open\n");
             exit(1);
         }
+        if (opts->is_verbose)
+        {
+            printf("%sのコンパイルを開始します\n", path);
+        }
 
-        ILSentence *ils = gen_asm_intel();
+        pp_ctx = calloc(1, sizeof(PPContext));
+        pp_ctx->macros = NULL;
+        ctx = calloc(1, sizeof(Context));
+        ctx->scope = calloc(1, sizeof(Scope));
+
+        PPToken *pp_token = preprocess_directives(dirname, decompose_to_pp_token(p));
+        Token *token = tokenize(pp_token);
+
+        Node **nodes = parse_program(token);
+        ILSentence *ils = generate_inter_language(nodes);
         if (opts->optimize_level != 0)
         {
             ils = optimize_inter_language(ils);
