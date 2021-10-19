@@ -328,10 +328,10 @@ extern FILE *output;
 
 // Declaration of functions
 // tokenizer.c
-Token *tokenize(Token *pp_tok);
+Token *normalize_tokens(Token *pp_tok);
 
 // preprcessor.c
-Token *decompose_to_pp_token(char *p);
+Token *tokenize(char *p);
 Token *preprocess_directives(char *base_dir, Token *tok);
 
 // parser.c

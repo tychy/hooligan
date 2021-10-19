@@ -142,7 +142,7 @@ static int from_escape_char_to_int(char p)
     }
 }
 
-Token *decompose_to_pp_token(char *p)
+Token *tokenize(char *p)
 {
     Token head;
     head.next = NULL;
@@ -583,13 +583,13 @@ Token *preprocess_directives(char *base_dir, Token *tok)
                     char *full_path = join_str(base_dir, file_name);
                     char *dir = extract_dir(full_path);
 
-                    include_tok = preprocess_directives(dir, decompose_to_pp_token(read_file(full_path)));
+                    include_tok = preprocess_directives(dir, tokenize(read_file(full_path)));
                 }
                 else
                 {
                     char *full_path = join_str("include/", file_name);
 
-                    Token *mid = decompose_to_pp_token(read_file(full_path));
+                    Token *mid = tokenize(read_file(full_path));
                     include_tok = preprocess_directives("include/", mid);
                 }
                 if (include_tok == NULL)

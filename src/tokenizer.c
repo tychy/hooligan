@@ -49,9 +49,8 @@ static ReservedWord find_reserved_word(char *p, int len)
     return -1; // Not Found
 }
 
-Token *tokenize(Token *pptok)
+Token *normalize_tokens(Token *head)
 {
-    Token *head = pptok;
     Token *cur = head;
     Token *before;
     while (cur != NULL)
