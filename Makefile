@@ -6,8 +6,8 @@ LIBSOURCE:=$(wildcard lib/*.c)
 LIBOBJS:=$(LIBSOURCE:.c=.o)
 
 # 第一世代コンパイラの作成
-first: $(OBJS)
-	@cc $(CFLAGS) -o bin/hcc1 $(OBJS) $(LIBFLAGS)
+first: $(OBJS) lib
+	@cc $(OBJS) $(CFLAGS) $(LIBFLAGS) -o bin/hcc1  
 $(OBJS): src/hooligan.h
 
 # 第二世代以降のコンパイラの作成
