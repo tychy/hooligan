@@ -71,7 +71,8 @@ int main(int argc, char **argv)
         ctx = calloc(1, sizeof(Context));
         ctx->scope = calloc(1, sizeof(Scope));
 
-        Token *token = preprocess_directives(dirname, tokenize(p));
+        Token *token = tokenize(p);
+        token = preprocess_directives(dirname, token);
         token = normalize_tokens(token);
 
         Node **nodes = parse_program(token);
