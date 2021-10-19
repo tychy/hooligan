@@ -1,3 +1,4 @@
+#include "../../src/tokenizer.c"
 #include "../../src/preprocessor.c"
 #include "../../src/util.c"
 
