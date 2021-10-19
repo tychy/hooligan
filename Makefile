@@ -1,10 +1,13 @@
-CFLAGS:=-std=c11 -no-pie
+CFLAGS:=-std=c11 -no-pie 
+LIBFLAGS:=-lhooligan -L./bin
 SOURCE:=$(wildcard src/*.c)
 OBJS:=$(SOURCE:.c=.o)
+LIBSOURCE:=$(wildcard lib/*.c)
+LIBOBJS:=$(LIBSOURCE:.c=.o)
 
 # 第一世代コンパイラの作成
 first: $(OBJS)
-	@cc $(CFLAGS) -o bin/hcc1 $(OBJS)
+	@cc $(CFLAGS) -o bin/hcc1 $(OBJS) $(LIBFLAGS)
 $(OBJS): src/hooligan.h
 
 # 第二世代以降のコンパイラの作成
@@ -19,9 +22,13 @@ else
 endif
 selfhost: first
 	@$(COMPILER) $(SOURCE) && \
-	find *.s | xargs cc -no-pie -o $(OUTPUT) && \
+	cc ./*.s $(LIBFLAGS) $(CFLAGS) $(LIBFLAGS) -o $(OUTPUT) && \
 	rm *.s
 
+lib: $(LIBOBJS)
+	@cc -shared -std=c11 -o bin/libhooligan.so $(LIBOBJS)
+$(LIBOBJS):
+
 clean:
-	@rm -f bin/hcc* *.o src/*.o *~ tmp* *.s a.out core.*
-.PHONY: test clean selfhost
+	@rm -f bin/hcc* *.o src/*.o *~ tmp* *.s a.out core.* bin/*.so
+.PHONY: test clean selfhost lib

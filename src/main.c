@@ -45,6 +45,7 @@ void analyze_arguments(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+    test_lib_link();
     analyze_arguments(argc, argv);
 
     for (int i = 0; i < file_count; i++)
