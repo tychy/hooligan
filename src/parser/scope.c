@@ -1,6 +1,6 @@
-#include "hooligan.h"
+#include "../hooligan.h"
 
-void new_scope()
+static void new_scope()
 {
     Scope *scope = calloc(1, sizeof(Scope));
     scope->prev = ctx->scope;
@@ -11,12 +11,12 @@ void new_scope()
     ctx->scope = scope;
 }
 
-void exit_scope()
+static void exit_scope()
 {
     ctx->scope = ctx->scope->prev;
 }
 
-void start_loop()
+static void start_loop()
 {
     new_scope();
     ctx->scope->loop_label = ctx->scope->label;
@@ -24,21 +24,21 @@ void start_loop()
     ctx->continue_to = ctx->scope->loop_label;
 }
 
-void end_loop()
+static void end_loop()
 {
     exit_scope();
     ctx->break_to = ctx->scope->loop_label;
     ctx->continue_to = ctx->scope->loop_label;
 }
 
-void start_switch()
+static void start_switch()
 {
     new_scope();
     ctx->scope->loop_label = ctx->scope->label;
     ctx->break_to = ctx->scope->loop_label;
 }
 
-void end_switch()
+static void end_switch()
 {
     exit_scope();
     ctx->break_to = ctx->scope->loop_label;

@@ -364,19 +364,6 @@ extern ILSentence *cur_ils;
 extern FILE *output;
 
 // Declaration of functions
-// read_token.c
-bool consume(char *op);
-bool consume_rw(TokenKind tk);
-Type *consume_type();
-Type *consume_ptr(Type *ty);
-void expect(char *op);
-int expect_number();
-float expect_float();
-int expect_char();
-bool at_eof();
-Token *consume_ident();
-Token *expect_ident();
-
 // tokenizer.c
 Token *tokenize(PPToken *pp_tok);
 
@@ -390,46 +377,6 @@ void program();
 // generator.c
 ILSentence *gen_asm_intel();
 
-// variable.c
-Var *find_var(Token *tok);
-Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static);
-Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val);
-Var *find_func(Token *tok);
-Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[6], bool is_static, bool has_variable_length_arguments);
-Var *find_const(Token *tok);
-Var *def_const(Token *tok, int val);
-
-// type.c
-Type *new_type_int();
-Type *new_type_char();
-Type *new_type_float();
-Type *new_type_string();
-Type *new_type_void();
-Type *new_type_ptr(Type *ptr_to);
-Type *new_type_array(Type *ptr_to, size_t size);
-Type *new_type_struct();
-bool is_int(Type *ty);
-bool is_float(Type *ty);
-bool is_char(Type *ty);
-bool is_int_or_char(Type *ty);
-bool is_ptr(Type *ty);
-int calc_bytes(Type *ty);
-Type *determine_expr_type(Type *lhs, Type *rhs);
-Type *add_defined_type(Token *tok, Type *ty, bool is_local);
-Type *add_tagged_type(Token *tok, Type *ty, bool is_local);
-Type *find_defined_type(Token *tok);
-Type *find_tagged_type(Token *tok);
-void set_struct_member(Type *ty);
-
-// scope.c
-void new_scope();
-void exit_scope();
-void start_loop();
-void end_loop();
-void start_switch();
-void end_switch();
-int get_unique_num();
-
 // util.c
 void error(char *fmt);
 void error1(char *fmt, char *v1);
@@ -442,4 +389,10 @@ char *extract_filename(char *path);
 char *extract_dir(char *path);
 int f2bin(float x);
 char *remove_extension(char *filename);
+bool is_int(Type *ty);
+bool is_float(Type *ty);
+bool is_char(Type *ty);
+bool is_int_or_char(Type *ty);
+bool is_ptr(Type *ty);
+int calc_bytes(Type *ty);
 #endif

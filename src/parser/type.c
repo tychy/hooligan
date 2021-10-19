@@ -1,4 +1,4 @@
-#include "hooligan.h"
+#include "../hooligan.h"
 
 Type *new_type_int()
 {
@@ -85,57 +85,6 @@ Type *new_type_void()
     return ty;
 }
 
-bool is_int(Type *ty)
-{
-    return ty->ty == INT;
-}
-
-bool is_float(Type *ty)
-{
-    return ty->ty == FLOAT;
-}
-
-bool is_char(Type *ty)
-{
-    return ty->ty == CHAR;
-}
-
-bool is_int_or_char(Type *ty)
-{
-
-    return is_int(ty) || is_char(ty);
-}
-
-bool is_ptr(Type *ty)
-{
-    if (!ty->ptr_to)
-    {
-        return false;
-    }
-    return true;
-}
-
-int calc_bytes(Type *ty)
-{
-    switch (ty->ty)
-    {
-    case INT:
-        return 4;
-    case FLOAT:
-        return 4;
-    case PTR:
-        return 8;
-    case ARRAY:
-        return calc_bytes(ty->ptr_to) * ty->array_size;
-    case CHAR:
-        return 1;
-    case STRUCT:
-        return ty->size;
-    case ENUM:
-        return 4;
-    }
-}
-
 Type *determine_expr_type(Type *lhs, Type *rhs)
 {
     if (!(is_int_or_char(lhs)) && !(is_int_or_char(rhs)))
@@ -204,36 +153,4 @@ Type *add_tagged_type(Token *tok, Type *ty, bool is_local)
     ty->next_tagged = ctx->scope->tagged_types;
     ctx->scope->tagged_types = ty;
     return ty;
-}
-
-void set_struct_member(Type *ty)
-{
-    int offset = 0;
-    Member *head = calloc(1, sizeof(Member));
-    Member *cur = head;
-    while (!(consume("}")))
-    {
-
-        Member *mem = calloc(1, sizeof(Member));
-        Type *mem_ty = consume_type();
-
-        Token *mem_tok = consume_ident();
-        if (consume("["))
-        {
-            int arr_size = expect_number();
-            mem_ty = new_type_array(mem_ty, arr_size);
-            expect("]");
-        }
-
-        mem->name = mem_tok->string;
-        mem->length = mem_tok->length;
-        mem->offset = offset;
-        offset += calc_bytes(mem_ty);
-        mem->ty = mem_ty;
-        cur->next = mem;
-        cur = mem;
-        expect(";");
-    }
-    ty->members = head;
-    ty->size = offset;
 }
