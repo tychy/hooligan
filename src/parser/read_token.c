@@ -12,9 +12,9 @@ static bool consume(char *op)
     return true;
 }
 
-static bool consume_rw(TokenKind tk)
+static bool consume_rw(ReservedWord rw)
 {
-    if (cur_token->kind != tk)
+    if (cur_token->kind != TK_RESERVED_WORD || cur_token->value != rw)
         return false;
     cur_token = cur_token->next;
     return true;
@@ -123,7 +123,7 @@ static void set_struct_member(Type *ty)
 static Type *consume_type()
 {
     bool is_const = false;
-    if (consume_rw(TK_CONST))
+    if (consume_rw(RW_CONST))
     {
         is_const = true;
     }
@@ -139,27 +139,27 @@ static Type *consume_type()
         }
         return ty;
     }
-    if (consume_rw(TK_INT))
+    if (consume_rw(RW_INT))
     {
         ty = new_type_int();
     }
-    else if (consume_rw(TK_FLOAT))
+    else if (consume_rw(RW_FLOAT))
     {
         ty = new_type_float();
     }
-    else if (consume_rw(TK_CHAR))
+    else if (consume_rw(RW_CHAR))
     {
         ty = new_type_char();
     }
-    else if (consume_rw(TK_STRUCT))
+    else if (consume_rw(RW_STRUCT))
     {
         ty = new_type_struct();
     }
-    else if (consume_rw(TK_VOID))
+    else if (consume_rw(RW_VOID))
     {
         ty = new_type_void();
     }
-    else if (consume_rw(TK_ENUM))
+    else if (consume_rw(RW_ENUM))
     {
         ty = new_type_int();
         if (consume("{"))
@@ -229,7 +229,7 @@ static Type *consume_type()
             }
         }
     }
-    if (consume_rw(TK_CONST))
+    if (consume_rw(RW_CONST))
     {
         is_const = is_const || true;
     }
@@ -240,7 +240,7 @@ static Type *consume_type()
         ty = new_type_ptr(ty);
     }
 
-    if (consume_rw(TK_CONST))
+    if (consume_rw(RW_CONST))
     {
         ty->is_const = true;
     }

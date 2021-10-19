@@ -276,7 +276,7 @@ static Node *unary()
     {
         return new_node_single(ND_DEREF, unary());
     }
-    else if (consume_rw(TK_SIZEOF))
+    else if (consume_rw(RW_SIZEOF))
     {
         consume("(");
         Node *node = expr();
@@ -506,13 +506,13 @@ static Node *decl_type()
 // これやばい、いいリファクタがあったら教えてほしい
 static Node *defl()
 {
-    if (consume_rw(TK_TYPEDEF))
+    if (consume_rw(RW_TYPEDEF))
     {
         return decl_type();
     }
-    else if (consume_rw(TK_EXTERN))
+    else if (consume_rw(RW_EXTERN))
     {
-        bool is_extern = consume_rw(TK_EXTERN);
+        bool is_extern = consume_rw(RW_EXTERN);
         Type *ty = consume_type();
 
         if (!ty)
@@ -529,7 +529,7 @@ static Node *defl()
         def_var(ident, ty, false, false);
         return new_node_nop();
     }
-    else if (consume_rw(TK_STATIC))
+    else if (consume_rw(RW_STATIC))
     {
         Type *ty = consume_type();
 
@@ -703,7 +703,7 @@ static Node *defl()
 static Node *stmt()
 {
     Node *node;
-    if (consume_rw(TK_RETURN))
+    if (consume_rw(RW_RETURN))
     {
         if (consume(";"))
         {
@@ -715,7 +715,7 @@ static Node *stmt()
             expect(";");
         }
     }
-    else if (consume_rw(TK_IF))
+    else if (consume_rw(RW_IF))
     {
         new_scope();
         expect("(");
@@ -725,12 +725,12 @@ static Node *stmt()
         node = new_node_raw(ND_IF);
         node->condition = condition;
         node->body = body;
-        if (consume_rw(TK_ELSE))
+        if (consume_rw(RW_ELSE))
             node->on_else = block();
         node->cond_label = ctx->scope->label;
         exit_scope();
     }
-    else if (consume_rw(TK_FOR))
+    else if (consume_rw(RW_FOR))
     {
         start_loop();
         Node *init;
@@ -775,7 +775,7 @@ static Node *stmt()
         node->loop_label = ctx->scope->loop_label;
         end_loop();
     }
-    else if (consume_rw(TK_WHILE))
+    else if (consume_rw(RW_WHILE))
     {
         start_loop();
         expect("(");
@@ -788,7 +788,7 @@ static Node *stmt()
         node->loop_label = ctx->scope->loop_label;
         end_loop();
     }
-    else if (consume_rw(TK_SWITCH))
+    else if (consume_rw(RW_SWITCH))
     {
         start_switch();
         expect("(");
@@ -802,7 +802,7 @@ static Node *stmt()
         end_switch();
         return node;
     }
-    else if (consume_rw(TK_CASE))
+    else if (consume_rw(RW_CASE))
     {
         if (!(ctx->scope->current_switch))
         {
@@ -835,7 +835,7 @@ static Node *stmt()
         ctx->scope->current_switch->next_case = node;
         return node;
     }
-    else if (consume_rw(TK_DEFAULT))
+    else if (consume_rw(RW_DEFAULT))
     {
         if (!(ctx->scope->current_switch))
         {
@@ -848,13 +848,13 @@ static Node *stmt()
         ctx->scope->current_switch->default_case = node;
         return node;
     }
-    else if (consume_rw(TK_BREAK))
+    else if (consume_rw(RW_BREAK))
     {
         node = new_node_raw(ND_BREAK);
 
         node->loop_label = ctx->break_to;
     }
-    else if (consume_rw(TK_CONTINUE))
+    else if (consume_rw(RW_CONTINUE))
     {
         node = new_node_raw(ND_CONTINUE);
         node->loop_label = ctx->continue_to;
@@ -1038,7 +1038,7 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
 static Node *def()
 {
     Node *node;
-    if (consume_rw(TK_TYPEDEF))
+    if (consume_rw(RW_TYPEDEF))
     {
         node = decl_type();
         expect(";");
@@ -1046,11 +1046,11 @@ static Node *def()
     }
     bool is_extern = false;
     bool is_static = false;
-    if (consume_rw(TK_EXTERN))
+    if (consume_rw(RW_EXTERN))
     {
         is_extern = true;
     }
-    else if (consume_rw(TK_STATIC))
+    else if (consume_rw(RW_STATIC))
     {
         is_static = true;
     }

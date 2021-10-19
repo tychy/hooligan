@@ -73,7 +73,8 @@ static Token *convertPPTokenToToken(PPToken *pptok)
     case PPTK_IDENT:
         if (isreservedword(pptok->str, pptok->len))
         {
-            tk = find_reserved_word(pptok->str, pptok->len);
+            tk = TK_RESERVED_WORD;
+            pptok->val = find_reserved_word(pptok->str, pptok->len);
         }
         else
         {
