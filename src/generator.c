@@ -5,7 +5,6 @@
 #include "generator/shorthand.c"
 #include "generator/builtin.c"
 
-
 static void gen(Node *node);
 
 static void gen_for(Node *node)
@@ -80,7 +79,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     {
         error("関数ではありません");
     }
-    if (strncmp(node->name, "__builtin", strlen("__builtin")) == 0)
+    if (strncmp(node->name, "__builtin", h_strlen("__builtin")) == 0)
     {
         gen_builtin_function(node);
         return;
@@ -546,7 +545,7 @@ static void gen(Node *node)
     case ND_POSTDEC:
         gen(node->lhs); // インクリメント前の値がpushされる
         gen(node->rhs); // インクリメント後の値がpushされる
-        pop(ILRG_RAX);    // インクリメント後の値がpopされる
+        pop(ILRG_RAX);  // インクリメント後の値がpopされる
         // スタックトップはインクリメント前の値
         return;
     case ND_NOP:
@@ -622,19 +621,19 @@ static void gen(Node *node)
         gen(node->rhs);
         // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
         pop(ILRG_RDI); // 左辺値をrdiに格納
-        push_val(0); // とりあえず0と比較したい
+        push_val(0);   // とりあえず0と比較したい
         pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, rdi");
         new_il_sentence_raw("  setne al");
         new_il_sentence_raw("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
-        pop(ILRG_RDI);                            // 比較結果をpushする前に右辺値をrdiに格納する
-        push(ILRG_RAX);                           // (左辺値)==0の結果がスタックトップに積まれる
+        pop(ILRG_RDI);                          // 比較結果をpushする前に右辺値をrdiに格納する
+        push(ILRG_RAX);                         // (左辺値)==0の結果がスタックトップに積まれる
         push_val(0);
         pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, rdi");
         new_il_sentence_raw("  setne al");
         new_il_sentence_raw("  movzb rax, al"); // ここで(右辺値)を0と比較した結果がraxに入る
-        push(ILRG_RAX);                           // (左辺値)==0の結果がスタックトップに積まれる
+        push(ILRG_RAX);                         // (左辺値)==0の結果がスタックトップに積まれる
 
         pop(ILRG_RDI);
         pop(ILRG_RAX);
@@ -654,19 +653,19 @@ static void gen(Node *node)
         gen(node->rhs);
         // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
         pop(ILRG_RDI); // 左辺値をrdiに格納
-        push_val(0); // とりあえず0と比較したい
+        push_val(0);   // とりあえず0と比較したい
         pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, rdi");
         new_il_sentence_raw("  setne al");
         new_il_sentence_raw("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
-        pop(ILRG_RDI);                            // 比較結果をpushする前に右辺値をrdiに格納する
-        push(ILRG_RAX);                           // (左辺値)==0の結果がスタックトップに積まれる
+        pop(ILRG_RDI);                          // 比較結果をpushする前に右辺値をrdiに格納する
+        push(ILRG_RAX);                         // (左辺値)==0の結果がスタックトップに積まれる
         push_val(0);
         pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, rdi");
         new_il_sentence_raw("  setne al");
         new_il_sentence_raw("  movzb rax, al"); // ここで(右辺値)を0と比較した結果がraxに入る
-        push(ILRG_RAX);                           // (左辺値)==0の結果がスタックトップに積まれる
+        push(ILRG_RAX);                         // (左辺値)==0の結果がスタックトップに積まれる
 
         pop(ILRG_RDI);
         pop(ILRG_RAX);

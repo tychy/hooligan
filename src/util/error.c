@@ -47,9 +47,9 @@ void error_at(char *loc, char *msg)
 
 char *insert_str(char *src, int pos, char *target)
 {
-    char *res = calloc(1, strlen(src) + strlen(target) + 1);
+    char *res = calloc(1, h_strlen(src) + h_strlen(target) + 1);
     memcpy(res, src, pos);
-    memcpy(res + pos, target, strlen(target));
-    memcpy(res + pos + strlen(target), src + pos, strlen(src) - pos);
+    memcpy(res + pos, target, h_strlen(target));
+    memcpy(res + pos + h_strlen(target), src + pos, h_strlen(src) - pos);
     return res;
 }

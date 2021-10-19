@@ -106,12 +106,12 @@ Token *tokenize(char *p)
             for (int i = 0; i < preprocessing_directive_list_count; i++)
             {
                 char *directive = preprocessing_directive_list[i];
-                if (strncmp(p, directive, strlen(directive)) == 0)
+                if (strncmp(p, directive, h_strlen(directive)) == 0)
                 {
                     cur = new_token(TK_PPDIRECTIVE, cur, p);
                     cur->val = i;
-                    cur->len += strlen(directive);
-                    p += strlen(directive);
+                    cur->len += h_strlen(directive);
+                    p += h_strlen(directive);
                     directive_index = i;
                 }
             }
@@ -364,11 +364,11 @@ Token *tokenize(char *p)
             {
 
                 char *op = operator_list[i];
-                if (strncmp(p, op, strlen(op)) == 0)
+                if (strncmp(p, op, h_strlen(op)) == 0)
                 {
                     cur = new_token(TK_OPERATOR, cur, op);
-                    cur->len = strlen(op);
-                    p += strlen(op);
+                    cur->len = h_strlen(op);
+                    p += h_strlen(op);
                     break;
                 }
             }

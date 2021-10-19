@@ -372,4 +372,5 @@ int calc_bytes(Type *ty);
 
 // TODO ここにlibhooligan.soのヘッダ情報を書いてしまっている。別途.hファイルを用意する必要あり
 int test_lib_link();
+int h_strlen(char *c);
 #endif
