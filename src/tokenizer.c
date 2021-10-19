@@ -1,5 +1,9 @@
 #include "hooligan.h"
 
+#include "tokenizer/operator.c"
+#include "tokenizer/reserved_word.c"
+#include "tokenizer/preprocessing_directive.c"
+
 static Token *new_token(TokenKind kind, Token *cur, char *str)
 {
     Token *tok = calloc(1, sizeof(Token));
@@ -9,144 +13,6 @@ static Token *new_token(TokenKind kind, Token *cur, char *str)
     return tok;
 }
 
-static char *reserved_word_list[21] = {
-    "return",
-    "if",
-    "else",
-    "for",
-    "while",
-    "switch",
-    "case",
-    "default",
-    "sizeof",
-    "void",
-    "int",
-    "float",
-    "char",
-    "struct",
-    "typedef",
-    "break",
-    "continue",
-    "static",
-    "extern",
-    "enum",
-    "const",
-};
-
-static int reserved_word_list_count = 21;
-
-// indexに依存したコードを書いているので後方に追加していくこと
-static char *preprocessing_directive_list[6] = {
-    "include",
-    "define",
-    "ifdef",
-    "ifndef",
-    "endif",
-    "line",
-};
-
-static int preprocessing_directive_list_count = 6;
-
-static bool isreservedword(char *p, int len)
-{
-    for (ReservedWord rw = 0; rw < reserved_word_list_count; rw++)
-    {
-        char *word = reserved_word_list[rw];
-        if (strncmp(p, word, len) == 0 && len == strlen(word))
-            return true;
-    }
-    return false;
-}
-
-static ReservedWord find_reserved_word(char *p, int len)
-{
-    for (ReservedWord rw = 0; rw < reserved_word_list_count; rw++)
-    {
-        char *word = reserved_word_list[rw];
-        if (strncmp(p, word, len) == 0 && len == strlen(word))
-            return rw;
-    }
-    error_at(p, "予約語ではありません");
-    return -1; // Not Found
-}
-
-Token *normalize_tokens(Token *head)
-{
-    Token *cur = head;
-    Token *before;
-    while (cur != NULL)
-    {
-        if (cur->kind == TK_IDENT)
-        {
-            if (isreservedword(cur->str, cur->len))
-            {
-                cur->kind = TK_RESERVED_WORD;
-                cur->val = find_reserved_word(cur->str, cur->len);
-            }
-        }
-        before = cur;
-        cur = cur->next;
-    }
-    before->next = calloc(1, sizeof(Token));
-    before->next->kind = TK_EOF;
-    return head;
-}
-
-// note: 文字数の多いものを先に登録する
-// note: 要素数を更新する
-static char *operator_list[35] = {
-    "...",
-    "++",
-    "--",
-    "+=",
-    "-=",
-    "*=",
-    "%=",
-    "==",
-    "!=",
-    ">=",
-    "<=",
-    "->",
-    "&&",
-    "||",
-    ">",
-    "<",
-    "+",
-    "-",
-    "*",
-    "/",
-    "%",
-    "(",
-    ")",
-    "=",
-    ";",
-    "{",
-    "}",
-    ",",
-    "&",
-    "[",
-    "]",
-    ".",
-    "!",
-    ":",
-    "#",
-};
-
-static int operator_list_count = 35;
-
-static bool isoperator(char *p)
-{
-    for (int i = 0; i < operator_list_count; i++)
-    {
-        char *str = operator_list[i];
-        if (strncmp(p, str, strlen(str)) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 // nondigit = [_a-zA-Z]
 // 識別子を構成する文字で数字でないもの
 static bool isnondigit(char p)
@@ -154,19 +20,6 @@ static bool isnondigit(char p)
     if ((p >= 'a' && p <= 'z') || (p >= 'A' && p <= 'Z') || p == '_')
     {
         return true;
-    }
-    return false;
-}
-
-static bool isdirective(char *p)
-{
-    for (int i = 0; i < preprocessing_directive_list_count; i++)
-    {
-        char *str = preprocessing_directive_list[i];
-        if (strncmp(p, str, strlen(str)) == 0)
-        {
-            return true;
-        }
     }
     return false;
 }
@@ -579,4 +432,26 @@ Token *tokenize(char *p)
         exit(1);
     }
     return head.next;
+}
+
+Token *normalize_tokens(Token *head)
+{
+    Token *cur = head;
+    Token *before;
+    while (cur != NULL)
+    {
+        if (cur->kind == TK_IDENT)
+        {
+            if (isreservedword(cur->str, cur->len))
+            {
+                cur->kind = TK_RESERVED_WORD;
+                cur->val = find_reserved_word(cur->str, cur->len);
+            }
+        }
+        before = cur;
+        cur = cur->next;
+    }
+    before->next = calloc(1, sizeof(Token));
+    before->next->kind = TK_EOF;
+    return head;
 }
