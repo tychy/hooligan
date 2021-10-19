@@ -46,7 +46,7 @@ compile() {
 }
 
 generate_executable() {
-    compile "${param[@]:1}"
+    compile "$@"
     cc *.s -no-pie -g -O0 -lhooligan -L./bin
 }
 
@@ -55,8 +55,7 @@ runtest() {
     for dn in $(find tests/* -maxdepth 0 -type d); do
         printf "%s" "$dn"
         cfiles=$(find "$dn"/*.c)
-        compile $cfiles # Quoteすると複数ファイルが一つの引数として扱われてしまう
-        find ./*.s | xargs cc -no-pie -g -O0
+        generate_executable $cfiles # Quoteすると複数ファイルが一つの引数として扱われてしまう
         expectedout=$(cat "$dn"/out)
         set +e
         stdout=$(./a.out)
