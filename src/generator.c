@@ -7,7 +7,6 @@
 
 static void gen(Node *node);
 
-
 static void gen_for(Node *node)
 {
     if (node->kind != ND_FOR)
@@ -199,7 +198,7 @@ static void gen_addr(Node *node)
     case ND_VAR:
         if (node->is_local && node->is_static)
         {
-            new_il_sentence_raw("  lea rax, L%.*s.%d", node->length, node->name, node->scope_label);
+            new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->scope_label);
             push(RG_RAX);
         }
         else if (node->is_local)
@@ -210,12 +209,12 @@ static void gen_addr(Node *node)
         }
         else if (node->is_static)
         {
-            new_il_sentence_raw("  lea rax, L%.*s", node->length, node->name);
+            new_il_sentence_raw("  lea rax, L%.*s[rip]", node->length, node->name);
             push(RG_RAX);
         }
         else
         {
-            new_il_sentence_raw("  lea rax, %.*s", node->length, node->name);
+            new_il_sentence_raw("  lea rax, %.*s[rip]", node->length, node->name);
             push(RG_RAX);
         }
         return;

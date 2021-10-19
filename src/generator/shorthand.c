@@ -13,7 +13,8 @@ static void push_val(int val)
 
 static void push_str_addr(int label)
 {
-    new_il_sentence_raw("  push offset .LC%d", label);
+    new_il_sentence_raw("  lea rax, QWORD PTR .LC%d[rip]", label);
+    push(RG_RAX);
     ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
 }
 
