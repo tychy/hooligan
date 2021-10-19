@@ -12,46 +12,51 @@
 
 typedef enum
 {
-    PPTK_DUMMY, // #define identで使う
-    PPTK_HN,    // header-name
-    PPTK_IDENT,
-    PPTK_NUMBER,
-    PPTK_CHAR, // character-constant
-    PPTK_STRING,
-    PPTK_PUNC, // punctuators
-} PPTokenKind;
+    PD_INCLUDE,
+    PD_DEFINE,
+    PD_IFDEF,
+    PD_IFNDEF,
+    PD_ENDIF,
+    PD_LINE,
+} PreprocessingDirective;
 
-// NOTE: 予約語を先頭に持ってくる
 typedef enum
 {
-    TK_RETURN,
-    TK_IF,
-    TK_ELSE,
-    TK_FOR,
-    TK_WHILE,
-    TK_SWITCH,
-    TK_CASE,
-    TK_DEFAULT,
-    TK_SIZEOF,
-    TK_VOID,
-    TK_INT,
-    TK_FLOAT,
-    TK_CHAR,
-    TK_STRUCT,
-    TK_TYPEDEF,
-    TK_BREAK,
-    TK_CONTINUE,
-    TK_STATIC,
-    TK_EXTERN,
-    TK_ENUM,
-    TK_CONST,
-    // add reserved word above
-    TK_OPERATOR,
+    RW_RETURN,
+    RW_IF,
+    RW_ELSE,
+    RW_FOR,
+    RW_WHILE,
+    RW_SWITCH,
+    RW_CASE,
+    RW_DEFAULT,
+    RW_SIZEOF,
+    RW_VOID,
+    RW_INT,
+    RW_FLOAT,
+    RW_CHAR,
+    RW_STRUCT,
+    RW_TYPEDEF,
+    RW_BREAK,
+    RW_CONTINUE,
+    RW_STATIC,
+    RW_EXTERN,
+    RW_ENUM,
+    RW_CONST,
+} ReservedWord;
+
+typedef enum
+{
+    TK_DUMMY,
+    TK_PPDIRECTIVE,
+    TK_HEADER_NAME,
     TK_NUMBER,
+    TK_CHARACTER,
+    TK_STRING,
+    TK_OPERATOR,
+    TK_RESERVED_WORD,
     TK_IDENT,
     TK_EOF,
-    TK_STRING,
-    TK_CHARACTER,
 } TokenKind;
 
 typedef enum
@@ -112,7 +117,6 @@ typedef enum
 
 // type definition
 typedef struct Option Option;
-typedef struct PPToken PPToken;
 typedef struct Macro Macro;
 typedef struct PPContext PPContext;
 typedef struct Token Token;
@@ -131,27 +135,13 @@ struct Option
     int optimize_level;
 };
 
-struct PPToken
-{
-    PPTokenKind kind;
-    PPToken *next;
-    bool is_float;
-    int val;
-    float float_val;
-    int len;
-    char *str;
-
-    int integer; // delete this
-    int decimal; // delete this
-    int numzero;
-};
-
 struct Macro
 {
-    PPToken *target;
-    PPToken *replace;
+    Token *target;
+    Token *replace;
     Macro *next;
 };
+
 struct PPContext
 {
     Macro *macros;
@@ -162,10 +152,10 @@ struct Token
     TokenKind kind;
     Token *next;
     bool is_float;
-    int value;
+    int val;
     float float_val;
-    int length;
-    char *string;
+    int len;
+    char *str;
 
     int integer; // delete this
     int decimal; // delete this
@@ -349,11 +339,11 @@ extern FILE *output;
 
 // Declaration of functions
 // tokenizer.c
-Token *tokenize(PPToken *pp_tok);
+Token *normalize_tokens(Token *pp_tok);
 
 // preprcessor.c
-PPToken *decompose_to_pp_token(char *p);
-PPToken *preprocess_directives(char *base_dir, PPToken *tok);
+Token *tokenize(char *p);
+Token *preprocess_directives(char *base_dir, Token *tok);
 
 // parser.c
 Node **parse_program(Token *start);

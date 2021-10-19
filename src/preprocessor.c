@@ -2,524 +2,13 @@
 
 PPContext *pp_ctx;
 
-// note: 文字数の多いものを先に登録する
-// note: 要素数を更新する
-static char *punctuator_list[35] = {
-    "...",
-    "++",
-    "--",
-    "+=",
-    "-=",
-    "*=",
-    "%=",
-    "==",
-    "!=",
-    ">=",
-    "<=",
-    "->",
-    "&&",
-    "||",
-    ">",
-    "<",
-    "+",
-    "-",
-    "*",
-    "/",
-    "%",
-    "(",
-    ")",
-    "=",
-    ";",
-    "{",
-    "}",
-    ",",
-    "&",
-    "[",
-    "]",
-    ".",
-    "!",
-    ":",
-    "#",
-};
-
-static int punctuator_list_count = 35;
-
-// indexに依存したコードを書いているので後方に追加していくこと
-static char *preprocessing_directive_list[6] = {
-    "include",
-    "define",
-    "ifdef",
-    "ifndef",
-    "endif",
-    "line",
-};
-
-static int preprocessing_directive_list_count = 6;
-
-static PPToken *new_token(PPTokenKind kind, PPToken *cur, char *str)
-{
-    PPToken *tok = calloc(1, sizeof(PPToken));
-    tok->kind = kind;
-    tok->str = str;
-    cur->next = tok;
-    return tok;
-}
-
-// nondigit = [_a-zA-Z]
-// 識別子を構成する文字で数字でないもの
-static bool isnondigit(char p)
-{
-    if ((p >= 'a' && p <= 'z') || (p >= 'A' && p <= 'Z') || p == '_')
-    {
-        return true;
-    }
-    return false;
-}
-
-// punctuator...区切り文字
-static bool ispunctuator(char *p)
-{
-    for (int i = 0; i < punctuator_list_count; i++)
-    {
-        char *str = punctuator_list[i];
-        if (strncmp(p, str, strlen(str)) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool isdirective(char *p)
-{
-    for (int i = 0; i < preprocessing_directive_list_count; i++)
-    {
-        char *str = preprocessing_directive_list[i];
-        if (strncmp(p, str, strlen(str)) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool isdirective_idx(PPToken *tok, int idx)
+static bool isdirective_idx(Token *tok, int idx)
 {
     if (tok == NULL)
     {
         return false;
     }
-    return (tok->kind == PPTK_IDENT &&
-            strncmp(tok->str, preprocessing_directive_list[idx], strlen(preprocessing_directive_list[idx])) == 0);
-}
-
-static int from_escape_char_to_int(char p)
-{
-    if (p == '\\')
-    {
-        return '\\';
-    }
-    else if (p == '0')
-    {
-        return '\0';
-    }
-    else if (p == 'n')
-    {
-        return '\n';
-    }
-    else if (p == '\'')
-    {
-        return '\'';
-    }
-    else if (p == '\"')
-    {
-        return '\"';
-    }
-    else
-    {
-        printf("%c ", p);
-        error("未定義のエスケープ文字です");
-    }
-}
-
-PPToken *decompose_to_pp_token(char *p)
-{
-    PPToken head;
-    head.next = NULL;
-    PPToken *cur = &head;
-    int line = 1;
-
-    while (*p)
-    {
-        if (*p == '\n')
-        {
-            p++;
-            line++;
-            continue;
-        }
-
-        if (isspace(*p))
-        {
-            p++;
-            continue;
-        }
-
-        if (strncmp(p, "//", 2) == 0)
-        {
-            p += 2;
-            while (*p != '\n')
-                p++;
-            continue;
-        }
-
-        if (strncmp(p, "/*", 2) == 0)
-        {
-            char *q = strstr(p + 2, "*/");
-            if (!q)
-                error_at(p, "コメントが閉じられていません");
-            p = q + 2;
-            continue;
-        }
-
-        // プリプロセッシング命令文の処理、暴力的な長さなので切り出しを検討すべき
-        if (strncmp(p, "#", 1) == 0)
-        {
-            cur = new_token(PPTK_PUNC, cur, p);
-            cur->len = 1;
-            p++;
-            if (!isdirective(p))
-            {
-                error_at(p, "未定義のプリプロセッシング命令文です");
-            }
-            int directive_index = -1;
-            for (int i = 0; i < preprocessing_directive_list_count; i++)
-            {
-                char *directive = preprocessing_directive_list[i];
-                if (strncmp(p, directive, strlen(directive)) == 0)
-                {
-                    cur = new_token(PPTK_IDENT, cur, p);
-                    cur->len += strlen(directive);
-                    p += strlen(directive);
-                    directive_index = i;
-                }
-            }
-            if (directive_index == 0)
-            {
-                // include文
-                while (isspace(*p))
-                {
-                    p++;
-                }
-                if (*p == '<')
-                {
-                    p++;
-                    int len = 1;
-                    while (*p != '\n')
-                    {
-                        if (*p == '>')
-                        {
-                            cur = new_token(PPTK_HN, cur, p - len);
-                            cur->len = len + 1;
-                            break;
-                        }
-                        len++;
-                        p++;
-                    }
-                    if (cur->kind != PPTK_HN)
-                    {
-                        error_at(p, "不正なinclude文です");
-                    }
-                }
-                else if (*p == '"')
-                {
-                    p++;
-                    int len = 1;
-                    while (*p != '\n')
-                    {
-                        if (*p == '"')
-                        {
-                            cur = new_token(PPTK_HN, cur, p - len);
-                            cur->len = len + 1;
-                            break;
-                        }
-                        len++;
-                        p++;
-                    }
-                    if (cur->kind != PPTK_HN)
-                    {
-                        error_at(p, "不正なinclude文です");
-                    }
-                }
-                else
-                {
-                    error_at(p, "不正なinclude文です");
-                }
-            }
-            else if (directive_index == 1)
-            {
-                // define文
-                // #define ident identを想定
-
-                while (isspace(*p))
-                {
-                    p++;
-                }
-
-                int i = 0;
-                char *p_top = p;
-                while (isnondigit(*p) || isdigit(*p))
-                {
-                    i++;
-                    p++;
-                }
-                cur = new_token(PPTK_IDENT, cur, p_top);
-                cur->len = i;
-                if (*p == '\n')
-                {
-                    // #define identの場合
-                    cur = new_token(PPTK_DUMMY, cur, "");
-                    line++;
-                    continue;
-                }
-
-                while (isspace(*p))
-                {
-                    p++;
-                    if (*p == '\n')
-                    {
-                        // #define identの場合
-                        cur = new_token(PPTK_DUMMY, cur, "");
-                        line++;
-                        break;
-                    }
-                }
-                if (cur->kind == PPTK_DUMMY)
-                {
-                    continue;
-                }
-
-                if (isnondigit(*p))
-                {
-                    i = 0;
-                    p_top = p;
-                    while (isnondigit(*p) || isdigit(*p))
-                    {
-                        i++;
-                        p++;
-                    }
-                    cur = new_token(PPTK_IDENT, cur, p_top);
-                    cur->len = i;
-                }
-                else if (isdigit(*p))
-                {
-                    cur = new_token(PPTK_NUMBER, cur, p);
-                    cur->val = strtol(p, &p, 10);
-                }
-            }
-            else if (directive_index == 2 || directive_index == 3)
-            {
-                while (isspace(*p))
-                {
-                    p++;
-                }
-
-                int i = 0;
-                char *p_top = p;
-                while (isnondigit(*p) || isdigit(*p))
-                {
-                    i++;
-                    p++;
-                }
-                cur = new_token(PPTK_IDENT, cur, p_top);
-                cur->len = i;
-            }
-            else if (directive_index == 4)
-            {
-                int i; // dummy
-            }
-            else if (directive_index == 5)
-            {
-                // #line 10
-                while (isspace(*p))
-                {
-                    p++;
-                }
-                if (isdigit(*p))
-                {
-                    cur = new_token(PPTK_NUMBER, cur, p);
-                    cur->val = strtol(p, &p, 10);
-                    line = cur->val - 1;
-                }
-                else
-                {
-                    error("不正なline文です");
-                }
-            }
-            else
-            {
-                error_at(p, "未定義のプリプロセッシング命令文です");
-            }
-            while (*p != '\n')
-                p++;
-            continue;
-        }
-
-        if (*p == '"')
-        {
-            int i = 0;
-            p++;
-            char *p_top = p;
-            for (;;)
-            {
-                if (*p == '\\')
-                {
-                    if (!*(p + 1))
-                    {
-                        error_at(p, "エスケープ文字のあとに文字がありません");
-                    }
-                    p += 2;
-                    i += 2;
-                }
-                else if (*p == '"')
-                {
-                    break;
-                }
-                else
-                {
-                    p++;
-                    i++;
-                }
-            }
-            if (*p != '"')
-                error_at(p, "ダブルクォテーションが閉じていません");
-
-            p++;
-            cur = new_token(PPTK_STRING, cur, p_top);
-            cur->len = i;
-
-            continue;
-        }
-
-        if (*p == '\'')
-        {
-            p++;
-            int val;
-            if (*p == '\\')
-            {
-                p++;
-                val = from_escape_char_to_int(*p);
-            }
-            else
-            {
-                val = *p;
-            }
-            cur = new_token(PPTK_CHAR, cur, p);
-            cur->val = val;
-            p++;
-            if (*p != '\'')
-            {
-                error_at(p, "シングルクォーテーションが閉じていません");
-            }
-            p++;
-            continue;
-        }
-
-        if (isnondigit(*p))
-        {
-            if (strncmp(p, "__LINE__", 8) == 0)
-            {
-                cur = new_token(PPTK_NUMBER, cur, p);
-                cur->val = line;
-                p += 8;
-                continue;
-            }
-
-            int i = 0;
-            char *p_top = p;
-            while (isnondigit(*p) || isdigit(*p))
-            {
-                i++;
-                p++;
-            }
-            cur = new_token(PPTK_IDENT, cur, p_top);
-            cur->len = i;
-            continue;
-        }
-
-        if (ispunctuator(p))
-        {
-            for (int i = 0; i < punctuator_list_count; i++)
-            {
-
-                char *op = punctuator_list[i];
-                if (strncmp(p, op, strlen(op)) == 0)
-                {
-                    cur = new_token(PPTK_PUNC, cur, op);
-                    cur->len = strlen(op);
-                    p += strlen(op);
-                    break;
-                }
-            }
-            continue;
-        }
-
-        if (isdigit(*p))
-        {
-            int val = 0;
-            float float_val = 0.0;
-
-            float power = 1.0;
-            while (isdigit(*p))
-            {
-                val = 10 * val + (*p - '0');
-                float_val = 10.0 * float_val + (*p - '0');
-                p++;
-            }
-            cur = new_token(PPTK_NUMBER, cur, p);
-            cur->val = val;
-            if (*p == '.')
-            {
-                p++;
-
-                char *decimal_head; // delete this
-                decimal_head = p;   // delete this
-                while (isdigit(*p))
-                {
-                    float_val = 10.0 * float_val + (*p - '0');
-                    power *= 10.0;
-                    p++;
-                }
-                cur->is_float = true;
-                cur->float_val = float_val / power;
-                // ここからあとはアドホックな実装
-                int decimal = 0;
-                int numzero = 0;
-                while (*decimal_head == '0')
-                {
-                    numzero++;
-                    decimal_head++;
-                }
-
-                while (isdigit(*decimal_head))
-                {
-                    decimal = 10 * decimal + (*decimal_head - '0');
-                    decimal_head++;
-                }
-                cur->integer = val;
-                cur->decimal = decimal;
-                cur->numzero = numzero;
-            }
-            else
-            {
-                cur->is_float = false;
-            }
-
-            continue;
-        }
-        printf("%sトークナイズできません", p);
-        exit(1);
-    }
-    return head.next;
+    return (tok->kind == TK_PPDIRECTIVE && tok->val == idx);
 }
 
 Macro *find_macro(char *str, int len)
@@ -534,7 +23,7 @@ Macro *find_macro(char *str, int len)
     return NULL;
 }
 
-PPToken *fetch_before_endif(PPToken *tok)
+Token *fetch_before_endif(Token *tok)
 {
     if (tok == NULL)
     {
@@ -542,7 +31,7 @@ PPToken *fetch_before_endif(PPToken *tok)
     }
     while (tok)
     {
-        if (tok->next->kind == PPTK_PUNC && *tok->next->str == '#' && isdirective_idx(tok->next->next, 4))
+        if (tok->next->kind == TK_OPERATOR && *tok->next->str == '#' && isdirective_idx(tok->next->next, 4))
         {
             return tok;
         }
@@ -551,24 +40,24 @@ PPToken *fetch_before_endif(PPToken *tok)
     return NULL;
 }
 
-PPToken *preprocess_directives(char *base_dir, PPToken *tok)
+Token *preprocess_directives(char *base_dir, Token *tok)
 {
     if (tok == NULL)
     {
         return tok;
     }
-    PPToken *prev = tok;
-    PPToken *cur = tok;
+    Token *prev = tok;
+    Token *cur = tok;
 
     while (cur)
     {
-        if (cur->kind == PPTK_PUNC && *cur->str == '#')
+        if (cur->kind == TK_OPERATOR && *cur->str == '#')
         {
             // include
             if (isdirective_idx(cur->next, 0))
             {
-                PPToken *hn_tok = cur->next->next;
-                if (hn_tok->kind != PPTK_HN)
+                Token *hn_tok = cur->next->next;
+                if (hn_tok->kind != TK_HEADER_NAME)
                 {
                     error_at(cur->str, "不正なinclude文です");
                 }
@@ -576,20 +65,20 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 char *p_end = p + hn_tok->len - 1; // > or "
                 char *file_name = calloc(1, hn_tok->len - 1);
                 memcpy(file_name, p + 1, hn_tok->len - 2);
-                PPToken *include_tok = NULL;
+                Token *include_tok = NULL;
                 if (*p == '"' && *p_end == '"')
                 {
 
                     char *full_path = join_str(base_dir, file_name);
                     char *dir = extract_dir(full_path);
 
-                    include_tok = preprocess_directives(dir, decompose_to_pp_token(read_file(full_path)));
+                    include_tok = preprocess_directives(dir, tokenize(read_file(full_path)));
                 }
                 else
                 {
                     char *full_path = join_str("include/", file_name);
 
-                    PPToken *mid = decompose_to_pp_token(read_file(full_path));
+                    Token *mid = tokenize(read_file(full_path));
                     include_tok = preprocess_directives("include/", mid);
                 }
                 if (include_tok == NULL)
@@ -607,7 +96,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                     }
                     continue;
                 }
-                PPToken *include_tok_end = include_tok;
+                Token *include_tok_end = include_tok;
                 while (include_tok_end->next)
                 {
                     include_tok_end = include_tok_end->next;
@@ -633,10 +122,10 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
             // マクロの登録
             if (isdirective_idx(cur->next, 1))
             {
-                PPToken *target = cur->next->next;
-                PPToken *replace = cur->next->next->next;
+                Token *target = cur->next->next;
+                Token *replace = cur->next->next->next;
 
-                if (target->kind == PPTK_IDENT && (replace->kind == PPTK_IDENT || replace->kind == PPTK_NUMBER))
+                if (target->kind == TK_IDENT && (replace->kind == TK_IDENT || replace->kind == TK_NUMBER))
                 {
                     if (target->len == replace->len && strncmp(target->str, replace->str, target->len) == 0)
                     {
@@ -647,7 +136,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                         error_at(cur->str, "マクロの二重定義です");
                     }
                 }
-                else if (target->kind == PPTK_IDENT && replace->kind == PPTK_DUMMY)
+                else if (target->kind == TK_IDENT && replace->kind == TK_DUMMY)
                 {
                     // #define identに対応
                     if (find_macro(target->str, target->len) != NULL)
@@ -681,15 +170,15 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
             // ifdef
             if (isdirective_idx(cur->next, 2))
             {
-                PPToken *target = cur->next->next;
+                Token *target = cur->next->next;
                 if (find_macro(target->str, target->len))
                 {
-                    PPToken *before_endif = fetch_before_endif(target);
+                    Token *before_endif = fetch_before_endif(target);
                     if (before_endif == NULL)
                     {
                         error_at(cur->str, "ifdefの後にはendifが必要です");
                     }
-                    PPToken *after_endif = before_endif->next->next->next;
+                    Token *after_endif = before_endif->next->next->next;
                     before_endif->next = after_endif;
                     if (prev == cur)
                     {
@@ -705,12 +194,12 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 }
                 else
                 {
-                    PPToken *before_endif = fetch_before_endif(target);
+                    Token *before_endif = fetch_before_endif(target);
                     if (before_endif == NULL)
                     {
                         error_at(cur->str, "ifdefの後にはendifが必要です");
                     }
-                    PPToken *after_endif = before_endif->next->next->next;
+                    Token *after_endif = before_endif->next->next->next;
                     if (prev == cur)
                     {
                         prev = after_endif;
@@ -728,15 +217,15 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
             // ifndef
             if (isdirective_idx(cur->next, 3))
             {
-                PPToken *target = cur->next->next;
+                Token *target = cur->next->next;
                 if (!find_macro(target->str, target->len))
                 {
-                    PPToken *before_endif = fetch_before_endif(target);
+                    Token *before_endif = fetch_before_endif(target);
                     if (before_endif == NULL)
                     {
                         error_at(cur->str, "ifndefの後にはendifが必要です");
                     }
-                    PPToken *after_endif = before_endif->next->next->next;
+                    Token *after_endif = before_endif->next->next->next;
                     before_endif->next = after_endif;
                     if (prev == cur)
                     {
@@ -752,12 +241,12 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 }
                 else
                 {
-                    PPToken *before_endif = fetch_before_endif(target);
+                    Token *before_endif = fetch_before_endif(target);
                     if (before_endif == NULL)
                     {
                         error_at(cur->str, "iffdefの後にはendifが必要です");
                     }
-                    PPToken *after_endif = before_endif->next->next->next;
+                    Token *after_endif = before_endif->next->next->next;
                     if (prev == cur)
                     {
                         prev = after_endif;
@@ -779,7 +268,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
             }
         }
         // マクロの検索
-        if (cur->kind == PPTK_IDENT)
+        if (cur->kind == TK_IDENT)
         {
             for (;;)
             {
@@ -804,23 +293,24 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
     return tok;
 }
 
-void dump_pp_token(PPToken *tok)
+void dump_pp_token(Token *tok)
 {
-    PPToken *cur = tok;
+    Token *cur = tok;
     while (cur)
     {
         switch (cur->kind)
         {
-        case PPTK_CHAR:
+        case TK_CHARACTER:
             printf("%d ", cur->val);
             break;
-        case PPTK_HN:
+        case TK_HEADER_NAME:
             printf("%.*s ", cur->len, cur->str);
             break;
-        case PPTK_IDENT:
+        case TK_PPDIRECTIVE:
+        case TK_IDENT:
             printf("%.*s ", cur->len, cur->str);
             break;
-        case PPTK_NUMBER:
+        case TK_NUMBER:
             if (cur->is_float)
             {
                 printf("%f ", cur->float_val);
@@ -831,10 +321,10 @@ void dump_pp_token(PPToken *tok)
                 printf("%d ", cur->val);
                 break;
             }
-        case PPTK_PUNC:
+        case TK_OPERATOR:
             printf("%.*s ", cur->len, cur->str);
             break;
-        case PPTK_STRING:
+        case TK_STRING:
             printf("\\\"%.*s\\\" ", cur->len, cur->str);
             break;
         }

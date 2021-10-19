@@ -1,115 +1,457 @@
 #include "hooligan.h"
 
-static char *reserved_word_list[21] = {
-    "return",
-    "if",
-    "else",
-    "for",
-    "while",
-    "switch",
-    "case",
-    "default",
-    "sizeof",
-    "void",
-    "int",
-    "float",
-    "char",
-    "struct",
-    "typedef",
-    "break",
-    "continue",
-    "static",
-    "extern",
-    "enum",
-    "const",
-};
+#include "tokenizer/operator.c"
+#include "tokenizer/reserved_word.c"
+#include "tokenizer/preprocessing_directive.c"
 
-static int reserved_word_list_count = 21;
-
-static bool isreservedword(char *p, int len)
+static Token *new_token(TokenKind kind, Token *cur, char *str)
 {
-    for (TokenKind tk = 0; tk < reserved_word_list_count; tk++)
+    Token *tok = calloc(1, sizeof(Token));
+    tok->kind = kind;
+    tok->str = str;
+    cur->next = tok;
+    return tok;
+}
+
+// nondigit = [_a-zA-Z]
+// 識別子を構成する文字で数字でないもの
+static bool isnondigit(char p)
+{
+    if ((p >= 'a' && p <= 'z') || (p >= 'A' && p <= 'Z') || p == '_')
     {
-        char *word = reserved_word_list[tk];
-        if (strncmp(p, word, len) == 0 && len == strlen(word))
-            return true;
+        return true;
     }
     return false;
 }
 
-static TokenKind find_reserved_word(char *p, int len)
+static int from_escape_char_to_int(char p)
 {
-    for (TokenKind tk = 0; tk < reserved_word_list_count; tk++)
+    if (p == '\\')
     {
-        char *word = reserved_word_list[tk];
-        if (strncmp(p, word, len) == 0 && len == strlen(word))
-            return tk;
+        return '\\';
     }
-    error_at(p, "予約語ではありません");
-    return -1; // Not Found
-}
-
-static Token *new_token(TokenKind kind, int val, char *str, int len)
-{
-    Token *tok = calloc(1, sizeof(Token));
-    tok->kind = kind;
-    tok->value = val;
-    tok->string = str;
-    tok->length = len;
-    return tok;
-}
-
-static Token *convertPPTokenToToken(PPToken *pptok)
-{
-    TokenKind tk;
-    switch (pptok->kind)
+    else if (p == '0')
     {
-    case PPTK_CHAR:
-        tk = TK_CHARACTER;
-        break;
-    case PPTK_HN:
-        error_at(pptok->str, "未処理のプリプロセッシングトークン列です");
-        break;
-    case PPTK_IDENT:
-        if (isreservedword(pptok->str, pptok->len))
-        {
-            tk = find_reserved_word(pptok->str, pptok->len);
-        }
-        else
-        {
-            tk = TK_IDENT;
-        }
-        break;
-    case PPTK_NUMBER:
-        tk = TK_NUMBER;
-        break;
-    case PPTK_PUNC:
-        tk = TK_OPERATOR;
-        break;
-    case PPTK_STRING:
-        tk = TK_STRING;
-        break;
+        return '\0';
     }
-    Token *tok = new_token(tk, pptok->val, pptok->str, pptok->len);
-    tok->is_float = pptok->is_float;
-    tok->float_val = pptok->float_val;
-    tok->integer = pptok->integer;
-    tok->decimal = pptok->decimal;
-    tok->numzero = pptok->numzero;
-    return tok;
+    else if (p == 'n')
+    {
+        return '\n';
+    }
+    else if (p == '\'')
+    {
+        return '\'';
+    }
+    else if (p == '\"')
+    {
+        return '\"';
+    }
+    else
+    {
+        printf("%c ", p);
+        error("未定義のエスケープ文字です");
+    }
 }
 
-Token *tokenize(PPToken *pptok)
+Token *tokenize(char *p)
 {
     Token head;
+    head.next = NULL;
     Token *cur = &head;
-    while (pptok != NULL)
+    int line = 1;
+
+    while (*p)
     {
-        cur->next = convertPPTokenToToken(pptok);
-        cur = cur->next;
-        pptok = pptok->next;
+        if (*p == '\n')
+        {
+            p++;
+            line++;
+            continue;
+        }
+
+        if (isspace(*p))
+        {
+            p++;
+            continue;
+        }
+
+        if (strncmp(p, "//", 2) == 0)
+        {
+            p += 2;
+            while (*p != '\n')
+                p++;
+            continue;
+        }
+
+        if (strncmp(p, "/*", 2) == 0)
+        {
+            char *q = strstr(p + 2, "*/");
+            if (!q)
+                error_at(p, "コメントが閉じられていません");
+            p = q + 2;
+            continue;
+        }
+
+        // プリプロセッシング命令文の処理、暴力的な長さなので切り出しを検討すべき
+        if (strncmp(p, "#", 1) == 0)
+        {
+            cur = new_token(TK_OPERATOR, cur, p);
+            cur->len = 1;
+            p++;
+            if (!isdirective(p))
+            {
+                error_at(p, "未定義のプリプロセッシング命令文です");
+            }
+            int directive_index = -1;
+            for (int i = 0; i < preprocessing_directive_list_count; i++)
+            {
+                char *directive = preprocessing_directive_list[i];
+                if (strncmp(p, directive, strlen(directive)) == 0)
+                {
+                    cur = new_token(TK_PPDIRECTIVE, cur, p);
+                    cur->val = i;
+                    cur->len += strlen(directive);
+                    p += strlen(directive);
+                    directive_index = i;
+                }
+            }
+            if (directive_index == 0)
+            {
+                // include文
+                while (isspace(*p))
+                {
+                    p++;
+                }
+                if (*p == '<')
+                {
+                    p++;
+                    int len = 1;
+                    while (*p != '\n')
+                    {
+                        if (*p == '>')
+                        {
+                            cur = new_token(TK_HEADER_NAME, cur, p - len);
+                            cur->len = len + 1;
+                            break;
+                        }
+                        len++;
+                        p++;
+                    }
+                    if (cur->kind != TK_HEADER_NAME)
+                    {
+                        error_at(p, "不正なinclude文です");
+                    }
+                }
+                else if (*p == '"')
+                {
+                    p++;
+                    int len = 1;
+                    while (*p != '\n')
+                    {
+                        if (*p == '"')
+                        {
+                            cur = new_token(TK_HEADER_NAME, cur, p - len);
+                            cur->len = len + 1;
+                            break;
+                        }
+                        len++;
+                        p++;
+                    }
+                    if (cur->kind != TK_HEADER_NAME)
+                    {
+                        error_at(p, "不正なinclude文です");
+                    }
+                }
+                else
+                {
+                    error_at(p, "不正なinclude文です");
+                }
+            }
+            else if (directive_index == 1)
+            {
+                // define文
+                // #define ident identを想定
+
+                while (isspace(*p))
+                {
+                    p++;
+                }
+
+                int i = 0;
+                char *p_top = p;
+                while (isnondigit(*p) || isdigit(*p))
+                {
+                    i++;
+                    p++;
+                }
+                cur = new_token(TK_IDENT, cur, p_top);
+                cur->len = i;
+                if (*p == '\n')
+                {
+                    // #define identの場合
+                    cur = new_token(TK_DUMMY, cur, "");
+                    line++;
+                    continue;
+                }
+
+                while (isspace(*p))
+                {
+                    p++;
+                    if (*p == '\n')
+                    {
+                        // #define identの場合
+                        cur = new_token(TK_DUMMY, cur, "");
+                        line++;
+                        break;
+                    }
+                }
+                if (cur->kind == TK_DUMMY)
+                {
+                    continue;
+                }
+
+                if (isnondigit(*p))
+                {
+                    i = 0;
+                    p_top = p;
+                    while (isnondigit(*p) || isdigit(*p))
+                    {
+                        i++;
+                        p++;
+                    }
+                    cur = new_token(TK_IDENT, cur, p_top);
+                    cur->len = i;
+                }
+                else if (isdigit(*p))
+                {
+                    cur = new_token(TK_NUMBER, cur, p);
+                    cur->val = strtol(p, &p, 10);
+                }
+            }
+            else if (directive_index == 2 || directive_index == 3)
+            {
+                while (isspace(*p))
+                {
+                    p++;
+                }
+
+                int i = 0;
+                char *p_top = p;
+                while (isnondigit(*p) || isdigit(*p))
+                {
+                    i++;
+                    p++;
+                }
+                cur = new_token(TK_IDENT, cur, p_top);
+                cur->len = i;
+            }
+            else if (directive_index == 4)
+            {
+                int i; // dummy
+            }
+            else if (directive_index == 5)
+            {
+                // #line 10
+                while (isspace(*p))
+                {
+                    p++;
+                }
+                if (isdigit(*p))
+                {
+                    cur = new_token(TK_NUMBER, cur, p);
+                    cur->val = strtol(p, &p, 10);
+                    line = cur->val - 1;
+                }
+                else
+                {
+                    error("不正なline文です");
+                }
+            }
+            else
+            {
+                error_at(p, "未定義のプリプロセッシング命令文です");
+            }
+            while (*p != '\n')
+                p++;
+            continue;
+        }
+
+        if (*p == '"')
+        {
+            int i = 0;
+            p++;
+            char *p_top = p;
+            for (;;)
+            {
+                if (*p == '\\')
+                {
+                    if (!*(p + 1))
+                    {
+                        error_at(p, "エスケープ文字のあとに文字がありません");
+                    }
+                    p += 2;
+                    i += 2;
+                }
+                else if (*p == '"')
+                {
+                    break;
+                }
+                else
+                {
+                    p++;
+                    i++;
+                }
+            }
+            if (*p != '"')
+                error_at(p, "ダブルクォテーションが閉じていません");
+
+            p++;
+            cur = new_token(TK_STRING, cur, p_top);
+            cur->len = i;
+
+            continue;
+        }
+
+        if (*p == '\'')
+        {
+            p++;
+            int val;
+            if (*p == '\\')
+            {
+                p++;
+                val = from_escape_char_to_int(*p);
+            }
+            else
+            {
+                val = *p;
+            }
+            cur = new_token(TK_CHARACTER, cur, p);
+            cur->val = val;
+            p++;
+            if (*p != '\'')
+            {
+                error_at(p, "シングルクォーテーションが閉じていません");
+            }
+            p++;
+            continue;
+        }
+
+        if (isnondigit(*p))
+        {
+            if (strncmp(p, "__LINE__", 8) == 0)
+            {
+                cur = new_token(TK_NUMBER, cur, p);
+                cur->val = line;
+                p += 8;
+                continue;
+            }
+
+            int i = 0;
+            char *p_top = p;
+            while (isnondigit(*p) || isdigit(*p))
+            {
+                i++;
+                p++;
+            }
+            cur = new_token(TK_IDENT, cur, p_top);
+            cur->len = i;
+            continue;
+        }
+
+        if (isoperator(p))
+        {
+            for (int i = 0; i < operator_list_count; i++)
+            {
+
+                char *op = operator_list[i];
+                if (strncmp(p, op, strlen(op)) == 0)
+                {
+                    cur = new_token(TK_OPERATOR, cur, op);
+                    cur->len = strlen(op);
+                    p += strlen(op);
+                    break;
+                }
+            }
+            continue;
+        }
+
+        if (isdigit(*p))
+        {
+            int val = 0;
+            float float_val = 0.0;
+
+            float power = 1.0;
+            while (isdigit(*p))
+            {
+                val = 10 * val + (*p - '0');
+                float_val = 10.0 * float_val + (*p - '0');
+                p++;
+            }
+            cur = new_token(TK_NUMBER, cur, p);
+            cur->val = val;
+            if (*p == '.')
+            {
+                p++;
+
+                char *decimal_head; // delete this
+                decimal_head = p;   // delete this
+                while (isdigit(*p))
+                {
+                    float_val = 10.0 * float_val + (*p - '0');
+                    power *= 10.0;
+                    p++;
+                }
+                cur->is_float = true;
+                cur->float_val = float_val / power;
+                // ここからあとはアドホックな実装
+                int decimal = 0;
+                int numzero = 0;
+                while (*decimal_head == '0')
+                {
+                    numzero++;
+                    decimal_head++;
+                }
+
+                while (isdigit(*decimal_head))
+                {
+                    decimal = 10 * decimal + (*decimal_head - '0');
+                    decimal_head++;
+                }
+                cur->integer = val;
+                cur->decimal = decimal;
+                cur->numzero = numzero;
+            }
+            else
+            {
+                cur->is_float = false;
+            }
+
+            continue;
+        }
+        printf("%sトークナイズできません", p);
+        exit(1);
     }
-    cur->next = new_token(TK_EOF, 0, "", 0);
-    cur->next->is_float = false;
     return head.next;
+}
+
+Token *normalize_tokens(Token *head)
+{
+    Token *cur = head;
+    Token *before;
+    while (cur != NULL)
+    {
+        if (cur->kind == TK_IDENT)
+        {
+            if (isreservedword(cur->str, cur->len))
+            {
+                cur->kind = TK_RESERVED_WORD;
+                cur->val = find_reserved_word(cur->str, cur->len);
+            }
+        }
+        before = cur;
+        cur = cur->next;
+    }
+    before->next = calloc(1, sizeof(Token));
+    before->next->kind = TK_EOF;
+    return head;
 }

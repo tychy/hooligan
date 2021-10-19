@@ -6,15 +6,15 @@ static Type *consume_type();
 
 static bool consume(char *op)
 {
-    if (cur_token->kind != TK_OPERATOR || strcmp(cur_token->string, op))
+    if (cur_token->kind != TK_OPERATOR || strcmp(cur_token->str, op))
         return false;
     cur_token = cur_token->next;
     return true;
 }
 
-static bool consume_rw(TokenKind tk)
+static bool consume_rw(ReservedWord rw)
 {
-    if (cur_token->kind != tk)
+    if (cur_token->kind != TK_RESERVED_WORD || cur_token->val != rw)
         return false;
     cur_token = cur_token->next;
     return true;
@@ -22,9 +22,9 @@ static bool consume_rw(TokenKind tk)
 
 static void expect(char *op)
 {
-    if (cur_token->kind != TK_OPERATOR || cur_token->string[0] != op[0])
+    if (cur_token->kind != TK_OPERATOR || cur_token->str[0] != op[0])
     {
-        error2("'%s'ではありません, got %s", op, cur_token->string);
+        error2("'%s'ではありません, got %s", op, cur_token->str);
     }
     cur_token = cur_token->next;
 }
@@ -32,8 +32,8 @@ static void expect(char *op)
 static int expect_number()
 {
     if (cur_token->kind != TK_NUMBER)
-        error_at(cur_token->string, "数字ではありません");
-    int value = cur_token->value;
+        error_at(cur_token->str, "数字ではありません");
+    int value = cur_token->val;
     cur_token = cur_token->next;
     return value;
 }
@@ -41,9 +41,9 @@ static int expect_number()
 static float expect_float()
 {
     if (cur_token->kind != TK_NUMBER)
-        error_at(cur_token->string, "数字ではありません");
+        error_at(cur_token->str, "数字ではありません");
     if (!cur_token->is_float)
-        error_at(cur_token->string, "floatではありません");
+        error_at(cur_token->str, "floatではありません");
 
     float value = cur_token->float_val;
     cur_token = cur_token->next;
@@ -54,9 +54,9 @@ static int expect_char()
 {
     if (cur_token->kind != TK_CHARACTER)
     {
-        error_at(cur_token->string, "文字ではありません");
+        error_at(cur_token->str, "文字ではありません");
     }
-    int value = cur_token->value;
+    int value = cur_token->val;
     cur_token = cur_token->next;
     return value;
 }
@@ -76,7 +76,7 @@ static Token *expect_ident()
 {
     if (cur_token->kind != TK_IDENT)
     {
-        error1("識別子ではありません got %s", cur_token->string);
+        error1("識別子ではありません got %s", cur_token->str);
     }
     Token *tok = cur_token;
     cur_token = cur_token->next;
@@ -107,8 +107,8 @@ static void set_struct_member(Type *ty)
             expect("]");
         }
 
-        mem->name = mem_tok->string;
-        mem->length = mem_tok->length;
+        mem->name = mem_tok->str;
+        mem->length = mem_tok->len;
         mem->offset = offset;
         offset += calc_bytes(mem_ty);
         mem->ty = mem_ty;
@@ -123,7 +123,7 @@ static void set_struct_member(Type *ty)
 static Type *consume_type()
 {
     bool is_const = false;
-    if (consume_rw(TK_CONST))
+    if (consume_rw(RW_CONST))
     {
         is_const = true;
     }
@@ -139,27 +139,27 @@ static Type *consume_type()
         }
         return ty;
     }
-    if (consume_rw(TK_INT))
+    if (consume_rw(RW_INT))
     {
         ty = new_type_int();
     }
-    else if (consume_rw(TK_FLOAT))
+    else if (consume_rw(RW_FLOAT))
     {
         ty = new_type_float();
     }
-    else if (consume_rw(TK_CHAR))
+    else if (consume_rw(RW_CHAR))
     {
         ty = new_type_char();
     }
-    else if (consume_rw(TK_STRUCT))
+    else if (consume_rw(RW_STRUCT))
     {
         ty = new_type_struct();
     }
-    else if (consume_rw(TK_VOID))
+    else if (consume_rw(RW_VOID))
     {
         ty = new_type_void();
     }
-    else if (consume_rw(TK_ENUM))
+    else if (consume_rw(RW_ENUM))
     {
         ty = new_type_int();
         if (consume("{"))
@@ -178,12 +178,12 @@ static Type *consume_type()
             }
             if (i == 0)
             {
-                error_at(cur_token->string, "識別子が必要です");
+                error_at(cur_token->str, "識別子が必要です");
             }
         }
         else
         {
-            error_at(cur_token->string, "識別子が必要です");
+            error_at(cur_token->str, "識別子が必要です");
         }
     }
     else
@@ -229,7 +229,7 @@ static Type *consume_type()
             }
         }
     }
-    if (consume_rw(TK_CONST))
+    if (consume_rw(RW_CONST))
     {
         is_const = is_const || true;
     }
@@ -240,7 +240,7 @@ static Type *consume_type()
         ty = new_type_ptr(ty);
     }
 
-    if (consume_rw(TK_CONST))
+    if (consume_rw(RW_CONST))
     {
         ty->is_const = true;
     }

@@ -19,9 +19,9 @@ static Node *num()
     {
         // return new_node_float(expect_float());
         if (cur_token->kind != TK_NUMBER)
-            error_at(cur_token->string, "数字ではありません");
+            error_at(cur_token->str, "数字ではありません");
         if (!cur_token->is_float)
-            error_at(cur_token->string, "floatではありません");
+            error_at(cur_token->str, "floatではありません");
 
         int integer = cur_token->integer;
         int decimal = cur_token->decimal;
@@ -92,8 +92,8 @@ static Node *ident()
         }
         else
         {
-            node->name = ident->string;
-            node->length = ident->length;
+            node->name = ident->str;
+            node->length = ident->len;
             node->ty = new_type_int();
             while (!consume(")"))
             {
@@ -126,7 +126,7 @@ static Node *ident()
         Type *ty = find_defined_type(ident);
         if (!ty)
         {
-            error_at(ident->string, "識別子が解決できませんでした");
+            error_at(ident->str, "識別子が解決できませんでした");
         }
         while (consume("*"))
         {
@@ -141,8 +141,8 @@ static Node *ident()
 static Member *get_struct_member(Type *ty)
 {
     for (Member *mem = ty->members; mem; mem = mem->next)
-        if (mem->length == cur_token->length &&
-            strncmp(mem->name, cur_token->string, cur_token->length) == 0)
+        if (mem->length == cur_token->len &&
+            strncmp(mem->name, cur_token->str, cur_token->len) == 0)
             return mem;
     error("メンバーがありません");
 }
@@ -276,7 +276,7 @@ static Node *unary()
     {
         return new_node_single(ND_DEREF, unary());
     }
-    else if (consume_rw(TK_SIZEOF))
+    else if (consume_rw(RW_SIZEOF))
     {
         consume("(");
         Node *node = expr();
@@ -285,7 +285,7 @@ static Node *unary()
     }
     else if (cur_token->kind == TK_STRING)
     {
-        String *s = new_string(cur_token->string, cur_token->length);
+        String *s = new_string(cur_token->str, cur_token->len);
         cur_token = cur_token->next;
         return new_node_string(s);
     }
@@ -457,7 +457,7 @@ static Node *const_expr()
     }
     else if (cur_token->kind == TK_STRING)
     {
-        String *s = new_string(cur_token->string, cur_token->length);
+        String *s = new_string(cur_token->str, cur_token->len);
         cur_token = cur_token->next;
         return new_node_string(s);
     }
@@ -506,13 +506,13 @@ static Node *decl_type()
 // これやばい、いいリファクタがあったら教えてほしい
 static Node *defl()
 {
-    if (consume_rw(TK_TYPEDEF))
+    if (consume_rw(RW_TYPEDEF))
     {
         return decl_type();
     }
-    else if (consume_rw(TK_EXTERN))
+    else if (consume_rw(RW_EXTERN))
     {
-        bool is_extern = consume_rw(TK_EXTERN);
+        bool is_extern = consume_rw(RW_EXTERN);
         Type *ty = consume_type();
 
         if (!ty)
@@ -529,7 +529,7 @@ static Node *defl()
         def_var(ident, ty, false, false);
         return new_node_nop();
     }
-    else if (consume_rw(TK_STATIC))
+    else if (consume_rw(RW_STATIC))
     {
         Type *ty = consume_type();
 
@@ -671,15 +671,15 @@ static Node *defl()
                 {
                     error("char型の配列が必要です");
                 }
-                ty->array_size = cur_token->length + 1;
+                ty->array_size = cur_token->len + 1;
                 Var *lvar = def_var(ident, ty, true, false);
                 Node *node = new_node_var(lvar);
-                Node *initial = new_node_single(ND_INIT, new_node_num(cur_token->string[0]));
+                Node *initial = new_node_single(ND_INIT, new_node_num(cur_token->str[0]));
                 Node *cur = initial;
                 int cnt = 1;
-                for (int i = 1; i < cur_token->length; i++)
+                for (int i = 1; i < cur_token->len; i++)
                 {
-                    cur->next = new_node_single(ND_INIT, new_node_num(cur_token->string[i]));
+                    cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[i]));
                     cur = cur->next;
                 }
                 cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
@@ -703,7 +703,7 @@ static Node *defl()
 static Node *stmt()
 {
     Node *node;
-    if (consume_rw(TK_RETURN))
+    if (consume_rw(RW_RETURN))
     {
         if (consume(";"))
         {
@@ -715,7 +715,7 @@ static Node *stmt()
             expect(";");
         }
     }
-    else if (consume_rw(TK_IF))
+    else if (consume_rw(RW_IF))
     {
         new_scope();
         expect("(");
@@ -725,12 +725,12 @@ static Node *stmt()
         node = new_node_raw(ND_IF);
         node->condition = condition;
         node->body = body;
-        if (consume_rw(TK_ELSE))
+        if (consume_rw(RW_ELSE))
             node->on_else = block();
         node->cond_label = ctx->scope->label;
         exit_scope();
     }
-    else if (consume_rw(TK_FOR))
+    else if (consume_rw(RW_FOR))
     {
         start_loop();
         Node *init;
@@ -775,7 +775,7 @@ static Node *stmt()
         node->loop_label = ctx->scope->loop_label;
         end_loop();
     }
-    else if (consume_rw(TK_WHILE))
+    else if (consume_rw(RW_WHILE))
     {
         start_loop();
         expect("(");
@@ -788,7 +788,7 @@ static Node *stmt()
         node->loop_label = ctx->scope->loop_label;
         end_loop();
     }
-    else if (consume_rw(TK_SWITCH))
+    else if (consume_rw(RW_SWITCH))
     {
         start_switch();
         expect("(");
@@ -802,7 +802,7 @@ static Node *stmt()
         end_switch();
         return node;
     }
-    else if (consume_rw(TK_CASE))
+    else if (consume_rw(RW_CASE))
     {
         if (!(ctx->scope->current_switch))
         {
@@ -835,7 +835,7 @@ static Node *stmt()
         ctx->scope->current_switch->next_case = node;
         return node;
     }
-    else if (consume_rw(TK_DEFAULT))
+    else if (consume_rw(RW_DEFAULT))
     {
         if (!(ctx->scope->current_switch))
         {
@@ -848,13 +848,13 @@ static Node *stmt()
         ctx->scope->current_switch->default_case = node;
         return node;
     }
-    else if (consume_rw(TK_BREAK))
+    else if (consume_rw(RW_BREAK))
     {
         node = new_node_raw(ND_BREAK);
 
         node->loop_label = ctx->break_to;
     }
-    else if (consume_rw(TK_CONTINUE))
+    else if (consume_rw(RW_CONTINUE))
     {
         node = new_node_raw(ND_CONTINUE);
         node->loop_label = ctx->continue_to;
@@ -911,8 +911,8 @@ static Node *func(Token *ident, Type *ty, bool is_static)
 {
     new_scope();
     Node *node = new_node_raw(ND_FUNCDEF);
-    node->name = ident->string;
-    node->length = ident->length;
+    node->name = ident->str;
+    node->length = ident->len;
     Node *arg_top = node;
     Type *arg_ty_ls[6];
     int arg_idx = 0;
@@ -939,7 +939,7 @@ static Node *func(Token *ident, Type *ty, bool is_static)
 
         if (!arg_ty)
         {
-            printf("%s\n", cur_token->string);
+            printf("%s\n", cur_token->str);
             error("引数に型がありません");
         }
         else if (arg_ty->ty != VOID)
@@ -977,8 +977,8 @@ static Node *func(Token *ident, Type *ty, bool is_static)
 static Node *glob_var(Token *ident, Type *ty, bool is_static)
 {
     Node *node = new_node_raw(ND_GVARDEF);
-    node->name = ident->string;
-    node->length = ident->length;
+    node->name = ident->str;
+    node->length = ident->len;
     node->ty = ty;
     node->is_static = is_static;
     if (ty->ty == VOID)
@@ -1038,7 +1038,7 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
 static Node *def()
 {
     Node *node;
-    if (consume_rw(TK_TYPEDEF))
+    if (consume_rw(RW_TYPEDEF))
     {
         node = decl_type();
         expect(";");
@@ -1046,11 +1046,11 @@ static Node *def()
     }
     bool is_extern = false;
     bool is_static = false;
-    if (consume_rw(TK_EXTERN))
+    if (consume_rw(RW_EXTERN))
     {
         is_extern = true;
     }
-    else if (consume_rw(TK_STATIC))
+    else if (consume_rw(RW_STATIC))
     {
         is_static = true;
     }

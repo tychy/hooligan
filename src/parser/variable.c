@@ -6,7 +6,7 @@ static Var *find_var(Token *tok)
     {
         for (Var *var = scope->variables; var; var = var->next)
         {
-            if (var->length == tok->length && memcmp(var->name, tok->string, var->length) == 0)
+            if (var->length == tok->len && memcmp(var->name, tok->str, var->length) == 0)
             {
                 return var;
             }
@@ -19,8 +19,8 @@ static Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static)
 {
     Var *new_var = calloc(1, sizeof(Var));
 
-    new_var->length = tok->length;
-    new_var->name = tok->string;
+    new_var->length = tok->len;
+    new_var->name = tok->str;
     new_var->ty = ty;
     if (is_local)
     {
@@ -44,8 +44,8 @@ static Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val)
     new_var->label = ctx->scope->label;
     // nextメンバが上書きされてしまうので二回Varを生成している
     Var *new_static = calloc(1, sizeof(Var));
-    new_static->length = tok->length;
-    new_static->name = tok->string;
+    new_static->length = tok->len;
+    new_static->name = tok->str;
     new_static->ty = ty;
     new_static->next = ctx->statics;
     new_static->label = ctx->scope->label;
