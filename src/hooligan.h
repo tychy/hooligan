@@ -12,6 +12,16 @@
 
 typedef enum
 {
+    PD_INCLUDE,
+    PD_DEFINE,
+    PD_IFDEF,
+    PD_IFNDEF,
+    PD_ENDIF,
+    PD_LINE,
+} PreprocessingDirective;
+
+typedef enum
+{
     RW_RETURN,
     RW_IF,
     RW_ELSE,
@@ -38,6 +48,7 @@ typedef enum
 typedef enum
 {
     TK_DUMMY,
+    TK_PPDIRECTIVE,
     TK_HEADER_NAME,
     TK_NUMBER,
     TK_CHARACTER,

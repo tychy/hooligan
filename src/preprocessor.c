@@ -14,19 +14,14 @@ static char *preprocessing_directive_list[6] = {
 
 static int preprocessing_directive_list_count = 6;
 
-
-
 static bool isdirective_idx(Token *tok, int idx)
 {
     if (tok == NULL)
     {
         return false;
     }
-    return (tok->kind == TK_IDENT &&
-            strncmp(tok->str, preprocessing_directive_list[idx], strlen(preprocessing_directive_list[idx])) == 0);
+    return (tok->kind == TK_PPDIRECTIVE && tok->val == idx);
 }
-
-
 
 Macro *find_macro(char *str, int len)
 {
@@ -323,6 +318,7 @@ void dump_pp_token(Token *tok)
         case TK_HEADER_NAME:
             printf("%.*s ", cur->len, cur->str);
             break;
+        case TK_PPDIRECTIVE:
         case TK_IDENT:
             printf("%.*s ", cur->len, cur->str);
             break;

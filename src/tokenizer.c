@@ -255,7 +255,8 @@ Token *tokenize(char *p)
                 char *directive = preprocessing_directive_list_tok[i];
                 if (strncmp(p, directive, strlen(directive)) == 0)
                 {
-                    cur = new_token(TK_IDENT, cur, p);
+                    cur = new_token(TK_PPDIRECTIVE, cur, p);
+                    cur->val = i;
                     cur->len += strlen(directive);
                     p += strlen(directive);
                     directive_index = i;
