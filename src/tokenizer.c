@@ -59,18 +59,11 @@ static Token *new_token(TokenKind kind, int val, char *str, int len)
     return tok;
 }
 
-static Token *convertPPTokenToToken(Token *pptok)
+static Token *convertIdentToReservedWord(Token *pptok)
 {
     TokenKind tk;
-    switch (pptok->kind)
+    if (pptok->kind == TK_IDENT)
     {
-    case TK_CHARACTER:
-        tk = TK_CHARACTER;
-        break;
-    case TK_HEADER_NAME:
-        error_at(pptok->str, "未処理のプリプロセッシングトークン列です");
-        break;
-    case TK_IDENT:
         if (isreservedword(pptok->str, pptok->len))
         {
             tk = TK_RESERVED_WORD;
@@ -80,24 +73,10 @@ static Token *convertPPTokenToToken(Token *pptok)
         {
             tk = TK_IDENT;
         }
-        break;
-    case TK_NUMBER:
-        tk = TK_NUMBER;
-        break;
-    case TK_OPERATOR:
-        tk = TK_OPERATOR;
-        break;
-    case TK_STRING:
-        tk = TK_STRING;
-        break;
+        Token *tok = new_token(tk, pptok->val, pptok->str, pptok->len);
+        return tok;
     }
-    Token *tok = new_token(tk, pptok->val, pptok->str, pptok->len);
-    tok->is_float = pptok->is_float;
-    tok->float_val = pptok->float_val;
-    tok->integer = pptok->integer;
-    tok->decimal = pptok->decimal;
-    tok->numzero = pptok->numzero;
-    return tok;
+    return pptok;
 }
 
 Token *tokenize(Token *pptok)
@@ -106,7 +85,7 @@ Token *tokenize(Token *pptok)
     Token *cur = &head;
     while (pptok != NULL)
     {
-        cur->next = convertPPTokenToToken(pptok);
+        cur->next = convertIdentToReservedWord(pptok);
         cur = cur->next;
         pptok = pptok->next;
     }
