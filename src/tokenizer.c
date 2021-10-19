@@ -36,7 +36,7 @@ static char *reserved_word_list[21] = {
 static int reserved_word_list_count = 21;
 
 // indexに依存したコードを書いているので後方に追加していくこと
-static char *preprocessing_directive_list_tok[6] = {
+static char *preprocessing_directive_list[6] = {
     "include",
     "define",
     "ifdef",
@@ -45,7 +45,7 @@ static char *preprocessing_directive_list_tok[6] = {
     "line",
 };
 
-static int preprocessing_directive_list_count_tok = 6;
+static int preprocessing_directive_list_count = 6;
 
 static bool isreservedword(char *p, int len)
 {
@@ -160,9 +160,9 @@ static bool isnondigit(char p)
 
 static bool isdirective(char *p)
 {
-    for (int i = 0; i < preprocessing_directive_list_count_tok; i++)
+    for (int i = 0; i < preprocessing_directive_list_count; i++)
     {
-        char *str = preprocessing_directive_list_tok[i];
+        char *str = preprocessing_directive_list[i];
         if (strncmp(p, str, strlen(str)) == 0)
         {
             return true;
@@ -250,9 +250,9 @@ Token *tokenize(char *p)
                 error_at(p, "未定義のプリプロセッシング命令文です");
             }
             int directive_index = -1;
-            for (int i = 0; i < preprocessing_directive_list_count_tok; i++)
+            for (int i = 0; i < preprocessing_directive_list_count; i++)
             {
-                char *directive = preprocessing_directive_list_tok[i];
+                char *directive = preprocessing_directive_list[i];
                 if (strncmp(p, directive, strlen(directive)) == 0)
                 {
                     cur = new_token(TK_PPDIRECTIVE, cur, p);

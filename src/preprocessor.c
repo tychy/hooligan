@@ -2,18 +2,6 @@
 
 PPContext *pp_ctx;
 
-// indexに依存したコードを書いているので後方に追加していくこと
-static char *preprocessing_directive_list[6] = {
-    "include",
-    "define",
-    "ifdef",
-    "ifndef",
-    "endif",
-    "line",
-};
-
-static int preprocessing_directive_list_count = 6;
-
 static bool isdirective_idx(Token *tok, int idx)
 {
     if (tok == NULL)
