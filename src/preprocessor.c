@@ -184,7 +184,7 @@ PPToken *decompose_to_pp_token(char *p)
         // プリプロセッシング命令文の処理、暴力的な長さなので切り出しを検討すべき
         if (strncmp(p, "#", 1) == 0)
         {
-            cur = new_token(PPTK_PUNC, cur, p);
+            cur = new_token(PPTK_OPERATOR, cur, p);
             cur->len = 1;
             p++;
             if (!isdirective(p))
@@ -218,14 +218,14 @@ PPToken *decompose_to_pp_token(char *p)
                     {
                         if (*p == '>')
                         {
-                            cur = new_token(PPTK_HN, cur, p - len);
+                            cur = new_token(PPTK_HEADER_NAME, cur, p - len);
                             cur->len = len + 1;
                             break;
                         }
                         len++;
                         p++;
                     }
-                    if (cur->kind != PPTK_HN)
+                    if (cur->kind != PPTK_HEADER_NAME)
                     {
                         error_at(p, "不正なinclude文です");
                     }
@@ -238,14 +238,14 @@ PPToken *decompose_to_pp_token(char *p)
                     {
                         if (*p == '"')
                         {
-                            cur = new_token(PPTK_HN, cur, p - len);
+                            cur = new_token(PPTK_HEADER_NAME, cur, p - len);
                             cur->len = len + 1;
                             break;
                         }
                         len++;
                         p++;
                     }
-                    if (cur->kind != PPTK_HN)
+                    if (cur->kind != PPTK_HEADER_NAME)
                     {
                         error_at(p, "不正なinclude文です");
                     }
@@ -454,7 +454,7 @@ PPToken *decompose_to_pp_token(char *p)
                 char *op = punctuator_list[i];
                 if (strncmp(p, op, strlen(op)) == 0)
                 {
-                    cur = new_token(PPTK_PUNC, cur, op);
+                    cur = new_token(PPTK_OPERATOR, cur, op);
                     cur->len = strlen(op);
                     p += strlen(op);
                     break;
@@ -542,7 +542,7 @@ PPToken *fetch_before_endif(PPToken *tok)
     }
     while (tok)
     {
-        if (tok->next->kind == PPTK_PUNC && *tok->next->str == '#' && isdirective_idx(tok->next->next, 4))
+        if (tok->next->kind == PPTK_OPERATOR && *tok->next->str == '#' && isdirective_idx(tok->next->next, 4))
         {
             return tok;
         }
@@ -562,13 +562,13 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
 
     while (cur)
     {
-        if (cur->kind == PPTK_PUNC && *cur->str == '#')
+        if (cur->kind == PPTK_OPERATOR && *cur->str == '#')
         {
             // include
             if (isdirective_idx(cur->next, 0))
             {
                 PPToken *hn_tok = cur->next->next;
-                if (hn_tok->kind != PPTK_HN)
+                if (hn_tok->kind != PPTK_HEADER_NAME)
                 {
                     error_at(cur->str, "不正なinclude文です");
                 }
@@ -814,7 +814,7 @@ void dump_pp_token(PPToken *tok)
         case PPTK_CHAR:
             printf("%d ", cur->val);
             break;
-        case PPTK_HN:
+        case PPTK_HEADER_NAME:
             printf("%.*s ", cur->len, cur->str);
             break;
         case PPTK_IDENT:
@@ -831,7 +831,7 @@ void dump_pp_token(PPToken *tok)
                 printf("%d ", cur->val);
                 break;
             }
-        case PPTK_PUNC:
+        case PPTK_OPERATOR:
             printf("%.*s ", cur->len, cur->str);
             break;
         case PPTK_STRING:

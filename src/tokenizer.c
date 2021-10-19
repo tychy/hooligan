@@ -67,7 +67,7 @@ static Token *convertPPTokenToToken(PPToken *pptok)
     case PPTK_CHAR:
         tk = TK_CHARACTER;
         break;
-    case PPTK_HN:
+    case PPTK_HEADER_NAME:
         error_at(pptok->str, "未処理のプリプロセッシングトークン列です");
         break;
     case PPTK_IDENT:
@@ -84,7 +84,7 @@ static Token *convertPPTokenToToken(PPToken *pptok)
     case PPTK_NUMBER:
         tk = TK_NUMBER;
         break;
-    case PPTK_PUNC:
+    case PPTK_OPERATOR:
         tk = TK_OPERATOR;
         break;
     case PPTK_STRING:

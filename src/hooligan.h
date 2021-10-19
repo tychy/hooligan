@@ -38,24 +38,24 @@ typedef enum
 typedef enum
 {
     PPTK_DUMMY, // #define identで使う
-    PPTK_HN,    // header-name
-    PPTK_IDENT,
+    PPTK_HEADER_NAME,
     PPTK_NUMBER,
-    PPTK_CHAR, // character-constant
+    PPTK_CHAR,
     PPTK_STRING,
-    PPTK_PUNC, // punctuators
+    PPTK_IDENT,
+    PPTK_OPERATOR,
 } PPTokenKind;
 
 // NOTE: 予約語を先頭に持ってくる
 typedef enum
 {
-    TK_RESERVED_WORD,
-    TK_OPERATOR,
     TK_NUMBER,
+    TK_CHARACTER,
+    TK_STRING,
+    TK_OPERATOR,
+    TK_RESERVED_WORD,
     TK_IDENT,
     TK_EOF,
-    TK_STRING,
-    TK_CHARACTER,
 } TokenKind;
 
 typedef enum
