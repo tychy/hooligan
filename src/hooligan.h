@@ -12,6 +12,31 @@
 
 typedef enum
 {
+    RW_RETURN,
+    RW_IF,
+    RW_ELSE,
+    RW_FOR,
+    RW_WHILE,
+    RW_SWITCH,
+    RW_CASE,
+    RW_DEFAULT,
+    RW_SIZEOF,
+    RW_VOID,
+    RW_INT,
+    RW_FLOAT,
+    RW_CHAR,
+    RW_STRUCT,
+    RW_TYPEDEF,
+    RW_BREAK,
+    RW_CONTINUE,
+    RW_STATIC,
+    RW_EXTERN,
+    RW_ENUM,
+    RW_CONST,
+} ReservedWord;
+
+typedef enum
+{
     PPTK_DUMMY, // #define identで使う
     PPTK_HN,    // header-name
     PPTK_IDENT,
