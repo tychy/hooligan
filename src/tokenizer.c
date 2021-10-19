@@ -49,47 +49,25 @@ static ReservedWord find_reserved_word(char *p, int len)
     return -1; // Not Found
 }
 
-static Token *new_token(TokenKind kind, int val, char *str, int len)
-{
-    Token *tok = calloc(1, sizeof(Token));
-    tok->kind = kind;
-    tok->val = val;
-    tok->str = str;
-    tok->len = len;
-    return tok;
-}
-
-static Token *convertIdentToReservedWord(Token *pptok)
-{
-    TokenKind tk;
-    if (pptok->kind == TK_IDENT)
-    {
-        if (isreservedword(pptok->str, pptok->len))
-        {
-            tk = TK_RESERVED_WORD;
-            pptok->val = find_reserved_word(pptok->str, pptok->len);
-        }
-        else
-        {
-            tk = TK_IDENT;
-        }
-        Token *tok = new_token(tk, pptok->val, pptok->str, pptok->len);
-        return tok;
-    }
-    return pptok;
-}
-
 Token *tokenize(Token *pptok)
 {
-    Token head;
-    Token *cur = &head;
-    while (pptok != NULL)
+    Token *head = pptok;
+    Token *cur = head;
+    Token *before;
+    while (cur != NULL)
     {
-        cur->next = convertIdentToReservedWord(pptok);
+        if (cur->kind == TK_IDENT)
+        {
+            if (isreservedword(cur->str, cur->len))
+            {
+                cur->kind = TK_RESERVED_WORD;
+                cur->val = find_reserved_word(cur->str, cur->len);
+            }
+        }
+        before = cur;
         cur = cur->next;
-        pptok = pptok->next;
     }
-    cur->next = new_token(TK_EOF, 0, "", 0);
-    cur->next->is_float = false;
-    return head.next;
+    before->next = calloc(1, sizeof(Token));
+    before->next->kind = TK_EOF;
+    return head;
 }
