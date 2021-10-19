@@ -37,18 +37,8 @@ typedef enum
 
 typedef enum
 {
-    PPTK_DUMMY, // #define identで使う
-    PPTK_HEADER_NAME,
-    PPTK_NUMBER,
-    PPTK_CHAR,
-    PPTK_STRING,
-    PPTK_IDENT,
-    PPTK_OPERATOR,
-} PPTokenKind;
-
-// NOTE: 予約語を先頭に持ってくる
-typedef enum
-{
+    TK_DUMMY,
+    TK_HEADER_NAME,
     TK_NUMBER,
     TK_CHARACTER,
     TK_STRING,
@@ -137,7 +127,7 @@ struct Option
 
 struct PPToken
 {
-    PPTokenKind kind;
+    TokenKind kind;
     PPToken *next;
     bool is_float;
     int val;

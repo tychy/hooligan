@@ -64,13 +64,13 @@ static Token *convertPPTokenToToken(PPToken *pptok)
     TokenKind tk;
     switch (pptok->kind)
     {
-    case PPTK_CHAR:
+    case TK_CHARACTER:
         tk = TK_CHARACTER;
         break;
-    case PPTK_HEADER_NAME:
+    case TK_HEADER_NAME:
         error_at(pptok->str, "未処理のプリプロセッシングトークン列です");
         break;
-    case PPTK_IDENT:
+    case TK_IDENT:
         if (isreservedword(pptok->str, pptok->len))
         {
             tk = TK_RESERVED_WORD;
@@ -81,13 +81,13 @@ static Token *convertPPTokenToToken(PPToken *pptok)
             tk = TK_IDENT;
         }
         break;
-    case PPTK_NUMBER:
+    case TK_NUMBER:
         tk = TK_NUMBER;
         break;
-    case PPTK_OPERATOR:
+    case TK_OPERATOR:
         tk = TK_OPERATOR;
         break;
-    case PPTK_STRING:
+    case TK_STRING:
         tk = TK_STRING;
         break;
     }

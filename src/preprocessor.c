@@ -56,7 +56,7 @@ static char *preprocessing_directive_list[6] = {
 
 static int preprocessing_directive_list_count = 6;
 
-static PPToken *new_token(PPTokenKind kind, PPToken *cur, char *str)
+static PPToken *new_token(TokenKind kind, PPToken *cur, char *str)
 {
     PPToken *tok = calloc(1, sizeof(PPToken));
     tok->kind = kind;
@@ -109,7 +109,7 @@ static bool isdirective_idx(PPToken *tok, int idx)
     {
         return false;
     }
-    return (tok->kind == PPTK_IDENT &&
+    return (tok->kind == TK_IDENT &&
             strncmp(tok->str, preprocessing_directive_list[idx], strlen(preprocessing_directive_list[idx])) == 0);
 }
 
@@ -184,7 +184,7 @@ PPToken *decompose_to_pp_token(char *p)
         // プリプロセッシング命令文の処理、暴力的な長さなので切り出しを検討すべき
         if (strncmp(p, "#", 1) == 0)
         {
-            cur = new_token(PPTK_OPERATOR, cur, p);
+            cur = new_token(TK_OPERATOR, cur, p);
             cur->len = 1;
             p++;
             if (!isdirective(p))
@@ -197,7 +197,7 @@ PPToken *decompose_to_pp_token(char *p)
                 char *directive = preprocessing_directive_list[i];
                 if (strncmp(p, directive, strlen(directive)) == 0)
                 {
-                    cur = new_token(PPTK_IDENT, cur, p);
+                    cur = new_token(TK_IDENT, cur, p);
                     cur->len += strlen(directive);
                     p += strlen(directive);
                     directive_index = i;
@@ -218,14 +218,14 @@ PPToken *decompose_to_pp_token(char *p)
                     {
                         if (*p == '>')
                         {
-                            cur = new_token(PPTK_HEADER_NAME, cur, p - len);
+                            cur = new_token(TK_HEADER_NAME, cur, p - len);
                             cur->len = len + 1;
                             break;
                         }
                         len++;
                         p++;
                     }
-                    if (cur->kind != PPTK_HEADER_NAME)
+                    if (cur->kind != TK_HEADER_NAME)
                     {
                         error_at(p, "不正なinclude文です");
                     }
@@ -238,14 +238,14 @@ PPToken *decompose_to_pp_token(char *p)
                     {
                         if (*p == '"')
                         {
-                            cur = new_token(PPTK_HEADER_NAME, cur, p - len);
+                            cur = new_token(TK_HEADER_NAME, cur, p - len);
                             cur->len = len + 1;
                             break;
                         }
                         len++;
                         p++;
                     }
-                    if (cur->kind != PPTK_HEADER_NAME)
+                    if (cur->kind != TK_HEADER_NAME)
                     {
                         error_at(p, "不正なinclude文です");
                     }
@@ -272,12 +272,12 @@ PPToken *decompose_to_pp_token(char *p)
                     i++;
                     p++;
                 }
-                cur = new_token(PPTK_IDENT, cur, p_top);
+                cur = new_token(TK_IDENT, cur, p_top);
                 cur->len = i;
                 if (*p == '\n')
                 {
                     // #define identの場合
-                    cur = new_token(PPTK_DUMMY, cur, "");
+                    cur = new_token(TK_DUMMY, cur, "");
                     line++;
                     continue;
                 }
@@ -288,12 +288,12 @@ PPToken *decompose_to_pp_token(char *p)
                     if (*p == '\n')
                     {
                         // #define identの場合
-                        cur = new_token(PPTK_DUMMY, cur, "");
+                        cur = new_token(TK_DUMMY, cur, "");
                         line++;
                         break;
                     }
                 }
-                if (cur->kind == PPTK_DUMMY)
+                if (cur->kind == TK_DUMMY)
                 {
                     continue;
                 }
@@ -307,12 +307,12 @@ PPToken *decompose_to_pp_token(char *p)
                         i++;
                         p++;
                     }
-                    cur = new_token(PPTK_IDENT, cur, p_top);
+                    cur = new_token(TK_IDENT, cur, p_top);
                     cur->len = i;
                 }
                 else if (isdigit(*p))
                 {
-                    cur = new_token(PPTK_NUMBER, cur, p);
+                    cur = new_token(TK_NUMBER, cur, p);
                     cur->val = strtol(p, &p, 10);
                 }
             }
@@ -330,7 +330,7 @@ PPToken *decompose_to_pp_token(char *p)
                     i++;
                     p++;
                 }
-                cur = new_token(PPTK_IDENT, cur, p_top);
+                cur = new_token(TK_IDENT, cur, p_top);
                 cur->len = i;
             }
             else if (directive_index == 4)
@@ -346,7 +346,7 @@ PPToken *decompose_to_pp_token(char *p)
                 }
                 if (isdigit(*p))
                 {
-                    cur = new_token(PPTK_NUMBER, cur, p);
+                    cur = new_token(TK_NUMBER, cur, p);
                     cur->val = strtol(p, &p, 10);
                     line = cur->val - 1;
                 }
@@ -394,7 +394,7 @@ PPToken *decompose_to_pp_token(char *p)
                 error_at(p, "ダブルクォテーションが閉じていません");
 
             p++;
-            cur = new_token(PPTK_STRING, cur, p_top);
+            cur = new_token(TK_STRING, cur, p_top);
             cur->len = i;
 
             continue;
@@ -413,7 +413,7 @@ PPToken *decompose_to_pp_token(char *p)
             {
                 val = *p;
             }
-            cur = new_token(PPTK_CHAR, cur, p);
+            cur = new_token(TK_CHARACTER, cur, p);
             cur->val = val;
             p++;
             if (*p != '\'')
@@ -428,7 +428,7 @@ PPToken *decompose_to_pp_token(char *p)
         {
             if (strncmp(p, "__LINE__", 8) == 0)
             {
-                cur = new_token(PPTK_NUMBER, cur, p);
+                cur = new_token(TK_NUMBER, cur, p);
                 cur->val = line;
                 p += 8;
                 continue;
@@ -441,7 +441,7 @@ PPToken *decompose_to_pp_token(char *p)
                 i++;
                 p++;
             }
-            cur = new_token(PPTK_IDENT, cur, p_top);
+            cur = new_token(TK_IDENT, cur, p_top);
             cur->len = i;
             continue;
         }
@@ -454,7 +454,7 @@ PPToken *decompose_to_pp_token(char *p)
                 char *op = punctuator_list[i];
                 if (strncmp(p, op, strlen(op)) == 0)
                 {
-                    cur = new_token(PPTK_OPERATOR, cur, op);
+                    cur = new_token(TK_OPERATOR, cur, op);
                     cur->len = strlen(op);
                     p += strlen(op);
                     break;
@@ -475,7 +475,7 @@ PPToken *decompose_to_pp_token(char *p)
                 float_val = 10.0 * float_val + (*p - '0');
                 p++;
             }
-            cur = new_token(PPTK_NUMBER, cur, p);
+            cur = new_token(TK_NUMBER, cur, p);
             cur->val = val;
             if (*p == '.')
             {
@@ -542,7 +542,7 @@ PPToken *fetch_before_endif(PPToken *tok)
     }
     while (tok)
     {
-        if (tok->next->kind == PPTK_OPERATOR && *tok->next->str == '#' && isdirective_idx(tok->next->next, 4))
+        if (tok->next->kind == TK_OPERATOR && *tok->next->str == '#' && isdirective_idx(tok->next->next, 4))
         {
             return tok;
         }
@@ -562,13 +562,13 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
 
     while (cur)
     {
-        if (cur->kind == PPTK_OPERATOR && *cur->str == '#')
+        if (cur->kind == TK_OPERATOR && *cur->str == '#')
         {
             // include
             if (isdirective_idx(cur->next, 0))
             {
                 PPToken *hn_tok = cur->next->next;
-                if (hn_tok->kind != PPTK_HEADER_NAME)
+                if (hn_tok->kind != TK_HEADER_NAME)
                 {
                     error_at(cur->str, "不正なinclude文です");
                 }
@@ -636,7 +636,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                 PPToken *target = cur->next->next;
                 PPToken *replace = cur->next->next->next;
 
-                if (target->kind == PPTK_IDENT && (replace->kind == PPTK_IDENT || replace->kind == PPTK_NUMBER))
+                if (target->kind == TK_IDENT && (replace->kind == TK_IDENT || replace->kind == TK_NUMBER))
                 {
                     if (target->len == replace->len && strncmp(target->str, replace->str, target->len) == 0)
                     {
@@ -647,7 +647,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
                         error_at(cur->str, "マクロの二重定義です");
                     }
                 }
-                else if (target->kind == PPTK_IDENT && replace->kind == PPTK_DUMMY)
+                else if (target->kind == TK_IDENT && replace->kind == TK_DUMMY)
                 {
                     // #define identに対応
                     if (find_macro(target->str, target->len) != NULL)
@@ -779,7 +779,7 @@ PPToken *preprocess_directives(char *base_dir, PPToken *tok)
             }
         }
         // マクロの検索
-        if (cur->kind == PPTK_IDENT)
+        if (cur->kind == TK_IDENT)
         {
             for (;;)
             {
@@ -811,16 +811,16 @@ void dump_pp_token(PPToken *tok)
     {
         switch (cur->kind)
         {
-        case PPTK_CHAR:
+        case TK_CHARACTER:
             printf("%d ", cur->val);
             break;
-        case PPTK_HEADER_NAME:
+        case TK_HEADER_NAME:
             printf("%.*s ", cur->len, cur->str);
             break;
-        case PPTK_IDENT:
+        case TK_IDENT:
             printf("%.*s ", cur->len, cur->str);
             break;
-        case PPTK_NUMBER:
+        case TK_NUMBER:
             if (cur->is_float)
             {
                 printf("%f ", cur->float_val);
@@ -831,10 +831,10 @@ void dump_pp_token(PPToken *tok)
                 printf("%d ", cur->val);
                 break;
             }
-        case PPTK_OPERATOR:
+        case TK_OPERATOR:
             printf("%.*s ", cur->len, cur->str);
             break;
-        case PPTK_STRING:
+        case TK_STRING:
             printf("\\\"%.*s\\\" ", cur->len, cur->str);
             break;
         }
