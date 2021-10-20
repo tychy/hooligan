@@ -2,6 +2,7 @@ tmp
 *.o
 *.out
 *.s
+*.d
 .envrc
 bin/*
 !bin/hcli

@@ -1,7 +1,8 @@
-CFLAGS:=-std=c11 -no-pie 
+CFLAGS:=-std=c11 -no-pie -MMD
 LIBFLAGS:=-lhooligan -L./bin
 SOURCE:=$(wildcard src/*.c)
 OBJS:=$(SOURCE:.c=.o)
+DEPENDS:=$(SOURCE:.c=.d)
 LIBSOURCE:=$(wildcard lib/*.c)
 LIBOBJS:=$(LIBSOURCE:.c=.o)
 
@@ -9,6 +10,8 @@ LIBOBJS:=$(LIBSOURCE:.c=.o)
 first: $(OBJS) lib
 	@cc $(OBJS) $(CFLAGS) $(LIBFLAGS) -o bin/hcc1  
 $(OBJS): src/hooligan.h
+
+-include $(DEPENDS)
 
 # 第二世代以降のコンパイラの作成
 COMPILER:=

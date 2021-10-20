@@ -2,13 +2,14 @@
 
 // note: 文字数の多いものを先に登録する
 // note: 要素数を更新する
-static char *operator_list[35] = {
+static char *operator_list[36] = {
     "...",
     "++",
     "--",
     "+=",
     "-=",
     "*=",
+    "/=",
     "%=",
     "==",
     "!=",
@@ -40,7 +41,7 @@ static char *operator_list[35] = {
     "#",
 };
 
-static int operator_list_count = 35;
+static int operator_list_count = 36;
 
 static bool isoperator(char *p)
 {
