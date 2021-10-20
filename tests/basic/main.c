@@ -188,6 +188,30 @@ int testSubCharPtr()
     return 0;
 }
 
+int testDivisionAssignment()
+{
+    int a = 10;
+    int b = -50;
+    int c = -2;
+
+    a /= 2;
+    if (a != 5)
+    {
+        return 1;
+    }
+    b /= c;
+    if (b != 25)
+    {
+        return 1;
+    }
+    b /= 10;
+    if (b != 2)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
 
@@ -212,6 +236,10 @@ int main()
         return 1;
     }
     if (testSubCharPtr() != 0)
+    {
+        return 1;
+    }
+    if (testDivisionAssignment() != 0)
     {
         return 1;
     }
