@@ -625,8 +625,30 @@ static Node *defl()
 
             if (consume("{"))
             {
-                Node *initial = new_node_single(ND_INIT, expr());
-                Node *cur = initial;
+                Node *initial;
+                Node *cur;
+                Node *first;
+                if (consume("}"))
+                {
+                    // 空の初期化子のケース e.x. int a[10] = {}
+                    // TODO 空でないケースとほぼ一緒なので要リファクタ
+                    if (ty->array_size == -1)
+                    {
+                        error("配列のサイズが決定されていません");
+                    }
+                    initial = new_node_single(ND_INIT, new_node_num(0));
+                    cur = initial;
+                    for (int i = 1; i < ty->array_size; i++)
+                    {
+                        cur->next = new_node_single(ND_INIT, new_node_num(0));
+                        cur = cur->next;
+                    }
+                    Var *lvar = def_var(ident, ty, true, false);
+                    Node *node = new_node_var(lvar);
+                    return new_node_assign(node, initial);
+                }
+                initial = new_node_single(ND_INIT, expr());
+                cur = initial;
                 int cnt = 1;
                 for (;;)
                 {
