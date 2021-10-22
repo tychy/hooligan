@@ -616,19 +616,15 @@ static Node *defl()
         }
         if (consume("="))
         {
-            Var *lvar;
-            Node *node;
-            Node *initial;
-            Node *cur;
-            Node start;
+            Node head;
+            Node *cur = &head;
             if (ty->ty != ARRAY)
             {
-                initial = assign();
+                cur->next = assign();
             }
             else if (consume("{"))
             {
                 int cnt = 0;
-                cur = &start;
                 while (!consume("}"))
                 {
                     if (ty->array_size != -1 && cnt >= ty->array_size)
@@ -658,7 +654,6 @@ static Node *defl()
                         cur = cur->next;
                     }
                 }
-                initial = start.next;
             }
             else if (cur_token->kind == TK_STRING)
             {
@@ -667,8 +662,8 @@ static Node *defl()
                     error("char型の配列が必要です");
                 }
                 ty->array_size = cur_token->len + 1;
-                initial = new_node_single(ND_INIT, new_node_num(cur_token->str[0]));
-                cur = initial;
+                cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[0]));
+                cur = cur->next;
                 int cnt = 1;
                 for (int i = 1; i < cur_token->len; i++)
                 {
@@ -679,9 +674,9 @@ static Node *defl()
                 cur = cur->next;
                 cur_token = cur_token->next;
             }
-            lvar = def_var(ident, ty, true, false);
-            node = new_node_var(lvar);
-            return new_node_assign(node, initial);
+            Var *lvar = def_var(ident, ty, true, false);
+            Node *node = new_node_var(lvar);
+            return new_node_assign(node, head.next);
         }
         else
         {
