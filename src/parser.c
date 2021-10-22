@@ -541,56 +541,20 @@ static Node *defl()
         error("void型の変数は定義できません");
     }
 
-    if (is_extern || is_static)
+    Token *ident = consume_ident();
+    if (!ident)
     {
-        Token *ident = expect_ident();
-        if (consume("["))
-        {
-            int size = expect_number();
-            ty = new_type_array(ty, size);
-            expect("]");
-        }
-
-        if (is_static)
-        {
-            int val = 0;
-            if (consume("="))
-            {
-                val = expect_number();
-            }
-            add_static_local_var(ident, ty, val);
-        }
-        def_var(ident, ty, !is_extern, is_static);
-        return new_node_nop();
-    }
-
-    if (ty->ty == STRUCT)
-    {
-        Token *ident = consume_ident();
-
-        if (ident)
-        {
-            if (consume("["))
-            {
-                int size = expect_number();
-                ty = new_type_array(ty, size);
-                expect("]");
-            }
-            // struct {int x;} a;
-            // struct hoge {int x;} a;
-            // struct hoge a;
-            Var *lvar = def_var(ident, ty, true, false);
-            return new_node_var(lvar);
-        }
-        else
+        if (ty->ty == STRUCT)
         {
             // struct hoge{int x;};
             // struct {int x;};
             return new_node_nop();
         }
+        else
+        {
+            error1("識別子ではありません、got: %s", cur_token->str);
+        }
     }
-
-    Token *ident = expect_ident();
     if (consume("["))
     {
         int size;
@@ -605,6 +569,24 @@ static Node *defl()
         }
         ty = new_type_array(ty, size);
     }
+
+    if (is_extern || is_static)
+    {
+        if (is_static)
+        {
+            int val = 0;
+            if (consume("="))
+            {
+                val = expect_number();
+            }
+            add_static_local_var(ident, ty, val);
+        }
+        def_var(ident, ty, !is_extern, is_static);
+        return new_node_nop();
+    }
+
+    Node *node;
+    Node *right;
     if (consume("="))
     {
         Node head;
@@ -666,14 +648,15 @@ static Node *defl()
             cur_token = cur_token->next;
         }
         Var *lvar = def_var(ident, ty, true, false);
-        Node *node = new_node_var(lvar);
-        return new_node_assign(node, head.next);
+        node = new_node_var(lvar);
+        node = new_node_assign(node, head.next);
     }
     else
     {
         Var *lvar = def_var(ident, ty, true, false);
-        return new_node_var(lvar);
+        node = new_node_var(lvar);
     }
+    return node;
 }
 
 static Node *stmt()
