@@ -1,5 +1,5 @@
 CFLAGS:=-std=c11 -no-pie -MMD
-LIBFLAGS:=-lhooligan -L./bin
+LIBFLAGS:=-l hooligan -L./bin
 SOURCE:=$(wildcard src/*.c)
 OBJS:=$(SOURCE:.c=.o)
 DEPENDS:=$(SOURCE:.c=.d)
