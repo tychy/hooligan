@@ -25,7 +25,7 @@ else
 endif
 selfhost: first
 	@$(COMPILER) $(SOURCE) && \
-	cc ./*.s $(LIBFLAGS) $(CFLAGS) $(LIBFLAGS) -o $(OUTPUT) && \
+	cc ./*.s $(CFLAGS) $(LIBFLAGS) -o $(OUTPUT) && \
 	rm *.s
 
 lib: $(LIBOBJS)
