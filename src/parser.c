@@ -508,33 +508,23 @@ static Node *decl_type()
     return new_node_nop();
 }
 
-// これやばい、いいリファクタがあったら教えてほしい
 static Node *defl()
 {
     if (consume_rw(RW_TYPEDEF))
     {
         return decl_type();
     }
-    else if (consume_rw(RW_EXTERN))
-    {
-        bool is_extern = consume_rw(RW_EXTERN);
-        Type *ty = consume_type();
 
-        if (!ty)
-        {
-            error("定義式に型がありません");
-        }
-        Token *ident = expect_ident();
-        if (consume("["))
-        {
-            int size = expect_number();
-            ty = new_type_array(ty, size);
-            expect("]");
-        }
-        def_var(ident, ty, false, false);
-        return new_node_nop();
+    bool is_extern = consume_rw(RW_EXTERN);
+    bool is_static = consume_rw(RW_STATIC);
+    is_extern = is_extern || consume_rw(RW_EXTERN);
+    is_static = is_static || consume_rw(RW_STATIC);
+    if (is_extern && is_static)
+    {
+        error("externはnon-staticな文脈でのみ使用できます");
     }
-    else if (consume_rw(RW_STATIC))
+
+    if (is_extern || is_static)
     {
         Type *ty = consume_type();
 
@@ -553,136 +543,142 @@ static Node *defl()
             ty = new_type_array(ty, size);
             expect("]");
         }
-        int val = 0;
-        if (consume("="))
+
+        if (is_extern)
         {
-            val = expect_number();
+            def_var(ident, ty, false, false);
         }
-        Var *svar = def_static_var(ident, ty, true, val);
+        else if (is_static)
+        {
+            int val = 0;
+            if (consume("="))
+            {
+                val = expect_number();
+            }
+            def_static_var(ident, ty, true, val);
+        }
         return new_node_nop();
     }
-    else
+
+    Type *ty = consume_type();
+
+    if (!ty)
     {
-        Type *ty = consume_type();
+        return expr();
+    }
+    else if (ty->ty == VOID)
+    {
+        error("void型の変数は定義できません");
+    }
+    if (ty->ty == STRUCT)
+    {
+        Token *ident = consume_ident();
 
-        if (!ty)
+        if (ident)
         {
-            return expr();
-        }
-        else if (ty->ty == VOID)
-        {
-            error("void型の変数は定義できません");
-        }
-        if (ty->ty == STRUCT)
-        {
-            Token *ident = consume_ident();
-
-            if (ident)
+            if (consume("["))
             {
-                if (consume("["))
-                {
-                    int size = expect_number();
-                    ty = new_type_array(ty, size);
-                    expect("]");
-                }
-                // struct {int x;} a;
-                // struct hoge {int x;} a;
-                // struct hoge a;
-                Var *lvar = def_var(ident, ty, true, false);
-                return new_node_var(lvar);
-            }
-            else
-            {
-                // struct hoge{int x;};
-                // struct {int x;};
-                return new_node_nop();
-            }
-        }
-
-        Token *ident = expect_ident();
-        if (consume("["))
-        {
-            int size;
-            if (consume("]"))
-            {
-                size = -1; // e.x. int array[] = {1, 2, 3};
-            }
-            else
-            {
-                size = expect_number();
+                int size = expect_number();
+                ty = new_type_array(ty, size);
                 expect("]");
             }
-            ty = new_type_array(ty, size);
-        }
-        if (consume("="))
-        {
-            Node head;
-            Node *cur = &head;
-            if (ty->ty != ARRAY)
-            {
-                cur->next = assign();
-            }
-            else if (consume("{"))
-            {
-                int cnt = 0;
-                while (!consume("}"))
-                {
-                    if (ty->array_size != -1 && cnt >= ty->array_size)
-                    {
-                        expr();
-                        consume(",");
-                        continue;
-                    }
-                    cur->next = new_node_single(ND_INIT, expr());
-                    cur = cur->next;
-                    cnt++;
-                    consume(",");
-                }
-                if (ty->array_size == -1 && cnt == 0)
-                {
-                    error("配列のサイズが決定されていません");
-                }
-                if (ty->array_size == -1)
-                {
-                    ty->array_size = cnt;
-                }
-                else
-                {
-                    for (; cnt < ty->array_size; cnt++)
-                    {
-                        cur->next = new_node_single(ND_INIT, new_node_num(0));
-                        cur = cur->next;
-                    }
-                }
-            }
-            else if (cur_token->kind == TK_STRING)
-            {
-                if (!(ty->ptr_to->ty == CHAR))
-                {
-                    error("char型の配列が必要です");
-                }
-                ty->array_size = cur_token->len + 1;
-                cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[0]));
-                cur = cur->next;
-                int cnt = 1;
-                for (int i = 1; i < cur_token->len; i++)
-                {
-                    cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[i]));
-                    cur = cur->next;
-                }
-                cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
-                cur = cur->next;
-                cur_token = cur_token->next;
-            }
-            Var *lvar = def_var(ident, ty, true, false);
-            Node *node = new_node_var(lvar);
-            return new_node_assign(node, head.next);
-        }
-        else
-        {
+            // struct {int x;} a;
+            // struct hoge {int x;} a;
+            // struct hoge a;
             Var *lvar = def_var(ident, ty, true, false);
             return new_node_var(lvar);
         }
+        else
+        {
+            // struct hoge{int x;};
+            // struct {int x;};
+            return new_node_nop();
+        }
+    }
+
+    Token *ident = expect_ident();
+    if (consume("["))
+    {
+        int size;
+        if (consume("]"))
+        {
+            size = -1; // e.x. int array[] = {1, 2, 3};
+        }
+        else
+        {
+            size = expect_number();
+            expect("]");
+        }
+        ty = new_type_array(ty, size);
+    }
+    if (consume("="))
+    {
+        Node head;
+        Node *cur = &head;
+        if (ty->ty != ARRAY)
+        {
+            cur->next = assign();
+        }
+        else if (consume("{"))
+        {
+            int cnt = 0;
+            while (!consume("}"))
+            {
+                if (ty->array_size != -1 && cnt >= ty->array_size)
+                {
+                    expr();
+                    consume(",");
+                    continue;
+                }
+                cur->next = new_node_single(ND_INIT, expr());
+                cur = cur->next;
+                cnt++;
+                consume(",");
+            }
+            if (ty->array_size == -1 && cnt == 0)
+            {
+                error("配列のサイズが決定されていません");
+            }
+            if (ty->array_size == -1)
+            {
+                ty->array_size = cnt;
+            }
+            else
+            {
+                for (; cnt < ty->array_size; cnt++)
+                {
+                    cur->next = new_node_single(ND_INIT, new_node_num(0));
+                    cur = cur->next;
+                }
+            }
+        }
+        else if (cur_token->kind == TK_STRING)
+        {
+            if (!(ty->ptr_to->ty == CHAR))
+            {
+                error("char型の配列が必要です");
+            }
+            ty->array_size = cur_token->len + 1;
+            cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[0]));
+            cur = cur->next;
+            int cnt = 1;
+            for (int i = 1; i < cur_token->len; i++)
+            {
+                cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[i]));
+                cur = cur->next;
+            }
+            cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
+            cur = cur->next;
+            cur_token = cur_token->next;
+        }
+        Var *lvar = def_var(ident, ty, true, false);
+        Node *node = new_node_var(lvar);
+        return new_node_assign(node, head.next);
+    }
+    else
+    {
+        Var *lvar = def_var(ident, ty, true, false);
+        return new_node_var(lvar);
     }
 }
 
