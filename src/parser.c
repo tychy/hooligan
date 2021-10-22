@@ -616,10 +616,12 @@ static Node *defl()
         }
         if (consume("="))
         {
+            Var *lvar;
+            Node *node;
             if (ty->ty != ARRAY)
             {
-                Var *lvar = def_var(ident, ty, true, false);
-                Node *node = new_node_var(lvar);
+                lvar = def_var(ident, ty, true, false);
+                node = new_node_var(lvar);
                 return new_node_assign(node, assign());
             }
 
@@ -643,8 +645,8 @@ static Node *defl()
                         cur->next = new_node_single(ND_INIT, new_node_num(0));
                         cur = cur->next;
                     }
-                    Var *lvar = def_var(ident, ty, true, false);
-                    Node *node = new_node_var(lvar);
+                    lvar = def_var(ident, ty, true, false);
+                    node = new_node_var(lvar);
                     return new_node_assign(node, initial);
                 }
                 initial = new_node_single(ND_INIT, expr());
@@ -688,8 +690,8 @@ static Node *defl()
                         cur = cur->next;
                     }
                 }
-                Var *lvar = def_var(ident, ty, true, false);
-                Node *node = new_node_var(lvar);
+                lvar = def_var(ident, ty, true, false);
+                node = new_node_var(lvar);
                 return new_node_assign(node, initial);
             }
             else if (cur_token->kind == TK_STRING)
@@ -699,8 +701,8 @@ static Node *defl()
                     error("char型の配列が必要です");
                 }
                 ty->array_size = cur_token->len + 1;
-                Var *lvar = def_var(ident, ty, true, false);
-                Node *node = new_node_var(lvar);
+                lvar = def_var(ident, ty, true, false);
+                node = new_node_var(lvar);
                 Node *initial = new_node_single(ND_INIT, new_node_num(cur_token->str[0]));
                 Node *cur = initial;
                 int cnt = 1;
