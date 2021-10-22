@@ -570,28 +570,18 @@ static Node *defl()
         ty = new_type_array(ty, size);
     }
 
-    if (is_extern || is_static)
-    {
-        if (is_static)
-        {
-            int val = 0;
-            if (consume("="))
-            {
-                val = expect_number();
-            }
-            add_static_local_var(ident, ty, val);
-        }
-        def_var(ident, ty, !is_extern, is_static);
-        return new_node_nop();
-    }
-
     Node *node;
     Node *rval = NULL;
+    int val = 0;
     if (consume("="))
     {
         Node head;
         Node *cur = &head;
-        if (ty->ty != ARRAY)
+        if (is_static)
+        {
+            val = expect_number();
+        }
+        else if (ty->ty != ARRAY)
         {
             cur->next = assign();
         }
@@ -611,21 +601,18 @@ static Node *defl()
                 cnt++;
                 consume(",");
             }
-            if (ty->array_size == -1 && cnt == 0)
-            {
-                error("配列のサイズが決定されていません");
-            }
             if (ty->array_size == -1)
             {
+                if (cnt == 0)
+                {
+                    error("配列のサイズが決定されていません");
+                }
                 ty->array_size = cnt;
             }
-            else
+            for (; cnt < ty->array_size; cnt++)
             {
-                for (; cnt < ty->array_size; cnt++)
-                {
-                    cur->next = new_node_single(ND_INIT, new_node_num(0));
-                    cur = cur->next;
-                }
+                cur->next = new_node_single(ND_INIT, new_node_num(0));
+                cur = cur->next;
             }
         }
         else if (cur_token->kind == TK_STRING)
@@ -635,21 +622,23 @@ static Node *defl()
                 error("char型の配列が必要です");
             }
             ty->array_size = cur_token->len + 1;
-            cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[0]));
-            cur = cur->next;
-            int cnt = 1;
-            for (int i = 1; i < cur_token->len; i++)
+            for (int i = 0; i < cur_token->len; i++)
             {
                 cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[i]));
                 cur = cur->next;
             }
             cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
-            cur = cur->next;
             cur_token = cur_token->next;
         }
         rval = head.next;
     }
-    Var *lvar = def_var(ident, ty, true, false);
+    Var *lvar = def_var(ident, ty, !is_extern, is_static);
+    if (is_static)
+    {
+        add_static_local_var(ident, ty, val);
+        return new_node_nop();
+    }
+
     node = new_node_var(lvar);
     if (rval)
     {
