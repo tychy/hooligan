@@ -715,10 +715,7 @@ static Node *defl()
                 cur_token = cur_token->next;
                 return new_node_assign(node, initial);
             }
-            else
-            {
-                error("不正な初期化式です");
-            }
+            
         }
         else
         {
