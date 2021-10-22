@@ -586,7 +586,7 @@ static Node *defl()
     }
 
     Node *node;
-    Node *right;
+    Node *rval = NULL;
     if (consume("="))
     {
         Node head;
@@ -647,14 +647,13 @@ static Node *defl()
             cur = cur->next;
             cur_token = cur_token->next;
         }
-        Var *lvar = def_var(ident, ty, true, false);
-        node = new_node_var(lvar);
-        node = new_node_assign(node, head.next);
+        rval = head.next;
     }
-    else
+    Var *lvar = def_var(ident, ty, true, false);
+    node = new_node_var(lvar);
+    if (rval)
     {
-        Var *lvar = def_var(ident, ty, true, false);
-        node = new_node_var(lvar);
+        node = new_node_assign(node, rval);
     }
     return node;
 }
