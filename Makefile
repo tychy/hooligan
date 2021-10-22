@@ -30,7 +30,7 @@ selfhost: first
 
 lib: $(LIBOBJS)
 	@cc -shared -std=c11 -o bin/libhooligan.so $(LIBOBJS)
-$(LIBOBJS):
+$(LIBOBJS): src/hooligan.h
 
 clean:
 	@rm -f bin/hcc* *.o src/*.o *~ tmp* *.s a.out core.* bin/*.so
