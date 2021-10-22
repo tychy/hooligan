@@ -620,59 +620,31 @@ static Node *defl()
             Node *node;
             Node *initial;
             Node *cur;
+            Node start;
             if (ty->ty != ARRAY)
             {
                 initial = assign();
             }
             else if (consume("{"))
             {
-                if (consume("}"))
+                int cnt = 0;
+                cur = &start;
+                while (!consume("}"))
                 {
-                    // 空の初期化子のケース e.x. int a[10] = {}
-                    // TODO 空でないケースとほぼ一緒なので要リファクタ
-                    if (ty->array_size == -1)
+                    if (ty->array_size != -1 && cnt >= ty->array_size)
                     {
-                        error("配列のサイズが決定されていません");
+                        expr();
+                        consume(",");
+                        continue;
                     }
-                    initial = new_node_single(ND_INIT, new_node_num(0));
-                    cur = initial;
-                    for (int i = 1; i < ty->array_size; i++)
-                    {
-                        cur->next = new_node_single(ND_INIT, new_node_num(0));
-                        cur = cur->next;
-                    }
-                    lvar = def_var(ident, ty, true, false);
-                    node = new_node_var(lvar);
-                    return new_node_assign(node, initial);
+                    cur->next = new_node_single(ND_INIT, expr());
+                    cur = cur->next;
+                    cnt++;
+                    consume(",");
                 }
-                initial = new_node_single(ND_INIT, expr());
-                cur = initial;
-                int cnt = 1;
-                for (;;)
+                if (ty->array_size == -1 && cnt == 0)
                 {
-                    if (consume(","))
-                    {
-                        if (consume("}"))
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            if (ty->array_size != -1 && cnt >= ty->array_size)
-                            {
-                                expr();
-                                continue;
-                            }
-                            cur->next = new_node_single(ND_INIT, expr());
-                            cur = cur->next;
-                            cnt++;
-                        }
-                    }
-                    else
-                    {
-                        expect("}");
-                        break;
-                    }
+                    error("配列のサイズが決定されていません");
                 }
                 if (ty->array_size == -1)
                 {
@@ -686,6 +658,7 @@ static Node *defl()
                         cur = cur->next;
                     }
                 }
+                initial = start.next;
             }
             else if (cur_token->kind == TK_STRING)
             {
