@@ -524,18 +524,25 @@ static Node *defl()
         error("externはnon-staticな文脈でのみ使用できます");
     }
 
-    if (is_extern || is_static)
+    Type *ty = consume_type();
+    if (!ty)
     {
-        Type *ty = consume_type();
-
-        if (!ty)
+        if (is_static || is_extern)
         {
             error("定義式に型がありません");
         }
-        else if (ty->ty == VOID)
+        else
         {
-            error("void型の変数は定義できません");
+            return expr();
         }
+    }
+    else if (ty->ty == VOID)
+    {
+        error("void型の変数は定義できません");
+    }
+
+    if (is_extern || is_static)
+    {
         Token *ident = expect_ident();
         if (consume("["))
         {
@@ -544,32 +551,19 @@ static Node *defl()
             expect("]");
         }
 
-        if (is_extern)
-        {
-            def_var(ident, ty, false, false);
-        }
-        else if (is_static)
+        if (is_static)
         {
             int val = 0;
             if (consume("="))
             {
                 val = expect_number();
             }
-            def_static_var(ident, ty, true, val);
+            add_static_local_var(ident, ty, val);
         }
+        def_var(ident, ty, !is_extern, is_static);
         return new_node_nop();
     }
 
-    Type *ty = consume_type();
-
-    if (!ty)
-    {
-        return expr();
-    }
-    else if (ty->ty == VOID)
-    {
-        error("void型の変数は定義できません");
-    }
     if (ty->ty == STRUCT)
     {
         Token *ident = consume_ident();
