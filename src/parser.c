@@ -618,6 +618,8 @@ static Node *defl()
         {
             Var *lvar;
             Node *node;
+            Node *initial;
+            Node *cur;
             if (ty->ty != ARRAY)
             {
                 lvar = def_var(ident, ty, true, false);
@@ -627,9 +629,6 @@ static Node *defl()
 
             if (consume("{"))
             {
-                Node *initial;
-                Node *cur;
-                Node *first;
                 if (consume("}"))
                 {
                     // 空の初期化子のケース e.x. int a[10] = {}
@@ -703,8 +702,8 @@ static Node *defl()
                 ty->array_size = cur_token->len + 1;
                 lvar = def_var(ident, ty, true, false);
                 node = new_node_var(lvar);
-                Node *initial = new_node_single(ND_INIT, new_node_num(cur_token->str[0]));
-                Node *cur = initial;
+                initial = new_node_single(ND_INIT, new_node_num(cur_token->str[0]));
+                cur = initial;
                 int cnt = 1;
                 for (int i = 1; i < cur_token->len; i++)
                 {
