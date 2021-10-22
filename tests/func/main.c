@@ -218,6 +218,33 @@ int testFuncHasVariableLengthArguments()
     return 0;
 }
 
+int pass_by_val(int a)
+{
+    a += 100;
+    return a;
+}
+
+int pass_by_ref(int *a)
+{
+    *a += 100;
+    return a;
+}
+
+int testCallByReference()
+{
+    int a = 100;
+    pass_by_val(a);
+    if (a != 100)
+    {
+        return 1;
+    }
+    pass_by_ref(&a);
+    if (a != 200)
+    {
+        return 1;
+    }
+}
+
 int main()
 {
     if (testFunc() != 0)

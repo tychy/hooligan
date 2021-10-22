@@ -3,6 +3,7 @@ int testArrayInit()
     int x[3] = {1, 2, 3};
     int y[4] = {1, 2, 3};
     int z[3] = {1, 2, 3, 4, 5};
+    int xyz[15] = {};
     if (x[0] != 1)
     {
         return 1;
@@ -35,6 +36,13 @@ int testArrayInit()
     if (z[2] != 3)
     {
         return 1;
+    }
+    for (int i = 0; i < 15; i++)
+    {
+        if (xyz[i] != 0)
+        {
+            return 1;
+        }
     }
     return 0;
 }
