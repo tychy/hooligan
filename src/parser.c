@@ -580,6 +580,7 @@ static Node *defl()
         if (is_static)
         {
             val = expect_number();
+            cur->next = NULL;
         }
         else if (ty->ty != ARRAY)
         {
@@ -636,7 +637,6 @@ static Node *defl()
     if (is_static)
     {
         add_static_local_var(ident, ty, val);
-        return new_node_nop();
     }
 
     node = new_node_var(lvar);
