@@ -860,20 +860,8 @@ ILProgram *generate_inter_language(Node **nodes)
         printf("\x1b[33mSTART GENERATING\x1b[0m\n");
     }
     int i = 0;
-    int func_count = 0;
     while (nodes[i] != NULL)
     {
-        if (nodes[i]->kind == ND_FUNCDEF)
-        {
-            if (func_count >= 200)
-            {
-                error("関数が多すぎます");
-            }
-            funcs[func_count] = nodes[i];
-            func_count++;
-            i++;
-            continue;
-        }
         gen(nodes[i]);
         i++;
     }
@@ -926,16 +914,12 @@ ILProgram *generate_inter_language(Node **nodes)
         s = s->next;
     }
 
-    for (int j = 0; j < func_count; j++)
-    {
-        gen(funcs[j]);
-    }
     if (opts->is_verbose)
     {
         printf("\x1b[33mEND GENERATING\x1b[0m\n");
     }
 
-    for (int i = 0; i < 200; i++) // 後処理
+    for (int i = 0; i < 500; i++) // 後処理
     {
         nodes[i] = NULL;
     }
