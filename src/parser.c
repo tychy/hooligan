@@ -642,11 +642,6 @@ static Node *defl()
         rval = head.next;
     }
     Var *lvar = def_var(ident, ty, !is_extern, is_static);
-    if (is_static)
-    {
-        add_static_local_var(ident, ty, val);
-    }
-
     Node *node = new_node_var(lvar);
     if (rval)
     {

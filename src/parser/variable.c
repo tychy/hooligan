@@ -35,16 +35,3 @@ static Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static)
     new_var->label = ctx->scope->label;
     return new_var;
 }
-
-static StaticVar *add_static_local_var(Token *tok, Type *ty, int init_val)
-{
-    StaticVar *new_static = calloc(1, sizeof(StaticVar));
-    new_static->length = tok->len;
-    new_static->name = tok->str;
-    new_static->ty = ty;
-    new_static->next = ctx->statics;
-    new_static->label = ctx->scope->label;
-    new_static->init_val = init_val;
-    ctx->statics = new_static;
-    return new_static;
-}

@@ -843,33 +843,6 @@ ILProgram *generate_inter_language(Node **nodes)
         gen(nodes[i]);
         i++;
     }
-    StaticVar *sv = ctx->statics;
-
-    while (sv)
-    {
-        new_il_sentence_raw_to_data("L%.*s.%d:", sv->length, sv->name, sv->label);
-        switch (sv->ty->ty)
-        {
-        case CHAR:
-            new_il_sentence_raw_to_data("  .byte %d", sv->init_val);
-            break;
-        case INT:
-            new_il_sentence_raw_to_data("  .long %d", sv->init_val);
-            break;
-        case PTR:
-            new_il_sentence_raw_to_data("  .quad %d", sv->init_val);
-            break;
-        case ARRAY:
-        case STRUCT:
-            new_il_sentence_raw_to_data("  .zero  %d", calc_bytes(sv->ty));
-            break;
-        default:
-            error("型がサポートされていません");
-        }
-
-        sv = sv->next;
-    }
-
     if (opts->is_verbose)
     {
         printf("\x1b[33mEND GENERATING\x1b[0m\n");

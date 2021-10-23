@@ -120,7 +120,6 @@ typedef struct Token Token;
 typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
-typedef struct StaticVar StaticVar;
 typedef struct Member Member;
 typedef struct Scope Scope;
 typedef struct Context Context;
@@ -277,16 +276,6 @@ struct Var
     bool is_const;
 };
 
-struct StaticVar
-{
-    char *name;
-    int length;
-    int label;
-    Type *ty;
-    int init_val;
-    StaticVar *next;
-};
-
 struct Member
 {
     Member *next;
@@ -314,7 +303,6 @@ struct Context
 {
     int scope_serial_num; // serial number for scope
     Scope *scope;
-    StaticVar *statics;
     Var *functions;
     int data_label;
     int offset; // for local variable
