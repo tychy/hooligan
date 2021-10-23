@@ -511,6 +511,66 @@ static Node *decl_type()
     return new_node_nop();
 }
 
+static Node *right_value(Type *lty)
+{
+    Node *node = NULL;
+    if (consume("="))
+    {
+        Node head;
+        Node *cur = &head;
+        if (lty->ty != ARRAY)
+        {
+            cur->next = assign();
+        }
+        else if (consume("{"))
+        {
+            int cnt = 0;
+            while (!consume("}"))
+            {
+                if (lty->array_size != -1 && cnt >= lty->array_size)
+                {
+                    expr();
+                    consume(",");
+                    continue;
+                }
+                cur->next = new_node_single(ND_INIT, expr());
+                cur = cur->next;
+                cnt++;
+                consume(",");
+            }
+            if (lty->array_size == -1)
+            {
+                if (cnt == 0)
+                {
+                    error("配列のサイズが決定されていません");
+                }
+                lty->array_size = cnt;
+            }
+            for (; cnt < lty->array_size; cnt++)
+            {
+                cur->next = new_node_single(ND_INIT, new_node_num(0));
+                cur = cur->next;
+            }
+        }
+        else if (cur_token->kind == TK_STRING)
+        {
+            if (!(lty->ptr_to->ty == CHAR))
+            {
+                error("char型の配列が必要です");
+            }
+            lty->array_size = cur_token->len + 1;
+            for (int i = 0; i < cur_token->len; i++)
+            {
+                cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[i]));
+                cur = cur->next;
+            }
+            cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
+            cur_token = cur_token->next;
+        }
+        node = head.next;
+    }
+    return node;
+}
 static Node *defl()
 {
     if (consume_rw(RW_TYPEDEF))
@@ -579,63 +639,7 @@ static Node *defl()
         return node;
     }
 
-    Node *rval = NULL;
-    int val = 0;
-    if (consume("="))
-    {
-        Node head;
-        Node *cur = &head;
-        if (ty->ty != ARRAY)
-        {
-            cur->next = assign();
-        }
-        else if (consume("{"))
-        {
-            int cnt = 0;
-            while (!consume("}"))
-            {
-                if (ty->array_size != -1 && cnt >= ty->array_size)
-                {
-                    expr();
-                    consume(",");
-                    continue;
-                }
-                cur->next = new_node_single(ND_INIT, expr());
-                cur = cur->next;
-                cnt++;
-                consume(",");
-            }
-            if (ty->array_size == -1)
-            {
-                if (cnt == 0)
-                {
-                    error("配列のサイズが決定されていません");
-                }
-                ty->array_size = cnt;
-            }
-            for (; cnt < ty->array_size; cnt++)
-            {
-                cur->next = new_node_single(ND_INIT, new_node_num(0));
-                cur = cur->next;
-            }
-        }
-        else if (cur_token->kind == TK_STRING)
-        {
-            if (!(ty->ptr_to->ty == CHAR))
-            {
-                error("char型の配列が必要です");
-            }
-            ty->array_size = cur_token->len + 1;
-            for (int i = 0; i < cur_token->len; i++)
-            {
-                cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[i]));
-                cur = cur->next;
-            }
-            cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
-            cur_token = cur_token->next;
-        }
-        rval = head.next;
-    }
+    Node *rval = right_value(ty);
     Var *lvar = def_var(ident, ty, !is_extern, is_static);
     Node *node = new_node_var(lvar);
     if (rval)
@@ -932,62 +936,7 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
     }
     Var *gvar = def_var(ident, ty, false, is_static);
 
-    Node *rval = NULL;
-    if (consume("="))
-    {
-        Node head;
-        Node *cur = &head;
-        if (ty->ty != ARRAY)
-        {
-            cur->next = assign();
-        }
-        else if (consume("{"))
-        {
-            int cnt = 0;
-            while (!consume("}"))
-            {
-                if (ty->array_size != -1 && cnt >= ty->array_size)
-                {
-                    expr();
-                    consume(",");
-                    continue;
-                }
-                cur->next = new_node_single(ND_INIT, expr());
-                cur = cur->next;
-                cnt++;
-                consume(",");
-            }
-            if (ty->array_size == -1)
-            {
-                if (cnt == 0)
-                {
-                    error("配列のサイズが決定されていません");
-                }
-                ty->array_size = cnt;
-            }
-            for (; cnt < ty->array_size; cnt++)
-            {
-                cur->next = new_node_single(ND_INIT, new_node_num(0));
-                cur = cur->next;
-            }
-        }
-        else if (cur_token->kind == TK_STRING)
-        {
-            if (!(ty->ptr_to->ty == CHAR))
-            {
-                error("char型の配列が必要です");
-            }
-            ty->array_size = cur_token->len + 1;
-            for (int i = 0; i < cur_token->len; i++)
-            {
-                cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[i]));
-                cur = cur->next;
-            }
-            cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
-            cur_token = cur_token->next;
-        }
-        rval = head.next;
-    }
+    Node *rval = right_value(ty);
     node->gvar_init = rval;
     node->label = gvar->label;
     return node;
