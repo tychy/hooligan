@@ -928,7 +928,6 @@ ILProgram *generate_inter_language(Node **nodes)
         s = s->next;
     }
 
-    new_il_sentence_raw(".text");
     for (int j = 0; j < func_count; j++)
     {
         gen(funcs[j]);

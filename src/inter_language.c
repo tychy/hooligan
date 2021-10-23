@@ -69,7 +69,7 @@ void generate_intel_syntax_assembly(ILProgram *program)
         st = st->next;
     }
 
-    // fprintf(output, ".text");
+    fprintf(output, ".text\n");
     st = program->text;
     while (st)
     {
