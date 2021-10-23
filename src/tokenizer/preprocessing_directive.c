@@ -17,7 +17,7 @@ static bool isdirective(char *p)
     for (int i = 0; i < preprocessing_directive_list_count; i++)
     {
         char *str = preprocessing_directive_list[i];
-        if (strncmp(p, str, strlen(str)) == 0)
+        if (strncmp(p, str, h_strlen(str)) == 0)
         {
             return true;
         }

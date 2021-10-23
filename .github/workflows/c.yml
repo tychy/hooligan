@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SHELLSPEC_VERSION: 0.28.1
+      LD_LIBRARY_PATH: "./bin"
     steps:
       - uses: actions/checkout@v2
       - name: install dependencies

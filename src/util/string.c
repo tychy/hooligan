@@ -2,7 +2,7 @@
 
 char *join_str(char *pre, char *post)
 {
-    char *res = insert_str(pre, strlen(pre), post);
+    char *res = insert_str(pre, h_strlen(pre), post);
     return res;
 }
 
@@ -35,7 +35,7 @@ char *read_file(char *path)
 // 文字列をファイル名と解釈し拡張子を取り除く
 char *remove_extension(char *p)
 {
-    int preLength = strlen(p);
+    int preLength = h_strlen(p);
     if (strchr(p, '.') != NULL)
     {
         preLength = strchr(p, '.') - p;
@@ -53,7 +53,7 @@ char *extract_filename(char *p)
     {
         preLength = strrchr(p, '/') - p + 1;
     }
-    int postLength = strlen(p) - preLength;
+    int postLength = h_strlen(p) - preLength;
     char *p1 = calloc(1, preLength + 1);
     memcpy(p1, p, preLength);
     char *p2 = calloc(1, postLength + 1);
@@ -69,7 +69,7 @@ char *extract_dir(char *p)
     {
         preLength = strrchr(p, '/') - p + 1;
     }
-    int postLength = strlen(p) - preLength;
+    int postLength = h_strlen(p) - preLength;
     char *p1 = calloc(1, preLength + 1);
     memcpy(p1, p, preLength);
     char *p2 = calloc(1, postLength + 1);

@@ -3,10 +3,14 @@
 hooligan is yet another tiny self-hosted C compiler by @tychy and @yokonao.
 
 ## Get Started
+Shell script for developers(hcli) and shared object file(libhooligan.so) are placed in `bin` directory.
+You have to add `bin` directory to PATH and LD_LIBRARY_PATH.
 
-run `export PATH=bin:$PATH` to use `hcli`
+We recommend you use [direnv](https://github.com/direnv/direnv).
+You can use `.envrc.sample`.
+Plese run `cp .envrc.sample .envrc`.
 
-if you use direnv, add `PATH_add bin` to .envrc
+
 ### install shellspec
 It is require to install shellspec for testing
 ```

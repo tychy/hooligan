@@ -369,4 +369,7 @@ bool is_char(Type *ty);
 bool is_int_or_char(Type *ty);
 bool is_ptr(Type *ty);
 int calc_bytes(Type *ty);
+
+// TODO ここにlibhooligan.soのヘッダ情報を書いてしまっている。別途.hファイルを用意する必要あり
+int h_strlen(char *c);
 #endif
