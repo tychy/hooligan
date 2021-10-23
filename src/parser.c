@@ -348,7 +348,7 @@ static Node *relational()
         }
         else if (consume("<="))
         {
-            node = new_node(ND_LEQ, node, add());
+            node = new_node(ND_GEQ, add(), node);
         }
         else if (consume(">"))
         {
@@ -356,7 +356,7 @@ static Node *relational()
         }
         else if (consume("<"))
         {
-            node = new_node(ND_LTH, node, add());
+            node = new_node(ND_GTH, add(), node);
         }
         else
         {
@@ -377,7 +377,7 @@ static Node *equality()
         }
         else if (consume("!="))
         {
-            node = new_node(ND_NEQUAL, node, relational());
+            node = new_node_single(ND_NOT, new_node(ND_EQUAL, node, relational()));
         }
         else
         {
