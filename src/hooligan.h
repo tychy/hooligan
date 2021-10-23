@@ -120,7 +120,6 @@ typedef struct Token Token;
 typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
-typedef struct String String;
 typedef struct StaticVar StaticVar;
 typedef struct Float Float;
 typedef struct Member Member;
@@ -230,6 +229,8 @@ struct Node
 
     // for string
     int strlabel;
+    char *str_content;
+    int str_len;
 
     // for struct
     Member *member;
@@ -270,13 +271,6 @@ struct Var
     bool is_const;
 };
 
-struct String
-{
-    char *p;
-    int length;
-    int label;
-    String *next;
-};
 
 struct StaticVar
 {
@@ -327,7 +321,6 @@ struct Context
 {
     int scope_serial_num; // serial number for scope
     Scope *scope;
-    String *strings;
     Float *floats;
     StaticVar *statics;
     Var *functions;

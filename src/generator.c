@@ -136,6 +136,24 @@ static void gen_global_var_def(Node *node)
     {
         error("グローバル変数定義ではありません");
     }
+    if (node->gvar_init)
+    {
+        Node *cur = node->gvar_init;
+        while (cur)
+        {
+            if (cur->kind == ND_STRING)
+            {
+                new_il_sentence_raw_to_data(".LC%d:", cur->strlabel);
+                new_il_sentence_raw_to_data("  .string \"%.*s\"", cur->str_len, cur->str_content);
+            }
+            else if (cur->child && cur->child->kind == ND_STRING)
+            {
+                new_il_sentence_raw_to_data(".LC%d:", cur->child->strlabel);
+                new_il_sentence_raw_to_data("  .string \"%.*s\"", cur->child->str_len, cur->child->str_content);
+            }
+            cur = cur->next;
+        }
+    }
     if (node->is_static)
     {
 
@@ -507,6 +525,8 @@ static void gen(Node *node)
         return;
     case ND_STRING:
         push_str_addr(node->strlabel);
+        new_il_sentence_raw_to_data(".LC%d:", node->strlabel);
+        new_il_sentence_raw_to_data("  .string \"%.*s\"", node->str_len, node->str_content);
         return;
     case ND_MEMBER:
         gen_addr(node);
@@ -808,7 +828,6 @@ ILProgram *generate_inter_language(Node **nodes)
         gen(nodes[i]);
         i++;
     }
-    String *s = ctx->strings;
     StaticVar *sv = ctx->statics;
     Float *f = ctx->floats;
 
@@ -848,13 +867,6 @@ ILProgram *generate_inter_language(Node **nodes)
         new_il_sentence_raw_to_data(".LC%d:", f->label);
         new_il_sentence_raw_to_data("  .float %d.%.*s%d", f->integer, f->numzero, z, f->decimal);
         f = f->next;
-    }
-
-    while (s)
-    {
-        new_il_sentence_raw_to_data(".LC%d:", s->label);
-        new_il_sentence_raw_to_data("  .string \"%.*s\"", s->length, s->p);
-        s = s->next;
     }
 
     if (opts->is_verbose)

@@ -2,12 +2,12 @@
 
 #include "parser/logging.c"
 #include "parser/type.c"
-#include "parser/node_constructor.c"
 #include "parser/variable.c"
 #include "parser/const.c"
 #include "parser/function.c"
 #include "parser/read_token.c"
 #include "parser/scope.c"
+#include "parser/node_constructor.c"
 
 #define MAX_NODES 500
 static Node *unary();
@@ -36,6 +36,11 @@ static Node *num()
 static Node *character()
 {
     return new_node_num(expect_char());
+}
+
+static Node *string()
+{
+    return new_node_string(expect_string());
 }
 
 static Node *ident()
@@ -286,9 +291,7 @@ static Node *unary()
     }
     else if (cur_token->kind == TK_STRING)
     {
-        String *s = new_string(cur_token->str, cur_token->len);
-        cur_token = cur_token->next;
-        return new_node_string(s);
+        return string();
     }
     return primary();
 }
@@ -463,9 +466,7 @@ static Node *const_expr()
     }
     else if (cur_token->kind == TK_STRING)
     {
-        String *s = new_string(cur_token->str, cur_token->len);
-        cur_token = cur_token->next;
-        return new_node_string(s);
+        return string();
     }
     else
     {
