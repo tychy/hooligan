@@ -88,16 +88,11 @@ static Node *new_node_num(int val)
 
 static Node *new_node_float(int integer, int decimal, int numzero)
 {
-    Float *new_float = calloc(1, sizeof(Float));
-    new_float->integer = integer;
-    new_float->decimal = decimal;
-    new_float->numzero = numzero;
-    new_float->label = ctx->data_label++;
-    new_float->next = ctx->floats;
-    ctx->floats = new_float;
-
     Node *node = new_node_raw(ND_FLOAT);
-    node->data_label = new_float->label;
+    node->f_label = ctx->data_label++;
+    node->f_integer = integer;
+    node->f_decimal = decimal;
+    node->f_numzero = numzero;
     node->ty = new_type_float();
     return node;
 }

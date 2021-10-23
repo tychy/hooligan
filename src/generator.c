@@ -7,6 +7,25 @@
 
 static void gen(Node *node);
 
+static void gen_float(Node *node)
+{
+    if (node->kind != ND_FLOAT)
+    {
+        error("floatではありません");
+    }
+    push_str_addr(node->f_label); // 流用しているので関数名を変えるべき
+    pop(ILRG_RAX);
+    new_il_sentence_raw("  mov eax, [rax]");
+    push(ILRG_RAX);
+    char *z = calloc(node->f_numzero, sizeof(char));
+    for (int j = 0; j < node->f_numzero; j++)
+    {
+        z[j] = '0';
+    }
+    new_il_sentence_raw_to_data(".LC%d:", node->f_label);
+    new_il_sentence_raw_to_data("  .float %d.%.*s%d", node->f_integer, node->f_numzero, z, node->f_decimal);
+}
+
 static void gen_for(Node *node)
 {
     if (node->kind != ND_FOR)
@@ -432,10 +451,7 @@ static void gen(Node *node)
         push_val(node->val);
         return;
     case ND_FLOAT:
-        push_str_addr(node->data_label); // 流用しているので関数名を変えるべき
-        pop(ILRG_RAX);
-        new_il_sentence_raw("  mov eax, [rax]");
-        push(ILRG_RAX);
+        gen_float(node);
         return;
     case ND_NOT:
         gen(node->child);
@@ -829,7 +845,6 @@ ILProgram *generate_inter_language(Node **nodes)
         i++;
     }
     StaticVar *sv = ctx->statics;
-    Float *f = ctx->floats;
 
     while (sv)
     {
@@ -854,19 +869,6 @@ ILProgram *generate_inter_language(Node **nodes)
         }
 
         sv = sv->next;
-    }
-
-    while (f)
-    {
-        char *z = calloc(f->numzero, sizeof(char));
-        for (int j = 0; j < f->numzero; j++)
-        {
-            z[j] = '0';
-        }
-
-        new_il_sentence_raw_to_data(".LC%d:", f->label);
-        new_il_sentence_raw_to_data("  .float %d.%.*s%d", f->integer, f->numzero, z, f->decimal);
-        f = f->next;
     }
 
     if (opts->is_verbose)
