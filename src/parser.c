@@ -585,12 +585,7 @@ static Node *defl()
     {
         Node head;
         Node *cur = &head;
-        if (is_static)
-        {
-            val = expect_number();
-            cur->next = NULL;
-        }
-        else if (ty->ty != ARRAY)
+        if (ty->ty != ARRAY)
         {
             cur->next = assign();
         }
@@ -937,50 +932,63 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
     }
     Var *gvar = def_var(ident, ty, false, is_static);
 
+    Node *rval = NULL;
     if (consume("="))
     {
+        Node head;
+        Node *cur = &head;
         if (ty->ty != ARRAY)
         {
-            node->gvar_init = const_expr();
+            cur->next = assign();
         }
         else if (consume("{"))
         {
-            Node *initial = new_node_single(ND_INIT, const_expr());
-            Node *cur = initial;
-            int cnt = 1;
-            for (;;)
+            int cnt = 0;
+            while (!consume("}"))
             {
-                if (consume(","))
+                if (ty->array_size != -1 && cnt >= ty->array_size)
                 {
-                    if (consume("}"))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        if (ty->array_size != -1 && cnt >= ty->array_size)
-                        {
-                            const_expr();
-                            continue;
-                        }
-                        cur->next = new_node_single(ND_INIT, const_expr());
-                        cur = cur->next;
-                        cnt++;
-                    }
+                    expr();
+                    consume(",");
+                    continue;
                 }
-                else
-                {
-                    expect("}");
-                    break;
-                }
+                cur->next = new_node_single(ND_INIT, expr());
+                cur = cur->next;
+                cnt++;
+                consume(",");
             }
             if (ty->array_size == -1)
             {
+                if (cnt == 0)
+                {
+                    error("配列のサイズが決定されていません");
+                }
                 ty->array_size = cnt;
             }
-            node->gvar_init = initial;
+            for (; cnt < ty->array_size; cnt++)
+            {
+                cur->next = new_node_single(ND_INIT, new_node_num(0));
+                cur = cur->next;
+            }
         }
+        else if (cur_token->kind == TK_STRING)
+        {
+            if (!(ty->ptr_to->ty == CHAR))
+            {
+                error("char型の配列が必要です");
+            }
+            ty->array_size = cur_token->len + 1;
+            for (int i = 0; i < cur_token->len; i++)
+            {
+                cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[i]));
+                cur = cur->next;
+            }
+            cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
+            cur_token = cur_token->next;
+        }
+        rval = head.next;
     }
+    node->gvar_init = rval;
     node->label = gvar->label;
     return node;
 }
