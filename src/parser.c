@@ -13,6 +13,7 @@
 static Node *unary();
 static Node *expr();
 static Node *block();
+static Node *glob_var(Token *ident, Type *ty, bool is_static);
 
 static Node *num()
 {
@@ -572,6 +573,12 @@ static Node *defl()
         ty = new_type_array(ty, size);
     }
 
+    if (is_static)
+    {
+        Node *node = glob_var(ident, ty, is_static);
+        return node;
+    }
+
     Node *rval = NULL;
     int val = 0;
     if (consume("="))
@@ -933,7 +940,7 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
     {
         error("void型の変数は定義できません");
     }
-    def_var(ident, ty, false, is_static);
+    Var *gvar = def_var(ident, ty, false, is_static);
 
     if (consume("="))
     {
@@ -979,7 +986,7 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
             node->gvar_init = initial;
         }
     }
-    expect(";");
+    node->label = gvar->label;
     return node;
 }
 
@@ -1025,7 +1032,9 @@ static Node *def()
                 expect("]");
             }
 
-            return glob_var(ident, ty, is_static);
+            node = glob_var(ident, ty, is_static);
+            expect(";");
+            return node;
         }
         else
         {
@@ -1051,6 +1060,7 @@ static Node *def()
             expect("]");
         }
         node = glob_var(ident, ty, is_static);
+        expect(";");
         if (is_extern)
         {
             return new_node_nop();

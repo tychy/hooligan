@@ -175,8 +175,7 @@ static void gen_global_var_def(Node *node)
     }
     if (node->is_static)
     {
-
-        new_il_sentence_raw_to_data("L%.*s:", node->length, node->name);
+        new_il_sentence_raw_to_data("L%.*s.%d:", node->length, node->name, node->label);
     }
     else
     {
@@ -246,7 +245,7 @@ static void gen_addr(Node *node)
         }
         else if (node->is_static)
         {
-            new_il_sentence_raw("  lea rax, L%.*s[rip]", node->length, node->name);
+            new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->label);
             push(ILRG_RAX);
         }
         else
