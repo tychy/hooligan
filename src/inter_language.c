@@ -44,7 +44,33 @@ char *il_operand_to_str(ILOperand *op)
 
 void generate_intel_syntax_assembly(ILProgram *program)
 {
-    ILSentence *st = program->text;
+    fprintf(output, ".intel_syntax noprefix\n");
+    fprintf(output, ".data\n");
+    ILSentence *st = program->data;
+    while (st)
+    {
+        if (st->ty == ILST_RAW)
+        {
+            fprintf(output, "%s\n", st->raw_sentence);
+        }
+        else if (st->ty == ILST_PUSH)
+        {
+            fprintf(output, "  push %s\n", il_operand_to_str(st->first_operand));
+        }
+        else if (st->ty == ILST_POP)
+        {
+            fprintf(output, "  pop %s\n", il_operand_to_str(st->first_operand));
+        }
+        else
+        {
+            error("not implemented");
+        }
+
+        st = st->next;
+    }
+
+    // fprintf(output, ".text");
+    st = program->text;
     while (st)
     {
         if (st->ty == ILST_RAW)

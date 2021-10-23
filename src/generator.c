@@ -139,23 +139,23 @@ static void gen_global_var_def(Node *node)
     if (node->is_static)
     {
 
-        new_il_sentence_raw("L%.*s:", node->length, node->name);
+        new_il_sentence_raw_to_data("L%.*s:", node->length, node->name);
     }
     else
     {
-        new_il_sentence_raw(".globl %.*s", node->length, node->name);
-        new_il_sentence_raw("%.*s:", node->length, node->name);
+        new_il_sentence_raw_to_data(".globl %.*s", node->length, node->name);
+        new_il_sentence_raw_to_data("%.*s:", node->length, node->name);
     }
     if (node->gvar_init)
     {
 
         if (is_int_or_char(node->ty))
         {
-            new_il_sentence_raw("  .long %d", node->gvar_init->val);
+            new_il_sentence_raw_to_data("  .long %d", node->gvar_init->val);
         }
         else if (is_char(node->ty->ptr_to))
         {
-            new_il_sentence_raw("  .quad .LC%d", node->gvar_init->strlabel);
+            new_il_sentence_raw_to_data("  .quad .LC%d", node->gvar_init->strlabel);
         }
         else
         {
@@ -165,11 +165,11 @@ static void gen_global_var_def(Node *node)
             {
                 if (cur->child->kind == ND_STRING)
                 {
-                    new_il_sentence_raw("  .quad .LC%d", cur->child->strlabel);
+                    new_il_sentence_raw_to_data("  .quad .LC%d", cur->child->strlabel);
                 }
                 else
                 {
-                    new_il_sentence_raw("  .long %d", cur->child->val);
+                    new_il_sentence_raw_to_data("  .long %d", cur->child->val);
                 }
                 cur = cur->next;
                 counter++;
@@ -177,14 +177,14 @@ static void gen_global_var_def(Node *node)
             int remain_size = (node->ty->array_size - counter) * calc_bytes(node->ty->ptr_to);
             if (remain_size)
             {
-                new_il_sentence_raw("  .zero %d", remain_size);
+                new_il_sentence_raw_to_data("  .zero %d", remain_size);
             }
             return;
         }
     }
     else
     {
-        new_il_sentence_raw("  .zero  %d", calc_bytes(node->ty));
+        new_il_sentence_raw_to_data("  .zero  %d", calc_bytes(node->ty));
     }
 }
 
@@ -853,11 +853,10 @@ ILProgram *generate_inter_language(Node **nodes)
 {
     ILProgram *program = calloc(1, sizeof(ILProgram));
     ILSentence *head = calloc(1, sizeof(ILSentence));
+    ILSentence *data_head = calloc(1, sizeof(ILSentence));
     cur = head;
-
+    cur_data = data_head;
     Node *funcs[200];
-    new_il_sentence_raw(".intel_syntax noprefix");
-    new_il_sentence_raw(".data");
     if (opts->is_verbose)
     {
         printf("\x1b[33mSTART GENERATING\x1b[0m\n");
@@ -886,21 +885,21 @@ ILProgram *generate_inter_language(Node **nodes)
 
     while (sv)
     {
-        new_il_sentence_raw("L%.*s.%d:", sv->length, sv->name, sv->label);
+        new_il_sentence_raw_to_data("L%.*s.%d:", sv->length, sv->name, sv->label);
         switch (sv->ty->ty)
         {
         case CHAR:
-            new_il_sentence_raw("  .byte %d", sv->init_val);
+            new_il_sentence_raw_to_data("  .byte %d", sv->init_val);
             break;
         case INT:
-            new_il_sentence_raw("  .long %d", sv->init_val);
+            new_il_sentence_raw_to_data("  .long %d", sv->init_val);
             break;
         case PTR:
-            new_il_sentence_raw("  .quad %d", sv->init_val);
+            new_il_sentence_raw_to_data("  .quad %d", sv->init_val);
             break;
         case ARRAY:
         case STRUCT:
-            new_il_sentence_raw("  .zero  %d", calc_bytes(sv->ty));
+            new_il_sentence_raw_to_data("  .zero  %d", calc_bytes(sv->ty));
             break;
         default:
             error("型がサポートされていません");
@@ -917,15 +916,15 @@ ILProgram *generate_inter_language(Node **nodes)
             z[j] = '0';
         }
 
-        new_il_sentence_raw(".LC%d:", f->label);
-        new_il_sentence_raw("  .float %d.%.*s%d", f->integer, f->numzero, z, f->decimal);
+        new_il_sentence_raw_to_data(".LC%d:", f->label);
+        new_il_sentence_raw_to_data("  .float %d.%.*s%d", f->integer, f->numzero, z, f->decimal);
         f = f->next;
     }
 
     while (s)
     {
-        new_il_sentence_raw(".LC%d:", s->label);
-        new_il_sentence_raw("  .string \"%.*s\"", s->length, s->p);
+        new_il_sentence_raw_to_data(".LC%d:", s->label);
+        new_il_sentence_raw_to_data("  .string \"%.*s\"", s->length, s->p);
         s = s->next;
     }
 
@@ -943,6 +942,7 @@ ILProgram *generate_inter_language(Node **nodes)
     {
         nodes[i] = NULL;
     }
+    program->data = data_head->next;
     program->text = head->next;
     return program;
 }
