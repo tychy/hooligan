@@ -548,9 +548,6 @@ static void gen(Node *node)
         pop(ILRG_RAX);  // インクリメント後の値がpopされる
         // スタックトップはインクリメント前の値
         return;
-    case ND_NOP:
-        new_il_sentence_raw("  nop");
-        return;
     case ND_ADD:
     case ND_SUB:
         gen(node->lhs);
@@ -674,6 +671,7 @@ static void gen(Node *node)
         push(ILRG_RAX);
         return;
     case ND_TYPE:
+    case ND_NOP:
         return;
     }
 
