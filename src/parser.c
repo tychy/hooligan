@@ -571,83 +571,8 @@ static Node *right_value(Type *lty)
     }
     return node;
 }
-static Node *defl()
-{
-    if (consume_rw(RW_TYPEDEF))
-    {
-        return decl_type();
-    }
 
-    bool is_extern = consume_rw(RW_EXTERN);
-    bool is_static = consume_rw(RW_STATIC);
-    is_extern = is_extern || consume_rw(RW_EXTERN);
-    is_static = is_static || consume_rw(RW_STATIC);
-    if (is_extern && is_static)
-    {
-        error("externはnon-staticな文脈でのみ使用できます");
-    }
-
-    Type *ty = consume_type();
-    if (!ty)
-    {
-        if (is_static || is_extern)
-        {
-            error("定義式に型がありません");
-        }
-        else
-        {
-            return expr();
-        }
-    }
-    else if (ty->ty == VOID)
-    {
-        error("void型の変数は定義できません");
-    }
-
-    Token *ident = consume_ident();
-    if (!ident)
-    {
-        if (ty->ty == STRUCT)
-        {
-            // struct hoge{int x;};
-            // struct {int x;};
-            return new_node_nop();
-        }
-        else
-        {
-            error1("識別子ではありません、got: %s", cur_token->str);
-        }
-    }
-    if (consume("["))
-    {
-        int size;
-        if (consume("]"))
-        {
-            size = -1; // e.x. int array[] = {1, 2, 3};
-        }
-        else
-        {
-            size = expect_number();
-            expect("]");
-        }
-        ty = new_type_array(ty, size);
-    }
-
-    if (is_static)
-    {
-        Node *node = glob_var(ident, ty, is_static);
-        return node;
-    }
-
-    Node *rval = right_value(ty);
-    Var *lvar = def_var(ident, ty, !is_extern, is_static);
-    Node *node = new_node_var(lvar);
-    if (rval)
-    {
-        node = new_node_assign(node, rval);
-    }
-    return node;
-}
+#include "parser/defl.c"
 
 static Node *stmt()
 {
@@ -693,7 +618,6 @@ static Node *stmt()
         else
         {
             init = defl();
-            expect(";");
         }
 
         if (consume(";"))
@@ -828,7 +752,6 @@ static Node *stmt()
     else
     {
         node = defl();
-        expect(";");
     }
     return node;
 }
@@ -935,92 +858,13 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
         error("void型の変数は定義できません");
     }
     Var *gvar = def_var(ident, ty, false, is_static);
-
-    Node *rval = right_value(ty);
+    Node *rval = right_value(ty); // TODO 右辺値がコンパイル時に計算可能かチェックすべき
     node->gvar_init = rval;
     node->label = gvar->label;
     return node;
 }
 
-static Node *def()
-{
-    Node *node;
-    if (consume_rw(RW_TYPEDEF))
-    {
-        node = decl_type();
-        expect(";");
-        return node;
-    }
-    bool is_extern = false;
-    bool is_static = false;
-    if (consume_rw(RW_EXTERN))
-    {
-        is_extern = true;
-    }
-    else if (consume_rw(RW_STATIC))
-    {
-        is_static = true;
-    }
-
-    Type *ty = consume_type();
-
-    if (!ty)
-    {
-        error("定義式に型がありません");
-    }
-    if (ty->ty == STRUCT)
-    {
-        Token *ident = consume_ident();
-        if (ident)
-        {
-            // unused
-            // struct {int x;} a;
-            // struct hoge {int x;} a;
-            // struct hoge a;
-            if (consume("["))
-            {
-                int size = expect_number();
-                ty = new_type_array(ty, size);
-                expect("]");
-            }
-
-            node = glob_var(ident, ty, is_static);
-            expect(";");
-            return node;
-        }
-        else
-        {
-            // struct hoge{int x;};
-            // struct {int x;};
-            expect(";");
-            return new_node_nop();
-        }
-    }
-
-    Token *ident = expect_ident();
-    if (consume("("))
-    {
-        node = func(ident, ty, is_static);
-    }
-    else
-    {
-
-        if (consume("["))
-        {
-            int arr_size = expect_number();
-            ty = new_type_array(ty, arr_size);
-            expect("]");
-        }
-        node = glob_var(ident, ty, is_static);
-        expect(";");
-        if (is_extern)
-        {
-            return new_node_nop();
-        }
-    }
-
-    return node;
-}
+#include "parser/def.c"
 
 Node **parse_program(Token *start)
 {
