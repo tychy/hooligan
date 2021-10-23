@@ -919,10 +919,6 @@ ILProgram *generate_inter_language(Node **nodes)
         printf("\x1b[33mEND GENERATING\x1b[0m\n");
     }
 
-    for (int i = 0; i < 500; i++) // 後処理
-    {
-        nodes[i] = NULL;
-    }
     program->data = data_head->next;
     program->text = head->next;
     return program;
