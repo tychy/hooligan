@@ -45,13 +45,17 @@ compile() {
     fi
 }
 
+generate_executable() {
+    compile "$@"
+    cc *.s -no-pie -g -O0 -lhooligan -L./bin
+}
+
 runtest() {
     generate_compiler "$COMPILER_GENERATION"
     for dn in $(find tests/* -maxdepth 0 -type d); do
         printf "%s" "$dn"
         cfiles=$(find "$dn"/*.c)
-        compile $cfiles # Quoteすると複数ファイルが一つの引数として扱われてしまう
-        find ./*.s | xargs cc -no-pie -g -O0
+        generate_executable $cfiles # Quoteすると複数ファイルが一つの引数として扱われてしまう
         expectedout=$(cat "$dn"/out)
         set +e
         stdout=$(./a.out)
@@ -141,15 +145,13 @@ elif [ "${param[0]}" = "src" ] || [ "${param[0]}" = "s" ]; then
         cat "$fn"
     done
 elif [ "${param[0]}" = "exec" ] || [ "${param[0]}" = "e" ]; then
-    compile "${param[@]:1}"
-    find ./*.s | xargs cc -no-pie -g -O0
+    generate_executable "${param[@]:1}"
     set +e
     ./a.out
     echo "結果: $?"
     set -e
 elif [ "${param[0]}" = "debug" ]; then
-    compile "${param[@]:1}"
-    find ./*.s | xargs cc -no-pie -g -O0
+    generate_executable "${param[@]:1}"
     gdb a.out
 elif [ "${param[0]}" = "test" ] || [ "${param[0]}" = "t" ]; then
     runtest

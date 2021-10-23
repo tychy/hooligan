@@ -2,7 +2,7 @@
 
 static void gen_va_start(Node *node)
 {
-    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_start", strlen("__builtin_va_start")) != 0)
+    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_start", h_strlen("__builtin_va_start")) != 0)
     {
         error("va_startではありません");
     }
@@ -21,7 +21,7 @@ static void gen_va_start(Node *node)
 
 static void gen_va_arg(Node *node)
 {
-    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_arg", strlen("__builtin_va_arg")) != 0)
+    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_arg", h_strlen("__builtin_va_arg")) != 0)
     {
         error("va_argではありません");
     }
@@ -55,7 +55,7 @@ static void gen_va_arg(Node *node)
 
 static void gen_va_end(Node *node)
 {
-    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_end", strlen("__builtin_va_end")) != 0)
+    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin_va_end", h_strlen("__builtin_va_end")) != 0)
     {
         error("va_endではありません");
     }
@@ -64,20 +64,20 @@ static void gen_va_end(Node *node)
 
 void gen_builtin_function(Node *node)
 {
-    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin", strlen("__builtin")) != 0)
+    if (node->kind != ND_FUNC || strncmp(node->name, "__builtin", h_strlen("__builtin")) != 0)
     {
         error("ビルトイン関数ではありません");
     }
 
-    if (strncmp(node->name, "__builtin_va_start", strlen("__builtin_va_start")) == 0)
+    if (strncmp(node->name, "__builtin_va_start", h_strlen("__builtin_va_start")) == 0)
     {
         gen_va_start(node);
     }
-    else if (strncmp(node->name, "__builtin_va_arg", strlen("__builtin_va_arg")) == 0)
+    else if (strncmp(node->name, "__builtin_va_arg", h_strlen("__builtin_va_arg")) == 0)
     {
         gen_va_arg(node);
     }
-    else if (strncmp(node->name, "__builtin_va_end", strlen("__builtin_va_end")) == 0)
+    else if (strncmp(node->name, "__builtin_va_end", h_strlen("__builtin_va_end")) == 0)
     {
         gen_va_end(node);
     }

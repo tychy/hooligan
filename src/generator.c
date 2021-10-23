@@ -79,7 +79,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     {
         error("関数ではありません");
     }
-    if (strncmp(node->name, "__builtin", strlen("__builtin")) == 0)
+    if (strncmp(node->name, "__builtin", h_strlen("__builtin")) == 0)
     {
         gen_builtin_function(node);
         return;

@@ -48,7 +48,7 @@ static bool isoperator(char *p)
     for (int i = 0; i < operator_list_count; i++)
     {
         char *str = operator_list[i];
-        if (strncmp(p, str, strlen(str)) == 0)
+        if (strncmp(p, str, h_strlen(str)) == 0)
         {
             return true;
         }
