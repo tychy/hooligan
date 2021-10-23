@@ -360,7 +360,7 @@ Token *preprocess_directives(char *base_dir, Token *tok);
 Node **parse_program(Token *start);
 
 // generator.c
-ILSentence *generate_inter_language(Node **nodes);
+ILProgram *generate_inter_language(Node **nodes);
 
 // util.c
 void error(char *fmt);

@@ -34,6 +34,7 @@ typedef enum
 
 typedef struct ILOperand ILOperand;   // rax, [rax], DWORD PTR [rax]など
 typedef struct ILSentence ILSentence; // アセンブリコードの1行に相当する
+typedef struct ILProgram ILProgram;
 
 struct ILOperand
 {
@@ -51,10 +52,16 @@ struct ILSentence
     ILSentence *next;
 };
 
+struct ILProgram
+{
+    ILSentence *data;
+    ILSentence *text;
+};
+
 ILOperand *new_il_operand_reg(ILRegister reg);
-void generate_intel_syntax_assembly(ILSentence *ils);
+void generate_intel_syntax_assembly(ILProgram *program);
 
 // optimizer.c
-ILSentence *optimize_inter_language(ILSentence *head);
+ILProgram *optimize_inter_language(ILProgram *program);
 
 #endif

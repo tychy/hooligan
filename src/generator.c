@@ -849,8 +849,9 @@ static void gen(Node *node)
     }
 }
 
-ILSentence *generate_inter_language(Node **nodes)
+ILProgram *generate_inter_language(Node **nodes)
 {
+    ILProgram *program = calloc(1, sizeof(ILProgram));
     ILSentence *head = calloc(1, sizeof(ILSentence));
     cur = head;
 
@@ -942,5 +943,6 @@ ILSentence *generate_inter_language(Node **nodes)
     {
         nodes[i] = NULL;
     }
-    return head->next;
+    program->text = head->next;
+    return program;
 }

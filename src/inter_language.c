@@ -42,28 +42,28 @@ char *il_operand_to_str(ILOperand *op)
     }
 }
 
-
-void generate_intel_syntax_assembly(ILSentence *ils)
+void generate_intel_syntax_assembly(ILProgram *program)
 {
-    while (ils)
+    ILSentence *st = program->text;
+    while (st)
     {
-        if (ils->ty == ILST_RAW)
+        if (st->ty == ILST_RAW)
         {
-            fprintf(output, "%s\n", ils->raw_sentence);
+            fprintf(output, "%s\n", st->raw_sentence);
         }
-        else if (ils->ty == ILST_PUSH)
+        else if (st->ty == ILST_PUSH)
         {
-            fprintf(output, "  push %s\n", il_operand_to_str(ils->first_operand));
+            fprintf(output, "  push %s\n", il_operand_to_str(st->first_operand));
         }
-        else if (ils->ty == ILST_POP)
+        else if (st->ty == ILST_POP)
         {
-            fprintf(output, "  pop %s\n", il_operand_to_str(ils->first_operand));
+            fprintf(output, "  pop %s\n", il_operand_to_str(st->first_operand));
         }
         else
         {
             error("not implemented");
         }
 
-        ils = ils->next;
+        st = st->next;
     }
 }
