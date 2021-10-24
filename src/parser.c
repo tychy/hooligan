@@ -194,8 +194,15 @@ static Node *primary()
         {
             Node *index = expr();
             expect("]");
-            Node *mid = new_node(ND_ADD, node, index);
-            node = new_node_single(ND_DEREF, mid);
+            node = new_node(ND_ADD, node, index);
+            while (node->ty->ptr_to && node->ty->ptr_to->ty == ARRAY && consume("["))
+            {
+                Node *index = expr();
+                expect("]");
+                node = new_node(ND_ADD, node, index);
+                node->ty = node->ty->ptr_to;
+            }
+            node = new_node_single(ND_DEREF, node);
             continue;
         }
 
@@ -632,6 +639,7 @@ static Node *stmt()
             expect(")");
         }
         node = new_node_raw(ND_FOR);
+        // TODO リファクタ
         int prev_break_to = ctx->break_to;
         int prev_continue_to = ctx->continue_to;
         ctx->break_to = node->id;
@@ -649,6 +657,7 @@ static Node *stmt()
     {
         new_scope();
         node = new_node_raw(ND_WHILE);
+        // TODO リファクタ
         int prev_break_to = ctx->break_to;
         int prev_continue_to = ctx->continue_to;
         ctx->break_to = node->id;
@@ -726,7 +735,6 @@ static Node *stmt()
     else if (consume_rw(RW_BREAK))
     {
         node = new_node_raw(ND_BREAK);
-
         node->break_to_id = ctx->break_to;
     }
     else if (consume_rw(RW_CONTINUE))
@@ -900,19 +908,33 @@ static Node *def(bool is_global)
         }
         ident = expect_ident();
     }
-    if (consume("["))
+    int array_dimension = 0;
+    int array_sizes[10]; // TODO 10次元以上の配列を作れるようにする
+    while (consume("["))
     {
-        int size;
+        int array_size = 0;
+        array_dimension++;
         if (consume("]"))
         {
-            size = -1; // e.x. int array[] = {1, 2, 3};
+            if (array_dimension == 1)
+            {
+                array_size = -1;
+            }
+            else
+            {
+                error("array has incomplete element type");
+            }
         }
         else
         {
-            size = expect_number();
+            array_size = expect_number();
             expect("]");
         }
-        ty = new_type_array(ty, size);
+        array_sizes[array_dimension - 1] = array_size;
+    }
+    for (int i = 0; i < array_dimension; i++)
+    {
+        ty = new_type_array(ty, array_sizes[array_dimension - i - 1]);
     }
 
     if (consume("("))
