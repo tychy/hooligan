@@ -13,7 +13,7 @@ static void gen_float(Node *node)
     {
         error("floatではありません");
     }
-    push_str_addr(node->f_label); // 流用しているので関数名を変えるべき
+    push_str_addr(node->id); // 流用しているので関数名を変えるべき
     pop(ILRG_RAX);
     new_il_sentence_raw("  mov eax, [rax]");
     push(ILRG_RAX);
@@ -22,7 +22,7 @@ static void gen_float(Node *node)
     {
         z[j] = '0';
     }
-    new_il_sentence_raw_to_data(".LC%d:", node->f_label);
+    new_il_sentence_raw_to_data(".LC%d:", node->id);
     new_il_sentence_raw_to_data("  .float %d.%.*s%d", node->f_integer, node->f_numzero, z, node->f_decimal);
 }
 

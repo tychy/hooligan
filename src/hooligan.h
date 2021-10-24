@@ -223,7 +223,6 @@ struct Node
     bool has_variable_length_arguments;
 
     // for float
-    int f_label;
     float f_val;
     // delete this
     int f_integer;

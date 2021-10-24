@@ -91,7 +91,6 @@ static Node *new_node_num(int val)
 static Node *new_node_float(int integer, int decimal, int numzero)
 {
     Node *node = new_node_raw(ND_FLOAT);
-    node->f_label = ctx->data_label++;
     node->f_integer = integer;
     node->f_decimal = decimal;
     node->f_numzero = numzero;
