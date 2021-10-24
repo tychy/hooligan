@@ -398,14 +398,10 @@ static Node *logical()
         if (consume("&&"))
         {
             node = new_node(ND_AND, node, equality());
-            node->logical_operator_label = ctx->logical_operator_label;
-            ctx->logical_operator_label += 1;
         }
         else if (consume("||"))
         {
             node = new_node(ND_OR, node, equality());
-            node->logical_operator_label = ctx->logical_operator_label;
-            ctx->logical_operator_label += 1;
         }
         else
         {

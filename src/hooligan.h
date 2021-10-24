@@ -245,7 +245,6 @@ struct Node
     // labels
     int loop_label;             // for, while
     int case_label;             // switch-case
-    int logical_operator_label; // &&, ||
 
     Node *statements; // for block
     Node *next_stmt;  // for block children
@@ -308,7 +307,6 @@ struct Context
     int offset; // for local variable
     int break_to;
     int continue_to;
-    int logical_operator_label;
     bool is_aligned_stack_ptr;
 };
 

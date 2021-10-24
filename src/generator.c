@@ -673,7 +673,7 @@ static void gen(Node *node)
         gen(node->lhs);
         pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, 0");
-        new_il_sentence_raw("  je .L.ANDOPERATOR%d", node->logical_operator_label); // raxが0ならそれ以上評価しない
+        new_il_sentence_raw("  je .L.ANDOPERATOR%d", node->id); // raxが0ならそれ以上評価しない
         push(ILRG_RAX);
         gen(node->rhs);
         // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
@@ -695,7 +695,7 @@ static void gen(Node *node)
         pop(ILRG_RDI);
         pop(ILRG_RAX);
         new_il_sentence_raw("  and rax, rdi");
-        new_il_sentence_raw("  .L.ANDOPERATOR%d:", node->logical_operator_label);
+        new_il_sentence_raw("  .L.ANDOPERATOR%d:", node->id);
         push(ILRG_RAX);
         return;
     case ND_OR:
@@ -705,7 +705,7 @@ static void gen(Node *node)
         new_il_sentence_raw("  setne al");
         new_il_sentence_raw("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
         new_il_sentence_raw("  cmp rax, 1");
-        new_il_sentence_raw("  je .L.OROPERATOR%d", node->logical_operator_label); // raxが1ならそれ以上評価しない
+        new_il_sentence_raw("  je .L.OROPERATOR%d", node->id); // raxが1ならそれ以上評価しない
         push(ILRG_RAX);
         gen(node->rhs);
         // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
@@ -727,7 +727,7 @@ static void gen(Node *node)
         pop(ILRG_RDI);
         pop(ILRG_RAX);
         new_il_sentence_raw("  or rax, rdi");
-        new_il_sentence_raw("  .L.OROPERATOR%d:", node->logical_operator_label);
+        new_il_sentence_raw("  .L.OROPERATOR%d:", node->id);
         push(ILRG_RAX);
         return;
     case ND_TYPE:
