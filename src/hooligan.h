@@ -289,12 +289,10 @@ struct Scope
     Scope *prev;
     Scope *next;
     Node *current_switch;
-    int label;
 };
 
 struct Context
 {
-    int scope_serial_num; // serial number for scope
     Scope *scope;
     int offset; // for local variable
     int break_to;

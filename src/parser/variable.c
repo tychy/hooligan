@@ -39,7 +39,6 @@ static Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static)
     ctx->scope->variables = var;
     var->is_local = is_local;
     var->is_static = is_static;
-    var->label = ctx->scope->label;
     return var;
 }
 
@@ -47,7 +46,6 @@ static Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[6], boo
 {
     Var *new_func = new_var(tok, ty);
     new_func->next = ctx->scope->variables;
-    new_func->label = ctx->scope->label;
     new_func->is_static = is_static;
     new_func->num_args = num_args;
     new_func->has_variable_length_arguments = has_variable_length_arguments;
