@@ -117,15 +117,17 @@ static Node *ident()
     }
     else
     {
-        Var *con = find_const(ident);
-        if (con)
-        {
-            return new_node_num(con->value);
-        }
         Var *var = find_var(ident);
         if (var)
         {
-            return new_node_var(var);
+            if (var->is_computable)
+            {
+                return new_node_num(var->value);
+            }
+            else
+            {
+                return new_node_var(var);
+            }
         }
         // for sizeof
         Type *ty = find_defined_type(ident);
@@ -675,10 +677,10 @@ static Node *stmt()
         Token *ident = consume_ident();
         if (ident)
         {
-            Var *con = find_const(ident);
-            if (con)
+            Var *var = find_var(ident);
+            if (var->is_computable)
             {
-                val = con->value;
+                val = var->value;
             }
             else
             {

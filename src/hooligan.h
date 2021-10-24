@@ -272,8 +272,7 @@ struct Var
     bool has_variable_length_arguments;
     // for constant expression
     int value;
-    // for const variable
-    bool is_const;
+    bool is_computable;
 };
 
 struct Member
@@ -288,7 +287,6 @@ struct Member
 struct Scope
 {
     Var *variables;
-    Var *constants;
     Type *defined_type; // for typedef
     Type *tagged_types; // for tag(e.x. struct)
     Scope *prev;
