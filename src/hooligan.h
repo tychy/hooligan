@@ -215,7 +215,6 @@ struct Node
     bool is_local;
     // for static
     bool is_static;
-    int scope_label;
     // for function
     int args_region_size;
     Node *args;

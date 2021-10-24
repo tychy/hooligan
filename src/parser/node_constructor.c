@@ -117,10 +117,6 @@ static Node *new_node_var(Var *var)
     node->ty = var->ty;
     node->is_local = var->is_local;
     node->is_static = var->is_static;
-    if (node->is_static)
-    {
-        node->scope_label = var->label;
-    }
     node->variable_id = var->id;
     return node;
 }
