@@ -243,8 +243,8 @@ struct Node
     int break_to;
 
     // labels
-    int loop_label;             // for, while
-    int case_label;             // switch-case
+    int loop_label; // for, while
+    int case_label; // switch-case
 
     Node *statements; // for block
     Node *next_stmt;  // for block children
@@ -253,6 +253,7 @@ struct Node
 };
 struct Var
 {
+    int id;
     char *name;
     int length;
     int offset;

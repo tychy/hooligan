@@ -1,5 +1,16 @@
 #include "../hooligan.h"
 
+static Var *new_var(Token *tok, Type *ty)
+{
+    static int id = 0;
+    Var *var = calloc(1, sizeof(Var));
+    var->id = id++;
+    var->length = tok->len;
+    var->name = tok->str;
+    var->ty = ty;
+    return var;
+}
+
 static Var *find_var(Token *tok)
 {
     for (Scope *scope = ctx->scope; scope; scope = scope->prev)
@@ -17,23 +28,19 @@ static Var *find_var(Token *tok)
 
 static Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static)
 {
-    Var *new_var = calloc(1, sizeof(Var));
-
-    new_var->length = tok->len;
-    new_var->name = tok->str;
-    new_var->ty = ty;
+    Var *var = new_var(tok, ty);
     if (is_local)
     {
         int var_size = calc_bytes(ty);
         ctx->offset += var_size;
-        new_var->offset = ctx->offset;
+        var->offset = ctx->offset;
     }
-    new_var->next = ctx->scope->variables;
-    ctx->scope->variables = new_var;
-    new_var->is_local = is_local;
-    new_var->is_static = is_static;
-    new_var->label = ctx->scope->label;
-    return new_var;
+    var->next = ctx->scope->variables;
+    ctx->scope->variables = var;
+    var->is_local = is_local;
+    var->is_static = is_static;
+    var->label = ctx->scope->label;
+    return var;
 }
 
 static Var *find_func(Token *tok)
@@ -50,10 +57,7 @@ static Var *find_func(Token *tok)
 
 static Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[6], bool is_static, bool has_variable_length_arguments)
 {
-    Var *new_func = calloc(1, sizeof(Var));
-    new_func->length = tok->len;
-    new_func->name = tok->str;
-    new_func->ty = ty;
+    Var *new_func = new_var(tok, ty);
     new_func->next = ctx->functions;
     new_func->label = ctx->scope->label;
     new_func->is_static = is_static;
@@ -84,10 +88,7 @@ static Var *find_const(Token *tok)
 
 static Var *def_const(Token *tok, int val)
 {
-    Var *new_const = calloc(1, sizeof(Var));
-    new_const->length = tok->len;
-    new_const->name = tok->str;
-    new_const->ty = new_type_int(); // constはintのみ
+    Var *new_const = new_var(tok, new_type_int()); // constはintのみ
     new_const->value = val;
     new_const->next = ctx->scope->constants;
     ctx->scope->constants = new_const;
