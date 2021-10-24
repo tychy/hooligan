@@ -74,7 +74,7 @@ static void gen_if(Node *node)
     if (node->kind != ND_IF)
         error("if文ではありません");
     bool else_exist = node->on_else;
-    int lab = node->cond_label;
+    int lab = node->id;
     gen(node->condition);
     pop(ILRG_RAX);
     new_il_sentence_raw("  cmp rax, 0");

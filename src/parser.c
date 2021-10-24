@@ -598,7 +598,6 @@ static Node *stmt()
         node->body = body;
         if (consume_rw(RW_ELSE))
             node->on_else = block();
-        node->cond_label = ctx->scope->label;
         exit_scope();
     }
     else if (consume_rw(RW_FOR))

@@ -244,7 +244,6 @@ struct Node
 
     // labels
     int loop_label;             // for, while
-    int cond_label;             // if, else
     int case_label;             // switch-case
     int logical_operator_label; // &&, ||
 
