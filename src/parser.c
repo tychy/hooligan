@@ -570,7 +570,6 @@ static Node *defl()
         ty = new_type_array(ty, size);
     }
 
-    Node *node;
     Node *rval = NULL;
     int val = 0;
     if (consume("="))
@@ -639,7 +638,7 @@ static Node *defl()
         add_static_local_var(ident, ty, val);
     }
 
-    node = new_node_var(lvar);
+    Node *node = new_node_var(lvar);
     if (rval)
     {
         node = new_node_assign(node, rval);
