@@ -33,5 +33,5 @@ lib: $(LIBOBJS)
 $(LIBOBJS): src/hooligan.h
 
 clean:
-	@rm -f bin/hcc* *.o src/*.o *~ tmp* *.s a.out core.* bin/*.so
+	@rm -f bin/hcc* *.o src/*.o src/*.d lib/*.o lib/*.d *~ tmp* *.s a.out core.* bin/*.so
 .PHONY: test clean selfhost lib
