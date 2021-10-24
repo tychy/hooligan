@@ -181,6 +181,7 @@ struct Type
 
 struct Node
 {
+    int id;
     NodeKind kind;
     int val;
     int offset;

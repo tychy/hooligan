@@ -139,8 +139,7 @@ static Node *ident()
         {
             ty = new_type_ptr(ty);
         }
-        Node *node = calloc(1, sizeof(Node));
-        node->kind = ND_TYPE;
+        Node *node = new_node_raw(ND_TYPE);
         node->ty = ty;
         return node;
     }

@@ -2,8 +2,10 @@
 
 static Node *new_node_raw(NodeKind kind)
 {
+    static int id = 0;
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
+    node->id = id++;
     logging(node);
     return node;
 }
