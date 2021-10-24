@@ -30,7 +30,7 @@ static void gen_for(Node *node)
 {
     if (node->kind != ND_FOR)
         error("for文ではありません");
-    int lab = node->loop_label;
+    int lab = node->id;
     if (node->init != NULL)
         gen(node->init);
     new_il_sentence_raw("  jmp .L.Cond%d", lab);
@@ -55,7 +55,7 @@ static void gen_while(Node *node)
 {
     if (node->kind != ND_WHILE)
         error("while文ではありません");
-    int lab = node->loop_label;
+    int lab = node->id;
     new_il_sentence_raw("  jmp .L.Cond%d", lab);
     new_il_sentence_raw(".L.Start%d:", lab);
     gen(node->body);
@@ -534,18 +534,18 @@ static void gen(Node *node)
         for (Node *c = node->next_case; c; c = c->next_case)
         {
             new_il_sentence_raw("  cmp eax, %d", c->val);
-            new_il_sentence_raw("  je .L.Case%d", c->case_label);
+            new_il_sentence_raw("  je .L.Case%d", c->id);
         }
         if (node->default_case)
         {
-            new_il_sentence_raw("  jmp .L.Case%d", node->default_case->case_label);
+            new_il_sentence_raw("  jmp .L.Case%d", node->default_case->id);
         }
-        new_il_sentence_raw("  jmp .L.End%d", node->break_to);
+        new_il_sentence_raw("  jmp .L.End%d", node->id);
         gen(node->child);
-        new_il_sentence_raw(".L.End%d:", node->break_to);
+        new_il_sentence_raw(".L.End%d:", node->id);
         return;
     case ND_CASE:
-        new_il_sentence_raw(".L.Case%d:", node->case_label);
+        new_il_sentence_raw(".L.Case%d:", node->id);
         gen(node->child);
         return;
     case ND_BREAK:

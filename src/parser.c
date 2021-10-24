@@ -598,7 +598,7 @@ static Node *stmt()
     }
     else if (consume_rw(RW_FOR))
     {
-        start_loop();
+        new_scope();
         Node *init;
         Node *condition;
         Node *on_end;
@@ -631,40 +631,53 @@ static Node *stmt()
             on_end = expr();
             expect(")");
         }
-        Node *body = block();
         node = new_node_raw(ND_FOR);
+        int prev_break_to = ctx->break_to;
+        int prev_continue_to = ctx->continue_to;
+        ctx->break_to = node->id;
+        ctx->continue_to = node->id;
+        Node *body = block();
         node->init = init;
         node->condition = condition;
         node->on_end = on_end;
         node->body = body;
-        node->loop_label = ctx->scope->loop_label;
-        end_loop();
+        ctx->break_to = prev_break_to;
+        ctx->continue_to = prev_continue_to;
+        exit_scope();
     }
     else if (consume_rw(RW_WHILE))
     {
-        start_loop();
+        new_scope();
+        node = new_node_raw(ND_WHILE);
+        int prev_break_to = ctx->break_to;
+        int prev_continue_to = ctx->continue_to;
+        ctx->break_to = node->id;
+        ctx->continue_to = node->id;
         expect("(");
         Node *condition = expr();
         expect(")");
         Node *body = block();
-        node = new_node_raw(ND_WHILE);
         node->condition = condition;
         node->body = body;
-        node->loop_label = ctx->scope->loop_label;
-        end_loop();
+        ctx->break_to = prev_break_to;
+        ctx->continue_to = prev_continue_to;
+        exit_scope();
     }
     else if (consume_rw(RW_SWITCH))
     {
-        start_switch();
+        new_scope();
+        node = new_node_raw(ND_SWITCH);
+        int prev_break_to = ctx->break_to;
+        ctx->break_to = node->id;
         expect("(");
         Node *condition = expr();
         expect(")");
-        node = new_node_raw(ND_SWITCH);
         node->condition = condition;
         node->break_to = ctx->break_to;
         ctx->scope->current_switch = node;
         node->child = stmt();
-        end_switch();
+        ctx->break_to = prev_break_to;
+        exit_scope();
         return node;
     }
     else if (consume_rw(RW_CASE))
@@ -695,7 +708,6 @@ static Node *stmt()
         expect(":");
         Node *node = new_node_single(ND_CASE, stmt());
         node->val = val;
-        node->case_label = get_unique_num();
         node->next_case = ctx->scope->current_switch->next_case;
         ctx->scope->current_switch->next_case = node;
         return node;
@@ -709,7 +721,6 @@ static Node *stmt()
         expect(":");
         Node *node = new_node_single(ND_CASE, stmt());
         node->kind = ND_CASE;
-        node->case_label = get_unique_num();
         ctx->scope->current_switch->default_case = node;
         return node;
     }
