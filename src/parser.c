@@ -3,8 +3,6 @@
 #include "parser/logging.c"
 #include "parser/type.c"
 #include "parser/variable.c"
-#include "parser/const.c"
-#include "parser/function.c"
 #include "parser/read_token.c"
 #include "parser/scope.c"
 #include "parser/node_constructor.c"
