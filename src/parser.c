@@ -48,7 +48,7 @@ static Node *ident()
     if (consume("("))
     {
         Node *node = new_node_raw(ND_FUNC);
-        Var *func = find_func(ident);
+        Var *func = find_var(ident);
         Node *arg_top = node;
         int count = 0;
 
@@ -822,16 +822,22 @@ static Node *func(Token *ident, Type *ty, bool is_static)
         arg_ty_ls[arg_idx] = arg_ty;
         arg_idx++;
     }
+
+    // TODO グローバルスコープに関数を登録するためのHACK、もうちょっといい方法を考える
+    ctx->scope = ctx->scope->prev;
     def_func(ident, ty, arg_idx, arg_ty_ls, is_static, node->has_variable_length_arguments);
+    ctx->scope = ctx->scope->next;
+
     if (consume(";"))
     {
-        exit_scope();
-        return new_node_nop();
+        node = new_node_nop();
     }
-
-    node->rhs = block();
-    node->args_region_size = ctx->offset;
-    node->is_static = is_static;
+    else
+    {
+        node->rhs = block();
+        node->args_region_size = ctx->offset;
+        node->is_static = is_static;
+    }
     exit_scope();
     return node;
 }

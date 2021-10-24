@@ -303,7 +303,6 @@ struct Context
 {
     int scope_serial_num; // serial number for scope
     Scope *scope;
-    Var *functions;
     int data_label;
     int offset; // for local variable
     int break_to;
