@@ -249,7 +249,8 @@ struct Node
     Node *statements; // for block
     Node *next_stmt;  // for block children
 
-    int label;
+    // for variable
+    int variable_id;
 };
 struct Var
 {

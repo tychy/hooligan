@@ -192,7 +192,7 @@ static void gen_global_var_def(Node *node)
     }
     if (node->is_static)
     {
-        new_il_sentence_raw_to_data("L%.*s.%d:", node->length, node->name, node->label);
+        new_il_sentence_raw_to_data("L%.*s.%d:", node->length, node->name, node->variable_id);
     }
     else
     {
@@ -251,7 +251,7 @@ static void gen_addr(Node *node)
     case ND_VAR:
         if (node->is_local && node->is_static)
         {
-            new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->scope_label);
+            new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->variable_id);
             push(ILRG_RAX);
         }
         else if (node->is_local)
@@ -262,7 +262,7 @@ static void gen_addr(Node *node)
         }
         else if (node->is_static)
         {
-            new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->label);
+            new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->variable_id);
             push(ILRG_RAX);
         }
         else
