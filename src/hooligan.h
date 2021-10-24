@@ -230,7 +230,6 @@ struct Node
     int f_numzero;
 
     // for string
-    int strlabel;
     char *str_content;
     int str_len;
 

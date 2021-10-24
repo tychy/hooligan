@@ -123,7 +123,6 @@ static Node *new_node_var(Var *var)
 static Node *new_node_string(Token *tok)
 {
     Node *node = new_node_raw(ND_STRING);
-    node->strlabel = ctx->data_label++;
     node->str_content = tok->str;
     node->str_len = tok->len;
     node->ty = new_type_string();

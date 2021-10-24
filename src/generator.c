@@ -179,12 +179,12 @@ static void gen_global_var_def(Node *node)
         {
             if (cur->kind == ND_STRING)
             {
-                new_il_sentence_raw_to_data(".LC%d:", cur->strlabel);
+                new_il_sentence_raw_to_data(".LC%d:", cur->id);
                 new_il_sentence_raw_to_data("  .string \"%.*s\"", cur->str_len, cur->str_content);
             }
             else if (cur->child && cur->child->kind == ND_STRING)
             {
-                new_il_sentence_raw_to_data(".LC%d:", cur->child->strlabel);
+                new_il_sentence_raw_to_data(".LC%d:", cur->child->id);
                 new_il_sentence_raw_to_data("  .string \"%.*s\"", cur->child->str_len, cur->child->str_content);
             }
             cur = cur->next;
@@ -208,7 +208,7 @@ static void gen_global_var_def(Node *node)
         }
         else if (is_char(node->ty->ptr_to))
         {
-            new_il_sentence_raw_to_data("  .quad .LC%d", node->gvar_init->strlabel);
+            new_il_sentence_raw_to_data("  .quad .LC%d", node->gvar_init->id);
         }
         else
         {
@@ -218,7 +218,7 @@ static void gen_global_var_def(Node *node)
             {
                 if (cur->child->kind == ND_STRING)
                 {
-                    new_il_sentence_raw_to_data("  .quad .LC%d", cur->child->strlabel);
+                    new_il_sentence_raw_to_data("  .quad .LC%d", cur->child->id);
                 }
                 else
                 {
@@ -564,8 +564,8 @@ static void gen(Node *node)
         gen_global_var_def(node);
         return;
     case ND_STRING:
-        push_str_addr(node->strlabel);
-        new_il_sentence_raw_to_data(".LC%d:", node->strlabel);
+        push_str_addr(node->id);
+        new_il_sentence_raw_to_data(".LC%d:", node->id);
         new_il_sentence_raw_to_data("  .string \"%.*s\"", node->str_len, node->str_content);
         return;
     case ND_MEMBER:
