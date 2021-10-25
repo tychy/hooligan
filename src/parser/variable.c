@@ -32,26 +32,19 @@ static Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static)
     ctx->scope->variables = new_var;
     new_var->is_local = is_local;
     new_var->is_static = is_static;
+    new_var->label = ctx->scope->label;
     return new_var;
 }
 
-// TODO def_varと統合する
-static Var *def_static_var(Token *tok, Type *ty, bool is_local, int init_val)
+static StaticVar *add_static_local_var(Token *tok, Type *ty, int init_val)
 {
-    // is_local == true && is_static==trueのときのみ呼ばれる
-    Var *new_var = def_var(tok, ty, is_local, true);
-    new_var->is_static = true;
-    new_var->label = ctx->scope->label;
-    // nextメンバが上書きされてしまうので二回Varを生成している
-    Var *new_static = calloc(1, sizeof(Var));
+    StaticVar *new_static = calloc(1, sizeof(StaticVar));
     new_static->length = tok->len;
     new_static->name = tok->str;
     new_static->ty = ty;
     new_static->next = ctx->statics;
     new_static->label = ctx->scope->label;
     new_static->init_val = init_val;
-    new_static->is_static = true;
-    new_static->is_local = true;
     ctx->statics = new_static;
-    return new_var;
+    return new_static;
 }

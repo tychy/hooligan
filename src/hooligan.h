@@ -124,6 +124,7 @@ typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
 typedef struct String String;
+typedef struct StaticVar StaticVar;
 typedef struct Float Float;
 typedef struct Member Member;
 typedef struct Scope Scope;
@@ -280,6 +281,16 @@ struct String
     String *next;
 };
 
+struct StaticVar
+{
+    char *name;
+    int length;
+    int label;
+    Type *ty;
+    int init_val;
+    StaticVar *next;
+};
+
 struct Float
 {
     float val;
@@ -321,7 +332,7 @@ struct Context
     Scope *scope;
     String *strings;
     Float *floats;
-    Var *statics;
+    StaticVar *statics;
     Var *functions;
     int data_label;
     int offset; // for local variable

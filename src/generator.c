@@ -880,7 +880,7 @@ ILSentence *generate_inter_language(Node **nodes)
         i++;
     }
     String *s = ctx->strings;
-    Var *sv = ctx->statics;
+    StaticVar *sv = ctx->statics;
     Float *f = ctx->floats;
 
     while (sv)
