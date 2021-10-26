@@ -212,6 +212,23 @@ int testDivisionAssignment()
     return 0;
 }
 
+int testUnequalOperator()
+{
+    if (-2 > 0)
+    {
+        return 1;
+    }
+    if (-10 <= -100)
+    {
+        return 1;
+    }
+    if (-1000 >= 0)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
 
@@ -240,6 +257,10 @@ int main()
         return 1;
     }
     if (testDivisionAssignment() != 0)
+    {
+        return 1;
+    }
+    if (testUnequalOperator() != 0)
     {
         return 1;
     }
