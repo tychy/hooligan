@@ -748,27 +748,6 @@ static void gen(Node *node)
         new_il_sentence_raw("  movzb rax, al");
         push(ILRG_RAX);
         break;
-
-    case ND_NEQUAL:
-        if (node->lhs->ty->ty == FLOAT)
-        {
-            new_il_sentence_raw("  movss xmm0, 8[rsp]");
-            new_il_sentence_raw("  movss xmm1, [rsp]");
-            new_il_sentence_raw("  add rsp, 16");
-            new_il_sentence_raw("  ucomiss xmm0, xmm1");
-            new_il_sentence_raw("  setne al");
-        }
-        else
-        {
-            pop(ILRG_RDI);
-            pop(ILRG_RAX);
-            new_il_sentence_raw("  cmp rax, rdi");
-            new_il_sentence_raw("  setne al");
-        }
-        new_il_sentence_raw("  movzb rax, al");
-        push(ILRG_RAX);
-
-        break;
     case ND_GEQ:
         if (node->lhs->ty->ty == FLOAT)
         {
@@ -788,25 +767,6 @@ static void gen(Node *node)
         new_il_sentence_raw("  movzb rax, al");
         push(ILRG_RAX);
         break;
-    case ND_LEQ:
-        if (node->lhs->ty->ty == FLOAT)
-        {
-            new_il_sentence_raw("  movss xmm0, 8[rsp]");
-            new_il_sentence_raw("  movss xmm1, [rsp]");
-            new_il_sentence_raw("  add rsp, 16");
-            new_il_sentence_raw("  comiss xmm1, xmm0");
-            new_il_sentence_raw("  setnb al");
-        }
-        else
-        {
-            pop(ILRG_RDI);
-            pop(ILRG_RAX);
-            new_il_sentence_raw("  cmp rax, rdi");
-            new_il_sentence_raw("  setle al");
-        }
-        new_il_sentence_raw("  movzb rax, al");
-        push(ILRG_RAX);
-        break;
     case ND_GTH:
         if (node->lhs->ty->ty == FLOAT)
         {
@@ -822,26 +782,6 @@ static void gen(Node *node)
             pop(ILRG_RAX);
             new_il_sentence_raw("  cmp rax, rdi");
             new_il_sentence_raw("  setg al");
-        }
-        new_il_sentence_raw("  movzb rax, al");
-        push(ILRG_RAX);
-        break;
-    case ND_LTH:
-
-        if (node->lhs->ty->ty == FLOAT)
-        {
-            new_il_sentence_raw("  movss xmm0, 8[rsp]");
-            new_il_sentence_raw("  movss xmm1, [rsp]");
-            new_il_sentence_raw("  add rsp, 16");
-            new_il_sentence_raw("  comiss xmm1, xmm0");
-            new_il_sentence_raw("  seta al");
-        }
-        else
-        {
-            pop(ILRG_RDI);
-            pop(ILRG_RAX);
-            new_il_sentence_raw("  cmp rax, rdi");
-            new_il_sentence_raw("  setl al");
         }
         new_il_sentence_raw("  movzb rax, al");
         push(ILRG_RAX);
