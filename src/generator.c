@@ -27,6 +27,39 @@ static void gen_float(Node *node)
     new_il_sentence_raw_to_data("  .float %d.%.*s%d", node->f_integer, node->f_numzero, z, node->f_decimal);
 }
 
+static void gen_logical_operator(Node *node)
+{
+    gen(node->lhs);
+    pop(ILRG_RAX);
+    new_il_sentence_raw("  cmp rax, 0");
+    if (node->kind == ND_AND)
+    {
+        new_il_sentence_raw("  je .L.LOGICALOPERATOR%d", node->id);
+    }
+    else if (node->kind == ND_OR)
+    {
+        new_il_sentence_raw("  jne .L.LOGICALOPERATOR%d", node->id);
+    }
+    new_il_sentence_raw("  setne al");
+    push(ILRG_RAX);
+    gen(node->rhs);
+    pop(ILRG_RDI);
+    pop(ILRG_RAX);
+    new_il_sentence_raw("  cmp rdi, 0");
+    new_il_sentence_raw("  setne dil");
+    if (node->kind == ND_AND)
+    {
+        new_il_sentence_raw("  and al, dil");
+    }
+    else if (node->kind == ND_OR)
+    {
+        new_il_sentence_raw("  or al, dil");
+    }
+    new_il_sentence_raw("  movzb rax, al");
+    new_il_sentence_raw("  .L.LOGICALOPERATOR%d:", node->id);
+    push(ILRG_RAX);
+}
+
 static void gen_for(Node *node)
 {
     if (node->kind != ND_FOR)
@@ -668,66 +701,8 @@ static void gen(Node *node)
         push(ILRG_RAX);
         return;
     case ND_AND:
-        gen(node->lhs);
-        pop(ILRG_RAX);
-        new_il_sentence_raw("  cmp rax, 0");
-        new_il_sentence_raw("  je .L.ANDOPERATOR%d", node->id); // raxが0ならそれ以上評価しない
-        push(ILRG_RAX);
-        gen(node->rhs);
-        // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
-        pop(ILRG_RDI); // 左辺値をrdiに格納
-        push_val(0);   // とりあえず0と比較したい
-        pop(ILRG_RAX);
-        new_il_sentence_raw("  cmp rax, rdi");
-        new_il_sentence_raw("  setne al");
-        new_il_sentence_raw("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
-        pop(ILRG_RDI);                          // 比較結果をpushする前に右辺値をrdiに格納する
-        push(ILRG_RAX);                         // (左辺値)==0の結果がスタックトップに積まれる
-        push_val(0);
-        pop(ILRG_RAX);
-        new_il_sentence_raw("  cmp rax, rdi");
-        new_il_sentence_raw("  setne al");
-        new_il_sentence_raw("  movzb rax, al"); // ここで(右辺値)を0と比較した結果がraxに入る
-        push(ILRG_RAX);                         // (左辺値)==0の結果がスタックトップに積まれる
-
-        pop(ILRG_RDI);
-        pop(ILRG_RAX);
-        new_il_sentence_raw("  and rax, rdi");
-        new_il_sentence_raw("  .L.ANDOPERATOR%d:", node->id);
-        push(ILRG_RAX);
-        return;
     case ND_OR:
-        gen(node->lhs);
-        pop(ILRG_RAX);
-        new_il_sentence_raw("  cmp rax, 0");
-        new_il_sentence_raw("  setne al");
-        new_il_sentence_raw("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
-        new_il_sentence_raw("  cmp rax, 1");
-        new_il_sentence_raw("  je .L.OROPERATOR%d", node->id); // raxが1ならそれ以上評価しない
-        push(ILRG_RAX);
-        gen(node->rhs);
-        // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
-        pop(ILRG_RDI); // 左辺値をrdiに格納
-        push_val(0);   // とりあえず0と比較したい
-        pop(ILRG_RAX);
-        new_il_sentence_raw("  cmp rax, rdi");
-        new_il_sentence_raw("  setne al");
-        new_il_sentence_raw("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
-        pop(ILRG_RDI);                          // 比較結果をpushする前に右辺値をrdiに格納する
-        push(ILRG_RAX);                         // (左辺値)==0の結果がスタックトップに積まれる
-        push_val(0);
-        pop(ILRG_RAX);
-        new_il_sentence_raw("  cmp rax, rdi");
-        new_il_sentence_raw("  setne al");
-        new_il_sentence_raw("  movzb rax, al"); // ここで(右辺値)を0と比較した結果がraxに入る
-        push(ILRG_RAX);                         // (左辺値)==0の結果がスタックトップに積まれる
-
-        pop(ILRG_RDI);
-        pop(ILRG_RAX);
-        new_il_sentence_raw("  or rax, rdi");
-        new_il_sentence_raw("  .L.OROPERATOR%d:", node->id);
-        push(ILRG_RAX);
-        return;
+        gen_logical_operator(node);
     case ND_TYPE:
     case ND_NOP:
         return;
