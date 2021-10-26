@@ -60,10 +60,8 @@ static void gen_logical_operator(Node *node)
     push(ILRG_RAX);
 }
 
-static void gen_for(Node *node)
+static void gen_loop(Node *node)
 {
-    if (node->kind != ND_FOR)
-        error("for文ではありません");
     int lab = node->id;
     if (node->init != NULL)
         gen(node->init);
@@ -78,24 +76,6 @@ static void gen_for(Node *node)
         gen(node->condition);
     else
         push_val(1); // 無条件でtrueとなるように
-    pop(ILRG_RAX);
-    new_il_sentence_raw("  cmp rax, 0");
-    new_il_sentence_raw("  je .L.End%d", lab);
-    new_il_sentence_raw("  jmp .L.Start%d", lab);
-    new_il_sentence_raw(".L.End%d:", lab);
-}
-
-static void gen_while(Node *node)
-{
-    if (node->kind != ND_WHILE)
-        error("while文ではありません");
-    int lab = node->id;
-    new_il_sentence_raw("  jmp .L.Cond%d", lab);
-    new_il_sentence_raw(".L.Start%d:", lab);
-    gen(node->body);
-    new_il_sentence_raw(".L.OnEnd%d:", lab);
-    new_il_sentence_raw(".L.Cond%d:", lab);
-    gen(node->condition);
     pop(ILRG_RAX);
     new_il_sentence_raw("  cmp rax, 0");
     new_il_sentence_raw("  je .L.End%d", lab);
@@ -551,13 +531,11 @@ static void gen(Node *node)
         gen_if(node);
         return;
     case ND_FOR:
-        gen_for(node);
+    case ND_WHILE:
+        gen_loop(node);
         return;
     case ND_BLOCK:
         gen_block(node);
-        return;
-    case ND_WHILE:
-        gen_while(node);
         return;
     case ND_SWITCH:
         gen(node->condition);
