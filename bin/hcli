@@ -47,19 +47,20 @@ compile() {
 
 generate_executable() {
     compile "$@"
-    cc *.s -no-pie -g -O0 -lhooligan -L./bin
+    cc ./*.s -no-pie -g -O0 -lhooligan -L./bin
 }
 
+# コマンドの実行結果と標準出力を同時にテストする方法が思いつかない
+# shellcheck disable=SC2181
 runtest() {
     generate_compiler "$COMPILER_GENERATION"
-    for dn in $(find tests/* -maxdepth 0 -type d); do
+    find tests/* -maxdepth 0 -type d | while read -r dn; do
         printf "%s" "$dn"
-        cfiles=$(find "$dn"/*.c)
-        generate_executable $cfiles # Quoteすると複数ファイルが一つの引数として扱われてしまう
+        generate_executable "$dn"/*.c
         expectedout=$(cat "$dn"/out)
         set +e
         stdout=$(./a.out)
-        if [[ $? -eq 0 ]] && [ "$stdout" == "$expectedout" ]; then
+        if [[ $? -eq 0 ]] && [ "$stdout" == "$expectedout" ]; then  
             echo ...passed
         else
             echo ...failed
@@ -140,7 +141,7 @@ elif [ "${param[0]}" = "compile" ] || [ "${param[0]}" = "c" ]; then
     compile "${param[@]:1}"
 elif [ "${param[0]}" = "src" ] || [ "${param[0]}" = "s" ]; then
     compile "${param[@]:1}"
-    for fn in $(find . -name '*.s'); do
+    find . -name '*.s' | while read -r fn; do
         printf "\n%s\n" "$(basename "$fn")"
         cat "$fn"
     done
