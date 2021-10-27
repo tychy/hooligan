@@ -1,6 +1,7 @@
 #include "../hooligan.h"
 
 static ILSentence *cur;
+static ILSentence *cur_data;
 
 static ILSentence *new_il_sentence_raw(char *fmt, ...)
 {
@@ -13,6 +14,21 @@ static ILSentence *new_il_sentence_raw(char *fmt, ...)
     st->raw_sentence = raw;
     cur->next = st;
     cur = cur->next;
+    va_end(ap);
+    return st;
+}
+
+static ILSentence *new_il_sentence_raw_to_data(char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    char *raw = calloc(100, sizeof(char));
+    vsprintf(raw, fmt, ap);
+    ILSentence *st = calloc(1, sizeof(ILSentence));
+    st->ty = ILST_RAW;
+    st->raw_sentence = raw;
+    cur_data->next = st;
+    cur_data = cur_data->next;
     va_end(ap);
     return st;
 }

@@ -76,7 +76,7 @@ int main(int argc, char **argv)
         token = normalize_tokens(token);
 
         Node **nodes = parse_program(token);
-        ILSentence *ils = generate_inter_language(nodes);
+        ILProgram *ils = generate_inter_language(nodes);
         if (opts->optimize_level != 0)
         {
             ils = optimize_inter_language(ils);

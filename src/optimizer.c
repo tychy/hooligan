@@ -1,8 +1,8 @@
 #include "hooligan.h"
 
-ILSentence *optimize_inter_language(ILSentence *head)
+ILProgram *optimize_inter_language(ILProgram *program)
 {
-    ILSentence *cur = head;
+    ILSentence *cur = program->text;
     ILSentence *next;
     while (cur)
     {
@@ -25,5 +25,5 @@ ILSentence *optimize_inter_language(ILSentence *head)
 
         cur = cur->next;
     }
-    return head;
+    return program;
 }
