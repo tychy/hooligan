@@ -1,0 +1,22 @@
+name: shellcheck
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: install shellcheck
+      run: |
+        sudo apt update && sudo apt install shellcheck -y
+    - name: run check
+      run: |
+        shellcheck bin/hcli
