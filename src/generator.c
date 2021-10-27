@@ -798,7 +798,6 @@ ILProgram *generate_inter_language(Node **nodes)
     ILSentence *data_head = calloc(1, sizeof(ILSentence));
     cur = head;
     cur_data = data_head;
-    Node *funcs[200];
     if (opts->is_verbose)
     {
         printf("\x1b[33mSTART GENERATING\x1b[0m\n");
