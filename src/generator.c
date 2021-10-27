@@ -759,6 +759,8 @@ static void gen(Node *node)
         {
             pop(ILRG_RDI);
             pop(ILRG_RAX);
+            new_il_sentence_raw("  movsxd rdi, edi");
+            new_il_sentence_raw("  movsxd rax, eax");
             new_il_sentence_raw("  cmp rax, rdi");
             new_il_sentence_raw("  setge al");
         }
@@ -778,6 +780,8 @@ static void gen(Node *node)
         {
             pop(ILRG_RDI);
             pop(ILRG_RAX);
+            new_il_sentence_raw("  movsxd rdi, edi");
+            new_il_sentence_raw("  movsxd rax, eax");
             new_il_sentence_raw("  cmp rax, rdi");
             new_il_sentence_raw("  setg al");
         }
