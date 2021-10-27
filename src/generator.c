@@ -796,7 +796,7 @@ ILProgram *generate_inter_language(Node **nodes)
     ILProgram *program = calloc(1, sizeof(ILProgram));
     ILSentence *head = calloc(1, sizeof(ILSentence));
     ILSentence *data_head = calloc(1, sizeof(ILSentence));
-    cur = head;
+    cur_text = head;
     cur_data = data_head;
     Node *funcs[200];
     if (opts->is_verbose)
