@@ -709,7 +709,6 @@ static void gen(Node *node)
             new_il_sentence_raw("  movss 8[rsp], xmm0");
             new_il_sentence_raw("  add rsp, 8");
             ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
-            ;
         }
         else
         {
