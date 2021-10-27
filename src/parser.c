@@ -9,6 +9,7 @@
 #include "parser/read_token.c"
 #include "parser/scope.c"
 
+#define MAX_NODE_NUM 500
 static Node *unary();
 static Node *expr();
 static Node *block();
@@ -1065,12 +1066,12 @@ Node **parse_program(Token *start)
         printf("\x1b[33mSTART PARSING\x1b[0m\n");
     }
 
-    Node **nodes = calloc(600, sizeof(Node *));
+    Node **nodes = calloc(MAX_NODE_NUM, sizeof(Node *));
     cur_token = start;
     int i = 0;
     while (!at_eof())
     {
-        if (i >= 500)
+        if (i >= MAX_NODE_NUM)
         {
             error("ノードが多すぎます");
         }
