@@ -1,6 +1,6 @@
 #include "../hooligan.h"
 
-static ILSentence *cur;
+static ILSentence *cur_text;
 static ILSentence *cur_data;
 
 static ILSentence *new_il_sentence_raw(char *fmt, ...)
@@ -12,8 +12,8 @@ static ILSentence *new_il_sentence_raw(char *fmt, ...)
     ILSentence *st = calloc(1, sizeof(ILSentence));
     st->ty = ILST_RAW;
     st->raw_sentence = raw;
-    cur->next = st;
-    cur = cur->next;
+    cur_text->next = st;
+    cur_text = cur_text->next;
     va_end(ap);
     return st;
 }
@@ -38,8 +38,8 @@ ILSentence *new_il_sentence_single_operand(ILSentenceType ty, ILOperand *op)
     ILSentence *st = calloc(1, sizeof(ILSentence));
     st->ty = ty;
     st->first_operand = op;
-    cur->next = st;
-    cur = cur->next;
+    cur_text->next = st;
+    cur_text = cur_text->next;
     if (ty == ILST_PUSH || ty == ILST_POP)
     {
         ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
