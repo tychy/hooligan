@@ -1,11 +1,13 @@
 #include "hooligan.h"
 #include "inter_language.h"
 
+#define MAX_INPUT_FILES 20
+
 Context *ctx;
 FILE *output;
 Option *opts;
 int file_count;
-char *files[20];
+char *files[MAX_INPUT_FILES];
 
 void analyze_arguments(int argc, char **argv)
 {
