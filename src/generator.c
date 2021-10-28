@@ -313,7 +313,7 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
         if (count < 6)
         {
             char *reg;
-            if (is_int(arg->ty))
+            if (is_int(arg->ty) || is_float(arg->ty))
                 reg = reg32[count];
             else if (is_char(arg->ty))
                 reg = reg8[count];
@@ -744,7 +744,6 @@ static void gen(Node *node)
             new_il_sentence_raw("  movss 8[rsp], xmm0");
             new_il_sentence_raw("  add rsp, 8");
             ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
-            ;
         }
         else
         {

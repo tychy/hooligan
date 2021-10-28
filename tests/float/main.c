@@ -263,6 +263,54 @@ int testFloatCalc()
     return 0;
 }
 
+int floatcall(float x)
+{
+    return 1;
+}
+
+float floatreturn(float x)
+{
+    return x;
+}
+
+float floatdouble(float x)
+{
+    return 2.0 * x;
+}
+
+float floathalf(float x)
+{
+    return x / 2.0;
+}
+int testFloatFuncCall()
+{
+    if (floatcall(1.0) != 1)
+    {
+        return 1;
+    }
+    float eps = 0.00001;
+    if (1.11 - floatreturn(1.11) > eps)
+    {
+        return 1;
+    }
+
+    float x = floatreturn(3.3333);
+    if (x - 3.3333 > eps)
+    {
+        return 1;
+    }
+    if (((x + x) - floatdouble(x)) > eps)
+    {
+        return 1;
+    }
+
+    if ((x - floathalf(x + x)) > eps)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testFloatDefine() != 0)
@@ -294,5 +342,11 @@ int main()
     {
         return 1;
     }
+
+    if (testFloatFuncCall() != 0)
+    {
+        return 1;
+    }
+
     return 0;
 }
