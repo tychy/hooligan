@@ -277,7 +277,7 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
         if (count < 6)
         {
             char *reg;
-            if (is_int(arg->ty))
+            if (is_int(arg->ty) || is_float(arg->ty))
                 reg = reg32[count];
             else if (is_char(arg->ty))
                 reg = reg8[count];
