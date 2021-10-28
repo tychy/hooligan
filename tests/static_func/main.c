@@ -1,15 +1,52 @@
-int func_a()
+static int s = 22;
+int testStaticVar()
 {
-    return 'a';
+    static int z = 1;
+    if (s != 22)
+    {
+        return 1;
+    }
+
+    if (z != 1)
+    {
+        return 1;
+    }
+    return 0;
 }
 
-static int func_b()
+static int func_a()
 {
     return 111;
 }
-int func_d()
+
+int func_b()
 {
-    return func_b();
+    return func_a();
+}
+
+int testStaticFunc()
+{
+    if (func_a() != 111)
+    {
+        return 1;
+    }
+
+    if (func_b() != 111)
+    {
+        return 1;
+    }
+
+    if (func_c() != 10)
+    {
+        return 1;
+    }
+
+    if (func_d() != 22)
+    {
+        return 1;
+    }
+
+    return 0;
 }
 
 static int fibo(int index)
@@ -21,7 +58,7 @@ static int fibo(int index)
     return fibo(index - 1) + fibo(index - 2);
 }
 
-int test_static_fibo()
+int testStaticFibo()
 {
     if (fibo(0) != 0)
         return 1;
@@ -52,23 +89,17 @@ int test_static_fibo()
 
 int main()
 {
-    func_a();
-    if (func_b() != 111)
+    if (testStaticVar() != 0)
     {
         return 1;
     }
 
-    if (func_c() != 10)
+    if (testStaticFunc() != 0)
     {
         return 1;
     }
 
-    if (func_d() != 111)
-    {
-        return 1;
-    }
-
-    if (test_static_fibo() != 0)
+    if (testStaticFibo() != 0)
     {
         return 1;
     }
