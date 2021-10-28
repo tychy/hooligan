@@ -8,17 +8,6 @@ static Node *new_node_raw(NodeKind kind)
     return node;
 }
 
-static String *new_string(char *p, int length)
-{
-    String *new_string = calloc(1, sizeof(String));
-    new_string->length = length;
-    new_string->p = p;
-    new_string->label = ctx->data_label++;
-    new_string->next = ctx->strings;
-    ctx->strings = new_string;
-    return new_string;
-}
-
 static Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
     Node *node = new_node_raw(kind);
@@ -99,16 +88,11 @@ static Node *new_node_num(int val)
 
 static Node *new_node_float(int integer, int decimal, int numzero)
 {
-    Float *new_float = calloc(1, sizeof(Float));
-    new_float->integer = integer;
-    new_float->decimal = decimal;
-    new_float->numzero = numzero;
-    new_float->label = ctx->data_label++;
-    new_float->next = ctx->floats;
-    ctx->floats = new_float;
-
     Node *node = new_node_raw(ND_FLOAT);
-    node->data_label = new_float->label;
+    node->f_label = ctx->data_label++;
+    node->f_integer = integer;
+    node->f_decimal = decimal;
+    node->f_numzero = numzero;
     node->ty = new_type_float();
     return node;
 }
@@ -131,6 +115,7 @@ static Node *new_node_var(Var *var)
     node->ty = var->ty;
     node->is_local = var->is_local;
     node->is_static = var->is_static;
+    node->label = var->label;
     if (node->is_static)
     {
         node->scope_label = var->label;
@@ -138,10 +123,12 @@ static Node *new_node_var(Var *var)
     return node;
 }
 
-static Node *new_node_string(String *s)
+static Node *new_node_string(Token *tok)
 {
     Node *node = new_node_raw(ND_STRING);
-    node->strlabel = s->label;
+    node->strlabel = ctx->data_label++;
+    node->str_content = tok->str;
+    node->str_len = tok->len;
     node->ty = new_type_string();
     return node;
 }

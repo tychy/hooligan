@@ -7,6 +7,25 @@
 
 static void gen(Node *node);
 
+static void gen_float(Node *node)
+{
+    if (node->kind != ND_FLOAT)
+    {
+        error("floatではありません");
+    }
+    push_str_addr(node->f_label); // 流用しているので関数名を変えるべき
+    pop(ILRG_RAX);
+    new_il_sentence_raw("  mov eax, [rax]");
+    push(ILRG_RAX);
+    char *z = calloc(node->f_numzero, sizeof(char));
+    for (int j = 0; j < node->f_numzero; j++)
+    {
+        z[j] = '0';
+    }
+    new_il_sentence_raw_to_data(".LC%d:", node->f_label);
+    new_il_sentence_raw_to_data("  .float %d.%.*s%d", node->f_integer, node->f_numzero, z, node->f_decimal);
+}
+
 static void gen_for(Node *node)
 {
     if (node->kind != ND_FOR)
@@ -136,10 +155,27 @@ static void gen_global_var_def(Node *node)
     {
         error("グローバル変数定義ではありません");
     }
+    if (node->gvar_init)
+    {
+        Node *cur = node->gvar_init;
+        while (cur)
+        {
+            if (cur->kind == ND_STRING)
+            {
+                new_il_sentence_raw_to_data(".LC%d:", cur->strlabel);
+                new_il_sentence_raw_to_data("  .string \"%.*s\"", cur->str_len, cur->str_content);
+            }
+            else if (cur->child && cur->child->kind == ND_STRING)
+            {
+                new_il_sentence_raw_to_data(".LC%d:", cur->child->strlabel);
+                new_il_sentence_raw_to_data("  .string \"%.*s\"", cur->child->str_len, cur->child->str_content);
+            }
+            cur = cur->next;
+        }
+    }
     if (node->is_static)
     {
-
-        new_il_sentence_raw_to_data("L%.*s:", node->length, node->name);
+        new_il_sentence_raw_to_data("L%.*s.%d:", node->length, node->name, node->label);
     }
     else
     {
@@ -209,7 +245,7 @@ static void gen_addr(Node *node)
         }
         else if (node->is_static)
         {
-            new_il_sentence_raw("  lea rax, L%.*s[rip]", node->length, node->name);
+            new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->label);
             push(ILRG_RAX);
         }
         else
@@ -414,10 +450,7 @@ static void gen(Node *node)
         push_val(node->val);
         return;
     case ND_FLOAT:
-        push_str_addr(node->data_label); // 流用しているので関数名を変えるべき
-        pop(ILRG_RAX);
-        new_il_sentence_raw("  mov eax, [rax]");
-        push(ILRG_RAX);
+        gen_float(node);
         return;
     case ND_NOT:
         gen(node->child);
@@ -507,6 +540,8 @@ static void gen(Node *node)
         return;
     case ND_STRING:
         push_str_addr(node->strlabel);
+        new_il_sentence_raw_to_data(".LC%d:", node->strlabel);
+        new_il_sentence_raw_to_data("  .string \"%.*s\"", node->str_len, node->str_content);
         return;
     case ND_MEMBER:
         gen_addr(node);
@@ -808,55 +843,6 @@ ILProgram *generate_inter_language(Node **nodes)
         gen(nodes[i]);
         i++;
     }
-    String *s = ctx->strings;
-    StaticVar *sv = ctx->statics;
-    Float *f = ctx->floats;
-
-    while (sv)
-    {
-        new_il_sentence_raw_to_data("L%.*s.%d:", sv->length, sv->name, sv->label);
-        switch (sv->ty->ty)
-        {
-        case CHAR:
-            new_il_sentence_raw_to_data("  .byte %d", sv->init_val);
-            break;
-        case INT:
-            new_il_sentence_raw_to_data("  .long %d", sv->init_val);
-            break;
-        case PTR:
-            new_il_sentence_raw_to_data("  .quad %d", sv->init_val);
-            break;
-        case ARRAY:
-        case STRUCT:
-            new_il_sentence_raw_to_data("  .zero  %d", calc_bytes(sv->ty));
-            break;
-        default:
-            error("型がサポートされていません");
-        }
-
-        sv = sv->next;
-    }
-
-    while (f)
-    {
-        char *z = calloc(f->numzero, sizeof(char));
-        for (int j = 0; j < f->numzero; j++)
-        {
-            z[j] = '0';
-        }
-
-        new_il_sentence_raw_to_data(".LC%d:", f->label);
-        new_il_sentence_raw_to_data("  .float %d.%.*s%d", f->integer, f->numzero, z, f->decimal);
-        f = f->next;
-    }
-
-    while (s)
-    {
-        new_il_sentence_raw_to_data(".LC%d:", s->label);
-        new_il_sentence_raw_to_data("  .string \"%.*s\"", s->length, s->p);
-        s = s->next;
-    }
-
     if (opts->is_verbose)
     {
         printf("\x1b[33mEND GENERATING\x1b[0m\n");

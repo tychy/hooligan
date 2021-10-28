@@ -2,17 +2,18 @@
 
 #include "parser/logging.c"
 #include "parser/type.c"
-#include "parser/node_constructor.c"
 #include "parser/variable.c"
 #include "parser/const.c"
 #include "parser/function.c"
 #include "parser/read_token.c"
 #include "parser/scope.c"
+#include "parser/node_constructor.c"
 
 #define MAX_NODES 500
 static Node *unary();
 static Node *expr();
 static Node *block();
+static Node *glob_var(Token *ident, Type *ty, bool is_static);
 
 static Node *num()
 {
@@ -36,6 +37,11 @@ static Node *num()
 static Node *character()
 {
     return new_node_num(expect_char());
+}
+
+static Node *string()
+{
+    return new_node_string(expect_string());
 }
 
 static Node *ident()
@@ -286,9 +292,7 @@ static Node *unary()
     }
     else if (cur_token->kind == TK_STRING)
     {
-        String *s = new_string(cur_token->str, cur_token->len);
-        cur_token = cur_token->next;
-        return new_node_string(s);
+        return string();
     }
     return primary();
 }
@@ -463,9 +467,7 @@ static Node *const_expr()
     }
     else if (cur_token->kind == TK_STRING)
     {
-        String *s = new_string(cur_token->str, cur_token->len);
-        cur_token = cur_token->next;
-        return new_node_string(s);
+        return string();
     }
     else
     {
@@ -571,6 +573,12 @@ static Node *defl()
         ty = new_type_array(ty, size);
     }
 
+    if (is_static)
+    {
+        Node *node = glob_var(ident, ty, is_static);
+        return node;
+    }
+
     Node *rval = NULL;
     int val = 0;
     if (consume("="))
@@ -634,11 +642,6 @@ static Node *defl()
         rval = head.next;
     }
     Var *lvar = def_var(ident, ty, !is_extern, is_static);
-    if (is_static)
-    {
-        add_static_local_var(ident, ty, val);
-    }
-
     Node *node = new_node_var(lvar);
     if (rval)
     {
@@ -932,7 +935,7 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
     {
         error("void型の変数は定義できません");
     }
-    def_var(ident, ty, false, is_static);
+    Var *gvar = def_var(ident, ty, false, is_static);
 
     if (consume("="))
     {
@@ -978,7 +981,7 @@ static Node *glob_var(Token *ident, Type *ty, bool is_static)
             node->gvar_init = initial;
         }
     }
-    expect(";");
+    node->label = gvar->label;
     return node;
 }
 
@@ -1024,7 +1027,9 @@ static Node *def()
                 expect("]");
             }
 
-            return glob_var(ident, ty, is_static);
+            node = glob_var(ident, ty, is_static);
+            expect(";");
+            return node;
         }
         else
         {
@@ -1050,6 +1055,7 @@ static Node *def()
             expect("]");
         }
         node = glob_var(ident, ty, is_static);
+        expect(";");
         if (is_extern)
         {
             return new_node_nop();

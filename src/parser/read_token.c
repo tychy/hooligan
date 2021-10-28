@@ -61,6 +61,17 @@ static int expect_char()
     return value;
 }
 
+static Token *expect_string()
+{
+    if (cur_token->kind != TK_STRING)
+    {
+        error_at(cur_token->str, "文字列ではありません");
+    }
+    Token *tok = cur_token;
+    cur_token = cur_token->next;
+    return tok;
+}
+
 static Token *consume_ident()
 {
     if (cur_token->kind != TK_IDENT)

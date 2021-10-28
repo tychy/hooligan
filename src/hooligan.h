@@ -120,9 +120,6 @@ typedef struct Token Token;
 typedef struct Type Type;
 typedef struct Node Node;
 typedef struct Var Var;
-typedef struct String String;
-typedef struct StaticVar StaticVar;
-typedef struct Float Float;
 typedef struct Member Member;
 typedef struct Scope Scope;
 typedef struct Context Context;
@@ -226,10 +223,17 @@ struct Node
     bool has_variable_length_arguments;
 
     // for float
-    int data_label;
+    int f_label;
+    float f_val;
+    // delete this
+    int f_integer;
+    int f_decimal;
+    int f_numzero;
 
     // for string
     int strlabel;
+    char *str_content;
+    int str_len;
 
     // for struct
     Member *member;
@@ -245,6 +249,8 @@ struct Node
 
     Node *statements; // for block
     Node *next_stmt;  // for block children
+
+    int label;
 };
 struct Var
 {
@@ -268,36 +274,6 @@ struct Var
     int value;
     // for const variable
     bool is_const;
-};
-
-struct String
-{
-    char *p;
-    int length;
-    int label;
-    String *next;
-};
-
-struct StaticVar
-{
-    char *name;
-    int length;
-    int label;
-    Type *ty;
-    int init_val;
-    StaticVar *next;
-};
-
-struct Float
-{
-    float val;
-    int label;
-    Float *next;
-
-    // delete this
-    int integer;
-    int decimal;
-    int numzero;
 };
 
 struct Member
@@ -327,9 +303,6 @@ struct Context
 {
     int scope_serial_num; // serial number for scope
     Scope *scope;
-    String *strings;
-    Float *floats;
-    StaticVar *statics;
     Var *functions;
     int data_label;
     int offset; // for local variable
