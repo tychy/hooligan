@@ -13,7 +13,7 @@
 static Node *unary();
 static Node *expr();
 static Node *block();
-static Node *defl(bool in_func);
+static Node *def(bool is_global);
 
 static Node *num()
 {
@@ -615,7 +615,7 @@ static Node *stmt()
         }
         else
         {
-            init = defl(true);
+            init = def(true);
         }
 
         if (consume(";"))
@@ -749,7 +749,7 @@ static Node *stmt()
     }
     else
     {
-        node = defl(true);
+        node = def(true);
     }
     return node;
 }
@@ -844,7 +844,7 @@ static Node *func(Token *ident, Type *ty, bool is_static)
     return node;
 }
 
-static Node *defl(bool in_func)
+static Node *def(bool is_global)
 {
     Node *node = NULL;
     if (consume_rw(RW_TYPEDEF))
@@ -912,9 +912,9 @@ static Node *defl(bool in_func)
     else
     {
         Node *rval = right_value(ty); // TODO 右辺値がコンパイル時に計算可能か求める手段を用意する
-        Var *var = def_var(ident, ty, in_func && !is_extern, is_static);
+        Var *var = def_var(ident, ty, is_global && !is_extern, is_static);
         node = new_node_var(var);
-        if (is_static || !in_func)
+        if (is_static || !is_global)
         {
             node->kind = ND_GVARDEF;
             node->gvar_init = rval;
@@ -948,7 +948,7 @@ Node **parse_program(Token *start)
         {
             error("ノードが多すぎます");
         }
-        Node *node = defl(false);
+        Node *node = def(false);
         nodes[i] = node;
         i++;
         ctx->offset = 0;
