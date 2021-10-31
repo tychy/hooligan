@@ -105,6 +105,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     }
     Node *arg = node->next;
     Node *first_arg = NULL;
+    bool isfloat[6];
     int count = 0;
     while (arg != NULL)
     {
@@ -118,7 +119,14 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         {
             error("引数の数が多すぎます");
         }
-
+        if (is_float(arg->ty))
+        {
+            isfloat[count] = true;
+        }
+        else
+        {
+            isfloat[count] = false;
+        }
         arg = arg->next;
         count++;
     }
@@ -126,7 +134,16 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     while (count > 0)
     {
         count--;
-        pop(count);
+        if (isfloat[count])
+        {
+            new_il_sentence_raw("  movss %s, [rsp]", xmm[count]);
+            new_il_sentence_raw("  add rsp, 8");
+            ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
+        }
+        else
+        {
+            pop(count);
+        }
     }
     if (!ctx->is_aligned_stack_ptr)
     {
@@ -313,14 +330,22 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
         if (count < 6)
         {
             char *reg;
-            if (is_int(arg->ty) || is_float(arg->ty))
-                reg = reg32[count];
-            else if (is_char(arg->ty))
-                reg = reg8[count];
+            if (is_float(arg->ty))
+            {
+                reg = xmm[count];
+                new_il_sentence_raw("  movss [rax], %s", reg);
+            }
             else
-                reg = reg64[count];
+            {
+                if (is_int(arg->ty))
+                    reg = reg32[count];
+                else if (is_char(arg->ty))
+                    reg = reg8[count];
+                else
+                    reg = reg64[count];
 
-            new_il_sentence_raw("  mov [rax], %s", reg);
+                new_il_sentence_raw("  mov [rax], %s", reg);
+            }
         }
         else
         {
