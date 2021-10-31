@@ -107,6 +107,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     Node *first_arg = NULL;
     bool isfloat[6];
     int count = 0;
+    int num_of_float_arg = 0;
     while (arg != NULL)
     {
         if (arg->kind != ND_ARG)
@@ -122,6 +123,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         if (is_float(arg->ty))
         {
             isfloat[count] = true;
+            num_of_float_arg++;
         }
         else
         {
@@ -130,19 +132,19 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         arg = arg->next;
         count++;
     }
-    int aILrg_count = count;
     while (count > 0)
     {
         count--;
         if (isfloat[count])
         {
-            new_il_sentence_raw("  movss %s, [rsp]", xmm[count]);
+            num_of_float_arg--;
+            new_il_sentence_raw("  movss %s, [rsp]", xmm[num_of_float_arg]);
             new_il_sentence_raw("  add rsp, 8");
             ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
         }
         else
         {
-            pop(count);
+            pop(count - num_of_float_arg);
         }
     }
     if (!ctx->is_aligned_stack_ptr)
@@ -322,6 +324,7 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
 
     // 第1〜6引数をローカル変数の領域に書き出す
     int count = 0;
+    int count_float = 0;
     Node *arg = node->lhs;
     while (arg != NULL)
     {
@@ -332,17 +335,18 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
             char *reg;
             if (is_float(arg->ty))
             {
-                reg = xmm[count];
+                reg = xmm[count_float];
                 new_il_sentence_raw("  movss [rax], %s", reg);
+                count_float++;
             }
             else
             {
                 if (is_int(arg->ty))
-                    reg = reg32[count];
+                    reg = reg32[count - count_float];
                 else if (is_char(arg->ty))
-                    reg = reg8[count];
+                    reg = reg8[count - count_float];
                 else
-                    reg = reg64[count];
+                    reg = reg64[count - count_float];
 
                 new_il_sentence_raw("  mov [rax], %s", reg);
             }
