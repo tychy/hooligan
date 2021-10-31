@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 int testFloatDefine()
 {
     float x;
@@ -311,6 +313,18 @@ int testFloatFuncCall()
     return 0;
 }
 
+int testStrtof()
+{
+    float y = 1.1111;
+    char *hoge;
+    float x = strtof("1.111", &hoge);
+    if (y - x >= 0.01)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     if (testFloatDefine() != 0)
@@ -344,6 +358,11 @@ int main()
     }
 
     if (testFloatFuncCall() != 0)
+    {
+        return 1;
+    }
+
+    if (testStrtof() != 0)
     {
         return 1;
     }
