@@ -1,5 +1,16 @@
 #include "../hooligan.h"
 
+static Var *new_var(Token *tok, Type *ty)
+{
+    static int id = 0;
+    Var *var = calloc(1, sizeof(Var));
+    var->id = id++;
+    var->length = tok->len;
+    var->name = tok->str;
+    var->ty = ty;
+    return var;
+}
+
 static Var *find_var(Token *tok)
 {
     for (Scope *scope = ctx->scope; scope; scope = scope->prev)
@@ -17,21 +28,41 @@ static Var *find_var(Token *tok)
 
 static Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static)
 {
-    Var *new_var = calloc(1, sizeof(Var));
-
-    new_var->length = tok->len;
-    new_var->name = tok->str;
-    new_var->ty = ty;
+    Var *var = new_var(tok, ty);
     if (is_local)
     {
         int var_size = calc_bytes(ty);
         ctx->offset += var_size;
-        new_var->offset = ctx->offset;
+        var->offset = ctx->offset;
     }
-    new_var->next = ctx->scope->variables;
-    ctx->scope->variables = new_var;
-    new_var->is_local = is_local;
-    new_var->is_static = is_static;
-    new_var->label = ctx->scope->label;
-    return new_var;
+    var->next = ctx->scope->variables;
+    ctx->scope->variables = var;
+    var->is_local = is_local;
+    var->is_static = is_static;
+    return var;
+}
+
+static Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[6], bool is_static, bool has_variable_length_arguments)
+{
+    Var *new_func = new_var(tok, ty);
+    new_func->next = ctx->scope->variables;
+    new_func->is_static = is_static;
+    new_func->num_args = num_args;
+    new_func->has_variable_length_arguments = has_variable_length_arguments;
+    for (int i = 0; i < num_args; i++)
+    {
+        new_func->arg_ty_ls[i] = arg_ty_ls[i];
+    }
+    ctx->scope->variables = new_func;
+    return new_func;
+}
+
+static Var *def_const(Token *tok, int val)
+{
+    Var *new_const = new_var(tok, new_type_int()); // constはintのみ
+    new_const->value = val;
+    new_const->is_computable = true;
+    new_const->next = ctx->scope->variables;
+    ctx->scope->variables = new_const;
+    return new_const;
 }

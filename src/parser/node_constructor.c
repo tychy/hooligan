@@ -2,8 +2,10 @@
 
 static Node *new_node_raw(NodeKind kind)
 {
+    static int id = 0;
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
+    node->id = id++;
     logging(node);
     return node;
 }
@@ -89,7 +91,6 @@ static Node *new_node_num(int val)
 static Node *new_node_float(int integer, int decimal, int numzero)
 {
     Node *node = new_node_raw(ND_FLOAT);
-    node->f_label = ctx->data_label++;
     node->f_integer = integer;
     node->f_decimal = decimal;
     node->f_numzero = numzero;
@@ -115,18 +116,13 @@ static Node *new_node_var(Var *var)
     node->ty = var->ty;
     node->is_local = var->is_local;
     node->is_static = var->is_static;
-    node->label = var->label;
-    if (node->is_static)
-    {
-        node->scope_label = var->label;
-    }
+    node->variable_id = var->id;
     return node;
 }
 
 static Node *new_node_string(Token *tok)
 {
     Node *node = new_node_raw(ND_STRING);
-    node->strlabel = ctx->data_label++;
     node->str_content = tok->str;
     node->str_len = tok->len;
     node->ty = new_type_string();

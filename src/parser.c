@@ -3,8 +3,6 @@
 #include "parser/logging.c"
 #include "parser/type.c"
 #include "parser/variable.c"
-#include "parser/const.c"
-#include "parser/function.c"
 #include "parser/read_token.c"
 #include "parser/scope.c"
 #include "parser/node_constructor.c"
@@ -50,7 +48,7 @@ static Node *ident()
     if (consume("("))
     {
         Node *node = new_node_raw(ND_FUNC);
-        Var *func = find_func(ident);
+        Var *func = find_var(ident);
         Node *arg_top = node;
         int count = 0;
 
@@ -119,15 +117,17 @@ static Node *ident()
     }
     else
     {
-        Var *con = find_const(ident);
-        if (con)
-        {
-            return new_node_num(con->value);
-        }
         Var *var = find_var(ident);
         if (var)
         {
-            return new_node_var(var);
+            if (var->is_computable)
+            {
+                return new_node_num(var->value);
+            }
+            else
+            {
+                return new_node_var(var);
+            }
         }
         // for sizeof
         Type *ty = find_defined_type(ident);
@@ -139,8 +139,7 @@ static Node *ident()
         {
             ty = new_type_ptr(ty);
         }
-        Node *node = calloc(1, sizeof(Node));
-        node->kind = ND_TYPE;
+        Node *node = new_node_raw(ND_TYPE);
         node->ty = ty;
         return node;
     }
@@ -399,14 +398,10 @@ static Node *logical()
         if (consume("&&"))
         {
             node = new_node(ND_AND, node, equality());
-            node->logical_operator_label = ctx->logical_operator_label;
-            ctx->logical_operator_label += 1;
         }
         else if (consume("||"))
         {
             node = new_node(ND_OR, node, equality());
-            node->logical_operator_label = ctx->logical_operator_label;
-            ctx->logical_operator_label += 1;
         }
         else
         {
@@ -599,12 +594,11 @@ static Node *stmt()
         node->body = body;
         if (consume_rw(RW_ELSE))
             node->on_else = block();
-        node->cond_label = ctx->scope->label;
         exit_scope();
     }
     else if (consume_rw(RW_FOR))
     {
-        start_loop();
+        new_scope();
         Node *init;
         Node *condition;
         Node *on_end;
@@ -637,40 +631,52 @@ static Node *stmt()
             on_end = expr();
             expect(")");
         }
-        Node *body = block();
         node = new_node_raw(ND_FOR);
+        int prev_break_to = ctx->break_to;
+        int prev_continue_to = ctx->continue_to;
+        ctx->break_to = node->id;
+        ctx->continue_to = node->id;
+        Node *body = block();
         node->init = init;
         node->condition = condition;
         node->on_end = on_end;
         node->body = body;
-        node->loop_label = ctx->scope->loop_label;
-        end_loop();
+        ctx->break_to = prev_break_to;
+        ctx->continue_to = prev_continue_to;
+        exit_scope();
     }
     else if (consume_rw(RW_WHILE))
     {
-        start_loop();
+        new_scope();
+        node = new_node_raw(ND_WHILE);
+        int prev_break_to = ctx->break_to;
+        int prev_continue_to = ctx->continue_to;
+        ctx->break_to = node->id;
+        ctx->continue_to = node->id;
         expect("(");
         Node *condition = expr();
         expect(")");
         Node *body = block();
-        node = new_node_raw(ND_WHILE);
         node->condition = condition;
         node->body = body;
-        node->loop_label = ctx->scope->loop_label;
-        end_loop();
+        ctx->break_to = prev_break_to;
+        ctx->continue_to = prev_continue_to;
+        exit_scope();
     }
     else if (consume_rw(RW_SWITCH))
     {
-        start_switch();
+        new_scope();
+        node = new_node_raw(ND_SWITCH);
+        int prev_break_to = ctx->break_to;
+        ctx->break_to = node->id;
         expect("(");
         Node *condition = expr();
         expect(")");
-        node = new_node_raw(ND_SWITCH);
         node->condition = condition;
-        node->break_to = ctx->break_to;
         ctx->scope->current_switch = node;
         node->child = stmt();
-        end_switch();
+        ctx->break_to = prev_break_to;
+        exit_scope();
         return node;
     }
     else if (consume_rw(RW_CASE))
@@ -683,10 +689,10 @@ static Node *stmt()
         Token *ident = consume_ident();
         if (ident)
         {
-            Var *con = find_const(ident);
-            if (con)
+            Var *var = find_var(ident);
+            if (var->is_computable)
             {
-                val = con->value;
+                val = var->value;
             }
             else
             {
@@ -701,7 +707,6 @@ static Node *stmt()
         expect(":");
         Node *node = new_node_single(ND_CASE, stmt());
         node->val = val;
-        node->case_label = get_unique_num();
         node->next_case = ctx->scope->current_switch->next_case;
         ctx->scope->current_switch->next_case = node;
         return node;
@@ -715,7 +720,6 @@ static Node *stmt()
         expect(":");
         Node *node = new_node_single(ND_CASE, stmt());
         node->kind = ND_CASE;
-        node->case_label = get_unique_num();
         ctx->scope->current_switch->default_case = node;
         return node;
     }
@@ -723,12 +727,12 @@ static Node *stmt()
     {
         node = new_node_raw(ND_BREAK);
 
-        node->loop_label = ctx->break_to;
+        node->break_to_id = ctx->break_to;
     }
     else if (consume_rw(RW_CONTINUE))
     {
         node = new_node_raw(ND_CONTINUE);
-        node->loop_label = ctx->continue_to;
+        node->continue_to_id = ctx->continue_to;
     }
     else if (consume("{"))
     {
@@ -830,16 +834,22 @@ static Node *func(Token *ident, Type *ty, bool is_static)
         arg_ty_ls[arg_idx] = arg_ty;
         arg_idx++;
     }
+
+    // TODO グローバルスコープに関数を登録するためのHACK、もうちょっといい方法を考える
+    ctx->scope = ctx->scope->prev;
     def_func(ident, ty, arg_idx, arg_ty_ls, is_static, node->has_variable_length_arguments);
+    ctx->scope = ctx->scope->next;
+
     if (consume(";"))
     {
-        exit_scope();
-        return new_node_nop();
+        node = new_node_nop();
     }
-
-    node->rhs = block();
-    node->args_region_size = ctx->offset;
-    node->is_static = is_static;
+    else
+    {
+        node->rhs = block();
+        node->args_region_size = ctx->offset;
+        node->is_static = is_static;
+    }
     exit_scope();
     return node;
 }

@@ -13,7 +13,7 @@ static void gen_float(Node *node)
     {
         error("floatではありません");
     }
-    push_str_addr(node->f_label); // 流用しているので関数名を変えるべき
+    push_str_addr(node->id); // 流用しているので関数名を変えるべき
     pop(ILRG_RAX);
     new_il_sentence_raw("  mov eax, [rax]");
     push(ILRG_RAX);
@@ -22,7 +22,7 @@ static void gen_float(Node *node)
     {
         z[j] = '0';
     }
-    new_il_sentence_raw_to_data(".LC%d:", node->f_label);
+    new_il_sentence_raw_to_data(".LC%d:", node->id);
     new_il_sentence_raw_to_data("  .float %d.%.*s%d", node->f_integer, node->f_numzero, z, node->f_decimal);
 }
 
@@ -30,7 +30,7 @@ static void gen_for(Node *node)
 {
     if (node->kind != ND_FOR)
         error("for文ではありません");
-    int lab = node->loop_label;
+    int lab = node->id;
     if (node->init != NULL)
         gen(node->init);
     new_il_sentence_raw("  jmp .L.Cond%d", lab);
@@ -55,7 +55,7 @@ static void gen_while(Node *node)
 {
     if (node->kind != ND_WHILE)
         error("while文ではありません");
-    int lab = node->loop_label;
+    int lab = node->id;
     new_il_sentence_raw("  jmp .L.Cond%d", lab);
     new_il_sentence_raw(".L.Start%d:", lab);
     gen(node->body);
@@ -74,7 +74,7 @@ static void gen_if(Node *node)
     if (node->kind != ND_IF)
         error("if文ではありません");
     bool else_exist = node->on_else;
-    int lab = node->cond_label;
+    int lab = node->id;
     gen(node->condition);
     pop(ILRG_RAX);
     new_il_sentence_raw("  cmp rax, 0");
@@ -179,12 +179,12 @@ static void gen_global_var_def(Node *node)
         {
             if (cur->kind == ND_STRING)
             {
-                new_il_sentence_raw_to_data(".LC%d:", cur->strlabel);
+                new_il_sentence_raw_to_data(".LC%d:", cur->id);
                 new_il_sentence_raw_to_data("  .string \"%.*s\"", cur->str_len, cur->str_content);
             }
             else if (cur->child && cur->child->kind == ND_STRING)
             {
-                new_il_sentence_raw_to_data(".LC%d:", cur->child->strlabel);
+                new_il_sentence_raw_to_data(".LC%d:", cur->child->id);
                 new_il_sentence_raw_to_data("  .string \"%.*s\"", cur->child->str_len, cur->child->str_content);
             }
             cur = cur->next;
@@ -192,7 +192,7 @@ static void gen_global_var_def(Node *node)
     }
     if (node->is_static)
     {
-        new_il_sentence_raw_to_data("L%.*s.%d:", node->length, node->name, node->label);
+        new_il_sentence_raw_to_data("L%.*s.%d:", node->length, node->name, node->variable_id);
     }
     else
     {
@@ -208,7 +208,7 @@ static void gen_global_var_def(Node *node)
         }
         else if (is_char(node->ty->ptr_to))
         {
-            new_il_sentence_raw_to_data("  .quad .LC%d", node->gvar_init->strlabel);
+            new_il_sentence_raw_to_data("  .quad .LC%d", node->gvar_init->id);
         }
         else
         {
@@ -218,7 +218,7 @@ static void gen_global_var_def(Node *node)
             {
                 if (cur->child->kind == ND_STRING)
                 {
-                    new_il_sentence_raw_to_data("  .quad .LC%d", cur->child->strlabel);
+                    new_il_sentence_raw_to_data("  .quad .LC%d", cur->child->id);
                 }
                 else
                 {
@@ -251,7 +251,7 @@ static void gen_addr(Node *node)
     case ND_VAR:
         if (node->is_local && node->is_static)
         {
-            new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->scope_label);
+            new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->variable_id);
             push(ILRG_RAX);
         }
         else if (node->is_local)
@@ -262,7 +262,7 @@ static void gen_addr(Node *node)
         }
         else if (node->is_static)
         {
-            new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->label);
+            new_il_sentence_raw("  lea rax, L%.*s.%d[rip]", node->length, node->name, node->variable_id);
             push(ILRG_RAX);
         }
         else
@@ -534,25 +534,25 @@ static void gen(Node *node)
         for (Node *c = node->next_case; c; c = c->next_case)
         {
             new_il_sentence_raw("  cmp eax, %d", c->val);
-            new_il_sentence_raw("  je .L.Case%d", c->case_label);
+            new_il_sentence_raw("  je .L.Case%d", c->id);
         }
         if (node->default_case)
         {
-            new_il_sentence_raw("  jmp .L.Case%d", node->default_case->case_label);
+            new_il_sentence_raw("  jmp .L.Case%d", node->default_case->id);
         }
-        new_il_sentence_raw("  jmp .L.End%d", node->break_to);
+        new_il_sentence_raw("  jmp .L.End%d", node->id);
         gen(node->child);
-        new_il_sentence_raw(".L.End%d:", node->break_to);
+        new_il_sentence_raw(".L.End%d:", node->id);
         return;
     case ND_CASE:
-        new_il_sentence_raw(".L.Case%d:", node->case_label);
+        new_il_sentence_raw(".L.Case%d:", node->id);
         gen(node->child);
         return;
     case ND_BREAK:
-        new_il_sentence_raw("  jmp .L.End%d", node->loop_label);
+        new_il_sentence_raw("  jmp .L.End%d", node->break_to_id);
         return;
     case ND_CONTINUE:
-        new_il_sentence_raw("  jmp .L.OnEnd%d", node->loop_label);
+        new_il_sentence_raw("  jmp .L.OnEnd%d", node->continue_to_id);
         return;
     case ND_FUNC:
         gen_function(node);
@@ -564,8 +564,8 @@ static void gen(Node *node)
         gen_global_var_def(node);
         return;
     case ND_STRING:
-        push_str_addr(node->strlabel);
-        new_il_sentence_raw_to_data(".LC%d:", node->strlabel);
+        push_str_addr(node->id);
+        new_il_sentence_raw_to_data(".LC%d:", node->id);
         new_il_sentence_raw_to_data("  .string \"%.*s\"", node->str_len, node->str_content);
         return;
     case ND_MEMBER:
@@ -673,7 +673,7 @@ static void gen(Node *node)
         gen(node->lhs);
         pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, 0");
-        new_il_sentence_raw("  je .L.ANDOPERATOR%d", node->logical_operator_label); // raxが0ならそれ以上評価しない
+        new_il_sentence_raw("  je .L.ANDOPERATOR%d", node->id); // raxが0ならそれ以上評価しない
         push(ILRG_RAX);
         gen(node->rhs);
         // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
@@ -695,7 +695,7 @@ static void gen(Node *node)
         pop(ILRG_RDI);
         pop(ILRG_RAX);
         new_il_sentence_raw("  and rax, rdi");
-        new_il_sentence_raw("  .L.ANDOPERATOR%d:", node->logical_operator_label);
+        new_il_sentence_raw("  .L.ANDOPERATOR%d:", node->id);
         push(ILRG_RAX);
         return;
     case ND_OR:
@@ -705,7 +705,7 @@ static void gen(Node *node)
         new_il_sentence_raw("  setne al");
         new_il_sentence_raw("  movzb rax, al"); // ここで(左辺値)を0と比較した結果がraxに入る
         new_il_sentence_raw("  cmp rax, 1");
-        new_il_sentence_raw("  je .L.OROPERATOR%d", node->logical_operator_label); // raxが1ならそれ以上評価しない
+        new_il_sentence_raw("  je .L.OROPERATOR%d", node->id); // raxが1ならそれ以上評価しない
         push(ILRG_RAX);
         gen(node->rhs);
         // スタックトップ2つを0と比較した上でand命令に引き渡したい(一番目が左辺値で二番目が右辺値のはず)
@@ -727,7 +727,7 @@ static void gen(Node *node)
         pop(ILRG_RDI);
         pop(ILRG_RAX);
         new_il_sentence_raw("  or rax, rdi");
-        new_il_sentence_raw("  .L.OROPERATOR%d:", node->logical_operator_label);
+        new_il_sentence_raw("  .L.OROPERATOR%d:", node->id);
         push(ILRG_RAX);
         return;
     case ND_TYPE:

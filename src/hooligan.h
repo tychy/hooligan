@@ -181,6 +181,7 @@ struct Type
 
 struct Node
 {
+    int id;
     NodeKind kind;
     int val;
     int offset;
@@ -214,7 +215,6 @@ struct Node
     bool is_local;
     // for static
     bool is_static;
-    int scope_label;
     // for function
     int args_region_size;
     Node *args;
@@ -223,7 +223,6 @@ struct Node
     bool has_variable_length_arguments;
 
     // for float
-    int f_label;
     float f_val;
     // delete this
     int f_integer;
@@ -231,29 +230,24 @@ struct Node
     int f_numzero;
 
     // for string
-    int strlabel;
     char *str_content;
     int str_len;
 
     // for struct
     Member *member;
 
-    // for break in switch
-    int break_to;
-
-    // labels
-    int loop_label;             // for, while
-    int cond_label;             // if, else
-    int case_label;             // switch-case
-    int logical_operator_label; // &&, ||
+    int break_to_id;    // for break
+    int continue_to_id; // for continue
 
     Node *statements; // for block
     Node *next_stmt;  // for block children
 
-    int label;
+    // for variable
+    int variable_id;
 };
 struct Var
 {
+    int id;
     char *name;
     int length;
     int offset;
@@ -272,8 +266,7 @@ struct Var
     bool has_variable_length_arguments;
     // for constant expression
     int value;
-    // for const variable
-    bool is_const;
+    bool is_computable;
 };
 
 struct Member
@@ -288,27 +281,19 @@ struct Member
 struct Scope
 {
     Var *variables;
-    Var *constants;
     Type *defined_type; // for typedef
     Type *tagged_types; // for tag(e.x. struct)
     Scope *prev;
     Scope *next;
     Node *current_switch;
-    int label;
-    int loop_label; // for break and continue
-    int break_to;
 };
 
 struct Context
 {
-    int scope_serial_num; // serial number for scope
     Scope *scope;
-    Var *functions;
-    int data_label;
     int offset; // for local variable
     int break_to;
     int continue_to;
-    int logical_operator_label;
     bool is_aligned_stack_ptr;
 };
 
