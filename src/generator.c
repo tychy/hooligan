@@ -15,6 +15,7 @@ static void gen_float(Node *node)
     }
     push_str_addr(node->id); // 流用しているので関数名を変えるべき
     pop(ILRG_RAX);
+    new_il_sentence_raw("  movss xmm0, DWORD PTR [rax]");
     new_il_sentence_raw("  mov eax, [rax]");
     push(ILRG_RAX);
     char *z = calloc(node->f_numzero, sizeof(char));
@@ -107,6 +108,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     Node *first_arg = NULL;
     bool isfloat[6];
     int count = 0;
+    int num_of_float_arg = 0;
     while (arg != NULL)
     {
         if (arg->kind != ND_ARG)
@@ -122,6 +124,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         if (is_float(arg->ty))
         {
             isfloat[count] = true;
+            num_of_float_arg++;
         }
         else
         {
@@ -130,19 +133,19 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         arg = arg->next;
         count++;
     }
-    int aILrg_count = count;
     while (count > 0)
     {
         count--;
         if (isfloat[count])
         {
-            new_il_sentence_raw("  movss %s, [rsp]", xmm[count]);
+            num_of_float_arg--;
+            new_il_sentence_raw("  movss %s, [rsp]", xmm[num_of_float_arg]);
             new_il_sentence_raw("  add rsp, 8");
             ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
         }
         else
         {
-            pop(count);
+            pop(count - num_of_float_arg);
         }
     }
     if (!ctx->is_aligned_stack_ptr)
@@ -322,6 +325,7 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
 
     // 第1〜6引数をローカル変数の領域に書き出す
     int count = 0;
+    int count_float = 0;
     Node *arg = node->lhs;
     while (arg != NULL)
     {
@@ -332,24 +336,18 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
             char *reg;
             if (is_float(arg->ty))
             {
-                reg = xmm[count];
+                reg = xmm[count_float];
                 new_il_sentence_raw("  movss [rax], %s", reg);
+                count_float++;
             }
             else
             {
-                if (is_int(arg->ty))
-                    reg = reg32[count];
-                else if (is_char(arg->ty))
-                    reg = reg8[count];
-                else
-                    reg = reg64[count];
-
+                reg = get_register_from_type(count - count_float, arg->ty);
                 new_il_sentence_raw("  mov [rax], %s", reg);
             }
         }
         else
         {
-
             error("引数の数が多すぎます");
         }
         count++;
@@ -417,7 +415,7 @@ static void gen_assign(Node *node)
     }
     else if (is_float(node->ty))
     {
-        new_il_sentence_raw("  mov [rax], edi");
+        new_il_sentence_raw("  movss DWORD PTR [rax], xmm0");
     }
     else if (is_char(node->ty))
     {
