@@ -673,7 +673,6 @@ static Node *stmt()
         Node *condition = expr();
         expect(")");
         node->condition = condition;
-        node->break_to = ctx->break_to;
         ctx->scope->current_switch = node;
         node->child = stmt();
         ctx->break_to = prev_break_to;
@@ -728,12 +727,12 @@ static Node *stmt()
     {
         node = new_node_raw(ND_BREAK);
 
-        node->loop_label = ctx->break_to;
+        node->break_to_id = ctx->break_to;
     }
     else if (consume_rw(RW_CONTINUE))
     {
         node = new_node_raw(ND_CONTINUE);
-        node->loop_label = ctx->continue_to;
+        node->continue_to_id = ctx->continue_to;
     }
     else if (consume("{"))
     {

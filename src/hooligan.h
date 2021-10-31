@@ -236,11 +236,8 @@ struct Node
     // for struct
     Member *member;
 
-    // for break in switch
-    int break_to;
-
-    // labels
-    int loop_label; // for, while
+    int break_to_id;    // for break
+    int continue_to_id; // for continue
 
     Node *statements; // for block
     Node *next_stmt;  // for block children

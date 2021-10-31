@@ -549,10 +549,10 @@ static void gen(Node *node)
         gen(node->child);
         return;
     case ND_BREAK:
-        new_il_sentence_raw("  jmp .L.End%d", node->loop_label);
+        new_il_sentence_raw("  jmp .L.End%d", node->break_to_id);
         return;
     case ND_CONTINUE:
-        new_il_sentence_raw("  jmp .L.OnEnd%d", node->loop_label);
+        new_il_sentence_raw("  jmp .L.OnEnd%d", node->continue_to_id);
         return;
     case ND_FUNC:
         gen_function(node);
