@@ -341,13 +341,7 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
             }
             else
             {
-                if (is_int(arg->ty))
-                    reg = reg32[count - count_float];
-                else if (is_char(arg->ty))
-                    reg = reg8[count - count_float];
-                else
-                    reg = reg64[count - count_float];
-
+                reg = get_register_from_type(count - count_float, arg->ty);
                 new_il_sentence_raw("  mov [rax], %s", reg);
             }
         }

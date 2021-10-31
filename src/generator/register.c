@@ -45,3 +45,24 @@ static char *xmm[9] = {
     "xmm7",
     "xmm8",
 };
+
+static char *get_register_from_type(int index, Type *ty)
+{
+    if (is_float(ty))
+    {
+        return xmm[index];
+    }
+    else
+    {
+        switch (calc_bytes(ty))
+        {
+        case 1:
+            return reg8[index];
+        case 4:
+            return reg32[index];
+        case 8:
+        default:
+            return reg64[index];
+        }
+    }
+}
