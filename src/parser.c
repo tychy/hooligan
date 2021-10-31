@@ -13,7 +13,7 @@
 static Node *unary();
 static Node *expr();
 static Node *block();
-static Node *glob_var(Token *ident, Type *ty, bool is_static);
+static Node *def(bool is_global);
 
 static Node *num()
 {
@@ -511,86 +511,14 @@ static Node *decl_type()
     return new_node_nop();
 }
 
-static Node *defl()
+static Node *right_value(Type *lty)
 {
-    if (consume_rw(RW_TYPEDEF))
-    {
-        return decl_type();
-    }
-
-    bool is_extern = consume_rw(RW_EXTERN);
-    bool is_static = consume_rw(RW_STATIC);
-    is_extern = is_extern || consume_rw(RW_EXTERN);
-    is_static = is_static || consume_rw(RW_STATIC);
-    if (is_extern && is_static)
-    {
-        error("externはnon-staticな文脈でのみ使用できます");
-    }
-
-    Type *ty = consume_type();
-    if (!ty)
-    {
-        if (is_static || is_extern)
-        {
-            error("定義式に型がありません");
-        }
-        else
-        {
-            return expr();
-        }
-    }
-    else if (ty->ty == VOID)
-    {
-        error("void型の変数は定義できません");
-    }
-
-    Token *ident = consume_ident();
-    if (!ident)
-    {
-        if (ty->ty == STRUCT)
-        {
-            // struct hoge{int x;};
-            // struct {int x;};
-            return new_node_nop();
-        }
-        else
-        {
-            error1("識別子ではありません、got: %s", cur_token->str);
-        }
-    }
-    if (consume("["))
-    {
-        int size;
-        if (consume("]"))
-        {
-            size = -1; // e.x. int array[] = {1, 2, 3};
-        }
-        else
-        {
-            size = expect_number();
-            expect("]");
-        }
-        ty = new_type_array(ty, size);
-    }
-
-    if (is_static)
-    {
-        Node *node = glob_var(ident, ty, is_static);
-        return node;
-    }
-
-    Node *rval = NULL;
-    int val = 0;
+    Node *node = NULL;
     if (consume("="))
     {
         Node head;
         Node *cur = &head;
-        if (is_static)
-        {
-            val = expect_number();
-            cur->next = NULL;
-        }
-        else if (ty->ty != ARRAY)
+        if (lty->ty != ARRAY)
         {
             cur->next = assign();
         }
@@ -599,7 +527,7 @@ static Node *defl()
             int cnt = 0;
             while (!consume("}"))
             {
-                if (ty->array_size != -1 && cnt >= ty->array_size)
+                if (lty->array_size != -1 && cnt >= lty->array_size)
                 {
                     expr();
                     consume(",");
@@ -610,15 +538,15 @@ static Node *defl()
                 cnt++;
                 consume(",");
             }
-            if (ty->array_size == -1)
+            if (lty->array_size == -1)
             {
                 if (cnt == 0)
                 {
                     error("配列のサイズが決定されていません");
                 }
-                ty->array_size = cnt;
+                lty->array_size = cnt;
             }
-            for (; cnt < ty->array_size; cnt++)
+            for (; cnt < lty->array_size; cnt++)
             {
                 cur->next = new_node_single(ND_INIT, new_node_num(0));
                 cur = cur->next;
@@ -626,11 +554,11 @@ static Node *defl()
         }
         else if (cur_token->kind == TK_STRING)
         {
-            if (!(ty->ptr_to->ty == CHAR))
+            if (!(lty->ptr_to->ty == CHAR))
             {
                 error("char型の配列が必要です");
             }
-            ty->array_size = cur_token->len + 1;
+            lty->array_size = cur_token->len + 1;
             for (int i = 0; i < cur_token->len; i++)
             {
                 cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[i]));
@@ -639,13 +567,7 @@ static Node *defl()
             cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
             cur_token = cur_token->next;
         }
-        rval = head.next;
-    }
-    Var *lvar = def_var(ident, ty, !is_extern, is_static);
-    Node *node = new_node_var(lvar);
-    if (rval)
-    {
-        node = new_node_assign(node, rval);
+        node = head.next;
     }
     return node;
 }
@@ -693,8 +615,7 @@ static Node *stmt()
         }
         else
         {
-            init = defl();
-            expect(";");
+            init = def(true);
         }
 
         if (consume(";"))
@@ -828,8 +749,7 @@ static Node *stmt()
     }
     else
     {
-        node = defl();
-        expect(";");
+        node = def(true);
     }
     return node;
 }
@@ -924,144 +844,91 @@ static Node *func(Token *ident, Type *ty, bool is_static)
     return node;
 }
 
-static Node *glob_var(Token *ident, Type *ty, bool is_static)
+static Node *def(bool is_global)
 {
-    Node *node = new_node_raw(ND_GVARDEF);
-    node->name = ident->str;
-    node->length = ident->len;
-    node->ty = ty;
-    node->is_static = is_static;
-    if (ty->ty == VOID)
-    {
-        error("void型の変数は定義できません");
-    }
-    Var *gvar = def_var(ident, ty, false, is_static);
-
-    if (consume("="))
-    {
-        if (ty->ty != ARRAY)
-        {
-            node->gvar_init = const_expr();
-        }
-        else if (consume("{"))
-        {
-            Node *initial = new_node_single(ND_INIT, const_expr());
-            Node *cur = initial;
-            int cnt = 1;
-            for (;;)
-            {
-                if (consume(","))
-                {
-                    if (consume("}"))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        if (ty->array_size != -1 && cnt >= ty->array_size)
-                        {
-                            const_expr();
-                            continue;
-                        }
-                        cur->next = new_node_single(ND_INIT, const_expr());
-                        cur = cur->next;
-                        cnt++;
-                    }
-                }
-                else
-                {
-                    expect("}");
-                    break;
-                }
-            }
-            if (ty->array_size == -1)
-            {
-                ty->array_size = cnt;
-            }
-            node->gvar_init = initial;
-        }
-    }
-    node->label = gvar->label;
-    return node;
-}
-
-static Node *def()
-{
-    Node *node;
+    Node *node = NULL;
     if (consume_rw(RW_TYPEDEF))
     {
         node = decl_type();
         expect(";");
         return node;
     }
-    bool is_extern = false;
-    bool is_static = false;
-    if (consume_rw(RW_EXTERN))
+
+    bool is_extern = consume_rw(RW_EXTERN);
+    bool is_static = consume_rw(RW_STATIC);
+    is_extern = is_extern || consume_rw(RW_EXTERN);
+    is_static = is_static || consume_rw(RW_STATIC);
+    if (is_extern && is_static)
     {
-        is_extern = true;
-    }
-    else if (consume_rw(RW_STATIC))
-    {
-        is_static = true;
+        error("externはnon-staticな文脈でのみ使用できます");
     }
 
     Type *ty = consume_type();
-
     if (!ty)
     {
-        error("定義式に型がありません");
-    }
-    if (ty->ty == STRUCT)
-    {
-        Token *ident = consume_ident();
-        if (ident)
+        if (is_static || is_extern)
         {
-            // unused
-            // struct {int x;} a;
-            // struct hoge {int x;} a;
-            // struct hoge a;
-            if (consume("["))
-            {
-                int size = expect_number();
-                ty = new_type_array(ty, size);
-                expect("]");
-            }
-
-            node = glob_var(ident, ty, is_static);
+            error("定義式に型がありません");
+        }
+        else
+        {
+            node = expr();
             expect(";");
             return node;
         }
-        else
+    }
+
+    Token *ident = consume_ident();
+    if (!ident)
+    {
+        if (ty->ty == STRUCT)
         {
             // struct hoge{int x;};
             // struct {int x;};
             expect(";");
             return new_node_nop();
         }
+        ident = expect_ident();
+    }
+    if (consume("["))
+    {
+        int size;
+        if (consume("]"))
+        {
+            size = -1; // e.x. int array[] = {1, 2, 3};
+        }
+        else
+        {
+            size = expect_number();
+            expect("]");
+        }
+        ty = new_type_array(ty, size);
     }
 
-    Token *ident = expect_ident();
     if (consume("("))
     {
         node = func(ident, ty, is_static);
     }
     else
     {
-
-        if (consume("["))
+        Node *rval = right_value(ty); // TODO 右辺値がコンパイル時に計算可能か求める手段を用意する
+        Var *var = def_var(ident, ty, is_global && !is_extern, is_static);
+        node = new_node_var(var);
+        if (is_static || !is_global)
         {
-            int arr_size = expect_number();
-            ty = new_type_array(ty, arr_size);
-            expect("]");
+            node->kind = ND_GVARDEF;
+            node->gvar_init = rval;
         }
-        node = glob_var(ident, ty, is_static);
+        else if (rval)
+        {
+            node = new_node_assign(node, rval);
+        }
         expect(";");
         if (is_extern)
         {
             return new_node_nop();
         }
     }
-
     return node;
 }
 
@@ -1081,7 +948,7 @@ Node **parse_program(Token *start)
         {
             error("ノードが多すぎます");
         }
-        Node *node = def();
+        Node *node = def(false);
         nodes[i] = node;
         i++;
         ctx->offset = 0;
