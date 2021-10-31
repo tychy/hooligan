@@ -377,49 +377,22 @@ Token *tokenize(char *p)
 
         if (isdigit(*p))
         {
+            char *p_top = p;
             int val = 0;
-            float float_val = 0.0;
-
             float power = 1.0;
             while (isdigit(*p))
             {
                 val = 10 * val + (*p - '0');
-                float_val = 10.0 * float_val + (*p - '0');
                 p++;
             }
             cur = new_token(TK_NUMBER, cur, p);
             cur->val = val;
             if (*p == '.')
             {
-                p++;
-
-                char *decimal_head; // delete this
-                decimal_head = p;   // delete this
-                while (isdigit(*p))
-                {
-                    float_val = 10.0 * float_val + (*p - '0');
-                    power *= 10.0;
-                    p++;
-                }
+                char *remain;
+                cur->float_val = strtof(p_top, &remain);
+                p = remain;
                 cur->is_float = true;
-                cur->float_val = float_val / power;
-                // ここからあとはアドホックな実装
-                int decimal = 0;
-                int numzero = 0;
-                while (*decimal_head == '0')
-                {
-                    numzero++;
-                    decimal_head++;
-                }
-
-                while (isdigit(*decimal_head))
-                {
-                    decimal = 10 * decimal + (*decimal_head - '0');
-                    decimal_head++;
-                }
-                cur->integer = val;
-                cur->decimal = decimal;
-                cur->numzero = numzero;
             }
             else
             {

@@ -88,12 +88,10 @@ static Node *new_node_num(int val)
     return node;
 }
 
-static Node *new_node_float(int integer, int decimal, int numzero)
+static Node *new_node_float(float val)
 {
     Node *node = new_node_raw(ND_FLOAT);
-    node->f_integer = integer;
-    node->f_decimal = decimal;
-    node->f_numzero = numzero;
+    node->f_val = val;
     node->ty = new_type_float();
     return node;
 }

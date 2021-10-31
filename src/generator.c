@@ -18,13 +18,8 @@ static void gen_float(Node *node)
     new_il_sentence_raw("  movss xmm0, DWORD PTR [rax]");
     new_il_sentence_raw("  mov eax, [rax]");
     push(ILRG_RAX);
-    char *z = calloc(node->f_numzero, sizeof(char));
-    for (int j = 0; j < node->f_numzero; j++)
-    {
-        z[j] = '0';
-    }
     new_il_sentence_raw_to_data(".LC%d:", node->id);
-    new_il_sentence_raw_to_data("  .float %d.%.*s%d", node->f_integer, node->f_numzero, z, node->f_decimal);
+    new_il_sentence_raw_to_data("   .long %u", f2bin(node->f_val));
 }
 
 static void gen_logical_operator(Node *node)
@@ -507,6 +502,7 @@ static void gen(Node *node)
             new_il_sentence_raw("  mov eax, [rax]");
         else if (is_float(node->ty))
         {
+            new_il_sentence_raw("  movss xmm0, DWORD PTR [rax]");
             new_il_sentence_raw("  mov eax, [rax]");
         }
         else if (is_char(node->ty))
@@ -584,7 +580,12 @@ static void gen(Node *node)
             return;
         }
         pop(ILRG_RAX);
-        if (is_int(node->member->ty))
+        if (is_float(node->member->ty))
+        {
+            new_il_sentence_raw("  movss xmm0, DWORD PTR [rax]");
+            new_il_sentence_raw("  mov eax, DWORD PTR [rax]");
+        }
+        else if (is_int(node->member->ty))
             new_il_sentence_raw("  mov eax, [rax]");
         else if (is_char(node->member->ty))
         {

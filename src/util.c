@@ -5,7 +5,7 @@
 #include "util/type.c"
 
 
-/*
+
 int f2bin(float x)
 {
     if (x == 0.0)
@@ -29,7 +29,7 @@ int f2bin(float x)
     if (x < 0.0)
     {
         bin[0] = 1;
-        x *= -1;
+        x *= -1.0;
     }
 
     // xを2進数に変換
@@ -119,37 +119,7 @@ int f2bin(float x)
         // bin[9]は必ず0
         bin[j] = mid[j - 8];
     }
-    */
-    /*
-    for (int j = 0; j < 32; j++)
-    {
-        if (j == 31)
-        {
-            printf("%d\n", bin[j]);
-        }
-        else
-        {
-            printf("%d", bin[j]);
-        }
-    }
-    for (int j = 0; j < 32; j++)
-    {
-        if (j == 0)
-        {
-            printf("s");
-        }
-        else if (j < 9)
-        {
-            printf("e");
-        }
-        else
-        {
-            printf("_");
-        }
-    }
-    printf("\n");
-    */
-   /*
+
     // 10進数への変換
     int res = 0;
     power = 1;
@@ -161,4 +131,3 @@ int f2bin(float x)
     //printf("%d\n", res);
     return res;
 }
-*/

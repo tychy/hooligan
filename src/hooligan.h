@@ -151,10 +151,6 @@ struct Token
     float float_val;
     int len;
     char *str;
-
-    int integer; // delete this
-    int decimal; // delete this
-    int numzero;
 };
 
 struct Type
@@ -224,10 +220,6 @@ struct Node
 
     // for float
     float f_val;
-    // delete this
-    int f_integer;
-    int f_decimal;
-    int f_numzero;
 
     // for string
     char *str_content;

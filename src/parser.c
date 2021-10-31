@@ -17,17 +17,7 @@ static Node *num()
 {
     if (cur_token->is_float)
     {
-        // return new_node_float(expect_float());
-        if (cur_token->kind != TK_NUMBER)
-            error_at(cur_token->str, "数字ではありません");
-        if (!cur_token->is_float)
-            error_at(cur_token->str, "floatではありません");
-
-        int integer = cur_token->integer;
-        int decimal = cur_token->decimal;
-        int numzero = cur_token->numzero;
-        cur_token = cur_token->next;
-        return new_node_float(integer, decimal, numzero);
+        return new_node_float(expect_float());
     }
     return new_node_num(expect_number());
 }
