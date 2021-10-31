@@ -15,6 +15,7 @@ static void gen_float(Node *node)
     }
     push_str_addr(node->f_label); // 流用しているので関数名を変えるべき
     pop(ILRG_RAX);
+    new_il_sentence_raw("  movss xmm0, DWORD PTR [rax]");
     new_il_sentence_raw("  mov eax, [rax]");
     push(ILRG_RAX);
     char *z = calloc(node->f_numzero, sizeof(char));
@@ -347,7 +348,6 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
         }
         else
         {
-
             error("引数の数が多すぎます");
         }
         count++;
@@ -415,7 +415,7 @@ static void gen_assign(Node *node)
     }
     else if (is_float(node->ty))
     {
-        new_il_sentence_raw("  mov [rax], edi");
+        new_il_sentence_raw("  movss DWORD PTR [rax], xmm0");
     }
     else if (is_char(node->ty))
     {
