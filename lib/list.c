@@ -55,13 +55,3 @@ List *append(List *li, void *val)
     li->elm[li->size++] = val;
     return li;
 }
-
-static void assert_int(int expected, int actual)
-{
-    if (expected == actual)
-    {
-        return;
-    }
-    fprintf(stderr, "expected %d, but got %d\n", expected, actual);
-    exit(1);
-}
