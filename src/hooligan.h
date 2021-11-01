@@ -10,6 +10,17 @@
 #include <errno.h>
 #include "inter_language.h"
 
+// list.c
+typedef struct List List;
+struct List
+{
+    void **elm;
+    int size;
+    int cap;
+};
+List *new_list(int cap);
+List *append(List *li, void *val);
+
 typedef enum
 {
     PD_INCLUDE,
@@ -231,9 +242,7 @@ struct Node
     int break_to_id;    // for break
     int continue_to_id; // for continue
 
-    Node *statements; // for block
-    Node *next_stmt;  // for block children
-
+    List *statements;
     // for variable
     int variable_id;
 };

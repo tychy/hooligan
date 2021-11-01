@@ -740,12 +740,9 @@ static Node *stmt()
             return new_node_nop();
         }
         Node *node = new_node_raw(ND_BLOCK);
-        node->statements = stmt();
-        Node *cur = node->statements;
         while (!consume("}"))
         {
-            cur->next_stmt = stmt();
-            cur = cur->next_stmt;
+            node->statements = append(node->statements, stmt());
         }
         return node;
     }
@@ -766,12 +763,9 @@ static Node *block()
         }
         new_scope();
         Node *node = new_node_raw(ND_BLOCK);
-        node->statements = block();
-        Node *cur = node->statements;
         while (!consume("}"))
         {
-            cur->next_stmt = block();
-            cur = cur->next_stmt;
+            node->statements = append(node->statements, block());
         }
         exit_scope();
         return node;
