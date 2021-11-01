@@ -25,6 +25,20 @@ List *new_list(int cap)
     return li;
 }
 
+static List *reallocate(List *li)
+{
+    List *prev_li = li;
+    li = new_list(2 * li->cap);
+    memcpy(li->elm, prev_li->elm, prev_li->size * sizeof(void *));
+    li->size = prev_li->size;
+    for (int i = 0; i < prev_li->size; i++)
+    {
+        free(prev_li->elm[i]);
+    }
+    free(prev_li);
+    return li;
+}
+
 List *append(List *li, void *val)
 {
     if (!li)
@@ -36,10 +50,7 @@ List *append(List *li, void *val)
     }
     if (li->size == li->cap - 1)
     {
-        List *prev_li = li;
-        li = new_list(2 * li->cap);
-        memcpy(li->elm, prev_li->elm, prev_li->size * sizeof(void *));
-        li->size = prev_li->size;
+        li = reallocate(li);
     }
     li->elm[li->size++] = val;
     return li;
