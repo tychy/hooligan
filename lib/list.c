@@ -27,15 +27,13 @@ List *new_list(int cap)
 
 static List *reallocate(List *li)
 {
-    List *prev_li = li;
-    li = new_list(2 * li->cap);
-    memcpy(li->elm, prev_li->elm, prev_li->size * sizeof(void *));
-    li->size = prev_li->size;
-    for (int i = 0; i < prev_li->size; i++)
+    void **prev = li->elm;
+    li->elm = calloc(2 * li->cap, sizeof(void *));
+    memcpy(li->elm, prev, li->size * sizeof(void *));
+    for (int i = 0; i < li->size; i++)
     {
-        free(prev_li->elm[i]);
+        free(prev[i]);
     }
-    free(prev_li);
     return li;
 }
 
