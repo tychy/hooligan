@@ -47,7 +47,13 @@ compile() {
 
 generate_executable() {
     compile "$@"
-    cc ./*.s -no-pie -g -O0 -lhooligan -L./bin
+    if [ "$(uname)" = "Darwin" ]; then
+        nasm -f macho64 ./*.s &&
+            ld ./*.o -macosx_version_min 10.13 -lSystem \
+                -L /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -e main
+    else
+        cc ./*.s -no-pie -g -O0 -lhooligan -L./bin
+    fi
 }
 
 # コマンドの実行結果と標準出力を同時にテストする方法が思いつかない
@@ -60,7 +66,7 @@ runtest() {
         expectedout=$(cat "$dn"/out)
         set +e
         stdout=$(./a.out)
-        if [[ $? -eq 0 ]] && [ "$stdout" == "$expectedout" ]; then  
+        if [[ $? -eq 0 ]] && [ "$stdout" == "$expectedout" ]; then
             echo ...passed
         else
             echo ...failed
@@ -131,6 +137,10 @@ for OPT in "$@"; do
         ;;
     esac
 done
+
+if [ "$(uname)" = "Darwin" ]; then
+    opts+=(-M)
+fi
 
 if [ "${param[0]}" = "clean" ] || [ "${param[0]}" = "cl" ]; then
     printf "不要な一時ファイルを消去します..."

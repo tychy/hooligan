@@ -12,6 +12,12 @@
 
 typedef enum
 {
+    PF_LINUX,
+    PF_MACOS,
+} Platform;
+
+typedef enum
+{
     PD_INCLUDE,
     PD_DEFINE,
     PD_IFDEF,
@@ -128,6 +134,7 @@ struct Option
 {
     bool is_verbose;
     int optimize_level;
+    Platform platform;
 };
 
 struct Macro

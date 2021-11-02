@@ -50,7 +50,14 @@ static void gen_logical_operator(Node *node)
     {
         new_il_sentence_raw("  or al, dil");
     }
-    new_il_sentence_raw("  movzb rax, al");
+    if (opts->platform == PF_MACOS)
+    {
+        new_il_sentence_raw("  movzx rax, al");
+    }
+    else
+    {
+        new_il_sentence_raw("  movzb rax, al");
+    }
     new_il_sentence_raw("  .L.LOGICALOPERATOR%d:", node->id);
     push(ILRG_RAX);
 }
@@ -207,7 +214,14 @@ static void gen_global_var_def(Node *node)
     }
     else
     {
-        new_il_sentence_raw_to_data(".globl %.*s", node->length, node->name);
+        if (opts->platform == PF_MACOS)
+        {
+            new_il_sentence_raw("global %.*s", node->length, node->name);
+        }
+        else
+        {
+            new_il_sentence_raw(".globl %.*s", node->length, node->name);
+        }
         new_il_sentence_raw_to_data("%.*s:", node->length, node->name);
     }
     if (node->gvar_init)
@@ -307,7 +321,14 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
     }
     else
     {
-        new_il_sentence_raw(".globl %.*s", node->length, node->name);
+        if (opts->platform == PF_MACOS)
+        {
+            new_il_sentence_raw("global %.*s", node->length, node->name);
+        }
+        else
+        {
+            new_il_sentence_raw(".globl %.*s", node->length, node->name);
+        }
         new_il_sentence_raw("%.*s:", node->length, node->name);
     }
     // プロローグ
@@ -488,7 +509,7 @@ static void gen(Node *node)
         pop(ILRG_RAX);
         new_il_sentence_raw("  cmp rax, 0");
         new_il_sentence_raw("  sete al");
-        new_il_sentence_raw("  movzb rax, al");
+        new_il_sentence_raw("  movzx rax, al");
         push(ILRG_RAX);
         return;
     case ND_VAR:
@@ -754,7 +775,7 @@ static void gen(Node *node)
             new_il_sentence_raw("  cmp rax, rdi");
             new_il_sentence_raw("  sete al");
         }
-        new_il_sentence_raw("  movzb rax, al");
+        new_il_sentence_raw("  movzx rax, al");
         push(ILRG_RAX);
         break;
     case ND_GEQ:
@@ -775,7 +796,7 @@ static void gen(Node *node)
             new_il_sentence_raw("  cmp rax, rdi");
             new_il_sentence_raw("  setge al");
         }
-        new_il_sentence_raw("  movzb rax, al");
+        new_il_sentence_raw("  movzx rax, al");
         push(ILRG_RAX);
         break;
     case ND_GTH:
@@ -796,7 +817,7 @@ static void gen(Node *node)
             new_il_sentence_raw("  cmp rax, rdi");
             new_il_sentence_raw("  setg al");
         }
-        new_il_sentence_raw("  movzb rax, al");
+        new_il_sentence_raw("  movzx rax, al");
         push(ILRG_RAX);
         break;
     }

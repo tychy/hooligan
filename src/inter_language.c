@@ -44,8 +44,15 @@ char *il_operand_to_str(ILOperand *op)
 
 void generate_intel_syntax_assembly(ILProgram *program)
 {
-    fprintf(output, ".intel_syntax noprefix\n");
-    fprintf(output, ".data\n");
+    if (opts->platform == PF_MACOS)
+    {
+        fprintf(output, "section .data\n");
+    }
+    else
+    {
+        fprintf(output, ".intel_syntax noprefix\n");
+        fprintf(output, ".data\n");
+    }
     ILSentence *st = program->data;
     while (st)
     {
@@ -69,7 +76,15 @@ void generate_intel_syntax_assembly(ILProgram *program)
         st = st->next;
     }
 
-    fprintf(output, ".text\n");
+    if (opts->platform == PF_MACOS)
+    {
+        fprintf(output, "section .text\n");
+    }
+    else
+    {
+        fprintf(output, ".intel_syntax noprefix\n");
+        fprintf(output, ".text\n");
+    }
     st = program->text;
     while (st)
     {

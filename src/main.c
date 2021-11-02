@@ -26,6 +26,10 @@ void analyze_arguments(int argc, char **argv)
             {
                 opts->optimize_level = 1;
             }
+            else if (*(arg + 1) == 'M')
+            {
+                opts->platform = PF_MACOS;
+            }
             else
             {
                 printf("%c\n", *(arg + 1));
