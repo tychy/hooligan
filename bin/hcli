@@ -31,7 +31,7 @@ clean() {
 }
 
 clean_assembly() {
-    find . -name '*.s' -exec rm {} +
+    rm -f ./*.s
 }
 
 COMPILER_GENERATED=0
@@ -47,7 +47,16 @@ compile() {
 
 generate_executable() {
     compile "$@"
-    cc ./*.s -no-pie -g -O0 -lhooligan -L./bin
+    rm -f ./*.o
+    find ./*.s | while read -r fn; do
+        as -c "$fn" -o ${fn%.s}.o
+    done
+    ld -o a.out -m elf_x86_64 /usr/lib/x86_64-linux-gnu/crt1.o /usr/lib/x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/7/crtbegin.o \
+        -L/usr/lib/x86_64-linux-gnu -L/usr/lib64 -L/lib64 \
+        -L/usr/lib/gcc/x86_64-linux-gnu/7 -dynamic-linker /lib64/ld-linux-x86-64.so.2 ./*.o \
+        -lc -lgcc --as-needed -lgcc_s --no-as-needed \
+        /usr/lib/gcc/x86_64-linux-gnu/7/crtend.o /usr/lib/x86_64-linux-gnu/crtn.o \
+        -l hooligan -L./bin
 }
 
 # コマンドの実行結果と標準出力を同時にテストする方法が思いつかない
@@ -60,7 +69,7 @@ runtest() {
         expectedout=$(cat "$dn"/out)
         set +e
         stdout=$(./a.out)
-        if [[ $? -eq 0 ]] && [ "$stdout" == "$expectedout" ]; then  
+        if [[ $? -eq 0 ]] && [ "$stdout" == "$expectedout" ]; then
             echo ...passed
         else
             echo ...failed
