@@ -6,5 +6,6 @@ tmp
 .envrc
 bin/*
 !bin/hcli
+!bin/*.sh
 sandbox
 core*
