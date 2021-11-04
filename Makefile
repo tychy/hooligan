@@ -1,4 +1,4 @@
-CFLAGS:=-std=c11 -no-pie -MMD
+CFLAGS:=-std=c11 -MMD
 LIBFLAGS:=-l hooligan -L./bin
 SOURCE:=$(wildcard src/*.c)
 OBJS:=$(SOURCE:.c=.o)
