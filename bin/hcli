@@ -31,7 +31,7 @@ clean() {
 }
 
 clean_assembly() {
-    find . -name '*.s' -exec rm {} +
+    rm -f ./*.s
 }
 
 COMPILER_GENERATED=0
@@ -47,7 +47,7 @@ compile() {
 
 generate_executable() {
     compile "$@"
-    cc ./*.s -no-pie -g -O0 -lhooligan -L./bin
+    ./bin/assemble.sh
 }
 
 # コマンドの実行結果と標準出力を同時にテストする方法が思いつかない
@@ -60,7 +60,7 @@ runtest() {
         expectedout=$(cat "$dn"/out)
         set +e
         stdout=$(./a.out)
-        if [[ $? -eq 0 ]] && [ "$stdout" == "$expectedout" ]; then  
+        if [[ $? -eq 0 ]] && [ "$stdout" == "$expectedout" ]; then
             echo ...passed
         else
             echo ...failed

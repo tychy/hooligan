@@ -1,4 +1,4 @@
-CFLAGS:=-std=c11 -no-pie -MMD
+CFLAGS:=-std=c11 -MMD
 LIBFLAGS:=-l hooligan -L./bin
 SOURCE:=$(wildcard src/*.c)
 OBJS:=$(SOURCE:.c=.o)
@@ -24,9 +24,7 @@ else
 	COMPILER:=bin/hcc1
 endif
 selfhost: first
-	@$(COMPILER) $(SOURCE) && \
-	cc ./*.s $(CFLAGS) $(LIBFLAGS) -o $(OUTPUT) && \
-	rm *.s
+	@$(COMPILER) $(SOURCE) && ./bin/assemble.sh && mv a.out $(OUTPUT)
 
 lib: $(LIBOBJS)
 	@cc -shared -std=c11 -o bin/libhooligan.so $(LIBOBJS)
