@@ -70,6 +70,25 @@ runtest() {
     done
 }
 
+# shellcheck disable=SC2181
+runtestlib() {
+    generate_compiler "$COMPILER_GENERATION"
+    find lib/tests/* -maxdepth 0 -type d | while read -r dn; do
+        printf "%s" "$dn"
+        generate_executable "$dn"/*.c
+        expectedout=$(cat "$dn"/out)
+        set +e
+        stdout=$(./a.out)
+        if [[ $? -eq 0 ]] && [ "$stdout" == "$expectedout" ]; then
+            echo ...passed
+        else
+            echo ...failed
+            exit 1
+        fi
+        set -e
+    done
+}
+
 # 第一引数に指定した世代のコンパイラを作成する。例：generate_compiler 2 => hcc2を吐き出す
 generate_compiler() {
     if [[ COMPILER_GENERATED -eq 1 ]]; then
@@ -156,6 +175,7 @@ elif [ "${param[0]}" = "debug" ]; then
     gdb a.out
 elif [ "${param[0]}" = "test" ] || [ "${param[0]}" = "t" ]; then
     runtest
+    runtestlib
 else
     echo "存在しないサブコマンドです"
     exit 1
