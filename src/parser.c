@@ -57,7 +57,7 @@ static Node *ident()
                 {
                     error("引数は予期されていません");
                 }
-                Node *arg = new_node_single(ND_ARG, expr());
+                Node *arg = expr();
                 if (count < args_count || node->has_variable_length_arguments)
                 {
                     node->args = append(node->args, arg);
@@ -80,7 +80,7 @@ static Node *ident()
                 if (count > 0)
                     expect(",");
 
-                node->args = append(node->args, new_node_single(ND_ARG, expr()));
+                node->args = append(node->args, expr());
                 count++;
             }
         }

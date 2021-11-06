@@ -119,11 +119,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     for (int i = 0; i < node->args->size; i++)
     {
         Node *arg = (Node *)node->args->elm[i];
-        if (arg->kind != ND_ARG)
-        {
-            error("引数ではありません");
-        }
-        gen(arg->child);
+        gen(arg);
         if (i >= 6)
         {
             error("引数の数が多すぎます");

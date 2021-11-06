@@ -92,7 +92,6 @@ typedef enum
     ND_SWITCH,
     ND_CASE,
     ND_FUNC,
-    ND_ARG,
     ND_FUNCDEF,
     ND_ADDR,
     ND_DEREF,
