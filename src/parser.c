@@ -487,16 +487,15 @@ static Node *decl_type()
 
 static Node *right_value(Type *lty)
 {
-    Node *node = NULL;
     if (consume("="))
     {
         if (lty->ty != ARRAY)
         {
-            node = assign();
+            return assign();
         }
         else if (consume("{"))
         {
-            node = new_node_raw(ND_ARRAY);
+            Node *node = new_node_raw(ND_ARRAY);
             node->ty = lty;
             int cnt = 0;
             while (!consume("}"))
@@ -523,6 +522,7 @@ static Node *right_value(Type *lty)
             {
                 node->children = append(node->children, new_node_num(0));
             }
+            return node;
         }
         else if (cur_token->kind == TK_STRING)
         {
@@ -530,7 +530,7 @@ static Node *right_value(Type *lty)
             {
                 error("char型の配列が必要です");
             }
-            node = new_node_raw(ND_ARRAY);
+            Node *node = new_node_raw(ND_ARRAY);
             node->ty = lty;
             lty->array_size = cur_token->len + 1;
             for (int i = 0; i < cur_token->len; i++)
@@ -539,9 +539,10 @@ static Node *right_value(Type *lty)
             }
             node->children = append(node->children, new_node_num(0)); // 終端文字の挿入
             cur_token = cur_token->next;
+            return node;
         }
     }
-    return node;
+    return NULL;
 }
 
 static Node *stmt()
