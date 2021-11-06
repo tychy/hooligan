@@ -85,26 +85,50 @@ Type *new_type_void()
     return ty;
 }
 
+static bool equal_type(Type *a, Type *b)
+{
+    if (is_ptr(a) && is_ptr(b))
+    {
+        return equal_type(a->ptr_to, b->ptr_to);
+    }
+    if (a->ty != b->ty)
+    {
+        return false;
+    }
+    return true;
+}
+
 Type *determine_expr_type(Type *lhs, Type *rhs)
 {
-    if (!(is_int_or_char(lhs)) && !(is_int_or_char(rhs)))
+    if (is_ptr(lhs) && is_ptr(rhs))
     {
-        if (is_ptr(lhs) && is_ptr(rhs))
+        if (!equal_type(lhs, rhs))
         {
-            return lhs;
+            error("invalid operands to binary.");
         }
-        if (is_float(lhs) && is_float(rhs))
-        {
-            return lhs;
-        }
-        return NULL;
+        // [Note] Only substraction is allowed in calculation of two pointers
+        return lhs; // TODO this should be `return new_type_int()`
+    }
+    else if (is_ptr(lhs))
+    {
+        return lhs;
+    }
+    else if (is_ptr(rhs))
+    {
+        return rhs;
+    }
+    else if (is_float(lhs) || is_float(rhs))
+    {
+        return new_type_float();
     }
     else if (is_int_or_char(lhs) && !(is_int_or_char(rhs)))
         return rhs;
     else if (!(is_int_or_char(lhs)) && is_int_or_char(rhs))
         return lhs;
-    else if (is_int_or_char(lhs) && is_int_or_char(rhs))
+    else
+    {
         return new_type_int();
+    }
 }
 
 Type *find_defined_type(Token *tok)
