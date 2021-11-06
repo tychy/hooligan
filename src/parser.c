@@ -46,10 +46,10 @@ static Node *ident()
             node->name = func->name;
             node->length = func->length;
             node->ty = func->ty;
-            node->num_args = func->num_args;
             node->is_static = func->is_static;
             node->has_variable_length_arguments = func->has_variable_length_arguments;
-            if (node->num_args != 0 && func->arg_ty_ls[0]->ty == VOID)
+            int args_count = func->num_args;
+            if (args_count != 0 && func->arg_ty_ls[0]->ty == VOID)
             {
                 node->is_void = true;
             }
@@ -63,7 +63,7 @@ static Node *ident()
                 if (count > 0)
                     expect(",");
 
-                if (count < node->num_args || node->has_variable_length_arguments)
+                if (count < args_count || node->has_variable_length_arguments)
                 {
                     if (node->is_void)
                     {
@@ -77,7 +77,7 @@ static Node *ident()
                 }
                 count++;
             }
-            if (!(node->is_void) && count < node->num_args)
+            if (!(node->is_void) && count < args_count)
             {
                 error("引数が少なすぎます");
             }

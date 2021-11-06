@@ -225,7 +225,6 @@ struct Node
     // for function
     List *args;
     int args_region_size;
-    int num_args;
     bool is_void;
     bool has_variable_length_arguments;
 
