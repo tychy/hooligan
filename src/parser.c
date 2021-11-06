@@ -13,6 +13,17 @@ static Node *expr();
 static Node *block();
 static Node *def(bool is_global);
 
+static Node *new_node_sub(Node *lhs, Node *rhs)
+{
+    Node *node;
+    node = new_node(ND_SUB, lhs, rhs);
+    if (is_ptr(lhs->ty) && is_ptr(rhs->ty))
+    {
+        node = new_node(ND_DIV, node, new_node_num(calc_bytes(lhs->ty->ptr_to)));
+    }
+    return node;
+}
+
 static Node *num()
 {
     if (cur_token->is_float)
@@ -229,7 +240,7 @@ static Node *primary()
                 error("デクリメントには左辺値が必要です");
             }
             Node *variable = node;
-            node = new_node(ND_SUB, variable, new_node_num(1));
+            node = new_node_sub(variable, new_node_num(1));
             node = new_node_assign(variable, node);
             node = new_node_dec(variable, node);
             return node;
@@ -247,7 +258,7 @@ static Node *unary()
     }
     else if (consume("-"))
     {
-        return new_node(ND_SUB, new_node_num(0), primary());
+        return new_node_sub(new_node_num(0), primary());
     }
     else if (consume("!"))
     {
@@ -302,8 +313,6 @@ static Node *mul()
 static Node *add()
 {
     Node *node = mul();
-    Node *lhs = NULL;
-    Node *rhs = NULL;
     for (;;)
     {
         if (consume("+"))
@@ -312,13 +321,7 @@ static Node *add()
         }
         else if (consume("-"))
         {
-            lhs = node;
-            rhs = mul();
-            node = new_node(ND_SUB, lhs, rhs);
-            if (is_ptr(lhs->ty) && is_ptr(rhs->ty))
-            {
-                node = new_node(ND_DIV, node, new_node_num(calc_bytes(lhs->ty->ptr_to)));
-            }
+            node = new_node_sub(node, mul());
         }
         else
         {
@@ -406,7 +409,7 @@ static Node *assign()
     }
     else if (consume("-="))
     {
-        Node *rhs = new_node(ND_SUB, node, expr());
+        Node *rhs = new_node_sub(node, expr());
         node = new_node_assign(node, rhs);
     }
     else if (consume("*="))
