@@ -107,7 +107,7 @@ Type *determine_expr_type(Type *lhs, Type *rhs)
             error("invalid operands to binary.");
         }
         // [Note] Only substraction is allowed in calculation of two pointers
-        return lhs; // TODO this should be `return new_type_int()`
+        return new_type_int();
     }
     else if (is_ptr(lhs))
     {

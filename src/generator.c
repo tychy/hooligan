@@ -648,15 +648,6 @@ static void gen(Node *node)
             {
                 new_il_sentence_raw("  imul rdi, %d", size);
             }
-            else if (is_ptr(node->rhs->ty) && is_ptr(node->lhs->ty) && node->kind == ND_SUB)
-            {
-                new_il_sentence_raw("  sub rax, rdi");
-                new_il_sentence_raw("  cqo");
-                new_il_sentence_raw("  mov rdi, %d", size);
-                new_il_sentence_raw("  idiv rdi");
-                push(ILRG_RAX);
-                return;
-            }
             else
             {
                 error("適切でない演算です");

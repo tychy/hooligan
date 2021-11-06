@@ -302,6 +302,8 @@ static Node *mul()
 static Node *add()
 {
     Node *node = mul();
+    Node *lhs = NULL;
+    Node *rhs = NULL;
     for (;;)
     {
         if (consume("+"))
@@ -310,7 +312,13 @@ static Node *add()
         }
         else if (consume("-"))
         {
-            node = new_node(ND_SUB, node, mul());
+            lhs = node;
+            rhs = mul();
+            node = new_node(ND_SUB, lhs, rhs);
+            if (is_ptr(lhs->ty) && is_ptr(rhs->ty))
+            {
+                node = new_node(ND_DIV, node, new_node_num(calc_bytes(lhs->ty->ptr_to)));
+            }
         }
         else
         {
