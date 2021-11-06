@@ -98,7 +98,6 @@ typedef enum
     ND_DEREF,
     ND_GVARDEF,
     ND_STRING,
-    ND_INIT,
     ND_MEMBER,
     ND_BREAK,
     ND_CONTINUE,
