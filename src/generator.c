@@ -612,16 +612,7 @@ static void gen(Node *node)
     case ND_SUB:
         gen(node->lhs);
         gen(node->rhs);
-        if (is_int_or_char(node->ty))
-        {
-            pop(ILRG_RDI);
-            pop(ILRG_RAX);
-            if (node->kind == ND_ADD)
-                new_il_sentence_raw("  add eax, edi");
-            else
-                new_il_sentence_raw("  sub eax, edi");
-        }
-        else if (is_float(node->ty))
+        if (is_float(node->ty))
         {
             new_il_sentence_raw("  movss xmm0, 8[rsp]");
             new_il_sentence_raw("  movss xmm1, [rsp]");
@@ -639,7 +630,14 @@ static void gen(Node *node)
         {
             pop(ILRG_RDI);
             pop(ILRG_RAX);
-            if (node->kind == ND_ADD)
+            if (is_int_or_char(node->ty))
+            {
+                if (node->kind == ND_ADD)
+                    new_il_sentence_raw("  add eax, edi");
+                else
+                    new_il_sentence_raw("  sub eax, edi");
+            }
+            else
             {
                 if (is_ptr(node->lhs->ty))
                 {
@@ -649,12 +647,10 @@ static void gen(Node *node)
                 {
                     new_il_sentence_raw("  movsxd rax, edi");
                 }
-                new_il_sentence_raw("  add rax, rdi");
-            }
-            else
-            {
-                new_il_sentence_raw("  movsxd rdi, edi");
-                new_il_sentence_raw("  sub rax, rdi");
+                if (node->kind == ND_ADD)
+                    new_il_sentence_raw("  add rax, rdi");
+                else
+                    new_il_sentence_raw("  sub rax, rdi");
             }
         }
         push(ILRG_RAX);
