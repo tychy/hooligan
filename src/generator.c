@@ -442,11 +442,9 @@ void gen_block(Node *node)
     {
         error("ブロックではありません");
     }
-    Node *cur = node->statements;
-    while (cur)
+    for (int i = 0; i < node->statements->size; i++)
     {
-        gen(cur);
-        cur = cur->next_stmt;
+        gen((Node *)node->statements->elm[i]);
     }
 }
 
