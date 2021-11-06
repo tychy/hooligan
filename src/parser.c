@@ -13,13 +13,42 @@ static Node *expr();
 static Node *block();
 static Node *def(bool is_global);
 
+static Node *new_node_add(Node *lhs, Node *rhs)
+{
+    Node *node;
+    if (is_ptr(lhs->ty) && is_int_or_char(rhs->ty))
+    {
+        rhs = new_node(ND_MUL, rhs, new_node_num(calc_bytes(lhs->ty->ptr_to)));
+        node = new_node(ND_ADD, lhs, rhs);
+    }
+    else if (is_int_or_char(lhs->ty) && is_ptr(rhs->ty))
+    {
+        lhs = new_node(ND_MUL, lhs, new_node_num(calc_bytes(rhs->ty->ptr_to)));
+        node = new_node(ND_ADD, lhs, rhs);
+    }
+    else
+    {
+        node = new_node(ND_ADD, lhs, rhs);
+    }
+    return node;
+}
+
 static Node *new_node_sub(Node *lhs, Node *rhs)
 {
     Node *node;
-    node = new_node(ND_SUB, lhs, rhs);
     if (is_ptr(lhs->ty) && is_ptr(rhs->ty))
     {
+        node = new_node(ND_SUB, lhs, rhs);
         node = new_node(ND_DIV, node, new_node_num(calc_bytes(lhs->ty->ptr_to)));
+    }
+    else if (is_ptr(lhs->ty) && is_int_or_char(rhs->ty))
+    {
+        rhs = new_node(ND_MUL, rhs, new_node_num(calc_bytes(lhs->ty->ptr_to)));
+        node = new_node(ND_SUB, lhs, rhs);
+    }
+    else
+    {
+        node = new_node(ND_SUB, lhs, rhs);
     }
     return node;
 }
@@ -177,13 +206,13 @@ static Node *primary()
         {
             Node *index = expr();
             expect("]");
-            node = new_node(ND_ADD, node, index);
+            node = new_node_add(node, index);
             while (node->ty->ptr_to && node->ty->ptr_to->ty == ARRAY && consume("["))
             {
                 Node *index = expr();
                 expect("]");
-                node = new_node(ND_ADD, node, index);
                 node->ty = node->ty->ptr_to;
+                node = new_node_add(node, index);
             }
             node = new_node_single(ND_DEREF, node);
             continue;
@@ -228,7 +257,7 @@ static Node *primary()
                 error("インクリメントには左辺値が必要です");
             }
             Node *variable = node;
-            node = new_node(ND_ADD, variable, new_node_num(1));
+            node = new_node_add(variable, new_node_num(1));
             node = new_node_assign(variable, node);
             node = new_node_inc(variable, node);
             return node;
@@ -317,7 +346,7 @@ static Node *add()
     {
         if (consume("+"))
         {
-            node = new_node(ND_ADD, node, mul());
+            node = new_node_add(node, mul());
         }
         else if (consume("-"))
         {
@@ -404,7 +433,7 @@ static Node *assign()
     Node *node = logical();
     if (consume("+="))
     {
-        Node *rhs = new_node(ND_ADD, node, expr());
+        Node *rhs = new_node_add(node, expr());
         node = new_node_assign(node, rhs);
     }
     else if (consume("-="))

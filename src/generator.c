@@ -639,24 +639,23 @@ static void gen(Node *node)
         {
             pop(ILRG_RDI);
             pop(ILRG_RAX);
-            int size = calc_bytes(node->ty->ptr_to);
-            if (is_int_or_char(node->lhs->ty))
-            {
-                new_il_sentence_raw("  imul rax, %d", size);
-            }
-            else if (is_int_or_char(node->rhs->ty))
-            {
-                new_il_sentence_raw("  imul rdi, %d", size);
-            }
-            else
-            {
-                error("適切でない演算です");
-            }
-
             if (node->kind == ND_ADD)
+            {
+                if (is_ptr(node->lhs->ty))
+                {
+                    new_il_sentence_raw("  movsxd rdi, edi");
+                }
+                else if (is_ptr(node->lhs->ty))
+                {
+                    new_il_sentence_raw("  movsxd rax, edi");
+                }
                 new_il_sentence_raw("  add rax, rdi");
+            }
             else
+            {
+                new_il_sentence_raw("  movsxd rdi, edi");
                 new_il_sentence_raw("  sub rax, rdi");
+            }
         }
         push(ILRG_RAX);
         return;
