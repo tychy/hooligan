@@ -51,25 +51,20 @@ static Node *ident()
             int args_count = func->num_args;
             bool is_arg_forbidden = args_count != 0 && func->arg_ty_ls[0]->ty == VOID;
 
-            while (!consume(")"))
+            for (; !consume(")"); consume(","))
             {
-                if (count > 0)
-                    expect(",");
-
+                if (is_arg_forbidden)
+                {
+                    error("引数は予期されていません");
+                }
+                Node *arg = new_node_single(ND_ARG, expr());
                 if (count < args_count || node->has_variable_length_arguments)
                 {
-                    if (is_arg_forbidden)
-                    {
-                        error("引数は予期されていません");
-                    }
-                    node->args = append(node->args, new_node_single(ND_ARG, expr()));
-                }
-                else
-                {
-                    expr();
+                    node->args = append(node->args, arg);
                 }
                 count++;
             }
+
             if (!is_arg_forbidden && count < args_count)
             {
                 error("引数が少なすぎます");
