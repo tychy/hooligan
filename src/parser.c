@@ -39,7 +39,6 @@ static Node *ident()
     {
         Node *node = new_node_raw(ND_FUNC);
         Var *func = find_var(ident);
-        Node *arg_top = node;
         int count = 0;
 
         if (func)
@@ -70,9 +69,7 @@ static Node *ident()
                     {
                         error("引数は予期されていません");
                     }
-                    Node *arg = new_node_single(ND_ARG, expr());
-                    arg_top->next_arg = arg;
-                    arg_top = arg;
+                    node->args = append(node->args, new_node_single(ND_ARG, expr()));
                 }
                 else
                 {
@@ -95,10 +92,7 @@ static Node *ident()
                 if (count > 0)
                     expect(",");
 
-                Node *arg = new_node_single(ND_ARG, expr());
-                arg_top->next_arg = arg;
-                arg_top = arg;
-
+                node->args = append(node->args, new_node_single(ND_ARG, expr()));
                 count++;
             }
         }

@@ -112,20 +112,19 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         gen_builtin_function(node);
         return;
     }
-    Node *arg = node->next_arg;
-    Node *first_arg = NULL;
+
     bool isfloat[6];
     int count = 0;
     int num_of_float_arg = 0;
-    while (arg != NULL)
+    for (int i = 0; i < node->args->size; i++)
     {
+        Node *arg = (Node *)node->args->elm[i];
         if (arg->kind != ND_ARG)
         {
             error("引数ではありません");
         }
         gen(arg->child);
-
-        if (count >= 6)
+        if (i >= 6)
         {
             error("引数の数が多すぎます");
         }
@@ -138,7 +137,6 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         {
             isfloat[count] = false;
         }
-        arg = arg->next_arg;
         count++;
     }
     while (count > 0)

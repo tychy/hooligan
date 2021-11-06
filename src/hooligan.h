@@ -206,7 +206,6 @@ struct Node
     Node *child;
     // for
     Node *next;
-    Node *next_arg;
 
     // for(init; condition; on_end) body;
     Node *init;
@@ -224,6 +223,7 @@ struct Node
     // for static
     bool is_static;
     // for function
+    List *args;
     int args_region_size;
     int num_args;
     bool is_void;
