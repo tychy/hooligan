@@ -224,7 +224,6 @@ struct Node
     bool is_static;
     // for function
     int args_region_size;
-    Node *args;
     int num_args;
     bool is_void;
     bool has_variable_length_arguments;
