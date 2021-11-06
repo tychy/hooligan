@@ -112,7 +112,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         gen_builtin_function(node);
         return;
     }
-    Node *arg = node->next;
+    Node *arg = node->next_arg;
     Node *first_arg = NULL;
     bool isfloat[6];
     int count = 0;
@@ -138,7 +138,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         {
             isfloat[count] = false;
         }
-        arg = arg->next;
+        arg = arg->next_arg;
         count++;
     }
     while (count > 0)

@@ -71,7 +71,7 @@ static Node *ident()
                         error("引数は予期されていません");
                     }
                     Node *arg = new_node_single(ND_ARG, expr());
-                    arg_top->next = arg;
+                    arg_top->next_arg = arg;
                     arg_top = arg;
                 }
                 else
@@ -96,7 +96,7 @@ static Node *ident()
                     expect(",");
 
                 Node *arg = new_node_single(ND_ARG, expr());
-                arg_top->next = arg;
+                arg_top->next_arg = arg;
                 arg_top = arg;
 
                 count++;

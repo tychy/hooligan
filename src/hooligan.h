@@ -206,6 +206,7 @@ struct Node
     Node *child;
     // for
     Node *next;
+    Node *next_arg;
 
     // for(init; condition; on_end) body;
     Node *init;
