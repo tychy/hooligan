@@ -216,7 +216,7 @@ struct Node
     // if(condition) body else on_else
     Node *on_else;
     // for switch-case
-    Node *next_case;
+    List *cases;
     Node *default_case;
     // for variable
     bool is_local;

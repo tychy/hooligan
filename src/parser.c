@@ -688,8 +688,7 @@ static Node *stmt()
         expect(":");
         Node *node = new_node_single(ND_CASE, stmt());
         node->val = val;
-        node->next_case = ctx->scope->current_switch->next_case;
-        ctx->scope->current_switch->next_case = node;
+        ctx->scope->current_switch->cases = append(ctx->scope->current_switch->cases, node);
         return node;
     }
     else if (consume_rw(RW_DEFAULT))

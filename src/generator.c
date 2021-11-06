@@ -532,8 +532,9 @@ static void gen(Node *node)
     case ND_SWITCH:
         gen(node->condition);
         pop(ILRG_RAX);
-        for (Node *c = node->next_case; c; c = c->next_case)
+        for (int i = 0; i < node->cases->size; i++)
         {
+            Node *c = (Node *)node->cases->elm[i];
             new_il_sentence_raw("  cmp eax, %d", c->val);
             new_il_sentence_raw("  je .L.Case%d", c->id);
         }
