@@ -490,14 +490,14 @@ static Node *right_value(Type *lty)
     Node *node = NULL;
     if (consume("="))
     {
-        Node head;
-        Node *cur = &head;
         if (lty->ty != ARRAY)
         {
-            cur->next = assign();
+            node = assign();
         }
         else if (consume("{"))
         {
+            node = new_node_raw(ND_ARRAY);
+            node->ty = lty;
             int cnt = 0;
             while (!consume("}"))
             {
@@ -507,8 +507,7 @@ static Node *right_value(Type *lty)
                     consume(",");
                     continue;
                 }
-                cur->next = new_node_single(ND_INIT, expr());
-                cur = cur->next;
+                node->children = append(node->children, expr());
                 cnt++;
                 consume(",");
             }
@@ -522,8 +521,7 @@ static Node *right_value(Type *lty)
             }
             for (; cnt < lty->array_size; cnt++)
             {
-                cur->next = new_node_single(ND_INIT, new_node_num(0));
-                cur = cur->next;
+                node->children = append(node->children, new_node_num(0));
             }
         }
         else if (cur_token->kind == TK_STRING)
@@ -532,16 +530,16 @@ static Node *right_value(Type *lty)
             {
                 error("char型の配列が必要です");
             }
+            node = new_node_raw(ND_ARRAY);
+            node->ty = lty;
             lty->array_size = cur_token->len + 1;
             for (int i = 0; i < cur_token->len; i++)
             {
-                cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[i]));
-                cur = cur->next;
+                node->children = append(node->children, new_node_num(cur_token->str[i]));
             }
-            cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
+            node->children = append(node->children, new_node_num(0)); // 終端文字の挿入
             cur_token = cur_token->next;
         }
-        node = head.next;
     }
     return node;
 }

@@ -109,6 +109,7 @@ typedef enum
     ND_POSTDEC,
     ND_NOP,
     ND_TYPE,
+    ND_ARRAY,
 } NodeKind;
 
 typedef enum
@@ -195,6 +196,7 @@ struct Node
     char *name;
     int length;
     Type *ty;
+    List *children;
 
     // for gvar
     Node *gvar_init;
@@ -204,8 +206,6 @@ struct Node
     Node *rhs;
     // for single child node
     Node *child;
-    // for
-    Node *next;
 
     // for(init; condition; on_end) body;
     Node *init;
