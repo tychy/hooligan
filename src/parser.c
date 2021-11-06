@@ -49,14 +49,7 @@ static Node *ident()
             node->is_static = func->is_static;
             node->has_variable_length_arguments = func->has_variable_length_arguments;
             int args_count = func->num_args;
-            if (args_count != 0 && func->arg_ty_ls[0]->ty == VOID)
-            {
-                node->is_void = true;
-            }
-            else
-            {
-                node->is_void = false;
-            }
+            bool is_arg_forbidden = args_count != 0 && func->arg_ty_ls[0]->ty == VOID;
 
             while (!consume(")"))
             {
@@ -65,7 +58,7 @@ static Node *ident()
 
                 if (count < args_count || node->has_variable_length_arguments)
                 {
-                    if (node->is_void)
+                    if (is_arg_forbidden)
                     {
                         error("引数は予期されていません");
                     }
@@ -77,7 +70,7 @@ static Node *ident()
                 }
                 count++;
             }
-            if (!(node->is_void) && count < args_count)
+            if (!is_arg_forbidden && count < args_count)
             {
                 error("引数が少なすぎます");
             }
