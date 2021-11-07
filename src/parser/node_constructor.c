@@ -128,3 +128,43 @@ static Node *new_node_string(Token *tok)
     node->ty = new_type_string();
     return node;
 }
+
+static Node *new_node_add(Node *lhs, Node *rhs)
+{
+    Node *node;
+    if (is_ptr(lhs->ty) && is_int_or_char(rhs->ty))
+    {
+        rhs = new_node(ND_MUL, rhs, new_node_num(calc_bytes(lhs->ty->ptr_to)));
+        node = new_node(ND_ADD, lhs, rhs);
+    }
+    else if (is_int_or_char(lhs->ty) && is_ptr(rhs->ty))
+    {
+        lhs = new_node(ND_MUL, lhs, new_node_num(calc_bytes(rhs->ty->ptr_to)));
+        node = new_node(ND_ADD, lhs, rhs);
+    }
+    else
+    {
+        node = new_node(ND_ADD, lhs, rhs);
+    }
+    return node;
+}
+
+static Node *new_node_sub(Node *lhs, Node *rhs)
+{
+    Node *node;
+    if (is_ptr(lhs->ty) && is_ptr(rhs->ty))
+    {
+        node = new_node(ND_SUB, lhs, rhs);
+        node = new_node(ND_DIV, node, new_node_num(calc_bytes(lhs->ty->ptr_to)));
+    }
+    else if (is_ptr(lhs->ty) && is_int_or_char(rhs->ty))
+    {
+        rhs = new_node(ND_MUL, rhs, new_node_num(calc_bytes(lhs->ty->ptr_to)));
+        node = new_node(ND_SUB, lhs, rhs);
+    }
+    else
+    {
+        node = new_node(ND_SUB, lhs, rhs);
+    }
+    return node;
+}
