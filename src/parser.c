@@ -37,55 +37,28 @@ static Node *ident()
     Token *ident = expect_ident();
     if (consume("("))
     {
-        Node *node = new_node_raw(ND_FUNC);
         Var *func = find_var(ident);
-        int count = 0;
-
-        if (func)
+        List *args = new_list(10);
+        bool is_arg_forbidden = false;
+        if (!func)
         {
-            node->name = func->name;
-            node->length = func->length;
-            node->ty = func->ty;
-            node->is_static = func->is_static;
-            node->has_variable_length_arguments = func->has_variable_length_arguments;
-            int args_count = func->num_args;
-            bool is_arg_forbidden = args_count != 0 && func->arg_ty_ls[0]->ty == VOID;
-
-            for (; !consume(")"); consume(","))
-            {
-                if (is_arg_forbidden)
-                {
-                    error("引数は予期されていません");
-                }
-                Node *arg = expr();
-                if (count < args_count || node->has_variable_length_arguments)
-                {
-                    node->args = append(node->args, arg);
-                }
-                count++;
-            }
-
-            if (!is_arg_forbidden && count < args_count)
-            {
-                error("引数が少なすぎます");
-            }
+            func = new_non_prototyped_function(ident->str, ident->len);
         }
-        else
+        is_arg_forbidden = func->num_args != 0 && func->arg_ty_ls[0]->ty == VOID;
+        for (; !consume(")"); consume(","))
         {
-            node->name = ident->str;
-            node->length = ident->len;
-            node->ty = new_type_int();
-            while (!consume(")"))
-            {
-                if (count > 0)
-                    expect(",");
-
-                node->args = append(node->args, expr());
-                count++;
-            }
+            args = append(args, expr());
         }
 
-        return node;
+        if (is_arg_forbidden && args->size > 0)
+        {
+            error("引数は予期されていません");
+        }
+        else if (!is_arg_forbidden && args->size < func->num_args)
+        {
+            error("引数が少なすぎます");
+        }
+        return new_node_func(func, args);
     }
     else
     {

@@ -42,6 +42,15 @@ static Var *def_var(Token *tok, Type *ty, bool is_local, bool is_static)
     return var;
 }
 
+static Var *new_non_prototyped_function(char *name, int length)
+{
+    Var *func = calloc(1, sizeof(Var));
+    func->name = name;
+    func->length = length;
+    func->ty = new_type_int();
+    return func;
+}
+
 static Var *def_func(Token *tok, Type *ty, int num_args, Type *arg_ty_ls[6], bool is_static, bool has_variable_length_arguments)
 {
     Var *new_func = new_var(tok, ty);

@@ -168,3 +168,15 @@ static Node *new_node_sub(Node *lhs, Node *rhs)
     }
     return node;
 }
+
+static Node *new_node_func(Var *func, List *args)
+{
+    Node *node = new_node_raw(ND_FUNC);
+    node->name = func->name;
+    node->length = func->length;
+    node->ty = func->ty;
+    node->is_static = func->is_static;
+    node->has_variable_length_arguments = func->has_variable_length_arguments;
+    node->args = args;
+    return node;
+}
