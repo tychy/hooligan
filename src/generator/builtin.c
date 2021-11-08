@@ -6,7 +6,7 @@ static void gen_va_start(Node *node)
     {
         error("va_startではありません");
     }
-    Node *first_arg = node->next->child;
+    Node *first_arg = ((Node *)node->args->elm[0])->child;
     new_il_sentence_raw("  mov DWORD PTR -72[rbp], 8");  // TODO 本当は第二引数から計算しないといけない
     new_il_sentence_raw("  mov DWORD PTR -68[rbp], 48"); // va_list->fp_offset
     new_il_sentence_raw("  lea rax, 16[rbp]");
@@ -25,8 +25,8 @@ static void gen_va_arg(Node *node)
     {
         error("va_argではありません");
     }
-    Node *first_arg = node->next->child;
-    Node *second_arg = node->next->next->child;
+    Node *first_arg = ((Node *)node->args->elm[0])->child;
+    Node *second_arg = ((Node *)node->args->elm[1])->child;
     if (second_arg->kind != ND_TYPE)
     {
         error("va_argの第2引数には型を指定してください");

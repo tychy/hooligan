@@ -39,7 +39,6 @@ static Node *ident()
     {
         Node *node = new_node_raw(ND_FUNC);
         Var *func = find_var(ident);
-        Node *arg_top = node;
         int count = 0;
 
         if (func)
@@ -47,40 +46,26 @@ static Node *ident()
             node->name = func->name;
             node->length = func->length;
             node->ty = func->ty;
-            node->num_args = func->num_args;
             node->is_static = func->is_static;
             node->has_variable_length_arguments = func->has_variable_length_arguments;
-            if (node->num_args != 0 && func->arg_ty_ls[0]->ty == VOID)
-            {
-                node->is_void = true;
-            }
-            else
-            {
-                node->is_void = false;
-            }
+            int args_count = func->num_args;
+            bool is_arg_forbidden = args_count != 0 && func->arg_ty_ls[0]->ty == VOID;
 
-            while (!consume(")"))
+            for (; !consume(")"); consume(","))
             {
-                if (count > 0)
-                    expect(",");
-
-                if (count < node->num_args || node->has_variable_length_arguments)
+                if (is_arg_forbidden)
                 {
-                    if (node->is_void)
-                    {
-                        error("引数は予期されていません");
-                    }
-                    Node *arg = new_node_single(ND_ARG, expr());
-                    arg_top->next = arg;
-                    arg_top = arg;
+                    error("引数は予期されていません");
                 }
-                else
+                Node *arg = new_node_single(ND_ARG, expr());
+                if (count < args_count || node->has_variable_length_arguments)
                 {
-                    expr();
+                    node->args = append(node->args, arg);
                 }
                 count++;
             }
-            if (!(node->is_void) && count < node->num_args)
+
+            if (!is_arg_forbidden && count < args_count)
             {
                 error("引数が少なすぎます");
             }
@@ -95,10 +80,7 @@ static Node *ident()
                 if (count > 0)
                     expect(",");
 
-                Node *arg = new_node_single(ND_ARG, expr());
-                arg_top->next = arg;
-                arg_top = arg;
-
+                node->args = append(node->args, new_node_single(ND_ARG, expr()));
                 count++;
             }
         }

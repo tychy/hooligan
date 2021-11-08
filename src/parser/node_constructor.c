@@ -6,6 +6,7 @@ static Node *new_node_raw(NodeKind kind)
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
     node->id = id++;
+    node->args = new_list(10);
     logging(node);
     return node;
 }

@@ -223,10 +223,8 @@ struct Node
     // for static
     bool is_static;
     // for function
+    List *args;
     int args_region_size;
-    Node *args;
-    int num_args;
-    bool is_void;
     bool has_variable_length_arguments;
 
     // for float
