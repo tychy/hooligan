@@ -57,7 +57,7 @@ static Node *ident()
                 {
                     error("引数は予期されていません");
                 }
-                Node *arg = new_node_single(ND_ARG, expr());
+                Node *arg = expr();
                 if (count < args_count || node->has_variable_length_arguments)
                 {
                     node->args = append(node->args, arg);
@@ -80,7 +80,7 @@ static Node *ident()
                 if (count > 0)
                     expect(",");
 
-                node->args = append(node->args, new_node_single(ND_ARG, expr()));
+                node->args = append(node->args, expr());
                 count++;
             }
         }
@@ -487,17 +487,16 @@ static Node *decl_type()
 
 static Node *right_value(Type *lty)
 {
-    Node *node = NULL;
     if (consume("="))
     {
-        Node head;
-        Node *cur = &head;
         if (lty->ty != ARRAY)
         {
-            cur->next = assign();
+            return assign();
         }
         else if (consume("{"))
         {
+            Node *node = new_node_raw(ND_ARRAY);
+            node->ty = lty;
             int cnt = 0;
             while (!consume("}"))
             {
@@ -507,8 +506,7 @@ static Node *right_value(Type *lty)
                     consume(",");
                     continue;
                 }
-                cur->next = new_node_single(ND_INIT, expr());
-                cur = cur->next;
+                node->children = append(node->children, expr());
                 cnt++;
                 consume(",");
             }
@@ -522,9 +520,9 @@ static Node *right_value(Type *lty)
             }
             for (; cnt < lty->array_size; cnt++)
             {
-                cur->next = new_node_single(ND_INIT, new_node_num(0));
-                cur = cur->next;
+                node->children = append(node->children, new_node_num(0));
             }
+            return node;
         }
         else if (cur_token->kind == TK_STRING)
         {
@@ -532,18 +530,19 @@ static Node *right_value(Type *lty)
             {
                 error("char型の配列が必要です");
             }
+            Node *node = new_node_raw(ND_ARRAY);
+            node->ty = lty;
             lty->array_size = cur_token->len + 1;
             for (int i = 0; i < cur_token->len; i++)
             {
-                cur->next = new_node_single(ND_INIT, new_node_num(cur_token->str[i]));
-                cur = cur->next;
+                node->children = append(node->children, new_node_num(cur_token->str[i]));
             }
-            cur->next = new_node_single(ND_INIT, new_node_num(0)); // 終端文字の挿入
+            node->children = append(node->children, new_node_num(0)); // 終端文字の挿入
             cur_token = cur_token->next;
+            return node;
         }
-        node = head.next;
     }
-    return node;
+    return NULL;
 }
 
 static Node *stmt()
@@ -688,8 +687,7 @@ static Node *stmt()
         expect(":");
         Node *node = new_node_single(ND_CASE, stmt());
         node->val = val;
-        node->next_case = ctx->scope->current_switch->next_case;
-        ctx->scope->current_switch->next_case = node;
+        ctx->scope->current_switch->cases = append(ctx->scope->current_switch->cases, node);
         return node;
     }
     else if (consume_rw(RW_DEFAULT))

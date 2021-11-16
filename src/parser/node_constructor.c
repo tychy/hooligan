@@ -7,6 +7,7 @@ static Node *new_node_raw(NodeKind kind)
     node->kind = kind;
     node->id = id++;
     node->args = new_list(10);
+    node->children = new_list(10);
     logging(node);
     return node;
 }

@@ -92,13 +92,11 @@ typedef enum
     ND_SWITCH,
     ND_CASE,
     ND_FUNC,
-    ND_ARG,
     ND_FUNCDEF,
     ND_ADDR,
     ND_DEREF,
     ND_GVARDEF,
     ND_STRING,
-    ND_INIT,
     ND_MEMBER,
     ND_BREAK,
     ND_CONTINUE,
@@ -109,6 +107,7 @@ typedef enum
     ND_POSTDEC,
     ND_NOP,
     ND_TYPE,
+    ND_ARRAY,
 } NodeKind;
 
 typedef enum
@@ -195,6 +194,7 @@ struct Node
     char *name;
     int length;
     Type *ty;
+    List *children;
 
     // for gvar
     Node *gvar_init;
@@ -204,8 +204,6 @@ struct Node
     Node *rhs;
     // for single child node
     Node *child;
-    // for
-    Node *next;
 
     // for(init; condition; on_end) body;
     Node *init;
@@ -216,7 +214,7 @@ struct Node
     // if(condition) body else on_else
     Node *on_else;
     // for switch-case
-    Node *next_case;
+    List *cases;
     Node *default_case;
     // for variable
     bool is_local;

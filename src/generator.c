@@ -119,11 +119,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
     for (int i = 0; i < node->args->size; i++)
     {
         Node *arg = (Node *)node->args->elm[i];
-        if (arg->kind != ND_ARG)
-        {
-            error("引数ではありません");
-        }
-        gen(arg->child);
+        gen(arg);
         if (i >= 6)
         {
             error("引数の数が多すぎます");
@@ -183,20 +179,22 @@ static void gen_global_var_def(Node *node)
     }
     if (node->gvar_init)
     {
-        Node *cur = node->gvar_init;
-        while (cur)
+        if (node->gvar_init->kind == ND_STRING)
         {
-            if (cur->kind == ND_STRING)
+            new_il_sentence_raw_to_data(".LC%d:", node->gvar_init->id);
+            new_il_sentence_raw_to_data("  .string \"%.*s\"", node->gvar_init->str_len, node->gvar_init->str_content);
+        }
+        else if (node->gvar_init->kind == ND_ARRAY)
+        {
+            for (int i = 0; i < node->gvar_init->children->size; i++)
             {
-                new_il_sentence_raw_to_data(".LC%d:", cur->id);
-                new_il_sentence_raw_to_data("  .string \"%.*s\"", cur->str_len, cur->str_content);
+                Node *elm = (Node *)node->gvar_init->children->elm[i];
+                if (elm->kind == ND_STRING)
+                {
+                    new_il_sentence_raw_to_data(".LC%d:", elm->id);
+                    new_il_sentence_raw_to_data("  .string \"%.*s\"", elm->str_len, elm->str_content);
+                }
             }
-            else if (cur->child && cur->child->kind == ND_STRING)
-            {
-                new_il_sentence_raw_to_data(".LC%d:", cur->child->id);
-                new_il_sentence_raw_to_data("  .string \"%.*s\"", cur->child->str_len, cur->child->str_content);
-            }
-            cur = cur->next;
         }
     }
     if (node->is_static)
@@ -221,19 +219,18 @@ static void gen_global_var_def(Node *node)
         }
         else
         {
-            Node *cur = node->gvar_init;
             int counter = 0;
-            while (cur)
+            for (int i = 0; i < node->gvar_init->children->size; i++)
             {
-                if (cur->child->kind == ND_STRING)
+                Node *elm = (Node *)node->gvar_init->children->elm[i];
+                if (elm->kind == ND_STRING)
                 {
-                    new_il_sentence_raw_to_data("  .quad .LC%d", cur->child->id);
+                    new_il_sentence_raw_to_data("  .quad .LC%d", elm->id);
                 }
                 else
                 {
-                    new_il_sentence_raw_to_data("  .long %d", cur->child->val);
+                    new_il_sentence_raw_to_data("  .long %d", elm->val);
                 }
-                cur = cur->next;
                 counter++;
             }
             int remain_size = (node->ty->array_size - counter) * calc_bytes(node->ty->ptr_to);
@@ -381,21 +378,19 @@ static void gen_assign(Node *node)
     }
 
     // 初期化式
-    if (node->rhs && node->rhs->kind == ND_INIT)
+    if (node->rhs && node->rhs->kind == ND_ARRAY)
     {
         if (is_int_or_char(node->lhs->ty))
         {
             error("ポインタ型が必要です");
         }
-        Node *cur = node->rhs;
-        int counter = 0;
-        while (cur)
+        for (int i = 0; i < node->rhs->children->size; i++)
         {
             gen_addr(node->lhs);
-            gen(cur->child);
+            gen((Node *)node->rhs->children->elm[i]);
             pop(ILRG_RDI);
             pop(ILRG_RAX);
-            new_il_sentence_raw("  add rax, %d", calc_bytes(node->lhs->ty->ptr_to) * counter);
+            new_il_sentence_raw("  add rax, %d", calc_bytes(node->lhs->ty->ptr_to) * i);
             if (is_int(node->lhs->ty->ptr_to))
                 new_il_sentence_raw("  mov [rax], edi");
             else if (is_char(node->lhs->ty->ptr_to))
@@ -404,8 +399,6 @@ static void gen_assign(Node *node)
             }
             else
                 new_il_sentence_raw("  mov [rax], rdi");
-            cur = cur->next;
-            counter++;
         }
         return;
     }
@@ -532,8 +525,9 @@ static void gen(Node *node)
     case ND_SWITCH:
         gen(node->condition);
         pop(ILRG_RAX);
-        for (Node *c = node->next_case; c; c = c->next_case)
+        for (int i = 0; i < node->cases->size; i++)
         {
+            Node *c = (Node *)node->cases->elm[i];
             new_il_sentence_raw("  cmp eax, %d", c->val);
             new_il_sentence_raw("  je .L.Case%d", c->id);
         }
