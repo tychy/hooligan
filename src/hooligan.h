@@ -223,6 +223,7 @@ struct Node
     // for function
     List *args;
     int args_region_size;
+    bool is_type_prototyped;
     bool has_variable_length_arguments;
 
     // for float
