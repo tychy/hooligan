@@ -48,6 +48,7 @@ static Node *ident()
             node->ty = func->ty;
             node->is_static = func->is_static;
             node->has_variable_length_arguments = func->has_variable_length_arguments;
+            node->is_type_prototyped = !node->has_variable_length_arguments;
             int args_count = func->num_args;
             bool is_arg_forbidden = args_count != 0 && func->arg_ty_ls[0]->ty == VOID;
 
@@ -75,6 +76,7 @@ static Node *ident()
             node->name = ident->str;
             node->length = ident->len;
             node->ty = new_type_int();
+            node->is_type_prototyped = false;
             while (!consume(")"))
             {
                 if (count > 0)

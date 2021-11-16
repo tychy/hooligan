@@ -4,14 +4,8 @@
 #include "util/string.c"
 #include "util/type.c"
 
-
-
 int f2bin(float x)
 {
-    if (x == 0.0)
-    {
-        return 0;
-    }
     int bin[32]; // IEEE754の表現
     int mid[24]; // 中間表現では2進数だがIEEE754ではない
 
@@ -30,6 +24,12 @@ int f2bin(float x)
     {
         bin[0] = 1;
         x *= -1.0;
+    }
+
+    float eps = 0.00000001;
+    if (x < eps)
+    {
+        return 0;
     }
 
     // xを2進数に変換
@@ -128,6 +128,5 @@ int f2bin(float x)
         res += bin[31 - j] * power;
         power *= 2;
     }
-    //printf("%d\n", res);
     return res;
 }

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 int testFloatDefine()
 {
@@ -265,6 +266,15 @@ int testFloatCalc()
     return 0;
 }
 
+float abs(float x)
+{
+    if (x >= 0.0)
+    {
+        return x;
+    }
+    return -1.0 * x;
+}
+
 int floatcall(float x)
 {
     return 1;
@@ -284,35 +294,36 @@ float floathalf(float x)
 {
     return x / 2.0;
 }
+
 int testFloatFuncCall()
 {
     if (floatcall(1.0) != 1)
     {
         return 1;
     }
+
     float eps = 0.00001;
-    if (1.11 - floatreturn(1.11) > eps)
+    if (abs(1.11 - floatreturn(1.11)) > eps)
     {
         return 1;
     }
 
     float x = floatreturn(3.3333);
-    if (x - 3.3333 > eps)
+    if (abs(x - 3.3333) > eps)
     {
         return 1;
     }
-    if (((x + x) - floatdouble(x)) > eps)
+    if (abs((x + x) - floatdouble(x)) > eps)
     {
         return 1;
     }
 
-    if ((x - floathalf(x + x)) > eps)
+    if (abs(x - floathalf(x + x)) > eps)
     {
         return 1;
     }
     return 0;
 }
-
 int testStrtof()
 {
     float y = 1.1111;
@@ -322,6 +333,13 @@ int testStrtof()
     {
         return 1;
     }
+    return 0;
+}
+
+int testPrintFloat()
+{
+    float x = 1.1155;
+    printf("%.5f\n", x);
     return 0;
 }
 
@@ -366,6 +384,6 @@ int main()
     {
         return 1;
     }
-
+    testPrintFloat();
     return 0;
 }
