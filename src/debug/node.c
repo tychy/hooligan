@@ -20,16 +20,10 @@ char *node_kind_to_str(NodeKind kind)
         return "ND_MOD";
     case ND_EQUAL:
         return "ND_EQUAL";
-    case ND_NEQUAL:
-        return "ND_NEQUAL";
     case ND_GEQ:
         return "ND_GEQ";
-    case ND_LEQ:
-        return "ND_LEQ";
     case ND_GTH:
         return "ND_GTH";
-    case ND_LTH:
-        return "ND_LTH";
     case ND_VAR:
         return "ND_VAR";
     case ND_ASSIGN:
@@ -50,8 +44,6 @@ char *node_kind_to_str(NodeKind kind)
         return "ND_CASE";
     case ND_FUNC:
         return "ND_FUNC";
-    case ND_ARG:
-        return "ND_ARG";
     case ND_FUNCDEF:
         return "ND_FUNCDEF";
     case ND_ADDR:
@@ -62,8 +54,6 @@ char *node_kind_to_str(NodeKind kind)
         return "ND_GVARDEF";
     case ND_STRING:
         return "ND_STRING";
-    case ND_INIT:
-        return "ND_INIT";
     case ND_MEMBER:
         return "ND_MEMBER";
     case ND_BREAK:
