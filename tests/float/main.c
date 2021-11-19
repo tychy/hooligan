@@ -336,6 +336,30 @@ int testStrtof()
     return 0;
 }
 
+int testFloatArray()
+{
+    float eps = 0.000001;
+    float arr[10];
+    arr[2] = 1.2235;
+    arr[3] = 1.2234;
+    if (arr[3] - arr[2] > 0.0)
+    {
+        return 1;
+    }
+
+    float judge = 0.001;
+    if ((arr[2] - arr[2]) > judge)
+    {
+        return 1;
+    }
+    arr[4] = arr[2] * arr[3];
+    if (abs(arr[4] - 1.4968299) > eps)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 int testPrintFloat()
 {
     float x = 1.1155;
@@ -384,6 +408,11 @@ int main()
     {
         return 1;
     }
+    if (testFloatArray() != 0)
+    {
+        return 1;
+    }
+
     testPrintFloat();
     return 0;
 }
