@@ -135,26 +135,34 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
         }
         count++;
     }
+    int remaining_float_args = num_of_float_arg;
     while (count > 0)
     {
         count--;
         if (isfloat[count])
         {
-            num_of_float_arg--;
-            new_il_sentence_raw("  movss %s, [rsp]", xmm[num_of_float_arg]);
+            remaining_float_args--;
+            if (node->is_type_prototyped)
+            {
+                new_il_sentence_raw("  movss %s, DWORD PTR[rsp]", xmm[remaining_float_args]);
+            }
+            else
+            {
+                new_il_sentence_raw("  cvtss2sd %s, DWORD PTR [rsp]", xmm[remaining_float_args]);
+            }
             new_il_sentence_raw("  add rsp, 8");
             ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
         }
         else
         {
-            pop(count - num_of_float_arg);
+            pop(count - remaining_float_args);
         }
     }
     if (!ctx->is_aligned_stack_ptr)
     {
         new_il_sentence_raw("  sub rsp, 8");
     }
-    new_il_sentence_raw("  mov al, 0");
+    new_il_sentence_raw("  mov al, %d", num_of_float_arg);
     if (node->is_static)
     {
         new_il_sentence_raw("  call L%.*s", node->length, node->name);
