@@ -12,7 +12,7 @@ find ./*.s | while read -r fn; do
 done
 ld -o a.out -m elf_x86_64 "${lib_path[0]}"/crt1.o "${lib_path[0]}"/crti.o "${gcc_lib_path[0]}"/crtbegin.o \
     -L"${lib_path[0]}" -L/usr/lib64 -L/lib64 \
-    -L"${gcc_lib_path[0]}" -dynamic-linker /lib64/ld-linux-x86-64.so.2 ./*.o \
+    -L"${gcc_lib_path[0]}" -dynamic-linker /lib64/ld-linux-x86-64.so.2 "${lib_path[0]}"/libm.so.6 ./*.o \
     -lc -lgcc --as-needed -lgcc_s --no-as-needed \
     "${gcc_lib_path[0]}"/crtend.o "${lib_path[0]}"/crtn.o \
     -l hooligan -L./bin
