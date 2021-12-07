@@ -151,7 +151,6 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
                 new_il_sentence_raw("  cvtss2sd %s, DWORD PTR [rsp]", xmm[remaining_float_args]);
             }
             new_il_sentence_raw("  add rsp, 8");
-            ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
         }
         else
         {
@@ -380,7 +379,6 @@ static void gen_function_def(Node *node) // こっちがgen_functionという名
     }
 
     new_il_sentence_raw("  and rsp, 0xfffffffffffffff0");
-    ctx->is_aligned_stack_ptr = true;
 
     gen(node->rhs);
     pop(ILRG_RAX);
@@ -653,8 +651,6 @@ static void gen(Node *node)
                 new_il_sentence_raw("  subss xmm0, xmm1");
             new_il_sentence_raw("  movss 8[rsp], xmm0");
             new_il_sentence_raw("  add rsp, 8");
-            ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
-            ;
             return;
         }
         else
@@ -712,8 +708,6 @@ static void gen(Node *node)
             new_il_sentence_raw("  mulss xmm0, xmm1");
             new_il_sentence_raw("  movss 8[rsp], xmm0");
             new_il_sentence_raw("  add rsp, 8");
-            ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
-            ;
         }
         else
         {
@@ -732,7 +726,6 @@ static void gen(Node *node)
             new_il_sentence_raw("  divss xmm0, xmm1");
             new_il_sentence_raw("  movss 8[rsp], xmm0");
             new_il_sentence_raw("  add rsp, 8");
-            ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
         }
         else
         {

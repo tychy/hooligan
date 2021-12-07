@@ -40,9 +40,5 @@ ILSentence *new_il_sentence_single_operand(ILSentenceType ty, ILOperand *op)
     st->first_operand = op;
     cur_text->next = st;
     cur_text = cur_text->next;
-    if (ty == ILST_PUSH || ty == ILST_POP)
-    {
-        ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
-    }
     return st;
 }

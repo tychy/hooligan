@@ -8,7 +8,6 @@ static void push(ILRegister r)
 static void push_val(int val)
 {
     new_il_sentence_raw("  push %d", val);
-    ctx->is_aligned_stack_ptr = !ctx->is_aligned_stack_ptr;
 }
 
 static void push_str_addr(int label)
