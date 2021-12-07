@@ -160,6 +160,7 @@ static void gen_function(Node *node) // gen_function_callとかのほうがい�
 
     new_il_sentence_raw("  mov al, %d", num_of_float_arg);
 
+    // 16byte align before function call
     push(ILRG_RAX);
     new_il_sentence_raw("  mov rax, rsp");
     new_il_sentence_raw("  and rax, 0x000000000000000f");
