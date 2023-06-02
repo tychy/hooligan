@@ -292,7 +292,6 @@ struct Context
     int offset; // for local variable
     int break_to;
     int continue_to;
-    bool is_aligned_stack_ptr;
 };
 
 // Declaration of global variables
